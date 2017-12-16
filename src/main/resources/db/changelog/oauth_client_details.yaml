@@ -1,0 +1,77 @@
+databaseChangeLog:
+- changeSet:
+    id: oauth_client_details
+    author: alejandro.garcia
+    changes:
+    - createTable:
+        tableName: oauth_client_details
+        columns:
+        - column:
+            name: client_id
+            type: java.sql.Types.VARCHAR(50)
+            constraints:
+              primaryKey: true
+              nullable: false
+        - column:
+            name: client_secret
+            type: java.sql.Types.VARCHAR(100)
+            constraints:
+              nullable: false
+        - column:
+            name: access_token_validity
+            type: BIGINT
+            constraints:
+              nullable: false
+        - column:
+            name: refresh_token_validity
+            type: BIGINT
+            constraints:
+              nullable: false
+        - column:
+            name: scope
+            type: java.sql.Types.VARCHAR(30)
+            constraints:
+              nullable: false
+        - column:
+            name: authorized_grant_types
+            type: java.sql.Types.VARCHAR(100)
+            constraints:
+              nullable: false
+        - column:
+            name: resource_ids
+            type: java.sql.Types.VARCHAR(50)
+            constraints:
+              nullable: false
+        - column:
+            name: web_server_redirect_uri
+            type: java.sql.Types.VARCHAR(255)
+            constraints:
+              nullable: true
+        - column:
+            name: authorities
+            type: java.sql.Types.VARCHAR(255)
+            constraints:
+              nullable: true
+        - column:
+            name: additional_information
+            type: java.sql.Types.VARCHAR(255)
+            constraints:
+              nullable: true
+        - column:
+            name: autoapprove
+            type: java.sql.Types.VARCHAR(255)
+            constraints:
+              nullable: true
+        - column:
+            name: date_created
+            type: DATETIME
+            constraints:
+              nullable: false
+        - column:
+            name: last_updated
+            type: DATETIME
+            constraints:
+              nullable: false
+        - column:
+            name: date_deleted
+            type: DATETIME
