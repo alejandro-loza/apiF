@@ -1,5 +1,8 @@
 package mx.finerio.api.services
 
+import javax.net.ssl.HostnameVerifier
+import javax.net.ssl.SSLSession
+
 import mx.finerio.api.domain.*
 
 import org.springframework.beans.factory.annotation.Autowired
@@ -30,7 +33,12 @@ println encoded
 			  .build();
 	  		Response response = client.newCall(request).execute()
 */
-OkHttpClient client = new OkHttpClient();
+OkHttpClient client = new OkHttpClient().newBuilder()
+  .hostnameVerifier( new HostnameVerifier() {
+    boolean verify( String hostname, SSLSession session ) {
+      true
+    }
+  }).build()
 
 Request request = new Request.Builder()
   .url("https://finerio-dev.southcentralus.cloudapp.azure.com/api/login")
