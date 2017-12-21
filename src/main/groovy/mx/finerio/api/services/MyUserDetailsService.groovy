@@ -1,6 +1,6 @@
 package mx.finerio.api.services
 
-import mx.finerio.api.domain.UserRepository
+import mx.finerio.api.domain.repository.UserRepository
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.security.core.userdetails.UserDetails
@@ -15,8 +15,7 @@ class MyUserDetailsService implements UserDetailsService {
   UserRepository userRepository
 
   @Override
-  UserDetails loadUserByUsername( String username )
-      throws UsernameNotFoundException {
+  UserDetails loadUserByUsername( String username ) throws UsernameNotFoundException {
     userRepository.findOneByUsername( username )
   }
 

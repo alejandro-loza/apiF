@@ -1,0 +1,57 @@
+databaseChangeLog:
+- changeSet:
+    id: fields
+    author: erick.mercado
+    changes:
+    - createTable:
+        tableName: fields
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+              nullable: false
+        - column:
+            name: credential_id
+            type: BIGINT
+            constraints:
+              nullable: false
+        - column:
+            name: name
+            type: java.sql.Types.VARCHAR(50)
+            constraints:
+              nullable: false      
+        - column:
+            name: value
+            type: java.sql.Types.VARCHAR(100)
+            constraints:
+              nullable: false       
+        - column:
+            name: date_created
+            type: DATETIME
+            constraints:
+              nullable: false
+        - column:
+            name: last_updated
+            type: DATETIME
+            constraints:
+              nullable: false
+        - column:
+            name: date_deleted
+            type: DATETIME
+            constraints:
+              nullable: false
+- changeSet:
+    id: fields_credentials_fk
+    author: erick.mercado
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: credential_id
+        baseTableName: fields
+        constraintName: fk_fields_credentials
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: id
+        referencedTableName: credentials
