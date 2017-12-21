@@ -12,14 +12,13 @@ import org.springframework.web.bind.annotation.RequestParam
 
 
 @RestController
-class UserController {
+class CredentialController {
 
   @Autowired
   CredentialService credentialService
 
-	@PostMapping( '/credential' )
+  @PostMapping( '/credential' )
   ResponseEntity createCredential() {
-println "\ncontroller\n"
     ResponseEntity.ok( [ result: credentialService.loginCredential() ] )
   }
 

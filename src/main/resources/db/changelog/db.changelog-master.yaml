@@ -1,6 +1,8 @@
 databaseChangeLog:
 
 - include:
+    file: db/changelog/oauth_client_details.yaml
+- include:
     file: db/changelog/credentials.yaml
 - include:
     file: db/changelog/fields.yaml
