@@ -19,8 +19,7 @@ class CredentialController {
 
   @PostMapping( '/credential' )
   ResponseEntity createCredential() {
-    ResponseEntity.ok( [ result: credentialService.loginCredential() ] )
+    ResponseEntity.ok( [ result: credentialService.createCredential() ] )
   }
-
 
 }
