@@ -1,19 +1,9 @@
 package mx.finerio.api.services
 
-import javax.net.ssl.HostnameVerifier
-import javax.net.ssl.SSLSession
-
-import mx.finerio.api.domain.*
+import mx.finerio.api.exceptions.InstanceNotFoundException
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
-
-import java.io.IOException
-
-import okhttp3.OkHttpClient
-import okhttp3.*
-
-import groovy.json.JsonSlurper
 
 @Service
 class CredentialService {
@@ -29,7 +19,7 @@ class CredentialService {
     def credential = credentialPersistenceService.findOne( credentialId )
 
     if ( !credential ) {
-      throw new IllegalArgumentException(
+      throw new InstanceNotFoundException(
           'credential.requestData.credential.null' )
     }
 

@@ -7,19 +7,15 @@ class DevScraperServicePostSpec extends Specification {
   def service = new DevScraperService()
 
   def setup() {
-/*
+
     service.url = 'CHANGEME'
     service.loginPath = 'CHANGEME'
     service.loginCredentials = 'CHANGEME'
     service.credentialsPath = 'CHANGEME'
-*/
-    service.url = 'https://finerio-dev.southcentralus.cloudapp.azure.com'
-    service.loginPath = 'api/login'
-    service.loginCredentials = 'c2NyYXBlcjpzY3JhcGVyXzIzNDUk'
-    service.credentialsPath = 'api/services/credentials'
 
   }
 
+  @spock.lang.Ignore
   def "invoking method successfully"() {
 
     when:
