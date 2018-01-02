@@ -13,6 +13,11 @@ class CredentialPersistenceService {
   CredentialRepository credentialRepository
 
   Credential findOne( String id ) throws Exception {
+
+    if ( !id ) {
+      return null
+    }
+
     credentialRepository.findOne( id )
   }
 
