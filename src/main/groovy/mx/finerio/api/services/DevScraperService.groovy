@@ -32,7 +32,11 @@ class DevScraperService {
   @Value( '${scraper.credentials.path}' )
   String credentialsPath
 
-  Map post( String path, Map data ) throws Exception {
+  Map requestData( Map data ) throws Exception {
+    post( credentialsPath, [ data: [ data ] ] )
+  }
+
+  private Map post( String path, Map data ) throws Exception {
 
     def token = login().authorizationToken
     def client = getClient()
@@ -44,8 +48,8 @@ class DevScraperService {
       .post( body )
       .build()
     def response = client.newCall( request ).execute()
-    def responseBody = response.body()
-    new JsonSlurper().parseText( responseBody.string() )
+    def responseBody = response.body().string()
+    new JsonSlurper().parseText( responseBody ?: '{}' )
 
   }
 
