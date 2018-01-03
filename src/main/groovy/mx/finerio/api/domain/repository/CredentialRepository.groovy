@@ -5,7 +5,5 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor
 
 import mx.finerio.api.domain.Credential
 
-interface CredentialRepository extends JpaRepository<Credential, Long>, JpaSpecificationExecutor {
-  
-
-}
+interface CredentialRepository extends JpaRepository<Credential, Long>,
+    JpaSpecificationExecutor {}

@@ -9,7 +9,7 @@ import org.springframework.security.core.userdetails.UserDetails
 
 @Entity
 @Table(name = 'user')
-@ToString(includePackage = false, includeNames = true, includes = ['username'])
+@ToString(includePackage = false, includeNames = true, excludes = ['password'])
 class User implements UserDetails {
   
   @Id

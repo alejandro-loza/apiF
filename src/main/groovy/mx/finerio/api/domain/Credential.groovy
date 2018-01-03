@@ -5,30 +5,39 @@ import groovy.transform.ToString
 import javax.persistence.*
 import javax.validation.constraints.*
 
-
 @Entity
-@Table(name = 'credentials')
-@ToString(includes = 'id,status', includeNames = true, includePackage = false)
+@Table(name = 'credential')
+@ToString(excludes = 'password, iv', includeNames = true, includePackage = false)
 class Credential {
 
   @Id
   @Column(name = 'id', nullable = false, updatable = false)
-  @GeneratedValue(strategy=GenerationType.AUTO)  
-  Long id
+  String id
 
-  @Column(name = 'finantial_institution_id', nullable = false)
-  Long finantialInstitutionId
+  @Column(name = 'username', nullable = false, length = 255)
+  String username
 
-  @Column(name = 'status', nullable = false)
-  String status
+  @Column(name = 'password', nullable = false, length = 255)
+  String password
 
-  @Column(name = 'date_created', nullable = true)
+  @Column(name = 'security_code', nullable = true, length = 255)
+  String securityCode
+
+  @Column(name = 'iv', nullable = true, length = 255)
+  String iv
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = 'user_id', nullable = false)
+  User user
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = 'institution_id', nullable = false)
+  FinancialInstitution institution
+
+  @Column(name = 'date_created', nullable = false)
   Date dateCreated
 
-  @Column(name = 'last_updated', nullable = true)
+  @Column(name = 'last_updated', nullable = false)
   Date lastUpdated
 
-  @Column(name = 'date_deleted', nullable = true)
-  Date dateDeleted
-  
 }
