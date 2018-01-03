@@ -10,14 +10,14 @@ class Transaction {
   String status
   Date madeOn
   BigDecimal amount
-  String currencyCode
+  String currency_code
   String description
   String category
   boolean duplicated
   ExtraTransaction extra
-  BigInteger accountId
-  String createdAt
-  String updatedAt
+  BigInteger account_id
+  String created_at
+  String updated_at
 
 }
 
