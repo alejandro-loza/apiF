@@ -14,8 +14,8 @@ apply plugin: 'groovy'
 apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
 
-group = 'mx'
-version = '0.0.1-SNAPSHOT'
+group = 'mx.finerio'
+version = '0.0.1'
 sourceCompatibility = 1.8
 
 repositories {
