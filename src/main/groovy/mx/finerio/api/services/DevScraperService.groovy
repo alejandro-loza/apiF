@@ -12,6 +12,7 @@ import okhttp3.Request
 import okhttp3.RequestBody
 
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
 
 @Service
@@ -32,6 +33,7 @@ class DevScraperService {
   @Value( '${scraper.credentials.path}' )
   String credentialsPath
 
+  @Async
   Map requestData( Map data ) throws Exception {
     post( credentialsPath, [ data: [ data ] ] )
   }
