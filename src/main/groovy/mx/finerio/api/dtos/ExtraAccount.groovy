@@ -5,23 +5,23 @@ import groovy.transform.ToString
 @ToString(includePackage = false, includeNames = true)
 class ExtraAccount {
 
-  String accountName
+  String account_name
   String status
-  String clientName
+  String client_name
   String iban
   String swift
-  String cardType
-  String accountNumber
-  BigDecimal blockedAmount
-  BigDecimal aviableAmount
-  BigDecimal creditLimit
-  BigDecimal interestRate
-  String expiryDate
-  String openDate
-  String currentTime
-  String currentDate
+  String card_type
+  String account_number
+  BigDecimal blocked_amount
+  BigDecimal aviable_amount
+  BigDecimal credit_limit
+  BigDecimal interest_rate
+  String expiry_date
+  String open_date
+  String current_time
+  String current_date
   List cards
   BigDecimal units
-  BigDecimal unitPrice
-  Map transactionsCount
+  BigDecimal unit_price
+  Map transactions_count
 }

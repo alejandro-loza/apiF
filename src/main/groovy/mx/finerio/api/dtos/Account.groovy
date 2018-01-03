@@ -9,10 +9,10 @@ class Account {
   String name
   String nature
   BigDecimal balance
-  String currencyCode
+  String currency_code
   ExtraAccount extra
-  BigInteger loginId
-  String createdAt
-  String updatedAt
+  BigInteger login_id
+  String created_at
+  String updated_at
 
 }

@@ -6,30 +6,30 @@ import groovy.transform.ToString
 class ExtraTransaction {
 
   String id
-  String recordNumber
+  String record_number
   String information
   String time
-  String postingDate
-  String postingTime
-  String accountNumber
-  BigDecimal originalAmount
-  String originalCurrencyCode
-  String assetCode
-  BigDecimal assetAmount
-  String originalCategory
-  String originalSubcategory
-  String customerCategoryCode
-  String customerCategoryName
-  boolean possibleDuplicate 
+  String posting_date
+  String posting_time
+  String account_number
+  BigDecimal original_amount
+  String original_currency_code
+  String asset_code
+  BigDecimal asset_amount
+  String original_category
+  String original_subcategory
+  String customer_category_code
+  String customer_category_name
+  boolean possible_duplicate 
   List tags
   String mcc
   String payee
   String type
-  String checkNumber
+  String check_number
   BigDecimal units
   String additional
-  BigDecimal unitPrice
-  BigDecimal accountBalanceSnapshot
-  BigDecimal categorizationConfidence
+  BigDecimal unit_price
+  BigDecimal account_balance_snapshot
+  BigDecimal categorization_confidence
 
 }
