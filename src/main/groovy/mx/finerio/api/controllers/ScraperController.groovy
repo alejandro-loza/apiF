@@ -1,7 +1,13 @@
 package mx.finerio.api.controllers
 
+import javax.servlet.http.HttpServletRequest
+
 import mx.finerio.api.dtos.Account
 import mx.finerio.api.dtos.Transaction
+
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
+
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -11,33 +17,37 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 
-
 @RestController
 class ScraperController {
 
-  @PostAccountping( '/api/callbacks/accounts' )
-  ResponseEntity accounts(@RequestBody Account accounts) {
-    ResponseEntity.ok( [ result: "accounts" ] )
+  final static Logger log = LoggerFactory.getLogger(
+      'mx.finerio.api.controllers.ScraperController' )
+
+  @PostMapping( '/callbacks/accounts' )
+  ResponseEntity accounts( HttpServletRequest request ) {
+    log.info( 'request accounts: {}', request.inputStream.text )
+    ResponseEntity.ok( [ id: UUID.randomUUID().toString() ] )
   }
 
-  @PostTransactionping( '/api/callbacks/transactions' )
-  ResponseEntity transactions(@RequestBody Transaction transactions) {
-    ResponseEntity.ok( [ result: "transactions" ] )
+  @PostMapping( '/callbacks/transactions' )
+  ResponseEntity transactions( HttpServletRequest request ) {
+    log.info( 'request txs: {}', request.inputStream.text )
+    ResponseEntity.ok( [ id: UUID.randomUUID().toString() ] )
   }
 
-  @PutMapping( '/api/callbacks/success' )
-  ResponseEntity success() {
-    ResponseEntity.ok( [ result: "success" ] )
+  @PostMapping( '/callbacks/success' )
+  ResponseEntity success( HttpServletRequest request ) {
+    log.info( 'request success: {}', request.inputStream.text )
   }
 
-  @PutMapping( '/api/callbacks/failure' )
-  ResponseEntity failure() {
-    ResponseEntity.ok( [ result: "failure" ] )
+  @PostMapping( '/callbacks/failure' )
+  ResponseEntity failure( HttpServletRequest request ) {
+    log.info( 'request failure: {}', request.inputStream.text )
   }
 
-  @PutMapping( '/api/callbacks/notify' )
-  ResponseEntity notif() {
-    ResponseEntity.ok( [ result: "notify" ] )
+  @PostMapping( '/callbacks/notify' )
+  ResponseEntity notify( HttpServletRequest request ) {
+    log.info( 'request notify: {}', request.inputStream.text )
   }
 
 }
