@@ -26,6 +26,9 @@ class Credential {
   @Column(name = 'iv', nullable = true, length = 255)
   String iv
 
+    @Column(name = 'version', nullable = false)
+    Long version
+
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = 'user_id', nullable = false)
   User user

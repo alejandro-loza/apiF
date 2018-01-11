@@ -14,6 +14,9 @@ class FinancialInstitution {
   @Column(name = 'id', nullable = false, updatable = false)
   Long id
 
+    @Column(name = 'version', nullable = false)
+    Long version
+
   @Column(name = 'code', nullable = false, length = 255)
   String code
 

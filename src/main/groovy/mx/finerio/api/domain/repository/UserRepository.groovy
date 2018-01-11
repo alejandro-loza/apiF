@@ -8,5 +8,6 @@ import mx.finerio.api.domain.User
 interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor {
   
   User findOneByUsername( String username )
+  User findById( String id )
 
 }
