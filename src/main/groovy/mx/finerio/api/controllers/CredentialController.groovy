@@ -1,7 +1,6 @@
 package mx.finerio.api.controllers
 
 import mx.finerio.api.services.CredentialService
-import mx.finerio.api.domain.repository.*
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.PageRequest
@@ -21,12 +20,6 @@ class CredentialController {
   @Autowired
   CredentialService credentialService
 
-  @Autowired
-  MovementRepository movementRepository
-
-  @Autowired
-  AccountRepository accountRepository
-
   @PutMapping( '/credentials/{id}' )
   ResponseEntity updateCredential( @PathVariable String id ) {
 
@@ -34,5 +27,6 @@ class CredentialController {
     ResponseEntity.accepted().build()
 
   }
+
 
 }
