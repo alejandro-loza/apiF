@@ -31,7 +31,7 @@ class CleanerRestService {
     def token = "${username}:${password}".getBytes().encodeBase64().toString()
     Map map = [:]
     map.url= [ port: url, service: "/clean" ]
-    map.param = [ name: "input", value: text ]
+    map.param = [ name: "?input=", value: text ]
     map.auth = [ status: true, type: "Basic", token: token ]
     def result = okhttp3Service.get(map)
     result.result	
