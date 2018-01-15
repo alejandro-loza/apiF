@@ -3,7 +3,9 @@ package mx.finerio.api.controllers
 import javax.servlet.http.HttpServletRequest
 
 import mx.finerio.api.dtos.Account
-import mx.finerio.api.dtos.Transaction
+import mx.finerio.api.dtos.Request
+import mx.finerio.api.services.AccountService
+import mx.finerio.api.services.MovementService
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -23,15 +25,25 @@ class ScraperController {
   final static Logger log = LoggerFactory.getLogger(
       'mx.finerio.api.controllers.ScraperController' )
 
+  @Autowired
+  AccountService accountService
+
+  @Autowired
+  MovementService movementService
+
   @PostMapping( '/callbacks/accounts' )
-  ResponseEntity accounts( HttpServletRequest request ) {
-    log.info( 'request accounts: {}', request.inputStream.text )
+  ResponseEntity accounts( @RequestBody Account request ) {
+    Map account = [ "request":request ]
+    def saveAccount = accountService.createAccount(account)
+    log.info( 'request accounts: {}', request )
     ResponseEntity.ok( [ id: UUID.randomUUID().toString() ] )
   }
 
   @PostMapping( '/callbacks/transactions' )
-  ResponseEntity transactions( HttpServletRequest request ) {
-    log.info( 'request txs: {}', request.inputStream.text )
+  ResponseEntity transactions( @RequestBody Request request ) {
+    Map movement = [ "request":request ]
+    def saveMovement = movementService.createMovement(movement)
+    log.info( 'request txs: {}', request )
     ResponseEntity.ok( [ id: UUID.randomUUID().toString() ] )
   }
 
