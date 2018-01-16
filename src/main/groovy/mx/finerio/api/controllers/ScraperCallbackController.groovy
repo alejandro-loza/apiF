@@ -42,10 +42,11 @@ class ScraperController {
 
   @PostMapping( '/callbacks/transactions' )
   ResponseEntity transactions( @RequestBody Request request ) {
-    Map movement = [ "request":request ]
-    def saveMovement = movementService.createMovement(movement)
-    log.info( 'request txs: {}', request )
-    ResponseEntity.ok( [ id: UUID.randomUUID().toString() ] )
+
+    Map map = [ 'request': request ]
+    def movement = movementService.createMovement( map )
+    ResponseEntity.ok().build()
+
   }
 
   @PostMapping( '/callbacks/success' )
