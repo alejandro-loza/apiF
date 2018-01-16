@@ -1,5 +1,7 @@
 package mx.finerio.api.aop
 
+import mx.finerio.api.domain.Account
+
 import org.aspectj.lang.annotation.AfterReturning
 import org.aspectj.lang.annotation.AfterThrowing
 import org.aspectj.lang.annotation.Aspect
@@ -19,13 +21,13 @@ class AccountServiceCreateAccount {
       'mx.finerio.api.aop.AccountServiceCreateAccount' )
 
   @Pointcut(
-    value='execution(mx.finerio.api.domain.Account mx.finerio.api.services.AccountService.createAccount(..)) && bean(AccountService) && args(params)',
+    value='execution(mx.finerio.api.domain.Account mx.finerio.api.services.AccountService.createAccount(..)) && bean(accountService) && args(params)',
     argNames='params'
   )
-  public void createAccount(Map params ) {}
+  public void createAccount( Map params ) {}
 
   @Before('createAccount(params)')
-  void before(Map params ) {
+  void before( Map params ) {
     log.info( "<< params: {}", params )
   }
 
@@ -33,7 +35,7 @@ class AccountServiceCreateAccount {
     pointcut='createAccount(java.util.Map)',
     returning='response'
   )
-  void afterReturning( mx.finerio.api.domain.Account response ) {
+  void afterReturning( Account response ) {
     log.info( '>> response: {}', response )
   }
 

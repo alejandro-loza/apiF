@@ -1,5 +1,7 @@
 package mx.finerio.api.aop
 
+import mx.finerio.api.domain.Movement
+
 import org.aspectj.lang.annotation.AfterReturning
 import org.aspectj.lang.annotation.AfterThrowing
 import org.aspectj.lang.annotation.Aspect
@@ -19,7 +21,7 @@ class MovementServiceCreateMovement {
       'mx.finerio.api.aop.MovementServiceCreateMovement' )
 
   @Pointcut(
-    value='execution(mx.finerio.api.domain.Movement mx.finerio.api.services.MovementService.createMovement(..)) && bean(MovementService) && args(params)',
+    value='execution(mx.finerio.api.domain.Movement mx.finerio.api.services.MovementService.createMovement(..)) && bean(movementService) && args(params)',
     argNames='params'
   )
   public void createMovement(Map params ) {}
@@ -33,7 +35,7 @@ class MovementServiceCreateMovement {
     pointcut='createMovement(java.util.Map)',
     returning='response'
   )
-  void afterReturning( mx.finerio.api.domain.Movement response ) {
+  void afterReturning( Movement response ) {
     log.info( '>> response: {}', response )
   }
 

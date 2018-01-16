@@ -19,7 +19,7 @@ class MovementService {
   @Autowired
   CredentialPersistenceService credentialPersistenceService
 
-  def createMovement(Map params){
+  Movement createMovement(Map params){
     def credential = credentialPersistenceService.findOne( params.request.credential_id )
     credential.version = 0
 
@@ -36,7 +36,7 @@ class MovementService {
     for( int i=0; i < transactionsSize; i++ ){
        def date = new Date().parse("yyyy-MM-dd'T'HH:mm:ss",  params.request.transactions[i].made_on ) ?: new Date()
        def amount = new BigDecimal( params.request.transactions[i].amount ).abs().setScale( 2, BigDecimal.ROUND_HALF_UP )
-       def type = params.request.transactions[i].amount < 0 ? Movement.Type.CHARGE : Movement.Type.DEPOSIT
+       def type = amount < 0 ? Movement.Type.CHARGE : Movement.Type.DEPOSIT
        def params2 = [
             date: date,
             description: params.request.transactions[i].description,
@@ -57,11 +57,12 @@ class MovementService {
        movement.account = account
        movement.date = date
        movement.description = params.request.transactions[i].description
+       movement.customDate = date
+       movement.customDescription = params.request.transactions[i].description
        movement.amount = amount
        movement.balance = amount
        movement.type = type
        movementRepository.save(movement)
-       accountService.createAccountCredential(account, credential)
        movement
     }
   }

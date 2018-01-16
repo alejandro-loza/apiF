@@ -9,7 +9,7 @@ import org.hibernate.annotations.GenericGenerator
 
 @Entity
 @Table(name = 'account')
-@ToString(excludes = 'id', includeNames = true, includePackage = false)
+@ToString(includeNames = true, includePackage = false)
 class Account {
 
   @Id
