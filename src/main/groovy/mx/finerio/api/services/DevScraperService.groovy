@@ -21,33 +21,25 @@ class DevScraperService {
   String credentialsPath
 
   @Autowired
-  Okhttp3Service okhttp3Service
+  RestTemplateService restTemplateService
 
   @Async
   Map requestData( Map data ) throws Exception {
-    post( credentialsPath, [ data: [ data ] ] )
-  }
 
-  private Map post( String path, Map data ) throws Exception {
-
-    def token = login().authorizationToken
-    Map map = [:]
-    map.url= [ port: url+"/", service: path ]
-    map.param = [ body: data ]
-    map.auth = [ status: true, type: "Bearer", token: token ]
-    def result = okhttp3Service.post(map)
-    result	
+    def finalUrl = "${url}/${credentialsPath}"
+    def headers = [ 'Authorization': "Bearer ${login().authorizationToken}" ]
+    def body = [ data: [ data ] ]
+    restTemplateService.post( finalUrl, headers, body )
 
   }
 
   private Map login() throws Exception {
 
-    Map map = [:]
-    map.url= [ port: url+"/", service: loginPath ]
-    map.param = [ name: "", value: "" ]
-    map.auth = [ status: true, type: "Basic", token: loginCredentials ]
-    def result = okhttp3Service.get(map)
-    result	
+    def finalUrl = "${url}/${loginPath}"
+    def headers = [ 'Authorization': "Basic ${loginCredentials}" ]
+    def params = [:]
+    restTemplateService.get( finalUrl, headers, params )
+
   }
 
 }
