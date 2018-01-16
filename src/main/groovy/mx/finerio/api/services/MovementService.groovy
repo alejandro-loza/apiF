@@ -21,7 +21,6 @@ class MovementService {
 
   Movement createMovement(Map params){
     def credential = credentialPersistenceService.findOne( params.request.credential_id )
-    credential.version = 0
 
     if ( !credential ) {
       throw new InstanceNotFoundException(
@@ -35,11 +34,12 @@ class MovementService {
     def transactionsSize = params.request.transactions.size
     for( int i=0; i < transactionsSize; i++ ){
        def date = new Date().parse("yyyy-MM-dd'T'HH:mm:ss",  params.request.transactions[i].made_on ) ?: new Date()
-       def amount = new BigDecimal( params.request.transactions[i].amount ).abs().setScale( 2, BigDecimal.ROUND_HALF_UP )
-       def type = amount < 0 ? Movement.Type.CHARGE : Movement.Type.DEPOSIT
+       def txAmount = params.request.transactions[ i ].amount
+       def amount = new BigDecimal( txAmount ).abs().setScale( 2, BigDecimal.ROUND_HALF_UP )
+       def type = txAmount < 0 ? Movement.Type.CHARGE : Movement.Type.DEPOSIT
        def params2 = [
             date: date,
-            description: params.request.transactions[i].description,
+            description: params.request.transactions[ i ].description,
             amount: amount,
             type: type,
             account: account
