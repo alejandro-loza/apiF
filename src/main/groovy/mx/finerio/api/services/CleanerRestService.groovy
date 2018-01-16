@@ -15,12 +15,12 @@ class CleanerRestService {
   ConfigService configService
 
   @Autowired
-  Okhttp3Service okhttp3Service
+  RestTemplateService restTemplateService
 
-  @Value( '${categorizer.auth.username}' )
+//  @Value( '${categorizer.auth.username}' )
   String username
 
-  @Value( '${categorizer.auth.password}' )
+//  @Value( '${categorizer.auth.password}' )
   String password
 
   String clean( String text ) throws Exception {
@@ -33,7 +33,7 @@ class CleanerRestService {
     map.url= [ port: url, service: "/clean" ]
     map.param = [ name: "?input=", value: text ]
     map.auth = [ status: true, type: "Basic", token: token ]
-    def result = okhttp3Service.get(map)
+    def result = restTemplateService.get(map)
     result.result	
   }
 

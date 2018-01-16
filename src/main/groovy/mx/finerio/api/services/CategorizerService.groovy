@@ -15,15 +15,15 @@ class CategorizerService {
   ConfigService configService
 
   @Autowired
-  Okhttp3Service okhttp3Service
+  RestTemplateService restTemplateService
 
   @Autowired
   CategoryRepository categoryRepository
 
-  @Value( '${categorizer.auth.username}' )
+//  @Value( '${categorizer.auth.username}' )
   String username
 
-  @Value( '${categorizer.auth.password}' )
+//  @Value( '${categorizer.auth.password}' )
   String password
 
   Category search( String text ) throws Exception {
@@ -34,7 +34,7 @@ class CategorizerService {
     map.url= [ port: url, service: "" ]
     map.param = [ name: "?input=", value: text ]
     map.auth = [ status: true, type: "Basic", token: token ]
-    def result = okhttp3Service.get(map)
+    def result = restTemplateService.get(map)
     result	
     //categoryRepository.findById( result.categoryId )
 
