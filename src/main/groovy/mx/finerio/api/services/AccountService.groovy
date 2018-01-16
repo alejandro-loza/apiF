@@ -35,7 +35,7 @@ class AccountService {
     savings: 'Ahorros'
   ]
 
-  def createAccount(Map params){
+  Account createAccount(Map params){
 
     def credential = credentialPersistenceService.findOne( params.request.credential_id )
     credential.version = 0
@@ -56,7 +56,7 @@ class AccountService {
     account.name = params.request.name
     }
     account.version=0
-    account.clazz = account.getClass()
+    account.clazz = 'mx.com.glider.dinerio.Account'
     account.institution = credential.institution
     account.number = params.request.name
     account.user = credential.user
