@@ -40,9 +40,10 @@ class MovementService {
        def txAmount = params.request.transactions[ i ].amount
        def amount = new BigDecimal( txAmount ).abs().setScale( 2, BigDecimal.ROUND_HALF_UP )
        def type = txAmount < 0 ? Movement.Type.CHARGE : Movement.Type.DEPOSIT
+       def descriptionFinal = params.request.transactions[ i ].description.take(255) 
        def params2 = [
             date: date,
-            description: params.request.transactions[ i ].description,
+            description: descriptionFinal,
             amount: amount,
             type: type,
             account: account
@@ -59,9 +60,9 @@ class MovementService {
        movement.version = 0 
        movement.account = account
        movement.date = date
-       movement.description = params.request.transactions[i].description
+       movement.description = descriptionFinal
        movement.customDate = date
-       movement.customDescription = params.request.transactions[i].description
+       movement.customDescription = descriptionFinal
        movement.amount = amount
        movement.balance = amount
        movement.type = type
