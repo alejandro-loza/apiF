@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor
 
 import mx.finerio.api.domain.*
 
-interface ConceptRepository extends JpaRepository<Concept, Long>, JpaSpecificationExecutor {
+interface ConceptRepository extends JpaRepository<Concept, String>, JpaSpecificationExecutor {
 
   Concept findByMovement( Movement movement )   
 

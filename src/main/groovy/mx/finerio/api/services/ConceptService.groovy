@@ -63,7 +63,7 @@ class ConceptService {
         }
 
         def type = attributes.type ? attributes.type as Concept.Type : Concept.Type.USER
-        def item = new Concept()
+        def item = conceptRepository.findByMovement(movement)?:new Concept()
 	item.description = attributes.description
         item.amount = attributes.amount
         item.category = category
