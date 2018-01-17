@@ -2,8 +2,8 @@ package mx.finerio.api.controllers
 
 import javax.servlet.http.HttpServletRequest
 
-import mx.finerio.api.dtos.Account
-import mx.finerio.api.dtos.Request
+import mx.finerio.api.dtos.AccountBody
+import mx.finerio.api.dtos.MovementBody
 import mx.finerio.api.services.AccountService
 import mx.finerio.api.services.MovementService
 
@@ -32,18 +32,18 @@ class ScraperController {
   MovementService movementService
 
   @PostMapping( '/callbacks/accounts' )
-  ResponseEntity accounts( @RequestBody Account request ) {
+  ResponseEntity accounts( @RequestBody AccountBody request ) {
 
-    Map map = [ 'request': request ]
+    Map map = [ 'request': request.data ]
     def account = accountService.createAccount( map )
     ResponseEntity.ok( [ id: account.id ] )
 
   }
 
   @PostMapping( '/callbacks/transactions' )
-  ResponseEntity transactions( @RequestBody Request request ) {
+  ResponseEntity transactions( @RequestBody MovementBody request ) {
 
-    Map map = [ 'request': request ]
+    Map map = [ 'request': request.data ]
     def movement = movementService.createMovement( map )
     ResponseEntity.ok().build()
 

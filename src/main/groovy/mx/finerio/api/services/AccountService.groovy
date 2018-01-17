@@ -38,7 +38,7 @@ class AccountService {
   Account createAccount(Map params){
 
     def credential = credentialPersistenceService.findOne( params.request.credential_id )
-    credential.version = 0
+
     if ( !credential ) {
       throw new InstanceNotFoundException(
           'account.createAccount.credential.null' )
