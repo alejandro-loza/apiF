@@ -44,7 +44,7 @@ class ConceptService {
         this.create(movement, attributes)
     }
 
-    Concept create(Movement movement, Map attributes = [:]) {
+    Concept create(Movement movement, Map attributes) {
 
         def category = categoryRepository.findById(attributes.category?.id)
         if (movement.type == Movement.Type.CHARGE && !category) {
@@ -53,7 +53,12 @@ class ConceptService {
 //            if ( !category ) {
               def cleanedText = cleanerRestService.clean( attributes.description )
               movement.customDescription = cleanedText
-              category = categorizerService.search( cleanedText )
+              def result = categorizerService.search( cleanedText )
+
+              if ( result?.categoryId ) {
+                category = categoryRepository.findOne( result.categoryId )
+              }
+
 //          }
         }
 
@@ -81,8 +86,8 @@ class ConceptService {
     }
 
     User getUser(Movement mov){
-      def account = accountRepository.findById( mov.account )
-      def user = userRepository.findById( account.user )
+      def account = accountRepository.findById( mov.account.id )
+      def user = userRepository.findById( account.user.id )
       user 
     }
 

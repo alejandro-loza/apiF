@@ -37,9 +37,15 @@ class RestTemplateService {
 
   def get( String url, Map headers, Map params ) throws Exception {
 
+    def urlBuilder = HttpUrl.parse( url ).newBuilder()
+
+    params.each {
+      urlBuilder.addQueryParameter( it.key, it.value )
+    }
+
     def client = getClient()
     def builder = new Request.Builder()
-        .url( url )
+        .url( urlBuilder.build().toString() )
         .get()
 
     headers.each {

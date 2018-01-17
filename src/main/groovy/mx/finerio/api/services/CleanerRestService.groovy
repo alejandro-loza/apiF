@@ -18,23 +18,22 @@ class CleanerRestService {
   RestTemplateService restTemplateService
 
 //  @Value( '${categorizer.auth.username}' )
-  String username
+//  String username
 
 //  @Value( '${categorizer.auth.password}' )
-  String password
+//  String password
 
   String clean( String text ) throws Exception {
 
     def url = configService.findByItem( Config.Item.CLEANER_URL  )
-    //def username = configService.findByItem( Config.Item.CLEANER_USERNAME )
-    //def password = configService.findByItem( Config.Item.CLEANER_PASSWORD )
-    def token = "${username}:${password}".getBytes().encodeBase64().toString()
-    Map map = [:]
-    map.url= [ port: url, service: "/clean" ]
-    map.param = [ name: "?input=", value: text ]
-    map.auth = [ status: true, type: "Basic", token: token ]
-    def result = restTemplateService.get(map)
-    result.result	
+    def username = configService.findByItem( Config.Item.CLEANER_USERNAME )
+    def password = configService.findByItem( Config.Item.CLEANER_PASSWORD )
+    def token = "${username}:${password}".bytes.encodeBase64().toString()
+    def finalUrl = "${url}/clean"
+    def headers = [ 'Authorization': "Basic ${token}"]
+    def params = [ input: text ]
+    restTemplateService.get( finalUrl, headers, params ).result
+
   }
 
 

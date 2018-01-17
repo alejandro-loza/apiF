@@ -5,7 +5,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor
 
 import mx.finerio.api.domain.*
 
-interface CategoryRepository extends JpaRepository<Category, Long>, JpaSpecificationExecutor {
+interface CategoryRepository extends JpaRepository<Category, String>, JpaSpecificationExecutor {
 
   Category findById( String id )   
 
