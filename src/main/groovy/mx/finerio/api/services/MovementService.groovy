@@ -19,6 +19,9 @@ class MovementService {
   @Autowired
   CredentialPersistenceService credentialPersistenceService
 
+  @Autowired
+  ConceptService conceptService 
+
   Movement createMovement(Map params){
     def credential = credentialPersistenceService.findOne( params.request.credential_id )
     credential.version = 0
@@ -63,9 +66,21 @@ class MovementService {
        movement.balance = amount
        movement.type = type
        movementRepository.save(movement)
+       createConcept( movement )
        movement
     }
   }
+
+  private void createConcept( Movement movement ) throws Exception {
+
+    def conceptData = [
+      description: movement.description,
+      amount: movement.amount,
+      type: Concept.Type.DEFAULT ]
+    conceptService.create( movement.id, conceptData )
+
+  }
+
 
 
 }

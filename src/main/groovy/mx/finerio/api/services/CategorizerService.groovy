@@ -35,9 +35,18 @@ class CategorizerService {
     map.param = [ name: "?input=", value: text ]
     map.auth = [ status: true, type: "Basic", token: token ]
     def result = restTemplateService.get(map)
-    result	
-    //categoryRepository.findById( result.categoryId )
-
+//    categoryRepository.findById( result.categoryId )
+    def cat = new Category() 
+    cat.version = 5
+    cat.color = '#fb8c00'
+    cat.keywords = null
+    cat.name = 'Mudanzas'
+    cat.textColor = '#ffffff'
+    cat.user = null
+    cat.parent = null
+    cat.activityCodes = null
+    cat.orderIndex =  null
+    cat
   }
 
 
