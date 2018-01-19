@@ -15,32 +15,32 @@ import org.springframework.stereotype.Component
 
 @Component
 @Aspect
-class ConceptServiceCreate {
+class ConceptServiceUpdateAmounts {
 
   final static Logger log = LoggerFactory.getLogger(
-      'mx.finerio.api.aop.ConceptServiceCreate' )
+      'mx.finerio.api.aop.ConceptServiceUpdateAmounts' )
 
   @Pointcut(
-    value='execution(mx.finerio.api.domain.Concept mx.finerio.api.services.ConceptService.create(..)) && bean(conceptService) && args(movementId, attributes)',
-    argNames='movementId, attributes'
+    value='execution(Object mx.finerio.api.services.ConceptService.updateAmounts(..)) && bean(conceptService) && args(concept)',
+    argNames='concept'
   )
-  public void create(String movementId, Map attributes ) {}
+  public void updateAmounts(Concept concept ) {}
 
-  @Before('create(movementId, attributes)')
-  void before(String movementId, Map attributes ) {
-    log.info( "<< movementId: {}, attributes: {}", movementId, attributes )
+  @Before('updateAmounts(concept)')
+  void before(Concept concept ) {
+    log.info( "<< concept: {}", concept )
   }
 
   @AfterReturning(
-    pointcut='create(String, java.util.Map)',
+    pointcut='updateAmounts(mx.finerio.api.domain.Concept)',
     returning='response'
   )
-  void afterReturning( Concept response ) {
+  void afterReturning( Object response ) {
     log.info( '>> response: {}', response )
   }
 
   @AfterThrowing(
-    pointcut='create(String, java.util.Map)',
+    pointcut='updateAmounts(mx.finerio.api.domain.Concept)',
     throwing='e'
   )
   void afterThrowing( Exception e ) {

@@ -11,36 +11,37 @@ import org.aspectj.lang.annotation.Pointcut
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
+import org.springframework.security.core.userdetails.UserDetails 
 import org.springframework.stereotype.Component
 
 @Component
 @Aspect
-class ConceptServiceCreate {
+class MyUserDetailsServiceLoadUserByUsername {
 
   final static Logger log = LoggerFactory.getLogger(
-      'mx.finerio.api.aop.ConceptServiceCreate' )
+      'mx.finerio.api.aop.MyUserDetailsServiceLoadUserByUsername' )
 
   @Pointcut(
-    value='execution(mx.finerio.api.domain.Concept mx.finerio.api.services.ConceptService.create(..)) && bean(conceptService) && args(movementId, attributes)',
-    argNames='movementId, attributes'
+    value='execution(org.springframework.security.core.userdetails.UserDetails mx.finerio.api.services.MyUserDetailsService.loadUserByUsername(..)) && bean(myUserDetailsService) && args(username)',
+    argNames='username'
   )
-  public void create(String movementId, Map attributes ) {}
+  public void loadUserByUsername( String username ) {}
 
-  @Before('create(movementId, attributes)')
-  void before(String movementId, Map attributes ) {
-    log.info( "<< movementId: {}, attributes: {}", movementId, attributes )
+  @Before('loadUserByUsername(username)')
+  void before( String username ) {
+    log.info( "<< username: {}", username )
   }
 
   @AfterReturning(
-    pointcut='create(String, java.util.Map)',
+    pointcut='loadUserByUsername(String)',
     returning='response'
   )
-  void afterReturning( Concept response ) {
+  void afterReturning( UserDetails response ) {
     log.info( '>> response: {}', response )
   }
 
   @AfterThrowing(
-    pointcut='create(String, java.util.Map)',
+    pointcut='loadUserByUsername(String)',
     throwing='e'
   )
   void afterThrowing( Exception e ) {
