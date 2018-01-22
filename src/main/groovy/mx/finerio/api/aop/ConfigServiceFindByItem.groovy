@@ -1,5 +1,7 @@
 package mx.finerio.api.aop
 
+import mx.finerio.api.domain.*
+
 import org.aspectj.lang.annotation.AfterReturning
 import org.aspectj.lang.annotation.AfterThrowing
 import org.aspectj.lang.annotation.Aspect
@@ -13,32 +15,32 @@ import org.springframework.stereotype.Component
 
 @Component
 @Aspect
-class ScraperServicePost {
+class ConfigServiceFindByItem {
 
   final static Logger log = LoggerFactory.getLogger(
-      'mx.finerio.api.aop.ScraperServicePost' )
+      'mx.finerio.api.aop.ConfigServiceFindByItem' )
 
   @Pointcut(
-    value='execution(java.util.Map mx.finerio.api.services.DevScraperService.post(..)) && bean(devScraperService) && args(path, data)',
-    argNames='path, data'
+    value='execution(String mx.finerio.api.services.ConfigService.findByItem(..)) && bean(configService) && args(item)',
+    argNames='item'
   )
-  public void post(String path, Map data ) {}
+  public void findByItem(Config.Item item ) {}
 
-  @Before('post(path, data)')
-  void before(String path, Map data ) {
-    log.info( "<< path: {}, data: {}", path, data )
+  @Before('findByItem(item)')
+  void before(Config.Item item ) {
+    log.info( "<< item: {}", item )
   }
 
   @AfterReturning(
-    pointcut='post(String, java.util.Map)',
+    pointcut='findByItem(mx.finerio.api.domain.Config.Item)',
     returning='response'
   )
-  void afterReturning( Map response ) {
+  void afterReturning( String response ) {
     log.info( '>> response: {}', response )
   }
 
   @AfterThrowing(
-    pointcut='post(String, java.util.Map)',
+    pointcut='findByItem(mx.finerio.api.domain.Config.Item)',
     throwing='e'
   )
   void afterThrowing( Exception e ) {

@@ -36,15 +36,15 @@ class ConceptService {
   UserRepository userRepository
 
 
-    Concept create(String movementId, Map attributes = [:]) {
+    Concept create( String movementId, Map attributes ) {
         def movement = movementRepository.findById(movementId)
         if (!movement) {
             return null
         }
-        this.create(movement, attributes)
+        this.createConcept(movement, attributes)
     }
 
-    Concept create(Movement movement, Map attributes) {
+    private Concept createConcept(Movement movement, Map attributes) {
 
         def category = categoryRepository.findById(attributes.category?.id)
         if (movement.type == Movement.Type.CHARGE && !category) {

@@ -15,32 +15,32 @@ import org.springframework.stereotype.Component
 
 @Component
 @Aspect
-class ConceptServiceCreate {
+class AccountServiceFindById {
 
   final static Logger log = LoggerFactory.getLogger(
-      'mx.finerio.api.aop.ConceptServiceCreate' )
+      'mx.finerio.api.aop.AccountServiceFindById' )
 
   @Pointcut(
-    value='execution(mx.finerio.api.domain.Concept mx.finerio.api.services.ConceptService.create(..)) && bean(conceptService) && args(movementId, attributes)',
-    argNames='movementId, attributes'
+    value='execution(mx.finerio.api.domain.Account mx.finerio.api.services.AccountService.findById(..)) && bean(accountService) && args(id)',
+    argNames='id'
   )
-  public void create(String movementId, Map attributes ) {}
+  public void findById( String id ) {}
 
-  @Before('create(movementId, attributes)')
-  void before(String movementId, Map attributes ) {
-    log.info( "<< movementId: {}, attributes: {}", movementId, attributes )
+  @Before('findById(id)')
+  void before( String id ) {
+    log.info( "<< id: {}", id )
   }
 
   @AfterReturning(
-    pointcut='create(String, java.util.Map)',
+    pointcut='findById(String)',
     returning='response'
   )
-  void afterReturning( Concept response ) {
+  void afterReturning( Account response ) {
     log.info( '>> response: {}', response )
   }
 
   @AfterThrowing(
-    pointcut='create(String, java.util.Map)',
+    pointcut='findById(String)',
     throwing='e'
   )
   void afterThrowing( Exception e ) {
