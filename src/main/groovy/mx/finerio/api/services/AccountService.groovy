@@ -50,7 +50,7 @@ class AccountService {
 	params.request.name, 
 	params.request.name
 	) ?: new Account()
-    if( params.request.extra_data ){
+    if( params.request?.extra_data?.account_name ){
       account.name = params.request.extra_data.account_name
     }else{
     account.name = params.request.name

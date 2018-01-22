@@ -22,7 +22,7 @@ class CategorizerService {
   @Value( '${categorizer.auth.password}' )
   String password
 
-  Map search( String text ) throws Exception {
+  def search( String text ) throws Exception {
 
     def url = configService.findByItem( Config.Item.CATEGORIZER_SEARCH_URL )
     def token = "${username}:${password}".bytes.encodeBase64().toString()
