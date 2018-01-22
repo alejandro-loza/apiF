@@ -3,6 +3,8 @@ package mx.finerio.api.services
 import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
 
+import java.util.concurrent.TimeUnit
+
 import javax.net.ssl.HostnameVerifier
 import javax.net.ssl.SSLSession
 
@@ -61,6 +63,9 @@ class RestTemplateService {
   private OkHttpClient getClient() throws Exception {
 
     new OkHttpClient().newBuilder()
+        .connectTimeout( 1, TimeUnit.MINUTES )
+        .writeTimeout( 1, TimeUnit.MINUTES )
+        .readTimeout( 1, TimeUnit.MINUTES )
       .hostnameVerifier( new HostnameVerifier() {
         boolean verify( String hostname, SSLSession session ) {
           true
