@@ -4,6 +4,7 @@ import mx.finerio.api.exceptions.InstanceNotFoundException
 import mx.finerio.api.domain.*
 import mx.finerio.api.domain.repository.*
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
@@ -82,6 +83,9 @@ class MovementService {
 
   }
 
-
+  def findByAccount( String id, Pageable pageable ){
+    def account = accountService.findById( id )
+    def result = movementRepository.findByAccount( account, pageable )
+  }
 
 }

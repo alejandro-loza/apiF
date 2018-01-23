@@ -9,4 +9,6 @@ interface AccountCredentialRepository extends JpaRepository<AccountCredential, L
   
   AccountCredential findByAccountAndCredential(Account account, Credential credential)
 
+  List<AccountCredential> findByCredential( Credential credential )
+
 }

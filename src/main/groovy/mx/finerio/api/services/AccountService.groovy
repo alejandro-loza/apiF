@@ -4,6 +4,7 @@ import mx.finerio.api.exceptions.InstanceNotFoundException
 import mx.finerio.api.domain.*
 import mx.finerio.api.domain.repository.*
 
+import org.springframework.data.domain.Pageable
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
@@ -85,7 +86,14 @@ class AccountService {
 
   Account findById( String id ){
     accountRepository.findById( id )
+    
   }  
+
+  def findByCredentialId( String id, Pageable pageable ){
+
+    def credential = credentialPersistenceService.findOne( id )
+    accountRepository.getByCredentialId( credential, pageable )
+  }
 
   Account findDuplicated( FinancialInstitution institution, User user,
       String number, String name ) throws Exception {
