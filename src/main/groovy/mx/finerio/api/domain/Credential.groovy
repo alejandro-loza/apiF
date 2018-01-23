@@ -4,15 +4,30 @@ import groovy.transform.ToString
 
 import javax.persistence.*
 import javax.validation.constraints.*
+import org.hibernate.annotations.GenericGenerator
 
 @Entity
 @Table(name = 'credential')
 @ToString(excludes = 'password, iv', includeNames = true, includePackage = false)
 class Credential {
 
+  enum Status {
+      VALIDATE,
+      TOKEN,
+      ACTIVE,
+      INACTIVE,
+      INVALID
+  }
+
   @Id
   @Column(name = 'id', nullable = false, updatable = false)
+  @GeneratedValue(generator = "uuid2")
+  @GenericGenerator(name = "uuid2", strategy = "uuid2")
   String id
+
+  @Enumerated(EnumType.STRING)
+  @Column(name = 'status', nullable = false)
+  Status status 
 
   @Column(name = 'username', nullable = false, length = 255)
   String username

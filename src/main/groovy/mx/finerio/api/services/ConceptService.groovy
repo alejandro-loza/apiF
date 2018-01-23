@@ -33,7 +33,7 @@ class ConceptService {
   AccountRepository accountRepository
 
   @Autowired
-  UserRepository userRepository
+  UserService userService
 
 
     Concept create( String movementId, Map attributes ) {
@@ -87,7 +87,7 @@ class ConceptService {
 
     User getUser(Movement mov){
       def account = accountRepository.findById( mov.account.id )
-      def user = userRepository.findById( account.user.id )
+      def user = userService.findById( account.user.id )
       user 
     }
 
