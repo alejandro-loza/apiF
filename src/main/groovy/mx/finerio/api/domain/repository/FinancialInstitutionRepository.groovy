@@ -5,9 +5,8 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor
 
 import mx.finerio.api.domain.*
 
-interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor {
+interface FinancialInstitutionRepository extends JpaRepository<FinancialInstitution, Long>, JpaSpecificationExecutor {
   
-  User findOneByUsername( String username )
-  User findById( String id )
+  FinancialInstitution findById( Long id )
 
 }

@@ -7,7 +7,7 @@ import groovy.transform.ToString
 
 @Entity
 @Table(name = 'account_credential')
-@ToString(includes = 'id', includeNames = true, includePackage = false)
+@ToString( includeNames = true, includePackage = false)
 public class AccountCredential{
 
   @Id

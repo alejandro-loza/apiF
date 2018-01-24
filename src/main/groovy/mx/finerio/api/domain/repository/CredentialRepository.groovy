@@ -3,7 +3,10 @@ package mx.finerio.api.domain.repository
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor
 
-import mx.finerio.api.domain.Credential
+import mx.finerio.api.domain.*
 
-interface CredentialRepository extends JpaRepository<Credential, Long>,
-    JpaSpecificationExecutor {}
+interface CredentialRepository extends JpaRepository<Credential, Long>, JpaSpecificationExecutor {
+
+    Credential findByUserAndInstitutionAndUsername( User user, FinancialInstitution institution, String username )
+
+}
