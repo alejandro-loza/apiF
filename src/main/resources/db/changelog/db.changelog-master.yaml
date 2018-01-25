@@ -4,3 +4,5 @@ databaseChangeLog:
     file: db/changelog/oauth_client_details.yaml
 - include:
     file: db/changelog/clients.yaml
+- include:
+    file: db/changelog/customers.yaml
