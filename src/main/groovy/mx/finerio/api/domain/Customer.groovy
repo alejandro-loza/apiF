@@ -10,8 +10,7 @@ import groovy.transform.ToString
 @ToString(includePackage = false, includeNames = true)
 class Customer {
   
-  @Id
-  @NotNull
+  @Id @GeneratedValue
   @Column(name = 'id', updatable = false)
   String id
 

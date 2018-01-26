@@ -1,7 +1,12 @@
 package mx.finerio.api.services
 
+import javax.validation.Valid
+
 import mx.finerio.api.domain.Customer
 import mx.finerio.api.domain.repository.CustomerRepository
+import mx.finerio.api.dtos.CustomerDto
+import mx.finerio.api.exceptions.BadImplementationException
+import mx.finerio.api.exceptions.BadRequestException
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -15,21 +20,22 @@ class CustomerService {
   @Autowired
   CustomerRepository customerRepository
 
-  Customer create( Map params ) throws Exception {
+  Customer create( @Valid CustomerDto customerDto ) throws Exception {
 
-    if ( params == null ) {
-      throw new IllegalArgumentException(
-          'customerService.create.params.null' )
+    if ( !customerDto ) {
+      throw new BadImplementationException(
+          'customerService.create.customerDto.null' )
     }
  
-    if ( params == [:] ) {
-      throw new IllegalArgumentException(
-          'customerService.create.params.empty' )
+    def client = securityService.getCurrent()
+
+    if ( customerRepository.findByClientAndName( client, customerDto.name ) ) {
+      throw new BadRequestException( 'customer.create.name.exists' )
     }
  
     def instance = new Customer()
-    instance.name = params.name
-    instance.client = securityService.getCurrent()
+    instance.name = customerDto.name
+    instance.client = client
     customerRepository.save( instance )
     instance
 

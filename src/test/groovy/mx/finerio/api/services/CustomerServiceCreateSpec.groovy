@@ -3,9 +3,8 @@ package mx.finerio.api.services
 import mx.finerio.api.domain.Client
 import mx.finerio.api.domain.Customer
 import mx.finerio.api.domain.repository.CustomerRepository
-import mx.finerio.api.domain.FinancialInstitution
-import mx.finerio.api.domain.User
-import mx.finerio.api.exceptions.InstanceNotFoundException
+import mx.finerio.api.dtos.CustomerDto
+import mx.finerio.api.exceptions.BadImplementationException
 
 import spock.lang.Specification
 
@@ -26,37 +25,25 @@ class CustomerServiceCreateSpec extends Specification {
   def "invoking method successfully"() {
 
     when:
-      def result = service.create( params )
+      def result = service.create( dto )
     then:
       1 * securityService.getCurrent() >> new Client()
       1 * customerRepository.save( _ as Customer ) >> new Customer()
       result instanceof Customer
     where:
-      params = [ name: 'Customer name' ]
+      dto = new CustomerDto( name: 'Customer name' )
 
   }
 
   def "parameter 'params' is null"() {
 
     when:
-      service.create( params )
+      service.create( dto )
     then:
-      IllegalArgumentException e = thrown()
-      e.message == 'customerService.create.params.null'
+      BadImplementationException e = thrown()
+      e.message == 'customerService.create.customerDto.null'
     where:
-      params = null
-
-  }
-
-  def "parameter 'params' is empty"() {
-
-    when:
-      service.create( params )
-    then:
-      IllegalArgumentException e = thrown()
-      e.message == 'customerService.create.params.empty'
-    where:
-      params = [:]
+      dto = null
 
   }
 
