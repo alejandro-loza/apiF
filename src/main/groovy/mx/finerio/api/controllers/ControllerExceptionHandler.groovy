@@ -3,6 +3,7 @@ package mx.finerio.api.controllers
 import mx.finerio.api.dtos.ErrorDto
 import mx.finerio.api.exceptions.BadImplementationException
 import mx.finerio.api.exceptions.BadRequestException
+import mx.finerio.api.exceptions.InstanceNotFoundException
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.MessageSource
@@ -36,6 +37,21 @@ class ControllerExceptionHandler {
       getError( it )
     }
 
+    ResponseEntity.badRequest().body( [ errors: errors ] )
+
+  }
+
+  @ExceptionHandler(InstanceNotFoundException)
+  ResponseEntity handleInstanceNotFoundException(
+      InstanceNotFoundException e ) {
+    ResponseEntity.notFound().build()
+  }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException)
+  ResponseEntity handleMethodArgumentTypeMismatchException(
+      MethodArgumentTypeMismatchException e ) {
+
+    def errors = [ getError( 'http.path.invalid' ) ]
     ResponseEntity.badRequest().body( [ errors: errors ] )
 
   }

@@ -11,6 +11,4 @@ interface CustomerRepository extends JpaRepository<Customer, Long>,
   
   Customer findByClientAndName( Client client, String name )
 
-  List findAllByClient( Client client )
-
 }

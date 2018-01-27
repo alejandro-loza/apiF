@@ -9,6 +9,7 @@ import mx.finerio.api.dtos.CustomerDto
 import mx.finerio.api.dtos.CustomerListDto
 import mx.finerio.api.exceptions.BadImplementationException
 import mx.finerio.api.exceptions.BadRequestException
+import mx.finerio.api.exceptions.InstanceNotFoundException
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.PageRequest
@@ -66,6 +67,24 @@ class CustomerService {
     }
 
     response
+
+  }
+
+  Customer findOne( Long id ) throws Exception {
+
+    if ( id == null ) {
+      throw new BadImplementationException(
+          'customerService.findOne.id.null' )
+    }
+ 
+    def client = securityService.getCurrent()
+    def instance = customerRepository.findOne( id )
+
+    if ( !instance || instance.client.id != client.id ) {
+      throw new InstanceNotFoundException( 'customer.not.found' )
+    }
+ 
+    instance
 
   }
 

@@ -11,6 +11,7 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
+import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
@@ -43,6 +44,15 @@ class CustomerController {
     response.data = response.data.collect {
         [ id: it.id, name: it.name ] }
     new ResponseEntity( response, HttpStatus.OK )
+
+  }
+
+  @GetMapping('/customers/{id}')
+  ResponseEntity findOne( @PathVariable Long id ) {
+  
+    def instance = customerService.findOne( id )
+    def finalInstance = [ id: instance.id, name: instance.name ]
+    new ResponseEntity( finalInstance, HttpStatus.OK )
 
   }
 
