@@ -28,8 +28,8 @@ class CustomerController {
   ResponseEntity create( @RequestBody @Valid CustomerDto dto ) {
   
     def instance = customerService.create( dto )
-    def finalInstance = [ id: instance.id, name: instance.name ]
-    new ResponseEntity( finalInstance, HttpStatus.CREATED )
+    instance = customerService.getFields( instance )
+    new ResponseEntity( instance, HttpStatus.CREATED )
 
   }
 
@@ -42,7 +42,7 @@ class CustomerController {
     )
     def response = customerService.findAll( dto )
     response.data = response.data.collect {
-        [ id: it.id, name: it.name ] }
+        customerService.getFields( it ) }
     new ResponseEntity( response, HttpStatus.OK )
 
   }
@@ -51,8 +51,8 @@ class CustomerController {
   ResponseEntity findOne( @PathVariable Long id ) {
   
     def instance = customerService.findOne( id )
-    def finalInstance = [ id: instance.id, name: instance.name ]
-    new ResponseEntity( finalInstance, HttpStatus.OK )
+    instance = customerService.getFields( instance )
+    new ResponseEntity( instance, HttpStatus.OK )
 
   }
 

@@ -24,4 +24,8 @@ class Customer {
   @JoinColumn(name = 'client_id')
   Client client
 
+  @NotNull
+  @Column(name = 'date_created')
+  Date dateCreated
+
 }

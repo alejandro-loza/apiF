@@ -42,6 +42,7 @@ class CustomerService {
     def instance = new Customer()
     instance.name = dto.name
     instance.client = client
+    instance.dateCreated = new Date()
     customerRepository.save( instance )
     instance
 
@@ -85,6 +86,17 @@ class CustomerService {
     }
  
     instance
+
+  }
+
+  Map getFields( Customer customer ) throws Exception {
+
+    if ( !customer ) {
+      throw new BadImplementationException(
+          'customerService.getFields.customer.null' )
+    }
+ 
+    [ id: customer.id, name: customer.name, dateCreated: customer.dateCreated ]
 
   }
 

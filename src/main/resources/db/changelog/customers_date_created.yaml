@@ -1,0 +1,13 @@
+databaseChangeLog:
+- changeSet:
+    id: customers_date_created
+    author: alejandro.garcia
+    changes:
+    - addColumn:
+        tableName: customers
+        columns:
+        - column:
+            name: date_created
+            type: DATETIME
+            constraints:
+              nullable: false
