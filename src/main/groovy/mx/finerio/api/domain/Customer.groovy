@@ -12,7 +12,7 @@ class Customer {
   
   @Id @GeneratedValue
   @Column(name = 'id', updatable = false)
-  String id
+  Long id
 
   @NotNull
   @Size(min = 1, max = 50)
