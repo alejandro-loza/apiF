@@ -55,8 +55,8 @@ class MovementService {
 	params2.amount, 
 	params2.type, 
 	params2.account ) ?: new Movement()
-       movement.dateCreated = new Date ()
-       movement.lastUpdated = new Date ()
+       movement.dateCreated = movement.dateCreated ?: new Date()
+       movement.lastUpdated = new Date()
        movement.version = 0 
        movement.account = account
        movement.date = date

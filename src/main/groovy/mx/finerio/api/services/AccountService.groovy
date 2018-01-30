@@ -64,7 +64,7 @@ class AccountService {
     account.user = credential.user
     account.balance = params.request.balance
     account.nature = NATURES[ params.request.nature ]
-    account.dateCreated = new Date() 
+    account.dateCreated = account.dateCreated ?: new Date()
     account.lastUpdated = new Date()
     if ( account.deleted )  return
     accountRepository.save(account)
@@ -73,12 +73,12 @@ class AccountService {
   }
 
   void createAccountCredential(Account account, Credential credential){
-    def accountCredential= accountCredentialRepository.findByAccountAndCredential(account, credential)
+    def accountCredential= accountCredentialRepository.findAllByAccountAndCredential(account, credential)
     if( !accountCredential ){
       accountCredential = new AccountCredential()
       accountCredential.account = account
       accountCredential.credential = credential
-      accountCredential.dateCreated = new Date()
+      accountCredential.dateCreated = accountCredential.dateCreated ?: new Date()
       accountCredential.lastUpdated = new Date()
       accountCredential.version = 0
       accountCredentialRepository.save(accountCredential)

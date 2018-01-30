@@ -7,7 +7,7 @@ import mx.finerio.api.domain.*
 
 interface AccountCredentialRepository extends JpaRepository<AccountCredential, Long>, JpaSpecificationExecutor {
   
-  AccountCredential findByAccountAndCredential(Account account, Credential credential)
+  List findAllByAccountAndCredential(Account account, Credential credential)
 
   List<AccountCredential> findByCredential( Credential credential )
 
