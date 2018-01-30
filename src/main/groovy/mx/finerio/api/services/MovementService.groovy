@@ -57,7 +57,6 @@ class MovementService {
 	params2.account ) ?: new Movement()
        movement.dateCreated = new Date ()
        movement.lastUpdated = new Date ()
-       movement.duplicated = params.request.transactions[i].duplicated ?: false
        movement.version = 0 
        movement.account = account
        movement.date = date

@@ -45,28 +45,27 @@ class AccountService {
           'account.createAccount.credential.null' )
     }
 
+    def cleanedName = params.request.name.replace( '&#092;u00f3', '\u00F3' )
     Account account = findDuplicated(
 	credential.institution,
 	credential.user, 
-	params.request.name, 
-	params.request.name
+	cleanedName,
+	cleanedName
 	) ?: new Account()
     if( params.request?.extra_data?.account_name ){
       account.name = params.request.extra_data.account_name
     }else{
-    account.name = params.request.name
+    account.name = cleanedName
     }
     account.version = 0
     account.clazz = 'mx.com.glider.dinerio.Account'
     account.institution = credential.institution
-    account.number = params.request.name
+    account.number = cleanedName
     account.user = credential.user
     account.balance = params.request.balance
     account.nature = NATURES[ params.request.nature ]
     account.dateCreated = new Date() 
     account.lastUpdated = new Date()
-    account.name = account.name.replace( '&#092;u00f3', '\u00F3'  )
-    account.number = account.number.replace( '&#092;u00f3', '\u00F3'  )
     if ( account.deleted )  return
     accountRepository.save(account)
     createAccountCredential(account,credential)
