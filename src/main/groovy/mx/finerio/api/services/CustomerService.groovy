@@ -89,6 +89,26 @@ class CustomerService {
 
   }
 
+  CustomerListDto validateFindAllParams( Map params ) throws Exception {
+
+    def dto = new CustomerListDto()
+
+    try {
+      dto.maxResults = params.maxResults as Integer
+    } catch ( NumberFormatException e ) {
+      throw new BadRequestException( 'maxResults.invalid' )
+    }
+
+    try {
+    dto.cursor = params.cursor as Long
+    } catch ( NumberFormatException e ) {
+      throw new BadRequestException( 'cursor.invalid' )
+    }
+
+    dto
+
+  }
+
   Map getFields( Customer customer ) throws Exception {
 
     if ( !customer ) {

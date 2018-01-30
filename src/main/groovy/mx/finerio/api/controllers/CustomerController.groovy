@@ -36,10 +36,7 @@ class CustomerController {
   @GetMapping('/customers')
   ResponseEntity findAll( @RequestParam Map<String, String> params ) {
   
-    def dto = new CustomerListDto(
-      maxResults: params.maxResults as Integer,
-      cursor: params.cursor as Long
-    )
+    def dto = customerService.validateFindAllParams( params )
     def response = customerService.findAll( dto )
     response.data = response.data.collect {
         customerService.getFields( it ) }
