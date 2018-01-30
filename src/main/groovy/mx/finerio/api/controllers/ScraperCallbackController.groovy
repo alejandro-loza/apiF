@@ -2,9 +2,12 @@ package mx.finerio.api.controllers
 
 import javax.servlet.http.HttpServletRequest
 
+import mx.finerio.api.domain.Credential
 import mx.finerio.api.dtos.AccountBody
 import mx.finerio.api.dtos.MovementBody
+import mx.finerio.api.dtos.SuccessCallbackDto
 import mx.finerio.api.services.AccountService
+import mx.finerio.api.services.CredentialService
 import mx.finerio.api.services.MovementService
 
 import org.slf4j.Logger
@@ -29,6 +32,9 @@ class ScraperController {
   AccountService accountService
 
   @Autowired
+  CredentialService credentialService
+
+  @Autowired
   MovementService movementService
 
   @PostMapping( '/callbacks/accounts' )
@@ -50,8 +56,11 @@ class ScraperController {
   }
 
   @PostMapping( '/callbacks/success' )
-  ResponseEntity success( HttpServletRequest request ) {
-    log.info( 'request success: {}', request.inputStream.text )
+  ResponseEntity success( @RequestBody SuccessCallbackDto request ) {
+
+    credentialService.updateStatus( request?.data?.credential_id,
+        Credential.Status.ACTIVE )
+
   }
 
   @PostMapping( '/callbacks/failure' )

@@ -56,7 +56,7 @@ class AccountService {
     }else{
     account.name = params.request.name
     }
-    account.version=0
+    account.version = 0
     account.clazz = 'mx.com.glider.dinerio.Account'
     account.institution = credential.institution
     account.number = params.request.name
@@ -65,6 +65,8 @@ class AccountService {
     account.nature = NATURES[ params.request.nature ]
     account.dateCreated = new Date() 
     account.lastUpdated = new Date()
+    account.name = account.name.replace( '&#092;u00f3', '\u00F3'  )
+    account.number = account.number.replace( '&#092;u00f3', '\u00F3'  )
     if ( account.deleted )  return
     accountRepository.save(account)
     createAccountCredential(account,credential)

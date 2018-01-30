@@ -1,5 +1,6 @@
 package mx.finerio.api.services
 
+import mx.finerio.api.exceptions.BadImplementationException
 import mx.finerio.api.exceptions.InstanceNotFoundException
 import mx.finerio.api.domain.repository.*
 import mx.finerio.api.domain.*
@@ -34,12 +35,7 @@ class CredentialService {
 
   void requestData( String credentialId ) throws Exception {
 
-    def credential = credentialPersistenceService.findOne( credentialId )
-    if ( !credential ) {
-      throw new InstanceNotFoundException(
-          'credential.requestData.credential.null' )
-    }
-
+    def credential = findAndValidate( credentialId, 'requestData' )
     def data = [
       id: credential.id,
       username: credential.username,
@@ -49,8 +45,22 @@ class CredentialService {
       institution: [ id: credential.institution.id ],
       securityCode: credential.securityCode
     ]
-
     scraperService.requestData( data )
+
+  }
+
+  void updateStatus( String credentialId, Credential.Status status )
+      throws Exception {
+
+    def credential = findAndValidate( credentialId, 'updateStatus' )
+
+    if ( !status ) {
+      throw new BadImplementationException(
+          'credentialService.updateStatus.status.null' )
+    }
+
+    credential.status = status
+    credentialRepository.save( credential )
 
   }
 
@@ -92,5 +102,18 @@ class CredentialService {
     }
   }
 
+  private Credential findAndValidate( String id, String method )
+      throws Exception {
+
+    def credential = credentialPersistenceService.findOne( id )
+
+    if ( !credential ) {
+      throw new InstanceNotFoundException(
+          "credential.${method}.credential.null" )
+    }
+
+    credential
+
+  }
 
 }
