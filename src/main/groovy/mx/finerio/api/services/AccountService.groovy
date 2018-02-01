@@ -46,21 +46,19 @@ class AccountService {
     }
 
     def cleanedName = params.request.name.replace( '&#092;u00f3', '\u00F3' )
+    def number = getNumber( credential.institution, params.request.extra_data )
+        ?: cleanedName
     Account account = findDuplicated(
-	credential.institution,
-	credential.user, 
-	cleanedName,
-	cleanedName
-	) ?: new Account()
-    if( params.request?.extra_data?.account_name ){
-      account.name = params.request.extra_data.account_name
-    }else{
+        credential.institution,
+        credential.user,
+        number,
+        cleanedName
+        ) ?: new Account()
     account.name = cleanedName
-    }
     account.version = 0
     account.clazz = 'mx.com.glider.dinerio.Account'
     account.institution = credential.institution
-    account.number = cleanedName
+    account.number = number
     account.user = credential.user
     account.balance = params.request.balance
     account.nature = NATURES[ params.request.nature ]
@@ -96,26 +94,49 @@ class AccountService {
     accountRepository.getByCredentialId( credential, pageable )
   }
 
+  String getNumber( FinancialInstitution institution, Map extraData )
+      throws Exception {
+
+    if ( institution.code == 'SANTANDER' ) {
+      return extraData.number ?: extraData.tarjeta
+    }
+
+    null
+  }
+
+  String getMaskedNumber( FinancialInstitution institution, String number )
+      throws Exception {
+
+    if ( institution.code == 'SANTANDER' ) {
+
+      if ( number.size() == 11 ) {
+        return "${number[ 0..1 ]}%${number[ 7..10 ]}"
+      } else if ( number.size() == 16 ) {
+        return "${number[ 0..3 ]}%${number[ 12..15 ]}"
+      }
+
+    }
+
+    number
+
+  }
+
   Account findDuplicated( FinancialInstitution institution, User user,
       String number, String name ) throws Exception {
+
     validateFindDuplicatedInput( institution, user, number, name )
+
     def instance = accountRepository.findByInstitutionAndUserAndNumberAndDeleted(
         institution, user, number, false )
 
-    if ( !instance && institution.code == 'BNMX' ) {
-      instance = accountRepository.findByInstitutionAndUserAndNameAndDeleted(
-        institution, user, name, false )
-    }
-
-    if ( !instance && institution.code == 'BANORTE' ) {
+    if ( !instance && institution.code == 'SANTANDER' ) {
       instance = accountRepository.findByInstitutionAndUserAndNumberLikeAndDeleted(
-        institution, user, "%${number}", false )
+        institution, user, getMaskedNumber( institution, number ), false )
     }
 
     instance
 
   }
-
 
   private void validateFindDuplicatedInput( FinancialInstitution institution,
       User user, String number, String name ) throws Exception {

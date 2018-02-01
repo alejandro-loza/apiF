@@ -49,12 +49,13 @@ class MovementService {
             type: type,
             account: account
        ]
-       def movement = movementRepository.findByDateAndDescriptionAndAmountAndTypeAndAccount( 
+       def instance = movementRepository.findByDateAndDescriptionAndAmountAndTypeAndAccount(
 	params2.date, 
 	params2.description, 
 	params2.amount, 
 	params2.type, 
-	params2.account ) ?: new Movement()
+	params2.account )
+       def movement = instance ?: new Movement()
        movement.dateCreated = movement.dateCreated ?: new Date()
        movement.lastUpdated = new Date()
        movement.version = 0 
@@ -67,7 +68,7 @@ class MovementService {
        movement.balance = amount
        movement.type = type
        movementRepository.save(movement)
-       createConcept( movement )
+       if ( !instance ) createConcept( movement )
        movement
     }
   }

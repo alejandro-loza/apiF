@@ -10,7 +10,7 @@ class Account {
   String nature
   BigDecimal balance
   String currency_code
-  ExtraAccount extra_data
+  Map extra_data
   BigInteger login_id
   String created_at
   String updated_at
