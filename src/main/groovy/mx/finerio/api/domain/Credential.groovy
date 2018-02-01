@@ -58,4 +58,7 @@ class Credential {
   @Column(name = 'last_updated', nullable = false)
   Date lastUpdated
 
+  @Column(name = 'provider_id', nullable = true)
+  Long providerId
+
 }

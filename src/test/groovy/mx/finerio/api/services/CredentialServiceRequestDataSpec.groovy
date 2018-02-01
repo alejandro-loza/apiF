@@ -1,6 +1,7 @@
 package mx.finerio.api.services
 
 import mx.finerio.api.domain.Credential
+import mx.finerio.api.domain.repository.CredentialRepository
 import mx.finerio.api.domain.FinancialInstitution
 import mx.finerio.api.domain.User
 import mx.finerio.api.exceptions.InstanceNotFoundException
@@ -13,11 +14,13 @@ class CredentialServiceRequestDataSpec extends Specification {
 
   def credentialPersistenceService = Mock( CredentialPersistenceService )
   def scraperService = Mock( DevScraperService )
+  def credentialRepository = Mock( CredentialRepository )
 
   def setup() {
 
     service.credentialPersistenceService = credentialPersistenceService
     service.scraperService = scraperService
+    service.credentialRepository = credentialRepository
 
   }
 
@@ -29,6 +32,7 @@ class CredentialServiceRequestDataSpec extends Specification {
       1 * credentialPersistenceService.findOne( _ as String ) >>
           new Credential( user: new User(),
           institution: new FinancialInstitution() )
+      1 * credentialRepository.save( _ as Credential )
       1 * scraperService.requestData( _ as Map ) >> [ hello: 'world' ]
     where:
       credentialId = UUID.randomUUID().toString()

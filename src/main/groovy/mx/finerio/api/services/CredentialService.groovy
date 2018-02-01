@@ -36,6 +36,8 @@ class CredentialService {
   void requestData( String credentialId ) throws Exception {
 
     def credential = findAndValidate( credentialId, 'requestData' )
+    credential.providerId = 3L
+    credentialRepository.save( credential )
     def data = [
       id: credential.id,
       username: credential.username,
