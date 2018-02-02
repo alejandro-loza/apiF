@@ -19,7 +19,7 @@ class RestTemplateServicePost {
       'mx.finerio.api.aop.RestTemplateServicePost' )
 
   @Pointcut(
-    value='execution(Object mx.finerio.api.services.RestTemplateService.get(..)) && bean(restTemplateService) && args(url, headers, body)',
+    value='execution(Object mx.finerio.api.services.RestTemplateService.post(..)) && bean(restTemplateService) && args(url, headers, body)',
     argNames='url, headers, body'
   )
   public void post( String url, Map headers, Map body ) {}

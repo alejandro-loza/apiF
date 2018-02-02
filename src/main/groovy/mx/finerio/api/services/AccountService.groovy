@@ -45,7 +45,7 @@ class AccountService {
           'account.createAccount.credential.null' )
     }
 
-    def cleanedName = params.request.name.replace( '&#092;u00f3', '\u00F3' )
+    def cleanedName = params.request.name.replace( '&#092;u00f3', '\u00F3' ).trim()
     def number = getNumber( credential.institution, params.request.extra_data )
         ?: cleanedName
     Account account = findDuplicated(
@@ -99,9 +99,12 @@ class AccountService {
 
     if ( institution.code == 'SANTANDER' ) {
       return extraData.number ?: extraData.tarjeta
+    } else if ( institution.code == 'HSBC' ) {
+      return extraData.number
     }
 
     null
+
   }
 
   String getMaskedNumber( FinancialInstitution institution, String number )
@@ -115,6 +118,9 @@ class AccountService {
         return "${number[ 0..3 ]}%${number[ 12..15 ]}"
       }
 
+    } else if ( institution.code == 'HSBC' && number.size() >= 8 ) {
+      def size = number.size()
+      return "${number[ 0..3 ]}%${ number[ (size - 4)..(size - 1) ]}"
     }
 
     number
@@ -129,7 +135,7 @@ class AccountService {
     def instance = accountRepository.findByInstitutionAndUserAndNumberAndDeleted(
         institution, user, number, false )
 
-    if ( !instance && institution.code == 'SANTANDER' ) {
+    if ( !instance ) {
       instance = accountRepository.findByInstitutionAndUserAndNumberLikeAndDeleted(
         institution, user, getMaskedNumber( institution, number ), false )
     }
