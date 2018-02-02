@@ -66,6 +66,21 @@ class CredentialService {
 
   }
 
+  void setFailure( String credentialId, String message ) throws Exception {
+
+    def credential = findAndValidate( credentialId, 'setFailure' )
+
+    if ( message == null ) {
+      throw new BadImplementationException(
+          'credentialService.setFailure.message.null' )
+    }
+
+    credential.errorCode = message.take( 255 )
+    credential.status = Credential.Status.INVALID
+    credentialRepository.save( credential )
+
+  }
+
   def createCredential( CredentialDto credential ) throws Exception {
 
     def institution = financialInstitutionService.findById( credential.institution.id )

@@ -4,6 +4,7 @@ import javax.servlet.http.HttpServletRequest
 
 import mx.finerio.api.domain.Credential
 import mx.finerio.api.dtos.AccountBody
+import mx.finerio.api.dtos.FailureCallbackDto
 import mx.finerio.api.dtos.MovementBody
 import mx.finerio.api.dtos.SuccessCallbackDto
 import mx.finerio.api.services.AccountService
@@ -64,8 +65,11 @@ class ScraperController {
   }
 
   @PostMapping( '/callbacks/failure' )
-  ResponseEntity failure( HttpServletRequest request ) {
-    log.info( 'request failure: {}', request.inputStream.text )
+  ResponseEntity failure( @RequestBody FailureCallbackDto request ) {
+
+    credentialService.setFailure( request?.data?.credential_id,
+        request?.data?.error_message )
+
   }
 
   @PostMapping( '/callbacks/notify' )

@@ -61,4 +61,7 @@ class Credential {
   @Column(name = 'provider_id', nullable = true)
   Long providerId
 
+  @Column(name = 'error_code', nullable = true, length = 255)
+  String errorCode
+
 }
