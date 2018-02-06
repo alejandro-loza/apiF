@@ -63,9 +63,9 @@ class RestTemplateService {
   private OkHttpClient getClient() throws Exception {
 
     new OkHttpClient().newBuilder()
-        .connectTimeout( 1, TimeUnit.MINUTES )
-        .writeTimeout( 1, TimeUnit.MINUTES )
-        .readTimeout( 1, TimeUnit.MINUTES )
+        .connectTimeout( 5, TimeUnit.MINUTES )
+        .writeTimeout( 5, TimeUnit.MINUTES )
+        .readTimeout( 5, TimeUnit.MINUTES )
       .hostnameVerifier( new HostnameVerifier() {
         boolean verify( String hostname, SSLSession session ) {
           true

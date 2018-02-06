@@ -10,7 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails
 @Entity
 @Table(name = 'user')
 @ToString(includePackage = false, includeNames = true, excludes = ['password'])
-class User implements UserDetails {
+class User {
   
   @Id
   @Column(name = 'id', nullable = false, updatable = false)
@@ -25,20 +25,8 @@ class User implements UserDetails {
   @Column(name = 'enabled', nullable = true)
   boolean enabled
 
-  @Column(name = 'account_non_expired', nullable = true)
-  boolean accountNonExpired
-
-  @Column(name = 'account_non_locked', nullable = true)
-  boolean accountNonLocked
-
-  @Column(name = 'credentials_non_expired', nullable = true)
-  boolean credentialsNonExpired
-
-  @Transient
-  List authorities
-
   List getJsonAttributes() {
-    [ 'username', 'authorities' ]
+    [ 'username' ]
   }
 
 }
