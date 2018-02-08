@@ -26,6 +26,7 @@ class CredentialController {
   ResponseEntity create( @RequestBody @Valid CredentialDto credentialDto ) {
   
     def instance = credentialService.create( credentialDto )
+    instance = credentialService.getFields( instance )
     new ResponseEntity( instance, HttpStatus.CREATED )
   }
 

@@ -118,6 +118,18 @@ class CredentialService {
 
   }
 
+  Map getFields( Credential credential ) throws Exception {
+
+    if ( !credential ) {
+      throw new BadImplementationException(
+          'credentialService.getFields.credential.null' )
+    }
+ 
+    [ id: credential.id, username: credential.username,
+        status: credential.status, dateCreated: credential.dateCreated ]
+
+  }
+
   private Credential createInstance( Map data ) throws Exception {
 
     def credentialDto = data.credentialDto
