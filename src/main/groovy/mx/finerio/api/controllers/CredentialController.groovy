@@ -1,13 +1,20 @@
 package mx.finerio.api.controllers
 
-import mx.finerio.api.dtos.*
+import javax.validation.Valid
+
+import mx.finerio.api.dtos.CredentialDto
 import mx.finerio.api.services.CredentialService
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.PageRequest
-import org.springframework.http.*
-import org.springframework.web.bind.annotation.*
-
+import org.springframework.http.HttpStatus
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.PathVariable
+import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestParam
+import org.springframework.web.bind.annotation.RestController
 
 @RestController
 class CredentialController {
@@ -15,19 +22,19 @@ class CredentialController {
   @Autowired
   CredentialService credentialService
 
-  @PutMapping( '/credentials/{id}' )
-  ResponseEntity updateCredential( @PathVariable String id ) {
+  @PostMapping('/credentials')
+  ResponseEntity create( @RequestBody @Valid CredentialDto credentialDto ) {
+  
+    def instance = credentialService.create( credentialDto )
+    new ResponseEntity( instance, HttpStatus.CREATED )
+  }
+
+  @PutMapping('/credentials/{id}')
+  ResponseEntity update( @PathVariable String id ) {
 
     credentialService.requestData( id )
     ResponseEntity.accepted().build()
 
-  }
-
-  @PostMapping(path="/create")
-  ResponseEntity createCredential (@RequestBody CredentialDto credential) {
-  
-    credentialService.createCredential( credential )
-    new ResponseEntity(HttpStatus.CREATED)
   }
 
 }

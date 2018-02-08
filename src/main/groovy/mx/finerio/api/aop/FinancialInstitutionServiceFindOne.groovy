@@ -1,6 +1,6 @@
 package mx.finerio.api.aop
 
-import mx.finerio.api.dtos.*
+import mx.finerio.api.domain.FinancialInstitution
 
 import org.aspectj.lang.annotation.AfterReturning
 import org.aspectj.lang.annotation.AfterThrowing
@@ -15,32 +15,32 @@ import org.springframework.stereotype.Component
 
 @Component
 @Aspect
-class CredentialServiceCreateCredential {
+class FinancialInstitutionServiceFindOne {
 
   final static Logger log = LoggerFactory.getLogger(
-      'mx.finerio.api.aop.CredentialServiceCreateCredential' )
+      'mx.finerio.api.aop.FinancialInstitutionServiceFindOne' )
 
   @Pointcut(
-    value='execution(Object mx.finerio.api.services.CredentialService.createCredential(..)) && bean(credentialService) && args(credential)',
-    argNames='credential'
+    value='execution(mx.finerio.api.domain.FinancialInstitution mx.finerio.api.services.FinancialInstitutionService.findOne(..)) && bean(financialInstitutionService) && args(id)',
+    argNames='id'
   )
-  public void createCredential( CredentialDto credential ) {}
+  public void findOne( Long id ) {}
 
-  @Before('createCredential(credential)')
-  void before( CredentialDto credential ) {
-    log.info( "<< credential: {}", credential )
+  @Before('findOne(id)')
+  void before( Long id ) {
+    log.info( "<< id: {}", id )
   }
 
   @AfterReturning(
-    pointcut='createCredential(mx.finerio.api.dtos.CredentialDto)',
+    pointcut='findOne(Long)',
     returning='response'
   )
-  void afterReturning( Object response ) {
+  void afterReturning( FinancialInstitution response ) {
     log.info( '>> response: {}', response )
   }
 
   @AfterThrowing(
-    pointcut='createCredential(mx.finerio.api.dtos.CredentialDto)',
+    pointcut='findOne(Long)',
     throwing='e'
   )
   void afterThrowing( Exception e ) {
