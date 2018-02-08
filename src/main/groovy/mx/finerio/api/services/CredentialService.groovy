@@ -1,5 +1,6 @@
 package mx.finerio.api.services
 
+import javax.annotation.Resource
 import javax.validation.Valid
 
 import mx.finerio.api.exceptions.BadImplementationException
@@ -10,7 +11,10 @@ import mx.finerio.api.domain.*
 import mx.finerio.api.dtos.*
 
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.annotation.Lazy
+import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class CredentialService {
@@ -36,6 +40,10 @@ class CredentialService {
   @Autowired
   CryptService cryptService
 
+  @Autowired
+  @Lazy
+  CredentialService selfReference
+
   Credential create( @Valid CredentialDto credentialDto ) throws Exception {
 
     if ( !credentialDto ) {
@@ -55,7 +63,9 @@ class CredentialService {
     }
 
     def data = [ customer: customer, bank: bank, credentialDto: credentialDto ]
-    createInstance( data )
+    def instance = createInstance( data )
+    selfReference.asyncRequestData( instance.id )
+    instance
 
   }
 
@@ -142,6 +152,12 @@ class CredentialService {
 
     credential
 
+  }
+
+  @Async
+  @Transactional
+  void asyncRequestData( String credentialId ) throws Exception {
+    requestData( credentialId )
   }
 
 }

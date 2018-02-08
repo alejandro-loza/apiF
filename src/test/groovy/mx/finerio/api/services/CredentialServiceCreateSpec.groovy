@@ -16,6 +16,7 @@ class CredentialServiceCreateSpec extends Specification {
 
   def service = new CredentialService()
 
+  def credentialService = Mock( CredentialService )
   def cryptService = Mock( CryptService )
   def customerService = Mock( CustomerService )
   def financialInstitutionService = Mock( FinancialInstitutionService )
@@ -24,6 +25,7 @@ class CredentialServiceCreateSpec extends Specification {
 
   def setup() {
 
+    service.selfReference = credentialService
     service.cryptService = cryptService
     service.customerService = customerService
     service.financialInstitutionService = financialInstitutionService
@@ -45,8 +47,10 @@ class CredentialServiceCreateSpec extends Specification {
       1 * userService.getApiUser() >> new User()
       1 * cryptService.encrypt( _ as String ) >>
           [ message: 'message', iv: 'iv' ]
-      1 * credentialRepository.save( _ as Credential ) >> new Credential()
+      1 * credentialRepository.save( _ as Credential ) >>
+          new Credential( id: 'id' )
       result instanceof Credential
+      1 * credentialService.asyncRequestData( _ as String )
     where:
       credentialDto = getCredentialDto()
 
