@@ -21,6 +21,9 @@ class CustomerService {
   private static final Integer MAX_RESULTS = 100
 
   @Autowired
+  ListService listService
+
+  @Autowired
   SecurityService securityService
 
   @Autowired
@@ -48,26 +51,16 @@ class CustomerService {
 
   }
 
-  Map findAll( CustomerListDto dto ) {
+  Map findAll( Map params ) throws Exception {
 
-    if ( !dto ) {
+    if ( params == null ) {
       throw new BadImplementationException(
-          'customerService.findAll.dto.null' )
+          'customerService.findAll.params.null' )
     }
  
-    def maxResults = getMaxResults( dto.maxResults )
-    def pageRequest = new PageRequest( 0, maxResults + 1 )
-    dto.client = securityService.getCurrent()
+    def dto = getFindAllDto( params )
     def spec = CustomerSpecs.findAll( dto )
-    def instances = customerRepository.findAll( spec, pageRequest ).content
-    def response = [ data: instances, nextCursor: null ]
-
-    if ( instances.size() == maxResults + 1 ) {
-      response.data = instances.dropRight( 1 )
-      response.nextCursor = instances.last().id
-    }
-
-    response
+    listService.findAll( dto, customerRepository, spec )
 
   }
 
@@ -89,22 +82,21 @@ class CustomerService {
 
   }
 
-  CustomerListDto validateFindAllParams( Map params ) throws Exception {
+  CustomerListDto getFindAllDto( Map params ) throws Exception {
 
     def dto = new CustomerListDto()
+    listService.validateFindAllDto( dto, params )
 
-    try {
-      dto.maxResults = params.maxResults as Integer
-    } catch ( NumberFormatException e ) {
-      throw new BadRequestException( 'maxResults.invalid' )
+    if ( params.cursor ) {
+      try {
+        findOne( params.cursor as Long )
+        dto.cursor = params.cursor as Long
+      } catch ( NumberFormatException e ) {
+        throw new BadRequestException( 'cursor.invalid' )
+      }
     }
 
-    try {
-    dto.cursor = params.cursor as Long
-    } catch ( NumberFormatException e ) {
-      throw new BadRequestException( 'cursor.invalid' )
-    }
-
+    dto.client = securityService.getCurrent()
     dto
 
   }
@@ -117,18 +109,6 @@ class CustomerService {
     }
  
     [ id: customer.id, name: customer.name, dateCreated: customer.dateCreated ]
-
-  }
-
-  private Integer getMaxResults( Integer maxResultsToEvaluate )
-      throws Exception {
-
-    if ( maxResultsToEvaluate != null &&
-        maxResultsToEvaluate > 0 && maxResultsToEvaluate <= MAX_RESULTS ) {
-      return maxResultsToEvaluate 
-    }
-
-    MAX_RESULTS
 
   }
 

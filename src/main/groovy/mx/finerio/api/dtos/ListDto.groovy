@@ -4,12 +4,9 @@ import groovy.transform.ToString
 
 import javax.validation.constraints.*
 
-import mx.finerio.api.domain.Client
-
 @ToString(includePackage = false, includeNames = true)
-class CustomerListDto extends ListDto {
+class ListDto {
 
-  Long cursor
-  Client client
+  Integer maxResults
 
 }

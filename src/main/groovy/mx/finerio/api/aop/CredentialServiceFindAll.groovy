@@ -13,13 +13,13 @@ import org.springframework.stereotype.Component
 
 @Component
 @Aspect
-class CustomerServiceFindAll {
+class CredentialServiceFindAll {
 
   final static Logger log = LoggerFactory.getLogger(
-      'mx.finerio.api.aop.CustomerServiceFindAll' )
+      'mx.finerio.api.aop.CredentialServiceFindAll' )
 
   @Pointcut(
-    value='execution(java.util.Map mx.finerio.api.services.CustomerService.findAll(..)) && bean(customerService) && args(params)',
+    value='execution(java.util.Map mx.finerio.api.services.CredentialService.findAll(..)) && bean(credentialService) && args(params)',
     argNames='params'
   )
   public void findAll( Map params ) {}
