@@ -41,12 +41,16 @@ class Credential {
   @Column(name = 'iv', nullable = true, length = 255)
   String iv
 
-    @Column(name = 'version', nullable = false)
-    Long version
+  @Column(name = 'version', nullable = false)
+  Long version
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = 'user_id', nullable = false)
   User user
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = 'customer_id', nullable = true)
+  Customer customer
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = 'institution_id', nullable = false)

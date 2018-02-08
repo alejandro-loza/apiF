@@ -8,3 +8,5 @@ databaseChangeLog:
     file: db/changelog/customers.yaml
 - include:
     file: db/changelog/customers_date_created.yaml
+- include:
+    file: db/changelog/credential_customer.yaml
