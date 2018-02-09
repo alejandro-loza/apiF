@@ -44,7 +44,7 @@ class CustomerController {
 
   @GetMapping('/customers/{id}')
   ResponseEntity findOne( @PathVariable Long id ) {
-  
+
     def instance = customerService.findOne( id )
     instance = customerService.getFields( instance )
     new ResponseEntity( instance, HttpStatus.OK )

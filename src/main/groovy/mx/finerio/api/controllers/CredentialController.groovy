@@ -31,14 +31,6 @@ class CredentialController {
     new ResponseEntity( instance, HttpStatus.CREATED )
   }
 
-  @PutMapping('/credentials/{id}')
-  ResponseEntity update( @PathVariable String id ) {
-
-    credentialService.requestData( id )
-    ResponseEntity.accepted().build()
-
-  }
-
   @GetMapping('/credentials')
   ResponseEntity findAll( @RequestParam Map<String, String> params ) {
 
@@ -46,6 +38,23 @@ class CredentialController {
     response.data = response.data.collect {
         credentialService.getFields( it ) }
     new ResponseEntity( response, HttpStatus.OK )
+
+  }
+
+  @GetMapping('/credentials/{id}')
+  ResponseEntity findOne( @PathVariable String id ) {
+
+    def instance = credentialService.findOne( id )
+    instance = credentialService.getFields( instance )
+    new ResponseEntity( instance, HttpStatus.OK )
+
+  }
+
+  @PutMapping('/credentials/{id}')
+  ResponseEntity update( @PathVariable String id ) {
+
+    credentialService.requestData( id )
+    ResponseEntity.accepted().build()
 
   }
 

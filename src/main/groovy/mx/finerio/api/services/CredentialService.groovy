@@ -98,7 +98,7 @@ class CredentialService {
     def client = securityService.getCurrent()
     def instance = credentialRepository.findOne( id )
 
-    if ( !instance || instance.customer.client.id != client.id ) {
+    if ( !instance || instance?.customer?.client?.id != client.id ) {
       throw new InstanceNotFoundException( 'credential.not.found' )
     }
  
