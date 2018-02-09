@@ -1,8 +1,5 @@
 package mx.finerio.api.services
 
-import javax.annotation.Resource
-import javax.validation.Valid
-
 import mx.finerio.api.exceptions.BadImplementationException
 import mx.finerio.api.exceptions.BadRequestException
 import mx.finerio.api.exceptions.InstanceNotFoundException
@@ -50,7 +47,7 @@ class CredentialService {
   @Autowired
   SecurityService securityService
 
-  Credential create( @Valid CredentialDto credentialDto ) throws Exception {
+  Credential create( CredentialDto credentialDto ) throws Exception {
 
     if ( !credentialDto ) {
       throw new BadImplementationException(
@@ -102,6 +99,31 @@ class CredentialService {
       throw new InstanceNotFoundException( 'credential.not.found' )
     }
  
+    instance
+
+  }
+
+  Credential update( String id, CredentialUpdateDto credentialUpdateDto
+      ) throws Exception {
+
+    validateUpdateInput( id, credentialUpdateDto )
+    def instance = findOne( id )
+
+    if ( credentialUpdateDto.securityCode ) {
+      instance.securityCode = credentialUpdateDto.securityCode
+    }
+
+    if ( credentialUpdateDto.password ) {
+
+      def encryptedData = cryptService.encrypt( credentialUpdateDto.password )
+      instance.password = encryptedData.message
+      instance.iv = encryptedData.iv
+
+    }
+
+    instance.lastUpdated = new Date()
+    instance = credentialRepository.save( instance )
+    selfReference.asyncRequestData( instance.id )
     instance
 
   }
@@ -225,6 +247,21 @@ class CredentialService {
     }
 
     credential
+
+  }
+
+  private void validateUpdateInput( String id,
+      CredentialUpdateDto credentialUpdateDto ) throws Exception {
+
+    if ( !id ) {
+      throw new BadImplementationException(
+          'credentialService.update.id.null' )
+    }
+
+    if ( !credentialUpdateDto ) {
+      throw new BadImplementationException(
+          'credentialService.update.credentialUpdateDto.null' )
+    }
 
   }
 

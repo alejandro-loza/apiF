@@ -49,8 +49,8 @@ class CredentialServiceCreateSpec extends Specification {
           [ message: 'message', iv: 'iv' ]
       1 * credentialRepository.save( _ as Credential ) >>
           new Credential( id: 'id' )
-      result instanceof Credential
       1 * credentialService.asyncRequestData( _ as String )
+      result instanceof Credential
     where:
       credentialDto = getCredentialDto()
 
