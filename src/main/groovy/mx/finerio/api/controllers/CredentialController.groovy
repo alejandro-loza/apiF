@@ -3,6 +3,7 @@ package mx.finerio.api.controllers
 import javax.validation.Valid
 
 import mx.finerio.api.dtos.CredentialDto
+import mx.finerio.api.dtos.CredentialUpdateDto
 import mx.finerio.api.services.CredentialService
 
 import org.springframework.beans.factory.annotation.Autowired
@@ -51,9 +52,15 @@ class CredentialController {
   }
 
   @PutMapping('/credentials/{id}')
-  ResponseEntity update( @PathVariable String id ) {
+  ResponseEntity update( @PathVariable String id,
+      @RequestBody @Valid CredentialUpdateDto credentialUpdateDto ) {
 
-    credentialService.requestData( id )
+    if ( credentialUpdateDto.isEmpty() ) {
+      credentialService.requestData( id )
+    } else {
+      credentialService.update( id, credentialUpdateDto )
+    }
+
     ResponseEntity.accepted().build()
 
   }

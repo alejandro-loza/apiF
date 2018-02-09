@@ -1,8 +1,5 @@
 package mx.finerio.api.services
 
-import javax.annotation.Resource
-import javax.validation.Valid
-
 import mx.finerio.api.exceptions.BadImplementationException
 import mx.finerio.api.exceptions.BadRequestException
 import mx.finerio.api.exceptions.InstanceNotFoundException
@@ -18,9 +15,6 @@ import org.springframework.transaction.annotation.Transactional
 
 @Service
 class CredentialService {
-
-  @Autowired
-  CredentialPersistenceService credentialPersistenceService
 
   @Autowired
   CustomerService customerService
@@ -50,7 +44,7 @@ class CredentialService {
   @Autowired
   SecurityService securityService
 
-  Credential create( @Valid CredentialDto credentialDto ) throws Exception {
+  Credential create( CredentialDto credentialDto ) throws Exception {
 
     if ( !credentialDto ) {
       throw new BadImplementationException(
@@ -106,9 +100,34 @@ class CredentialService {
 
   }
 
+  Credential update( String id, CredentialUpdateDto credentialUpdateDto
+      ) throws Exception {
+
+    validateUpdateInput( id, credentialUpdateDto )
+    def instance = findOne( id )
+
+    if ( credentialUpdateDto.securityCode ) {
+      instance.securityCode = credentialUpdateDto.securityCode
+    }
+
+    if ( credentialUpdateDto.password ) {
+
+      def encryptedData = cryptService.encrypt( credentialUpdateDto.password )
+      instance.password = encryptedData.message
+      instance.iv = encryptedData.iv
+
+    }
+
+    instance.lastUpdated = new Date()
+    instance = credentialRepository.save( instance )
+    selfReference.asyncRequestData( instance.id )
+    instance
+
+  }
+
   void requestData( String credentialId ) throws Exception {
 
-    def credential = findAndValidate( credentialId, 'requestData' )
+    def credential = findOne( credentialId )
     credential.providerId = 3L
     credential.errorCode = null
     credentialRepository.save( credential )
@@ -128,13 +147,12 @@ class CredentialService {
   void updateStatus( String credentialId, Credential.Status status )
       throws Exception {
 
-    def credential = findAndValidate( credentialId, 'updateStatus' )
-
     if ( !status ) {
       throw new BadImplementationException(
           'credentialService.updateStatus.status.null' )
     }
 
+    def credential = findOne( credentialId )
     credential.status = status
     credentialRepository.save( credential )
 
@@ -142,7 +160,7 @@ class CredentialService {
 
   void setFailure( String credentialId, String message ) throws Exception {
 
-    def credential = findAndValidate( credentialId, 'setFailure' )
+    def credential = findOne( credentialId )
 
     if ( message == null ) {
       throw new BadImplementationException(
@@ -214,17 +232,18 @@ class CredentialService {
 
   }
 
-  private Credential findAndValidate( String id, String method )
-      throws Exception {
+  private void validateUpdateInput( String id,
+      CredentialUpdateDto credentialUpdateDto ) throws Exception {
 
-    def credential = credentialPersistenceService.findOne( id )
-
-    if ( !credential ) {
-      throw new InstanceNotFoundException(
-          "credential.${method}.credential.null" )
+    if ( !id ) {
+      throw new BadImplementationException(
+          'credentialService.update.id.null' )
     }
 
-    credential
+    if ( !credentialUpdateDto ) {
+      throw new BadImplementationException(
+          'credentialService.update.credentialUpdateDto.null' )
+    }
 
   }
 
