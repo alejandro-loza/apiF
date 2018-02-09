@@ -1,0 +1,52 @@
+databaseChangeLog:
+- changeSet:
+    id: callbacks
+    author: alejandro.garcia
+    changes:
+    - createTable:
+        tableName: callbacks
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+              nullable: false
+        - column:
+            name: url
+            type: java.sql.Types.VARCHAR(200)
+            constraints:
+              nullable: false
+        - column:
+            name: nature
+            type: java.sql.Types.VARCHAR(20)
+            constraints:
+              nullable: false
+        - column:
+            name: date_created
+            type: DATETIME
+            constraints:
+              nullable: false
+        - column:
+            name: last_updated
+            type: DATETIME
+            constraints:
+              nullable: false
+        - column:
+            name: client_id
+            type: BIGINT
+            constraints:
+              nullable: false
+- changeSet:
+    id: callbacks_clients_fk
+    author: alejandro.garcia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: client_id
+        baseTableName: callbacks
+        constraintName: fk_callbacks_clients
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: id
+        referencedTableName: clients
