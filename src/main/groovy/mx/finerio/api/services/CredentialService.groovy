@@ -17,9 +17,6 @@ import org.springframework.transaction.annotation.Transactional
 class CredentialService {
 
   @Autowired
-  CredentialPersistenceService credentialPersistenceService
-
-  @Autowired
   CustomerService customerService
 
   @Autowired
@@ -130,7 +127,7 @@ class CredentialService {
 
   void requestData( String credentialId ) throws Exception {
 
-    def credential = findAndValidate( credentialId, 'requestData' )
+    def credential = findOne( credentialId )
     credential.providerId = 3L
     credential.errorCode = null
     credentialRepository.save( credential )
@@ -150,13 +147,12 @@ class CredentialService {
   void updateStatus( String credentialId, Credential.Status status )
       throws Exception {
 
-    def credential = findAndValidate( credentialId, 'updateStatus' )
-
     if ( !status ) {
       throw new BadImplementationException(
           'credentialService.updateStatus.status.null' )
     }
 
+    def credential = findOne( credentialId )
     credential.status = status
     credentialRepository.save( credential )
 
@@ -164,7 +160,7 @@ class CredentialService {
 
   void setFailure( String credentialId, String message ) throws Exception {
 
-    def credential = findAndValidate( credentialId, 'setFailure' )
+    def credential = findOne( credentialId )
 
     if ( message == null ) {
       throw new BadImplementationException(
@@ -233,20 +229,6 @@ class CredentialService {
     }
 
     dto
-
-  }
-
-  private Credential findAndValidate( String id, String method )
-      throws Exception {
-
-    def credential = credentialPersistenceService.findOne( id )
-
-    if ( !credential ) {
-      throw new InstanceNotFoundException(
-          "credential.${method}.credential.null" )
-    }
-
-    credential
 
   }
 

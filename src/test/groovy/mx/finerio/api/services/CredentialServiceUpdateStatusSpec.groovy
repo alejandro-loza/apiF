@@ -1,6 +1,8 @@
 package mx.finerio.api.services
 
+import mx.finerio.api.domain.Client
 import mx.finerio.api.domain.Credential
+import mx.finerio.api.domain.Customer
 import mx.finerio.api.domain.repository.CredentialRepository
 import mx.finerio.api.domain.FinancialInstitution
 import mx.finerio.api.domain.User
@@ -13,12 +15,12 @@ class CredentialServiceUpdateStatusSpec extends Specification {
 
   def service = new CredentialService()
 
-  def credentialPersistenceService = Mock( CredentialPersistenceService )
+  def securityService = Mock( SecurityService )
   def credentialRepository = Mock( CredentialRepository )
 
   def setup() {
 
-    service.credentialPersistenceService = credentialPersistenceService
+    service.securityService = securityService
     service.credentialRepository = credentialRepository
 
   }
@@ -28,13 +30,17 @@ class CredentialServiceUpdateStatusSpec extends Specification {
     when:
       service.updateStatus( credentialId, status )
     then:
-      1 * credentialPersistenceService.findOne( _ as String ) >>
-          new Credential( user: new User(),
-          institution: new FinancialInstitution() )
+      1 * securityService.getCurrent() >> client
+      1 * credentialRepository.findOne( _ as String ) >>
+          new Credential( customer: new Customer(
+          client: client ),
+          institution: new FinancialInstitution(),
+          user: new User() )
       1 * credentialRepository.save( _ as Credential )
     where:
       credentialId = UUID.randomUUID().toString()
       status = Credential.Status.ACTIVE
+      client = new Client( id: 1 )
 
   }
 
@@ -43,9 +49,8 @@ class CredentialServiceUpdateStatusSpec extends Specification {
     when:
       service.updateStatus( credentialId, status )
     then:
-      1 * credentialPersistenceService.findOne( credentialId ) >> null
-      InstanceNotFoundException e = thrown()
-      e.message == 'credential.updateStatus.credential.null'
+      BadImplementationException e = thrown()
+      e.message == 'credentialService.findOne.id.null'
     where:
       credentialId = null
       status = Credential.Status.ACTIVE
@@ -57,9 +62,8 @@ class CredentialServiceUpdateStatusSpec extends Specification {
     when:
       service.updateStatus( credentialId, status )
     then:
-      1 * credentialPersistenceService.findOne( credentialId ) >> null
-      InstanceNotFoundException e = thrown()
-      e.message == 'credential.updateStatus.credential.null'
+      BadImplementationException e = thrown()
+      e.message == 'credentialService.findOne.id.null'
     where:
       credentialId = ''
       status = Credential.Status.ACTIVE
@@ -71,9 +75,8 @@ class CredentialServiceUpdateStatusSpec extends Specification {
     when:
       service.updateStatus( credentialId, status )
     then:
-      1 * credentialPersistenceService.findOne( _ as String ) >> null
       InstanceNotFoundException e = thrown()
-      e.message == 'credential.updateStatus.credential.null'
+      e.message == 'credential.not.found'
     where:
       credentialId = UUID.randomUUID().toString()
       status = Credential.Status.ACTIVE
@@ -85,9 +88,6 @@ class CredentialServiceUpdateStatusSpec extends Specification {
     when:
       service.updateStatus( credentialId, status )
     then:
-      1 * credentialPersistenceService.findOne( credentialId ) >>
-          new Credential( user: new User(),
-          institution: new FinancialInstitution() )
       BadImplementationException e = thrown()
       e.message == 'credentialService.updateStatus.status.null'
     where:
