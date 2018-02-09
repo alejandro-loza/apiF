@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.PageRequest
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.PutMapping
@@ -28,6 +29,25 @@ class CredentialController {
     def instance = credentialService.create( credentialDto )
     instance = credentialService.getFields( instance )
     new ResponseEntity( instance, HttpStatus.CREATED )
+  }
+
+  @GetMapping('/credentials')
+  ResponseEntity findAll( @RequestParam Map<String, String> params ) {
+
+    def response = credentialService.findAll( params )
+    response.data = response.data.collect {
+        credentialService.getFields( it ) }
+    new ResponseEntity( response, HttpStatus.OK )
+
+  }
+
+  @GetMapping('/credentials/{id}')
+  ResponseEntity findOne( @PathVariable String id ) {
+
+    def instance = credentialService.findOne( id )
+    instance = credentialService.getFields( instance )
+    new ResponseEntity( instance, HttpStatus.OK )
+
   }
 
   @PutMapping('/credentials/{id}')

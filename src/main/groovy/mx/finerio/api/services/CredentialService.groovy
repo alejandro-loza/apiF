@@ -44,6 +44,12 @@ class CredentialService {
   @Lazy
   CredentialService selfReference
 
+  @Autowired
+  ListService listService
+
+  @Autowired
+  SecurityService securityService
+
   Credential create( @Valid CredentialDto credentialDto ) throws Exception {
 
     if ( !credentialDto ) {
@@ -65,6 +71,37 @@ class CredentialService {
     def data = [ customer: customer, bank: bank, credentialDto: credentialDto ]
     def instance = createInstance( data )
     selfReference.asyncRequestData( instance.id )
+    instance
+
+  }
+
+  Map findAll( Map params ) throws Exception {
+
+    if ( params == null ) {
+      throw new BadImplementationException(
+          'credentialService.findAll.params.null' )
+    }
+ 
+    def dto = getFindAllDto( params )
+    def spec = CredentialSpecs.findAll( dto )
+    listService.findAll( dto, credentialRepository, spec )
+
+  }
+
+  Credential findOne( String id ) throws Exception {
+
+    if ( !id ) {
+      throw new BadImplementationException(
+          'credentialService.findOne.id.null' )
+    }
+ 
+    def client = securityService.getCurrent()
+    def instance = credentialRepository.findOne( id )
+
+    if ( !instance || instance?.customer?.client?.id != client.id ) {
+      throw new InstanceNotFoundException( 'credential.not.found' )
+    }
+ 
     instance
 
   }
@@ -149,6 +186,31 @@ class CredentialService {
     instance.version = 0
     instance.providerId = 3L
     credentialRepository.save( instance )
+
+  }
+
+  private CredentialListDto getFindAllDto( Map params ) throws Exception {
+
+    if ( !params.customerId ) {
+      throw new BadRequestException( 'credential.findAll.customerId.null' )
+    }
+
+    def dto = new CredentialListDto()
+
+    try {
+      dto.customer = customerService.findOne( params.customerId as Long )
+    } catch ( NumberFormatException e ) {
+      throw new BadRequestException( 'credential.findAll.customerId.invalid' )
+    }
+
+    listService.validateFindAllDto( dto, params )
+
+    if ( params.cursor ) {
+      def cursorInstance = findOne( params.cursor )
+      dto.dateCreated = cursorInstance.dateCreated
+    }
+
+    dto
 
   }
 

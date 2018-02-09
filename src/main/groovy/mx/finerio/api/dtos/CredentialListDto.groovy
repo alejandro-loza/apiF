@@ -4,12 +4,12 @@ import groovy.transform.ToString
 
 import javax.validation.constraints.*
 
-import mx.finerio.api.domain.Client
+import mx.finerio.api.domain.Customer
 
 @ToString(includePackage = false, includeNames = true)
-class CustomerListDto extends ListDto {
+class CredentialListDto extends ListDto {
 
-  Long cursor
-  Client client
+  Date dateCreated
+  Customer customer
 
 }

@@ -35,8 +35,7 @@ class CustomerController {
   @GetMapping('/customers')
   ResponseEntity findAll( @RequestParam Map<String, String> params ) {
   
-    def dto = customerService.validateFindAllParams( params )
-    def response = customerService.findAll( dto )
+    def response = customerService.findAll( params )
     response.data = response.data.collect {
         customerService.getFields( it ) }
     new ResponseEntity( response, HttpStatus.OK )
@@ -45,7 +44,7 @@ class CustomerController {
 
   @GetMapping('/customers/{id}')
   ResponseEntity findOne( @PathVariable Long id ) {
-  
+
     def instance = customerService.findOne( id )
     instance = customerService.getFields( instance )
     new ResponseEntity( instance, HttpStatus.OK )
