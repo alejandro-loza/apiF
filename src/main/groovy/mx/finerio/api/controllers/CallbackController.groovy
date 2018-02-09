@@ -30,4 +30,14 @@ class CallbackController {
 
   }
 
+  @GetMapping('/clients/callbacks')
+  ResponseEntity findAll() {
+  
+    def response = callbackService.findAll()
+    response.data = response.data.collect {
+        callbackService.getFields( it ) }
+    new ResponseEntity( response, HttpStatus.OK )
+
+  }
+
 }

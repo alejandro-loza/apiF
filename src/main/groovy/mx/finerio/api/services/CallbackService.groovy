@@ -48,6 +48,10 @@ class CallbackService {
 
   }
 
+  Map findAll() throws Exception {
+    [ data: callbackRepository.findAll(), nextCursor: null ]
+  }
+
   Map getFields( Callback callback ) throws Exception {
 
     if ( !callback ) {
