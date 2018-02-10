@@ -5,6 +5,7 @@ import javax.validation.Valid
 import mx.finerio.api.domain.Callback
 import mx.finerio.api.domain.repository.CallbackRepository
 import mx.finerio.api.dtos.CallbackDto
+import mx.finerio.api.dtos.CallbackUpdateDto
 import mx.finerio.api.exceptions.BadImplementationException
 import mx.finerio.api.exceptions.BadRequestException
 import mx.finerio.api.exceptions.InstanceNotFoundException
@@ -52,18 +53,6 @@ class CallbackService {
     [ data: callbackRepository.findAll(), nextCursor: null ]
   }
 
-  Map getFields( Callback callback ) throws Exception {
-
-    if ( !callback ) {
-      throw new BadImplementationException(
-          'callbackService.getFields.callback.null' )
-    }
- 
-    [ id: callback.id, url: callback.url, nature: callback.nature,
-        dateCreated: callback.dateCreated, lastUpdated: callback.lastUpdated ]
-
-  }
-
   Callback findOne( Long id ) throws Exception {
 
     if ( id == null ) {
@@ -79,6 +68,38 @@ class CallbackService {
     }
  
     instance
+
+  }
+
+  Callback update( Long id, CallbackUpdateDto callbackUpdateDto )
+      throws Exception {
+
+    if ( id == null ) {
+      throw new BadImplementationException(
+          'callbackService.update.id.null' )
+    }
+ 
+    if ( !callbackUpdateDto ) {
+      throw new BadImplementationException(
+          'callbackService.update.callbackUpdateDto.null' )
+    }
+ 
+    def instance = findOne( id )
+    instance.url = callbackUpdateDto.url
+    instance.lastUpdated = new Date()
+    callbackRepository.save( instance )
+
+  }
+
+  Map getFields( Callback callback ) throws Exception {
+
+    if ( !callback ) {
+      throw new BadImplementationException(
+          'callbackService.getFields.callback.null' )
+    }
+ 
+    [ id: callback.id, url: callback.url, nature: callback.nature,
+        dateCreated: callback.dateCreated, lastUpdated: callback.lastUpdated ]
 
   }
 
