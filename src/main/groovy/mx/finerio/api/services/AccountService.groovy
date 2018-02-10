@@ -101,6 +101,8 @@ class AccountService {
       return extraData.number ?: extraData.tarjeta
     } else if ( institution.code == 'HSBC' ) {
       return extraData.number
+    } else if ( institution.code == 'BANORTE' ) {
+      return "***${extraData.short_number}"
     }
 
     null
