@@ -64,4 +64,22 @@ class CallbackService {
 
   }
 
+  Callback findOne( Long id ) throws Exception {
+
+    if ( id == null ) {
+      throw new BadImplementationException(
+          'callbackService.findOne.id.null' )
+    }
+ 
+    def client = securityService.getCurrent()
+    def instance = callbackRepository.findOne( id )
+
+    if ( !instance || instance.client.id != client.id ) {
+      throw new InstanceNotFoundException( 'callback.not.found' )
+    }
+ 
+    instance
+
+  }
+
 }

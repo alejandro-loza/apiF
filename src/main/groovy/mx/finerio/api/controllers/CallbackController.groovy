@@ -40,4 +40,13 @@ class CallbackController {
 
   }
 
+  @GetMapping('/clients/callbacks/{id}')
+  ResponseEntity findOne( @PathVariable Long id ) {
+
+    def instance = callbackService.findOne( id )
+    instance = callbackService.getFields( instance )
+    new ResponseEntity( instance, HttpStatus.OK )
+
+  }
+
 }
