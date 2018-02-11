@@ -152,7 +152,7 @@ class CredentialService {
           'credentialService.updateStatus.status.null' )
     }
 
-    def credential = findOne( credentialId )
+    def credential = findAndValidate( credentialId )
     credential.status = status
     credentialRepository.save( credential )
 
@@ -160,13 +160,13 @@ class CredentialService {
 
   void setFailure( String credentialId, String message ) throws Exception {
 
-    def credential = findOne( credentialId )
 
     if ( message == null ) {
       throw new BadImplementationException(
           'credentialService.setFailure.message.null' )
     }
 
+    def credential = findAndValidate( credentialId )
     credential.errorCode = message.take( 255 )
     credential.status = Credential.Status.INVALID
     credentialRepository.save( credential )
@@ -229,6 +229,23 @@ class CredentialService {
     }
 
     dto
+
+  }
+
+  private Credential findAndValidate( String id ) throws Exception {
+
+    if ( !id ) {
+      throw new BadImplementationException(
+          'credentialService.findAndValidate.id.null' )
+    }
+
+    def credential = credentialRepository.findOne( id )
+
+    if ( !credential ) {
+      throw new InstanceNotFoundException( 'credential.not.found' )
+    }
+
+    credential
 
   }
 

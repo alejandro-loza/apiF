@@ -15,12 +15,10 @@ class CredentialServiceUpdateStatusSpec extends Specification {
 
   def service = new CredentialService()
 
-  def securityService = Mock( SecurityService )
   def credentialRepository = Mock( CredentialRepository )
 
   def setup() {
 
-    service.securityService = securityService
     service.credentialRepository = credentialRepository
 
   }
@@ -30,7 +28,6 @@ class CredentialServiceUpdateStatusSpec extends Specification {
     when:
       service.updateStatus( credentialId, status )
     then:
-      1 * securityService.getCurrent() >> client
       1 * credentialRepository.findOne( _ as String ) >>
           new Credential( customer: new Customer(
           client: client ),
@@ -50,7 +47,7 @@ class CredentialServiceUpdateStatusSpec extends Specification {
       service.updateStatus( credentialId, status )
     then:
       BadImplementationException e = thrown()
-      e.message == 'credentialService.findOne.id.null'
+      e.message == 'credentialService.findAndValidate.id.null'
     where:
       credentialId = null
       status = Credential.Status.ACTIVE
@@ -63,7 +60,7 @@ class CredentialServiceUpdateStatusSpec extends Specification {
       service.updateStatus( credentialId, status )
     then:
       BadImplementationException e = thrown()
-      e.message == 'credentialService.findOne.id.null'
+      e.message == 'credentialService.findAndValidate.id.null'
     where:
       credentialId = ''
       status = Credential.Status.ACTIVE
