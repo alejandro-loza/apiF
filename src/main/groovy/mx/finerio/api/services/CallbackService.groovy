@@ -3,6 +3,7 @@ package mx.finerio.api.services
 import javax.validation.Valid
 
 import mx.finerio.api.domain.Callback
+import mx.finerio.api.domain.Client
 import mx.finerio.api.domain.repository.CallbackRepository
 import mx.finerio.api.dtos.CallbackDto
 import mx.finerio.api.dtos.CallbackUpdateDto
@@ -11,11 +12,17 @@ import mx.finerio.api.exceptions.BadRequestException
 import mx.finerio.api.exceptions.InstanceNotFoundException
 
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.context.annotation.Lazy
 import org.springframework.data.domain.PageRequest
+import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
 
 @Service
 class CallbackService {
+
+  @Autowired
+  @Lazy
+  CallbackService selfReference
 
   @Autowired
   SecurityService securityService
@@ -100,6 +107,45 @@ class CallbackService {
  
     [ id: callback.id, url: callback.url, nature: callback.nature,
         dateCreated: callback.dateCreated, lastUpdated: callback.lastUpdated ]
+
+  }
+
+  void sendToClient( Client client, Callback.Nature nature, Map data )
+      throws Exception {
+
+    validateSendToClientInput( client, nature, data )
+    def callback = callbackRepository.findByClientAndNature( client, nature )
+
+    if ( !callback ) {
+      return
+    }
+ 
+    selfReference.sendCallback( callback.url, [:], data )
+
+  }
+
+  @Async
+  void sendCallback( String url, Map headers, Map data ) throws Exception {
+    restTemplateService.post( url, headers, data )
+  }
+
+  private void validateSendToClientInput( Client client,
+    Callback.Nature nature, Map data ) throws Exception {
+
+    if ( !client ) {
+      throw new BadImplementationException(
+          'callbackService.sendToClient.client.null' )
+    }
+ 
+    if ( !nature ) {
+      throw new BadImplementationException(
+          'callbackService.sendToClient.nature.null' )
+    }
+ 
+    if ( !data ) {
+      throw new BadImplementationException(
+          'callbackService.sendToClient.data.null' )
+    }
 
   }
 

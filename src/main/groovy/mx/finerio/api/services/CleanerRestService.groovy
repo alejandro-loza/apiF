@@ -17,12 +17,6 @@ class CleanerRestService {
   @Autowired
   RestTemplateService restTemplateService
 
-//  @Value( '${categorizer.auth.username}' )
-//  String username
-
-//  @Value( '${categorizer.auth.password}' )
-//  String password
-
   String clean( String text ) throws Exception {
 
     def url = configService.findByItem( Config.Item.CLEANER_URL  )
