@@ -7,6 +7,7 @@ import mx.finerio.api.domain.Credential
 import mx.finerio.api.dtos.AccountBody
 import mx.finerio.api.dtos.FailureCallbackDto
 import mx.finerio.api.dtos.MovementBody
+import mx.finerio.api.dtos.NotifyCallbackDto
 import mx.finerio.api.dtos.SuccessCallbackDto
 import mx.finerio.api.services.AccountService
 import mx.finerio.api.services.CallbackService
@@ -83,8 +84,14 @@ class ScraperCallbackController {
   }
 
   @PostMapping( '/callbacks/notify' )
-  ResponseEntity notify( HttpServletRequest request ) {
-    log.info( 'request notify: {}', request.inputStream.text )
+  ResponseEntity notify( @RequestBody NotifyCallbackDto request ) {
+
+    def credential = credentialService.findAndValidate(
+        request?.data?.credential_id as String )
+    callbackService.sendToClient( credential?.customer?.client,
+        Callback.Nature.NOTIFY, [ credentialId: credential.id,
+        stage: request?.data?.stage  ] )
+
   }
 
 }

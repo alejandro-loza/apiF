@@ -232,7 +232,7 @@ class CredentialService {
 
   }
 
-  private Credential findAndValidate( String id ) throws Exception {
+  Credential findAndValidate( String id ) throws Exception {
 
     if ( !id ) {
       throw new BadImplementationException(
