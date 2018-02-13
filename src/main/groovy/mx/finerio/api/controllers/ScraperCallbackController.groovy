@@ -14,9 +14,6 @@ import mx.finerio.api.services.CallbackService
 import mx.finerio.api.services.CredentialService
 import mx.finerio.api.services.MovementService
 
-import org.slf4j.Logger
-import org.slf4j.LoggerFactory
-
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -28,9 +25,6 @@ import org.springframework.web.bind.annotation.RequestParam
 
 @RestController
 class ScraperCallbackController {
-
-  final static Logger log = LoggerFactory.getLogger(
-      'mx.finerio.api.controllers.ScraperController' )
 
   @Autowired
   AccountService accountService
@@ -49,6 +43,11 @@ class ScraperCallbackController {
 
     Map map = [ 'request': request.data ]
     def account = accountService.createAccount( map )
+    def credential = credentialService.findAndValidate(
+        request?.data?.credential_id as String )
+    callbackService.sendToClient( credential?.customer?.client,
+        Callback.Nature.ACCOUNTS, [ credentialId: credential.id,
+        accountId: account.id ] )
     ResponseEntity.ok( [ id: account.id ] )
 
   }
@@ -58,6 +57,11 @@ class ScraperCallbackController {
 
     Map map = [ 'request': request.data ]
     def movement = movementService.createMovement( map )
+    def credential = credentialService.findAndValidate(
+        request?.data?.credential_id as String )
+    callbackService.sendToClient( credential?.customer?.client,
+        Callback.Nature.TRANSACTIONS, [ credentialId: credential.id,
+        accountId: request.data.account_id ] )
     ResponseEntity.ok().build()
 
   }
