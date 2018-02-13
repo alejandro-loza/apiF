@@ -1,5 +1,7 @@
 package mx.finerio.api.aop
 
+import mx.finerio.api.domain.Credential
+
 import org.aspectj.lang.annotation.AfterReturning
 import org.aspectj.lang.annotation.AfterThrowing
 import org.aspectj.lang.annotation.Aspect
@@ -19,7 +21,7 @@ class CredentialServiceSetFailure {
       'mx.finerio.api.aop.CredentialServiceSetFailure' )
 
   @Pointcut(
-    value='execution(void mx.finerio.api.services.CredentialService.setFailure(..)) && bean(credentialService) && args(credentialId, message)',
+    value='execution(mx.finerio.api.domain.Credential mx.finerio.api.services.CredentialService.setFailure(..)) && bean(credentialService) && args(credentialId, message)',
     argNames='credentialId, message'
   )
   public void setFailure( String credentialId, String message ) {}
@@ -30,10 +32,11 @@ class CredentialServiceSetFailure {
   }
 
   @AfterReturning(
-    pointcut='setFailure(String, String)'
+    pointcut='setFailure(String, String)',
+    returning='credential'
   )
-  void afterReturning() {
-    log.info( '>> OK' )
+  void afterReturning( Credential credential ) {
+    log.info( '>> credential: {}', credential )
   }
 
   @AfterThrowing(
