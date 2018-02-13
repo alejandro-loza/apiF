@@ -2,12 +2,14 @@ package mx.finerio.api.controllers
 
 import javax.servlet.http.HttpServletRequest
 
+import mx.finerio.api.domain.Callback
 import mx.finerio.api.domain.Credential
 import mx.finerio.api.dtos.AccountBody
 import mx.finerio.api.dtos.FailureCallbackDto
 import mx.finerio.api.dtos.MovementBody
 import mx.finerio.api.dtos.SuccessCallbackDto
 import mx.finerio.api.services.AccountService
+import mx.finerio.api.services.CallbackService
 import mx.finerio.api.services.CredentialService
 import mx.finerio.api.services.MovementService
 
@@ -24,13 +26,16 @@ import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 
 @RestController
-class ScraperController {
+class ScraperCallbackController {
 
   final static Logger log = LoggerFactory.getLogger(
       'mx.finerio.api.controllers.ScraperController' )
 
   @Autowired
   AccountService accountService
+
+  @Autowired
+  CallbackService callbackService
 
   @Autowired
   CredentialService credentialService
@@ -59,16 +64,21 @@ class ScraperController {
   @PostMapping( '/callbacks/success' )
   ResponseEntity success( @RequestBody SuccessCallbackDto request ) {
 
-    credentialService.updateStatus( request?.data?.credential_id,
-        Credential.Status.ACTIVE )
+    def credential = credentialService.updateStatus(
+        request?.data?.credential_id, Credential.Status.ACTIVE )
+    callbackService.sendToClient( credential?.customer?.client,
+        Callback.Nature.SUCCESS, [ credentialId: credential.id ] )
 
   }
 
   @PostMapping( '/callbacks/failure' )
   ResponseEntity failure( @RequestBody FailureCallbackDto request ) {
 
-    credentialService.setFailure( request?.data?.credential_id,
-        request?.data?.error_message )
+    def credential = credentialService.setFailure(
+        request?.data?.credential_id, request?.data?.error_message )
+    callbackService.sendToClient( credential?.customer?.client,
+        Callback.Nature.FAILURE, [ credentialId: credential.id,
+        message: credential.errorCode  ] )
 
   }
 
