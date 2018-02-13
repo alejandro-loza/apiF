@@ -1,0 +1,14 @@
+package mx.finerio.api.domain.repository
+
+import org.springframework.data.jpa.repository.JpaRepository
+import org.springframework.data.jpa.repository.JpaSpecificationExecutor
+
+import mx.finerio.api.domain.Client
+import mx.finerio.api.domain.Callback
+
+interface CallbackRepository extends JpaRepository<Callback, Long>,
+    JpaSpecificationExecutor {
+  
+  Callback findByClientAndNature( Client client, Callback.Nature nature )
+
+}

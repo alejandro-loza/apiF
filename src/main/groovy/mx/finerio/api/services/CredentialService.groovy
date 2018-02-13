@@ -144,7 +144,7 @@ class CredentialService {
 
   }
 
-  void updateStatus( String credentialId, Credential.Status status )
+  Credential updateStatus( String credentialId, Credential.Status status )
       throws Exception {
 
     if ( !status ) {
@@ -158,7 +158,7 @@ class CredentialService {
 
   }
 
-  void setFailure( String credentialId, String message ) throws Exception {
+  Credential setFailure( String credentialId, String message ) throws Exception {
 
 
     if ( message == null ) {

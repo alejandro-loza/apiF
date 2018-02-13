@@ -21,7 +21,7 @@ class CredentialServiceUpdateStatus {
       'mx.finerio.api.aop.CredentialServiceUpdateStatus' )
 
   @Pointcut(
-    value='execution(void mx.finerio.api.services.CredentialService.updateStatus(..)) && bean(credentialService) && args(credentialId, status)',
+    value='execution(mx.finerio.api.domain.Credential mx.finerio.api.services.CredentialService.updateStatus(..)) && bean(credentialService) && args(credentialId, status)',
     argNames='credentialId, status'
   )
   public void updateStatus( String credentialId, Credential.Status status ) {}
@@ -32,10 +32,11 @@ class CredentialServiceUpdateStatus {
   }
 
   @AfterReturning(
-    pointcut='updateStatus(String, mx.finerio.api.domain.Credential.Status)'
+    pointcut='updateStatus(String, mx.finerio.api.domain.Credential.Status)',
+    returning='credential'
   )
-  void afterReturning() {
-    log.info( '>> OK' )
+  void afterReturning( Credential credential ) {
+    log.info( '>> credential: {}', credential )
   }
 
   @AfterThrowing(

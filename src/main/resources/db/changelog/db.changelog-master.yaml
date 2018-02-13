@@ -10,3 +10,5 @@ databaseChangeLog:
     file: db/changelog/customers_date_created.yaml
 - include:
     file: db/changelog/credential_customer.yaml
+- include:
+    file: db/changelog/callbacks.yaml

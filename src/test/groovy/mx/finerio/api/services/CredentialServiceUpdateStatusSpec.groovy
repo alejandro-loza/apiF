@@ -26,14 +26,15 @@ class CredentialServiceUpdateStatusSpec extends Specification {
   def "invoking method successfully"() {
 
     when:
-      service.updateStatus( credentialId, status )
+      def result = service.updateStatus( credentialId, status )
     then:
       1 * credentialRepository.findOne( _ as String ) >>
           new Credential( customer: new Customer(
           client: client ),
           institution: new FinancialInstitution(),
           user: new User() )
-      1 * credentialRepository.save( _ as Credential )
+      1 * credentialRepository.save( _ as Credential ) >>
+          new Credential()
     where:
       credentialId = UUID.randomUUID().toString()
       status = Credential.Status.ACTIVE
