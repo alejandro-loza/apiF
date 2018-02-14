@@ -3,18 +3,12 @@ package mx.finerio.api.dtos
 import groovy.transform.ToString
 
 @ToString(includePackage = false, includeNames = true)
-class Account {
+class AccountData {
 
-  BigInteger id
+  String credential_id
   String name
   String nature
   BigDecimal balance
-  String currency_code
   Map extra_data
-  BigInteger login_id
-  String created_at
-  String updated_at
-  String credential_id
-  String user_id
 
 }

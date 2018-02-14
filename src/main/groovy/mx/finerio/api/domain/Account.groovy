@@ -18,15 +18,15 @@ class Account {
   @GenericGenerator(name = "uuid2", strategy = "uuid2")
   String id
 
-    enum Type {
-        DEBIT, CREDIT
-    }
+  enum Type {
+    DEBIT, CREDIT
+  }
 
-    @Column(name = 'version', nullable = false)
-    Long version
+  @Column(name = 'version', nullable = false)
+  Long version = 0
 
-    @Column(name = 'class', nullable = false)
-    String clazz
+  @Column(name = 'class', nullable = false)
+  String clazz = 'mx.com.glider.dinerio.Account'
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = 'user_id', nullable = false)

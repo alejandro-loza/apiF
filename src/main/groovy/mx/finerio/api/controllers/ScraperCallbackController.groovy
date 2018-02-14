@@ -4,7 +4,7 @@ import javax.servlet.http.HttpServletRequest
 
 import mx.finerio.api.domain.Callback
 import mx.finerio.api.domain.Credential
-import mx.finerio.api.dtos.AccountBody
+import mx.finerio.api.dtos.AccountDto
 import mx.finerio.api.dtos.FailureCallbackDto
 import mx.finerio.api.dtos.MovementBody
 import mx.finerio.api.dtos.NotifyCallbackDto
@@ -39,12 +39,11 @@ class ScraperCallbackController {
   MovementService movementService
 
   @PostMapping( '/callbacks/accounts' )
-  ResponseEntity accounts( @RequestBody AccountBody request ) {
+  ResponseEntity accounts( @RequestBody AccountDto accountDto ) {
 
-    Map map = [ 'request': request.data ]
-    def account = accountService.createAccount( map )
+    def account = accountService.create( accountDto.data )
     def credential = credentialService.findAndValidate(
-        request?.data?.credential_id as String )
+        accountDto?.data?.credential_id as String )
     callbackService.sendToClient( credential?.customer?.client,
         Callback.Nature.ACCOUNTS, [ credentialId: credential.id,
         accountId: account.id ] )

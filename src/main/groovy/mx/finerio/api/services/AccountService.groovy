@@ -1,8 +1,10 @@
 package mx.finerio.api.services
 
+import mx.finerio.api.exceptions.BadImplementationException
 import mx.finerio.api.exceptions.InstanceNotFoundException
 import mx.finerio.api.domain.*
 import mx.finerio.api.domain.repository.*
+import mx.finerio.api.dtos.AccountData
 
 import org.springframework.data.domain.Pageable
 import org.springframework.beans.factory.annotation.Autowired
@@ -10,6 +12,9 @@ import org.springframework.stereotype.Service
 
 @Service
 class AccountService {
+
+  @Autowired
+  CredentialService credentialService
 
   @Autowired
   CredentialPersistenceService credentialPersistenceService
@@ -36,51 +41,31 @@ class AccountService {
     savings: 'Ahorros'
   ]
 
-  Account createAccount(Map params){
+  Account create( AccountData accountData ) {
 
-    def credential = credentialPersistenceService.findOne( params.request.credential_id )
-
-    if ( !credential ) {
-      throw new InstanceNotFoundException(
-          'account.createAccount.credential.null' )
+    if ( !accountData ) {
+      throw new BadImplementationException(
+          'accountService.create.accountData.null' )
     }
 
-    def cleanedName = params.request.name.replace( '&#092;u00f3', '\u00F3' ).trim()
-    def number = getNumber( credential.institution, params.request.extra_data )
+    def credential = credentialService.findAndValidate( accountData.credential_id )
+    def cleanedName = getAccountName( accountData.name )
+    def number = getNumber( credential.institution, accountData.extra_data )
         ?: cleanedName
-    Account account = findDuplicated(
-        credential.institution,
-        credential.user,
-        number,
-        cleanedName
-        ) ?: new Account()
+    def account = findDuplicated( credential.institution, credential.user,
+        number, cleanedName ) ?: new Account()
     account.name = cleanedName
-    account.version = 0
-    account.clazz = 'mx.com.glider.dinerio.Account'
     account.institution = credential.institution
     account.number = number
     account.user = credential.user
-    account.balance = params.request.balance
-    account.nature = NATURES[ params.request.nature ]
+    account.balance = accountData.balance
+    account.nature = NATURES[ accountData.nature ]
     account.dateCreated = account.dateCreated ?: new Date()
     account.lastUpdated = new Date()
-    if ( account.deleted )  return
-    accountRepository.save(account)
-    createAccountCredential(account,credential)
+    accountRepository.save( account )
+    createAccountCredential( account, credential )
     account
-  }
 
-  void createAccountCredential(Account account, Credential credential){
-    def accountCredential= accountCredentialRepository.findAllByAccountAndCredential(account, credential)
-    if( !accountCredential ){
-      accountCredential = new AccountCredential()
-      accountCredential.account = account
-      accountCredential.credential = credential
-      accountCredential.dateCreated = accountCredential.dateCreated ?: new Date()
-      accountCredential.lastUpdated = new Date()
-      accountCredential.version = 0
-      accountCredentialRepository.save(accountCredential)
-    }
   }
 
   Account findById( String id ){
@@ -94,7 +79,12 @@ class AccountService {
     accountRepository.getByCredentialId( credential, pageable )
   }
 
-  String getNumber( FinancialInstitution institution, Map extraData )
+  private String getAccountName( String originalAccountName )
+      throws Exception {
+    originalAccountName.replace( '&#092;u00f3', '\u00F3' ).trim()
+  }
+
+  private String getNumber( FinancialInstitution institution, Map extraData )
       throws Exception {
 
     if ( institution.code == 'SANTANDER' ) {
@@ -111,8 +101,23 @@ class AccountService {
 
   }
 
-  String getMaskedNumber( FinancialInstitution institution, String number )
-      throws Exception {
+  private Account findDuplicated( FinancialInstitution institution, User user,
+      String number, String name ) throws Exception {
+
+    def instance = accountRepository.findByInstitutionAndUserAndNumberAndDeleted(
+        institution, user, number, false )
+
+    if ( !instance ) {
+      instance = accountRepository.findByInstitutionAndUserAndNumberLikeAndDeleted(
+        institution, user, getMaskedNumber( institution, number ), false )
+    }
+
+    instance
+
+  }
+
+  private String getMaskedNumber( FinancialInstitution institution,
+      String number ) throws Exception {
 
     if ( institution.code == 'SANTANDER' ) {
 
@@ -131,47 +136,25 @@ class AccountService {
 
   }
 
-  Account findDuplicated( FinancialInstitution institution, User user,
-      String number, String name ) throws Exception {
+  private void createAccountCredential( Account account, Credential credential )
+      throws Exception {
 
-    validateFindDuplicatedInput( institution, user, number, name )
+    def accountCredential =
+        accountCredentialRepository.findAllByAccountAndCredential(
+        account, credential )
 
-    def instance = accountRepository.findByInstitutionAndUserAndNumberAndDeleted(
-        institution, user, number, false )
-
-    if ( !instance ) {
-      instance = accountRepository.findByInstitutionAndUserAndNumberLikeAndDeleted(
-        institution, user, getMaskedNumber( institution, number ), false )
+    if ( accountCredential ) {
+      return
     }
 
-    instance
+    accountCredential = new AccountCredential()
+    accountCredential.account = account
+    accountCredential.credential = credential
+    accountCredential.dateCreated = new Date()
+    accountCredential.lastUpdated = new Date()
+    accountCredential.version = 0
+    accountCredentialRepository.save( accountCredential )
 
   }
-
-  private void validateFindDuplicatedInput( FinancialInstitution institution,
-      User user, String number, String name ) throws Exception {
-
-    if ( !institution ) {
-      throw new IllegalArgumentException(
-          'account.findDuplicated.institution.null' )
-    }
-
-    if ( !user ) {
-      throw new IllegalArgumentException(
-          'account.findDuplicated.user.null' )
-    }
-
-    if ( !number ) {
-      throw new IllegalArgumentException(
-          'account.findDuplicated.number.blank' )
-    }
-
-    if ( !name ) {
-      throw new IllegalArgumentException(
-          'account.findDuplicated.name.blank' )
-    }
-
-  }
-
 
 }
