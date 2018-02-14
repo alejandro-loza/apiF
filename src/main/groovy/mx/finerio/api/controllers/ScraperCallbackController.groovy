@@ -4,7 +4,6 @@ import javax.servlet.http.HttpServletRequest
 
 import mx.finerio.api.domain.Callback
 import mx.finerio.api.domain.Credential
-import mx.finerio.api.dtos.AccountBody
 import mx.finerio.api.dtos.AccountDto
 import mx.finerio.api.dtos.FailureCallbackDto
 import mx.finerio.api.dtos.MovementBody
