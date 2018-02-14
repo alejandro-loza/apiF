@@ -68,8 +68,20 @@ class AccountService {
 
   }
 
-  Account findById( String id ){
-    accountRepository.findById( id )
+  Account findById( String id ) throws Exception {
+
+    if ( !id ) {
+      throw new BadImplementationException(
+          'accountService.findById.id.null' )
+    }
+
+    def account = accountRepository.findById( id )
+
+    if ( !account ) {
+      throw new InstanceNotFoundException( 'account.not.found' )
+    }
+
+    account
     
   }  
 
