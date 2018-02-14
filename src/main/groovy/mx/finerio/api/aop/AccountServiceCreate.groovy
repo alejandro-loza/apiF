@@ -1,7 +1,7 @@
 package mx.finerio.api.aop
 
 import mx.finerio.api.domain.Account
-import mx.finerio.api.dtos.AccountDto
+import mx.finerio.api.dtos.AccountData
 
 import org.aspectj.lang.annotation.AfterReturning
 import org.aspectj.lang.annotation.AfterThrowing
@@ -22,18 +22,18 @@ class AccountServiceCreate {
       'mx.finerio.api.aop.AccountServiceCreate' )
 
   @Pointcut(
-    value='execution(mx.finerio.api.domain.Account mx.finerio.api.services.AccountService.create(..)) && bean(accountService) && args(accountDto)',
-    argNames='accountDto'
+    value='execution(mx.finerio.api.domain.Account mx.finerio.api.services.AccountService.create(..)) && bean(accountService) && args(accountData)',
+    argNames='accountData'
   )
-  public void create( AccountDto accountDto ) {}
+  public void create( AccountData accountData ) {}
 
-  @Before('create(accountDto)')
-  void before( AccountDto accountDto ) {
-    log.info( "<< accountDto: {}", accountDto )
+  @Before('create(accountData)')
+  void before( AccountData accountData ) {
+    log.info( "<< accountData: {}", accountData )
   }
 
   @AfterReturning(
-    pointcut='create(mx.finerio.api.dtos.AccountDto)',
+    pointcut='create(mx.finerio.api.dtos.AccountData)',
     returning='response'
   )
   void afterReturning( Account response ) {
@@ -41,7 +41,7 @@ class AccountServiceCreate {
   }
 
   @AfterThrowing(
-    pointcut='create(mx.finerio.api.dtos.AccountDto)',
+    pointcut='create(mx.finerio.api.dtos.AccountData)',
     throwing='e'
   )
   void afterThrowing( Exception e ) {

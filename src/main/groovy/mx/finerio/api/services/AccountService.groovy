@@ -68,40 +68,6 @@ class AccountService {
 
   }
 
-  Account createAccount(Map params){
-
-    def credential = credentialPersistenceService.findOne( params.request.credential_id )
-
-    if ( !credential ) {
-      throw new InstanceNotFoundException(
-          'account.createAccount.credential.null' )
-    }
-
-    def cleanedName = params.request.name.replace( '&#092;u00f3', '\u00F3' ).trim()
-    def number = getNumber( credential.institution, params.request.extra_data )
-        ?: cleanedName
-    Account account = findDuplicated(
-        credential.institution,
-        credential.user,
-        number,
-        cleanedName
-        ) ?: new Account()
-    account.name = cleanedName
-    account.version = 0
-    account.clazz = 'mx.com.glider.dinerio.Account'
-    account.institution = credential.institution
-    account.number = number
-    account.user = credential.user
-    account.balance = params.request.balance
-    account.nature = NATURES[ params.request.nature ]
-    account.dateCreated = account.dateCreated ?: new Date()
-    account.lastUpdated = new Date()
-    if ( account.deleted )  return
-    accountRepository.save(account)
-    createAccountCredential(account,credential)
-    account
-  }
-
   Account findById( String id ){
     accountRepository.findById( id )
     
