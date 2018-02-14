@@ -99,10 +99,12 @@ class AccountService {
 
     if ( institution.code == 'SANTANDER' ) {
       return extraData.number ?: extraData.tarjeta
-    } else if ( institution.code == 'HSBC' ) {
+    } else if ( institution.code == 'HSBC' || institution.code == 'INVEX' ) {
       return extraData.number
     } else if ( institution.code == 'BANORTE' ) {
       return "***${extraData.short_number}"
+    } else if ( institution.code == 'AMEX' ) {
+      return "XXX-${extraData.account_token}"
     }
 
     null
