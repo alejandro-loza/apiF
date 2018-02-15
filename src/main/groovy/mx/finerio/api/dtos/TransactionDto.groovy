@@ -3,10 +3,9 @@ package mx.finerio.api.dtos
 import groovy.transform.ToString
 
 @ToString(includePackage = false, includeNames = true)
-class Transaction {
+class TransactionDto {
 
-  String made_on
-  String description
-  BigDecimal amount
+  TransactionData data
+  Map meta
 
 }

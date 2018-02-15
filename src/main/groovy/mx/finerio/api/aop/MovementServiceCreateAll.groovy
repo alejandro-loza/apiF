@@ -1,6 +1,6 @@
 package mx.finerio.api.aop
 
-import mx.finerio.api.domain.Movement
+import mx.finerio.api.dtos.TransactionData
 
 import org.aspectj.lang.annotation.AfterReturning
 import org.aspectj.lang.annotation.AfterThrowing
@@ -15,32 +15,32 @@ import org.springframework.stereotype.Component
 
 @Component
 @Aspect
-class MovementServiceCreateMovement {
+class MovementServiceCreateAll {
 
   final static Logger log = LoggerFactory.getLogger(
-      'mx.finerio.api.aop.MovementServiceCreateMovement' )
+      'mx.finerio.api.aop.MovementServiceCreateAll' )
 
   @Pointcut(
-    value='execution(mx.finerio.api.domain.Movement mx.finerio.api.services.MovementService.createMovement(..)) && bean(movementService) && args(params)',
-    argNames='params'
+    value='execution(java.util.List mx.finerio.api.services.MovementService.createAll(..)) && bean(movementService) && args(transactionData)',
+    argNames='transactionData'
   )
-  public void createMovement(Map params ) {}
+  public void createAll(TransactionData transactionData ) {}
 
-  @Before('createMovement(params)')
-  void before(Map params ) {
-    log.info( "<< params: {}", params )
+  @Before('createAll(transactionData)')
+  void before(TransactionData transactionData ) {
+    log.info( "<< transactionData: {}", transactionData )
   }
 
   @AfterReturning(
-    pointcut='createMovement(java.util.Map)',
+    pointcut='createAll(mx.finerio.api.dtos.TransactionData)',
     returning='response'
   )
-  void afterReturning( Movement response ) {
+  void afterReturning( List response ) {
     log.info( '>> response: {}', response )
   }
 
   @AfterThrowing(
-    pointcut='createMovement(java.util.Map)',
+    pointcut='createAll(mx.finerio.api.dtos.TransactionData)',
     throwing='e'
   )
   void afterThrowing( Exception e ) {

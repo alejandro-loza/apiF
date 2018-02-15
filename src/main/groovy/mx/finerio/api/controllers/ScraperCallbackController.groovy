@@ -6,7 +6,7 @@ import mx.finerio.api.domain.Callback
 import mx.finerio.api.domain.Credential
 import mx.finerio.api.dtos.AccountDto
 import mx.finerio.api.dtos.FailureCallbackDto
-import mx.finerio.api.dtos.MovementBody
+import mx.finerio.api.dtos.TransactionDto
 import mx.finerio.api.dtos.NotifyCallbackDto
 import mx.finerio.api.dtos.SuccessCallbackDto
 import mx.finerio.api.services.AccountService
@@ -52,15 +52,23 @@ class ScraperCallbackController {
   }
 
   @PostMapping( '/callbacks/transactions' )
-  ResponseEntity transactions( @RequestBody MovementBody request ) {
+  ResponseEntity transactions( @RequestBody TransactionDto transactionDto ) {
 
-    Map map = [ 'request': request.data ]
-    def movement = movementService.createMovement( map )
+    def movements = movementService.createAll( transactionDto.data )
     def credential = credentialService.findAndValidate(
-        request?.data?.credential_id as String )
+        transactionDto?.data?.credential_id as String )
     callbackService.sendToClient( credential?.customer?.client,
         Callback.Nature.TRANSACTIONS, [ credentialId: credential.id,
-        accountId: request.data.account_id ] )
+        accountId: transactionDto.data.account_id ] )
+
+    if ( movements ) {
+      callbackService.sendToClient( credential?.customer?.client,
+          Callback.Nature.NOTIFY, [ credentialId: credential.id,
+          accountId: transactionDto.data.account_id,
+          stage: 'categorize_transactions'  ] )
+    }
+
+    movements.each { movementService.createConcept( it ) }
     ResponseEntity.ok().build()
 
   }
