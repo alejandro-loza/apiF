@@ -12,3 +12,5 @@ databaseChangeLog:
     file: db/changelog/credential_customer.yaml
 - include:
     file: db/changelog/callbacks.yaml
+- include:
+    file: db/changelog/credential_failure_messages.yaml
