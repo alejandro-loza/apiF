@@ -23,7 +23,8 @@ class CredentialFailureMessageService {
 
     validateFindByInstitutionAndMessage( institution, message )
     def credentialFailureMessage = credentialFailureMessageRepository
-        .findFirstByInstitutionAndOriginalMessage( institution, message )
+        .findFirstByInstitutionAndOriginalMessage(
+        institution, message.take( 200 ) )
 
     if ( !credentialFailureMessage ) {
       create( institution, message, defaultMessage )
@@ -57,7 +58,7 @@ class CredentialFailureMessageService {
     def credentialFailureMessage = new CredentialFailureMessage()
     credentialFailureMessage.institution = institution
     credentialFailureMessage.originalMessage = message.take( 200 )
-    credentialFailureMessage.friendlyMessage = friendlyMessage
+    credentialFailureMessage.friendlyMessage = friendlyMessage.take( 50 )
     credentialFailureMessage.dateCreated = new Date()
     credentialFailureMessageRepository.save( credentialFailureMessage )
 
