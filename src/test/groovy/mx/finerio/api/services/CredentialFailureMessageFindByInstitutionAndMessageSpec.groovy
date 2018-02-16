@@ -15,8 +15,11 @@ class CredentialFailureMessageFindByInstitutionAndMessageSpec extends Specificat
       CredentialFailureMessageRepository )
 
   def setup() {
+
     service.credentialFailureMessageRepository =
         credentialFailureMessageRepository
+    service.defaultMessage = 'defaultMessage'
+
   }
 
   def "invoking method successfully" () {
@@ -27,8 +30,8 @@ class CredentialFailureMessageFindByInstitutionAndMessageSpec extends Specificat
       1 * credentialFailureMessageRepository
           .findFirstByInstitutionAndOriginalMessage(
           _ as FinancialInstitution, _ as String ) >>
-          new CredentialFailureMessage()
-      result instanceof CredentialFailureMessage
+          new CredentialFailureMessage( friendlyMessage: 'friendlyMessage' )
+      result == 'friendlyMessage'
     where:
       institution = new FinancialInstitution()
       message = 'message'
@@ -43,7 +46,9 @@ class CredentialFailureMessageFindByInstitutionAndMessageSpec extends Specificat
       1 * credentialFailureMessageRepository
           .findFirstByInstitutionAndOriginalMessage(
           _ as FinancialInstitution, _ as String )
-      result == null
+      1 * credentialFailureMessageRepository.save(
+          _ as CredentialFailureMessage )
+      result == 'defaultMessage'
     where:
       institution = new FinancialInstitution()
       message = 'message'

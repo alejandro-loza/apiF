@@ -6,6 +6,7 @@ import mx.finerio.api.domain.repository.CredentialFailureMessageRepository
 import mx.finerio.api.exceptions.BadImplementationException
 
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 
 @Service
@@ -14,7 +15,26 @@ class CredentialFailureMessageService {
   @Autowired
   CredentialFailureMessageRepository credentialFailureMessageRepository
 
-  CredentialFailureMessage findByInstitutionAndMessage(
+  @Value('${credentialFailure.defaultMessage}')
+  String defaultMessage
+
+  String findByInstitutionAndMessage(
+      FinancialInstitution institution, String message ) throws Exception {
+
+    validateFindByInstitutionAndMessage( institution, message )
+    def credentialFailureMessage = credentialFailureMessageRepository
+        .findFirstByInstitutionAndOriginalMessage( institution, message )
+
+    if ( !credentialFailureMessage ) {
+      create( institution, message, defaultMessage )
+      return defaultMessage
+    } else {
+      return credentialFailureMessage.friendlyMessage
+    }
+
+  }
+
+  private void validateFindByInstitutionAndMessage(
       FinancialInstitution institution, String message ) throws Exception {
 
     if ( !institution ) {
@@ -29,8 +49,17 @@ class CredentialFailureMessageService {
           '.findByInstitutionAndMessage.message.null' )
     }
 
-    credentialFailureMessageRepository
-        .findFirstByInstitutionAndOriginalMessage( institution, message )
+  }
+
+  private void create( FinancialInstitution institution, String message,
+      String friendlyMessage ) throws Exception {
+
+    def credentialFailureMessage = new CredentialFailureMessage()
+    credentialFailureMessage.institution = institution
+    credentialFailureMessage.originalMessage = message.take( 200 )
+    credentialFailureMessage.friendlyMessage = friendlyMessage
+    credentialFailureMessage.dateCreated = new Date()
+    credentialFailureMessageRepository.save( credentialFailureMessage )
 
   }
 
