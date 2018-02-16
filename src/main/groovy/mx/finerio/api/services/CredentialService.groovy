@@ -17,6 +17,9 @@ import org.springframework.transaction.annotation.Transactional
 class CredentialService {
 
   @Autowired
+  CredentialFailureMessageService credentialFailureMessageService
+
+  @Autowired
   CustomerService customerService
 
   @Autowired
@@ -167,7 +170,9 @@ class CredentialService {
     }
 
     def credential = findAndValidate( credentialId )
-    credential.errorCode = message.take( 255 )
+    credential.errorCode = credentialFailureMessageService.
+        findByInstitutionAndMessage( credential.institution,
+        message ?: 'BLANK MSG' )
     credential.status = Credential.Status.INVALID
     credentialRepository.save( credential )
 
