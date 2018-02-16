@@ -32,8 +32,4 @@ class CredentialFailureMessage {
   @Column(name = 'date_created')
   Date dateCreated
 
-  @NotNull
-  @Column(name = 'last_updated')
-  Date lastUpdated
-
 }
