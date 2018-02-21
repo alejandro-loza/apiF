@@ -25,6 +25,9 @@ class CallbackService {
   CallbackService selfReference
 
   @Autowired
+  RestTemplateService restTemplateService
+
+  @Autowired
   SecurityService securityService
 
   @Autowired
