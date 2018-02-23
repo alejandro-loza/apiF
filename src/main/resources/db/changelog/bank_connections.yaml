@@ -1,0 +1,47 @@
+databaseChangeLog:
+- changeSet:
+    id: bank_connections
+    author: alejandro.garcia
+    changes:
+    - createTable:
+        tableName: bank_connections
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+              nullable: false
+        - column:
+            name: credential_id
+            type: java.sql.Types.VARCHAR(255)
+            constraints:
+              nullable: false
+        - column:
+            name: start_date
+            type: DATETIME
+            constraints:
+              nullable: false
+        - column:
+            name: end_date
+            type: DATETIME
+            constraints:
+              nullable: true
+        - column:
+            name: status
+            type: java.sql.Types.VARCHAR(20)
+            constraints:
+              nullable: false
+- changeSet:
+    id: bank_connections_credentials_fk
+    author: alejandro.garcia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: credential_id
+        baseTableName: bank_connections
+        constraintName: fk_bank_connections_credentials
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: id
+        referencedTableName: credential
