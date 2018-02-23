@@ -3,6 +3,7 @@ package mx.finerio.api.services
 import mx.finerio.api.domain.Client
 import mx.finerio.api.domain.Credential
 import mx.finerio.api.domain.Customer
+import mx.finerio.api.domain.FinancialInstitution
 import mx.finerio.api.domain.repository.CredentialRepository
 import mx.finerio.api.dtos.CredentialUpdateDto
 import mx.finerio.api.exceptions.BadImplementationException
@@ -16,12 +17,14 @@ class CredentialServiceUpdateSpec extends Specification {
 
   def credentialService = Mock( CredentialService )
   def cryptService = Mock( CryptService )
+  def financialInstitutionService = Mock( FinancialInstitutionService )
   def securityService = Mock( SecurityService )
   def credentialRepository = Mock( CredentialRepository )
 
   def setup() {
 
     service.cryptService = cryptService
+    service.financialInstitutionService = financialInstitutionService
     service.securityService = securityService
     service.selfReference = credentialService
     service.credentialRepository = credentialRepository
@@ -36,7 +39,8 @@ class CredentialServiceUpdateSpec extends Specification {
       1 * securityService.getCurrent() >> client
       1 * credentialRepository.findOne( _ as String ) >>
           new Credential( customer: new Customer(
-          client: client ) )
+          client: client ), institution: new FinancialInstitution( id: 1 ) )
+      1 * financialInstitutionService.findOneAndValidate( _ as Long )
       1 * cryptService.encrypt( _ as String ) >>
           [ message: 'message', iv: 'iv' ]
       1 * credentialRepository.save( _ as Credential ) >>

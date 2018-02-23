@@ -55,7 +55,8 @@ class CredentialService {
     }
  
     def customer = customerService.findOne( credentialDto.customerId )
-    def bank = financialInstitutionService.findOne( credentialDto.bankId )
+    def bank = financialInstitutionService.findOneAndValidate(
+        credentialDto.bankId )
 
     def existingInstance =
         credentialRepository.findByCustomerAndInstitutionAndUsername(
@@ -108,6 +109,7 @@ class CredentialService {
 
     validateUpdateInput( id, credentialUpdateDto )
     def instance = findOne( id )
+    financialInstitutionService.findOneAndValidate( instance.institution.id )
 
     if ( credentialUpdateDto.securityCode ) {
       instance.securityCode = credentialUpdateDto.securityCode

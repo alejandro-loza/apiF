@@ -40,7 +40,7 @@ class CredentialServiceCreateSpec extends Specification {
       def result = service.create( credentialDto )
     then:
       1 * customerService.findOne( _ as Long ) >> new Customer()
-      1 * financialInstitutionService.findOne( _ as Long ) >>
+      1 * financialInstitutionService.findOneAndValidate( _ as Long ) >>
           new FinancialInstitution()
       1 * credentialRepository.findByCustomerAndInstitutionAndUsername(
           _ as Customer, _ as FinancialInstitution, _ as String )
@@ -74,7 +74,7 @@ class CredentialServiceCreateSpec extends Specification {
       service.create( credentialDto )
     then:
       1 * customerService.findOne( _ as Long ) >> new Customer()
-      1 * financialInstitutionService.findOne( _ as Long ) >>
+      1 * financialInstitutionService.findOneAndValidate( _ as Long ) >>
           new FinancialInstitution()
       1 * credentialRepository.findByCustomerAndInstitutionAndUsername(
           _ as Customer, _ as FinancialInstitution, _ as String ) >>
