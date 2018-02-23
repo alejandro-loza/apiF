@@ -68,4 +68,7 @@ class Credential {
   @Column(name = 'error_code', nullable = true, length = 255)
   String errorCode
 
+  @Column(name = 'date_deleted', nullable = true)
+  Date dateDeleted
+
 }

@@ -16,3 +16,5 @@ databaseChangeLog:
     file: db/changelog/credential_failure_messages.yaml
 - include:
     file: db/changelog/bank_connections.yaml
+- include:
+    file: db/changelog/credential_date_deleted.yaml
