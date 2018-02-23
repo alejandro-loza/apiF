@@ -7,7 +7,8 @@ import mx.finerio.api.domain.*
 
 interface CredentialRepository extends JpaRepository<Credential, Long>, JpaSpecificationExecutor {
 
-  Credential findByCustomerAndInstitutionAndUsername( Customer customer,
-      FinancialInstitution institution, String username )
+  Credential findByCustomerAndInstitutionAndUsernameAndDateDeleted(
+      Customer customer, FinancialInstitution institution, String username,
+      Date dateDeleted )
 
 }

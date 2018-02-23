@@ -83,4 +83,20 @@ class CredentialServiceFindOneSpec extends Specification {
 
   }
 
+  def "instance not found (dateDeleted is not null)"() {
+
+    when:
+      service.findOne( id )
+    then:
+      1 * securityService.getCurrent() >> new Client( id: 1 )
+      1 * credentialRepository.findOne( _ as String ) >>
+          new Credential( customer: new Customer(
+          client: new Client( id: 1 ) ), dateDeleted: new Date() )
+      InstanceNotFoundException e = thrown()
+      e.message == 'credential.not.found'
+    where:
+      id = 'uuid'
+
+  }
+
 }

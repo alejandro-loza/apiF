@@ -62,8 +62,9 @@ class CredentialService {
         credentialDto.bankId )
 
     def existingInstance =
-        credentialRepository.findByCustomerAndInstitutionAndUsername(
-            customer, bank, credentialDto.username )
+        credentialRepository.
+            findByCustomerAndInstitutionAndUsernameAndDateDeleted(
+                customer, bank, credentialDto.username, null )
 
     if ( existingInstance ) {
       throw new BadRequestException( 'credential.create.exists' )
@@ -99,7 +100,8 @@ class CredentialService {
     def client = securityService.getCurrent()
     def instance = credentialRepository.findOne( id )
 
-    if ( !instance || instance?.customer?.client?.id != client.id ) {
+    if ( !instance || instance?.customer?.client?.id != client.id ||
+        instance.dateDeleted ) {
       throw new InstanceNotFoundException( 'credential.not.found' )
     }
  
@@ -256,7 +258,7 @@ class CredentialService {
 
     def credential = credentialRepository.findOne( id )
 
-    if ( !credential ) {
+    if ( !credential || credential.dateDeleted ) {
       throw new InstanceNotFoundException( 'credential.not.found' )
     }
 

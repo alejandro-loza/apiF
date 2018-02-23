@@ -42,8 +42,9 @@ class CredentialServiceCreateSpec extends Specification {
       1 * customerService.findOne( _ as Long ) >> new Customer()
       1 * financialInstitutionService.findOneAndValidate( _ as Long ) >>
           new FinancialInstitution()
-      1 * credentialRepository.findByCustomerAndInstitutionAndUsername(
-          _ as Customer, _ as FinancialInstitution, _ as String )
+      1 * credentialRepository.
+          findByCustomerAndInstitutionAndUsernameAndDateDeleted(
+          _ as Customer, _ as FinancialInstitution, _ as String, null )
       1 * userService.getApiUser() >> new User()
       1 * cryptService.encrypt( _ as String ) >>
           [ message: 'message', iv: 'iv' ]
@@ -76,8 +77,9 @@ class CredentialServiceCreateSpec extends Specification {
       1 * customerService.findOne( _ as Long ) >> new Customer()
       1 * financialInstitutionService.findOneAndValidate( _ as Long ) >>
           new FinancialInstitution()
-      1 * credentialRepository.findByCustomerAndInstitutionAndUsername(
-          _ as Customer, _ as FinancialInstitution, _ as String ) >>
+      1 * credentialRepository.
+          findByCustomerAndInstitutionAndUsernameAndDateDeleted(
+          _ as Customer, _ as FinancialInstitution, _ as String, null ) >>
           new Credential()
       BadRequestException e = thrown()
       e.message == 'credential.create.exists'
