@@ -32,4 +32,28 @@ class BankConnectionService {
 
   }
 
+  BankConnection findByCredentialAndStatus( Credential credential,
+      BankConnection.Status status ) throws Exception {
+
+    if ( !credential ) {
+      throw new BadImplementationException(
+          'bankConnectionService.findByCredentialAndStatus.credential.null' )
+    }
+
+    if ( !status ) {
+      throw new BadImplementationException(
+          'bankConnectionService.findByCredentialAndStatus.status.null' )
+    }
+
+    def bankConnection = bankConnectionRepository
+        .findFirstByCredentialAndStatus( credential, status )
+
+    if ( !bankConnection ) {
+      throw new BadImplementationException( 'bankConnection.not.found' )
+    }
+
+    bankConnection
+
+  }
+
 }
