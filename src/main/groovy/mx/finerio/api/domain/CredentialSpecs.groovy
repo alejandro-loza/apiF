@@ -28,6 +28,7 @@ class CredentialSpecs {
               root.get( 'dateCreated' ), dto.dateCreated )
         }
 
+        predicates <<  builder.isNull( root.get( 'dateDeleted' ) )
         query.orderBy( builder.asc( root.get( 'dateCreated' ) ) )
         builder.and( predicates.toArray( new Predicate[ predicates.size() ] ) )
 
