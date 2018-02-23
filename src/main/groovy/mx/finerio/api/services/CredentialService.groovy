@@ -164,6 +164,8 @@ class CredentialService {
     def credential = findAndValidate( credentialId )
     credential.status = status
     credentialRepository.save( credential )
+    bankConnectionService.update( credential, BankConnection.Status.SUCCESS )
+    credential
 
   }
 
@@ -181,6 +183,8 @@ class CredentialService {
         message ?: 'BLANK MSG' )
     credential.status = Credential.Status.INVALID
     credentialRepository.save( credential )
+    bankConnectionService.update( credential, BankConnection.Status.FAILURE )
+    credential
 
   }
 

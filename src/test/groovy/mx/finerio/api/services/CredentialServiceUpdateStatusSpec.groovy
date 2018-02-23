@@ -1,5 +1,6 @@
 package mx.finerio.api.services
 
+import mx.finerio.api.domain.BankConnection
 import mx.finerio.api.domain.Client
 import mx.finerio.api.domain.Credential
 import mx.finerio.api.domain.Customer
@@ -15,10 +16,12 @@ class CredentialServiceUpdateStatusSpec extends Specification {
 
   def service = new CredentialService()
 
+  def bankConnectionService = Mock( BankConnectionService )
   def credentialRepository = Mock( CredentialRepository )
 
   def setup() {
 
+    service.bankConnectionService = bankConnectionService
     service.credentialRepository = credentialRepository
 
   }
@@ -35,6 +38,8 @@ class CredentialServiceUpdateStatusSpec extends Specification {
           user: new User() )
       1 * credentialRepository.save( _ as Credential ) >>
           new Credential()
+      1 * bankConnectionService.update( _ as Credential,
+          _ as BankConnection.Status )
     where:
       credentialId = UUID.randomUUID().toString()
       status = Credential.Status.ACTIVE
