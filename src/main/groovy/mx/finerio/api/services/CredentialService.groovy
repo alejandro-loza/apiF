@@ -17,6 +17,9 @@ import org.springframework.transaction.annotation.Transactional
 class CredentialService {
 
   @Autowired
+  BankConnectionService bankConnectionService
+
+  @Autowired
   CredentialFailureMessageService credentialFailureMessageService
 
   @Autowired
@@ -145,6 +148,7 @@ class CredentialService {
       institution: [ id: credential.institution.id ],
       securityCode: credential.securityCode
     ]
+    bankConnectionService.create( credential )
     scraperService.requestData( data )
 
   }

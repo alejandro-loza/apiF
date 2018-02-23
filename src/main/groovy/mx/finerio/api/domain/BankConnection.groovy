@@ -33,8 +33,7 @@ class BankConnection {
   Date endDate
 
   @Enumerated(EnumType.STRING)
-  @Size(min = 1, max = 20)
-  @Column(name = 'nature', nullable = false)
+  @Column(name = 'status', nullable = false)
   Status status
 
 }
