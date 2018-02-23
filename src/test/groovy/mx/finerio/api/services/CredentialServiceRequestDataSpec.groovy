@@ -15,12 +15,14 @@ class CredentialServiceRequestDataSpec extends Specification {
 
   def service = new CredentialService()
 
+  def bankConnectionService = Mock( BankConnectionService )
   def scraperService = Mock( DevScraperService )
   def securityService = Mock( SecurityService )
   def credentialRepository = Mock( CredentialRepository )
 
   def setup() {
 
+    service.bankConnectionService = bankConnectionService
     service.scraperService = scraperService
     service.securityService = securityService
     service.credentialRepository = credentialRepository
@@ -39,6 +41,7 @@ class CredentialServiceRequestDataSpec extends Specification {
           institution: new FinancialInstitution(),
           user: new User() )
       1 * credentialRepository.save( _ as Credential )
+      1 * bankConnectionService.create( _ as Credential )
       1 * scraperService.requestData( _ as Map ) >> [ hello: 'world' ]
     where:
       credentialId = UUID.randomUUID().toString()

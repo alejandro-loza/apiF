@@ -17,6 +17,9 @@ import org.springframework.transaction.annotation.Transactional
 class CredentialService {
 
   @Autowired
+  BankConnectionService bankConnectionService
+
+  @Autowired
   CredentialFailureMessageService credentialFailureMessageService
 
   @Autowired
@@ -145,6 +148,7 @@ class CredentialService {
       institution: [ id: credential.institution.id ],
       securityCode: credential.securityCode
     ]
+    bankConnectionService.create( credential )
     scraperService.requestData( data )
 
   }
@@ -160,6 +164,8 @@ class CredentialService {
     def credential = findAndValidate( credentialId )
     credential.status = status
     credentialRepository.save( credential )
+    bankConnectionService.update( credential, BankConnection.Status.SUCCESS )
+    credential
 
   }
 
@@ -177,6 +183,8 @@ class CredentialService {
         message ?: 'BLANK MSG' )
     credential.status = Credential.Status.INVALID
     credentialRepository.save( credential )
+    bankConnectionService.update( credential, BankConnection.Status.FAILURE )
+    credential
 
   }
 

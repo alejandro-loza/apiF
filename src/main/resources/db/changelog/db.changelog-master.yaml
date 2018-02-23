@@ -14,3 +14,5 @@ databaseChangeLog:
     file: db/changelog/callbacks.yaml
 - include:
     file: db/changelog/credential_failure_messages.yaml
+- include:
+    file: db/changelog/bank_connections.yaml
