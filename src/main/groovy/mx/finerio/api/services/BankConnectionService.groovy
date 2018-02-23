@@ -32,7 +32,29 @@ class BankConnectionService {
 
   }
 
-  BankConnection findByCredentialAndStatus( Credential credential,
+  BankConnection update( Credential credential, BankConnection.Status status )
+      throws Exception {
+
+    if ( !credential ) {
+      throw new BadImplementationException(
+          'bankConnectionService.update.credential.null' )
+    }
+ 
+    if ( !status ) {
+      throw new BadImplementationException(
+          'bankConnectionService.update.status.null' )
+    }
+
+    def bankConnection = findByCredentialAndStatus( credential,
+        BankConnection.Status.PENDING )
+    bankConnection.endDate = new Date()
+    bankConnection.status = status
+    bankConnectionRepository.save( bankConnection )
+    bankConnection
+
+  }
+
+  private BankConnection findByCredentialAndStatus( Credential credential,
       BankConnection.Status status ) throws Exception {
 
     if ( !credential ) {
