@@ -58,4 +58,8 @@ public class Movement{
 
   @Column(name = 'duplicated', nullable = false)
   Boolean duplicated = false
+
+  @Column(name = 'date_deleted', nullable = true)
+  Date dateDeleted
+
 }

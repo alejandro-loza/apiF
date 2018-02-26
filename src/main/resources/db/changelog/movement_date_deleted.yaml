@@ -1,0 +1,13 @@
+databaseChangeLog:
+- changeSet:
+    id: movement_date_deleted
+    author: alejandro.garcia
+    changes:
+    - addColumn:
+        tableName: movement
+        columns:
+        - column:
+            name: date_deleted
+            type: DATETIME
+            constraints:
+              nullable: true

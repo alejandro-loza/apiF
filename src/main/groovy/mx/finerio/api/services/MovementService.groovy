@@ -60,7 +60,7 @@ class MovementService {
     def amount = new BigDecimal( rawAmount ).abs().setScale( 2, BigDecimal.ROUND_HALF_UP )
     def type = rawAmount < 0 ? Movement.Type.CHARGE : Movement.Type.DEPOSIT
     def description = transaction.description.take( 255 )
-    def instance = movementRepository.findByDateAndDescriptionAndAmountAndTypeAndAccount(
+    def instance = movementRepository.findByDateAndDescriptionAndAmountAndTypeAndAccountAndDateDeletedIsNull(
         date, description, amount, type, account )
     def movement = instance ?: new Movement()
     movement.account = account
@@ -85,7 +85,7 @@ class MovementService {
 
   def findByAccount( String id, Pageable pageable ){
     def account = accountService.findById( id )
-    def result = movementRepository.findByAccount( account, pageable )
+    def result = movementRepository.findByAccountAndDateDeletedIsNull( account, pageable )
   }
 
 }

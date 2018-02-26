@@ -9,11 +9,11 @@ import mx.finerio.api.domain.*
 
 interface MovementRepository extends JpaRepository<Movement, Long>, JpaSpecificationExecutor {
 
-  Movement findByDateAndDescriptionAndAmountAndTypeAndAccount( Date date, String Description, BigDecimal amount, Movement.Type type, Account account )   
-  Movement findById( String id )   
+  Movement findByDateAndDescriptionAndAmountAndTypeAndAccountAndDateDeletedIsNull( Date date, String Description, BigDecimal amount, Movement.Type type, Account account )
+  Movement findByIdAndDateDeletedIsNull( String id )
 
-  List<Movement> findByAccount( Account account )   
+  List<Movement> findByAccountAndDateDeletedIsNull( Account account )
 
-  Page<Movement> findByAccount( Account account, Pageable pageable )   
+  Page<Movement> findByAccountAndDateDeletedIsNull( Account account, Pageable pageable )
 
 }

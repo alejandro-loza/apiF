@@ -37,7 +37,7 @@ class ConceptService {
 
 
     Concept create( String movementId, Map attributes ) {
-        def movement = movementRepository.findById(movementId)
+        def movement = movementRepository.findByIdAndDateDeletedIsNull(movementId)
         if (!movement) {
             return null
         }
