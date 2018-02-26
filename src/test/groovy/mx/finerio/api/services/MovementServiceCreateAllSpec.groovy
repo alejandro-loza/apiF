@@ -29,7 +29,7 @@ class MovementServiceCreateAllSpec extends Specification {
       def result = service.createAll( transactionData )
     then:
       1 * accountService.findById( _ as String ) >> new Account()
-      3 * movementRepository.findByDateAndDescriptionAndAmountAndTypeAndAccount(
+      3 * movementRepository.findByDateAndDescriptionAndAmountAndTypeAndAccountAndDateDeletedIsNull(
         _ as Date, _ as String, _ as BigDecimal, _ as Movement.Type,
         _ as Account )
       3 * movementRepository.save( _ as Movement ) >> new Movement()
@@ -47,7 +47,7 @@ class MovementServiceCreateAllSpec extends Specification {
       def result = service.createAll( transactionData )
     then:
       1 * accountService.findById( _ as String ) >> new Account()
-      3 * movementRepository.findByDateAndDescriptionAndAmountAndTypeAndAccount(
+      3 * movementRepository.findByDateAndDescriptionAndAmountAndTypeAndAccountAndDateDeletedIsNull(
         _ as Date, _ as String, _ as BigDecimal, _ as Movement.Type,
         _ as Account ) >> new Movement()
       3 * movementRepository.save( _ as Movement ) >> new Movement()
