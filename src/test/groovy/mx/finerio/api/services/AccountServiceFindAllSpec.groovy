@@ -52,9 +52,11 @@ class AccountServiceFindAllSpec extends Specification {
           _ as Object ) >> [ data:
           [ new AccountCredential( account: new Account() ),
           new AccountCredential( account: new Account() ) ],
-          nextCursor: 'nextCursor' ]
+          nextCursor: 1L ]
+      1 * accountCredentialRepository.findOne( _ as Long ) >>
+          new AccountCredential( account: new Account( id: 'id' ) )
       result instanceof Map
-      result.nextCursor == 'nextCursor'
+      result.nextCursor == 'id'
       result.data instanceof List
       result.data.size() == 2
       result.data[ 0 ] instanceof Account
@@ -89,9 +91,11 @@ class AccountServiceFindAllSpec extends Specification {
           _ as Object ) >> [ data:
           [ new AccountCredential( account: new Account() ),
           new AccountCredential( account: new Account() ) ],
-          nextCursor: 'nextCursor' ]
+          nextCursor: 1L ]
+      1 * accountCredentialRepository.findOne( _ as Long ) >>
+          new AccountCredential( account: new Account( id: 'id' ) )
       result instanceof Map
-      result.nextCursor == 'nextCursor'
+      result.nextCursor == 'id'
       result.data instanceof List
       result.data.size() == 2
       result.data[ 0 ] instanceof Account
