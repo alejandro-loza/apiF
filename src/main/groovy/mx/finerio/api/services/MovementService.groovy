@@ -4,7 +4,9 @@ import mx.finerio.api.domain.*
 import mx.finerio.api.domain.repository.*
 import mx.finerio.api.dtos.Transaction
 import mx.finerio.api.dtos.TransactionData
+import mx.finerio.api.dtos.MovementListDto
 import mx.finerio.api.exceptions.BadImplementationException
+import mx.finerio.api.exceptions.BadRequestException
 import mx.finerio.api.exceptions.InstanceNotFoundException
 
 import org.springframework.data.domain.Pageable;
@@ -24,7 +26,13 @@ class MovementService {
   CredentialPersistenceService credentialPersistenceService
 
   @Autowired
-  ConceptService conceptService 
+  ConceptService conceptService
+
+  @Autowired
+  ListService listService
+
+  @Autowired
+  SecurityService securityService
 
   List createAll( TransactionData transactionData ) throws Exception {
 
@@ -48,6 +56,55 @@ class MovementService {
       amount: movement.amount,
       type: Concept.Type.DEFAULT ]
     conceptService.create( movement.id, conceptData )
+
+  }
+
+  Map findAll( Map params ) throws Exception {
+
+    if ( params == null ) {
+      throw new BadImplementationException(
+          'movementService.findAll.params.null' )
+    }
+ 
+    def dto = getFindAllDto( params )
+    def spec = MovementSpecs.findAll( dto )
+    listService.findAll( dto, movementRepository, spec )
+
+  }
+
+  Movement findOne( String id ) throws Exception {
+
+    if ( !id ) {
+      throw new BadImplementationException(
+          'movementService.findOne.id.null' )
+    }
+ 
+    def instance = movementRepository.findOne( id )
+
+    if ( !instance || instance.dateDeleted ) {
+      throw new InstanceNotFoundException( 'movement.not.found' )
+    }
+ 
+    try {
+      accountService.findOne( instance?.account?.id )
+    } catch ( InstanceNotFoundException e ) {
+      throw new InstanceNotFoundException( 'movement.not.found' )
+    }
+    
+    instance
+
+  }
+
+  Map getFields( Movement movement ) throws Exception {
+
+    if ( !movement ) {
+      throw new BadImplementationException(
+          'movementService.getFields.movement.null' )
+    }
+ 
+    [ id: movement.id, description: movement.description,
+        amount: movement.amount, type: movement.type,
+        dateCreated: movement.customDate ]
 
   }
 
@@ -83,9 +140,23 @@ class MovementService {
 
   }
 
-  def findByAccount( String id, Pageable pageable ){
-    def account = accountService.findById( id )
-    def result = movementRepository.findByAccountAndDateDeletedIsNull( account, pageable )
+  private MovementListDto getFindAllDto( Map params ) throws Exception {
+
+    if ( !params.accountId ) {
+      throw new BadRequestException( 'movement.findAll.accountId.null' )
+    }
+
+    def dto = new MovementListDto()
+    dto.account = accountService.findOne( params.accountId )
+    listService.validateFindAllDto( dto, params )
+
+    if ( params.cursor ) {
+      def cursorInstance = findOne( params.cursor )
+      dto.dateCreated = cursorInstance.customDate
+    }
+
+    dto
+
   }
 
 }
