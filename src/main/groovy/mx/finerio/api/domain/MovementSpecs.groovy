@@ -20,7 +20,7 @@ class MovementSpecs {
         def predicates = []
 
         if ( dto.account ) {
-          predicates << builder.equal( root.get( 'account' ), dto.customer )
+          predicates << builder.equal( root.get( 'account' ), dto.account )
         }
 
         if ( dto.dateCreated ) {
