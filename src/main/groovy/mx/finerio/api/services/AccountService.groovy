@@ -1,10 +1,12 @@
 package mx.finerio.api.services
 
 import mx.finerio.api.exceptions.BadImplementationException
+import mx.finerio.api.exceptions.BadRequestException
 import mx.finerio.api.exceptions.InstanceNotFoundException
 import mx.finerio.api.domain.*
 import mx.finerio.api.domain.repository.*
 import mx.finerio.api.dtos.AccountData
+import mx.finerio.api.dtos.AccountListDto
 
 import org.springframework.data.domain.Pageable
 import org.springframework.beans.factory.annotation.Autowired
@@ -18,6 +20,12 @@ class AccountService {
 
   @Autowired
   CredentialPersistenceService credentialPersistenceService
+
+  @Autowired
+  ListService listService
+
+  @Autowired
+  SecurityService securityService
 
   @Autowired
   AccountRepository accountRepository
@@ -68,6 +76,40 @@ class AccountService {
 
   }
 
+  Map findAll( Map params ) throws Exception {
+
+    if ( params == null ) {
+      throw new BadImplementationException(
+          'accountService.findAll.params.null' )
+    }
+
+    def dto = getFindAllDto( params )
+    def spec = AccountCredentialSpecs.findAll( dto )
+    def results = listService.findAll( dto, accountCredentialRepository, spec )
+    results.data = results.data*.account
+    results
+
+  }
+
+  Account findOne( String id ) throws Exception {
+
+    if ( !id ) {
+      throw new BadImplementationException(
+          'accountService.findOne.id.null' )
+    }
+
+    def client = securityService.getCurrent()
+    def instance = accountCredentialRepository.findFirstByAccountId( id )
+
+    if ( !instance || instance?.credential?.customer?.client?.id != client.id ||
+        instance?.account?.dateDeleted ) {
+      throw new InstanceNotFoundException( 'account.not.found' )
+    }
+
+    instance.account
+
+  }
+
   Account findById( String id ) throws Exception {
 
     if ( !id ) {
@@ -83,12 +125,19 @@ class AccountService {
 
     account
     
-  }  
+  }
 
-  def findByCredentialId( String id, Pageable pageable ){
+  Map getFields( Account account ) throws Exception {
 
-    def credential = credentialPersistenceService.findOne( id )
-    accountRepository.getByCredentialId( credential, pageable )
+    if ( !account ) {
+      throw new BadImplementationException(
+          'accountService.getFields.account.null' )
+    }
+ 
+    [ id: account.id, name: account.name, number: account.number,
+        balance: account.balance, type: account.nature,
+        dateCreated: account.dateCreated ]
+
   }
 
   private String getAccountName( String originalAccountName )
@@ -166,6 +215,25 @@ class AccountService {
     accountCredential.lastUpdated = new Date()
     accountCredential.version = 0
     accountCredentialRepository.save( accountCredential )
+
+  }
+
+  private AccountListDto getFindAllDto( Map params ) throws Exception {
+
+    if ( !params.credentialId ) {
+      throw new BadRequestException( 'account.findAll.credentialId.null' )
+    }
+
+    def dto = new AccountListDto()
+    dto.credential = credentialService.findOne( params.credentialId )
+    listService.validateFindAllDto( dto, params )
+
+    if ( params.cursor ) {
+      def cursorInstance = findOne( params.cursor )
+      dto.dateCreated = cursorInstance.dateCreated
+    }
+
+    dto
 
   }
 

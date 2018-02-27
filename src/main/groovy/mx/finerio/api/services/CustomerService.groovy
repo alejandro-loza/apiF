@@ -82,7 +82,18 @@ class CustomerService {
 
   }
 
-  CustomerListDto getFindAllDto( Map params ) throws Exception {
+  Map getFields( Customer customer ) throws Exception {
+
+    if ( !customer ) {
+      throw new BadImplementationException(
+          'customerService.getFields.customer.null' )
+    }
+
+    [ id: customer.id, name: customer.name, dateCreated: customer.dateCreated ]
+
+  }
+
+  private CustomerListDto getFindAllDto( Map params ) throws Exception {
 
     def dto = new CustomerListDto()
     listService.validateFindAllDto( dto, params )
@@ -98,17 +109,6 @@ class CustomerService {
 
     dto.client = securityService.getCurrent()
     dto
-
-  }
-
-  Map getFields( Customer customer ) throws Exception {
-
-    if ( !customer ) {
-      throw new BadImplementationException(
-          'customerService.getFields.customer.null' )
-    }
- 
-    [ id: customer.id, name: customer.name, dateCreated: customer.dateCreated ]
 
   }
 
