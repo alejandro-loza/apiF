@@ -224,6 +224,23 @@ class CredentialService {
 
   }
 
+  Credential findAndValidate( String id ) throws Exception {
+
+    if ( !id ) {
+      throw new BadImplementationException(
+          'credentialService.findAndValidate.id.null' )
+    }
+
+    def credential = credentialRepository.findOne( id )
+
+    if ( !credential || credential.dateDeleted ) {
+      throw new InstanceNotFoundException( 'credential.not.found' )
+    }
+
+    credential
+
+  }
+
   private CredentialListDto getFindAllDto( Map params ) throws Exception {
 
     if ( !params.customerId ) {
@@ -246,23 +263,6 @@ class CredentialService {
     }
 
     dto
-
-  }
-
-  Credential findAndValidate( String id ) throws Exception {
-
-    if ( !id ) {
-      throw new BadImplementationException(
-          'credentialService.findAndValidate.id.null' )
-    }
-
-    def credential = credentialRepository.findOne( id )
-
-    if ( !credential || credential.dateDeleted ) {
-      throw new InstanceNotFoundException( 'credential.not.found' )
-    }
-
-    credential
 
   }
 
