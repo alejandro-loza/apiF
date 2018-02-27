@@ -173,12 +173,6 @@ class CredentialService {
 
   Credential setFailure( String credentialId, String message ) throws Exception {
 
-
-    if ( message == null ) {
-      throw new BadImplementationException(
-          'credentialService.setFailure.message.null' )
-    }
-
     def credential = findAndValidate( credentialId )
     credential.errorCode = credentialFailureMessageService.
         findByInstitutionAndMessage( credential.institution,
