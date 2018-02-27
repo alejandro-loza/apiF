@@ -87,6 +87,12 @@ class AccountService {
     def spec = AccountCredentialSpecs.findAll( dto )
     def results = listService.findAll( dto, accountCredentialRepository, spec )
     results.data = results.data*.account
+
+    if ( results.nextCursor ) {
+      results.nextCursor = accountCredentialRepository.findOne(
+          results.nextCursor ).account.id
+    }
+
     results
 
   }
