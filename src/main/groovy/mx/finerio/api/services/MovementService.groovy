@@ -59,11 +59,6 @@ class MovementService {
 
   }
 
-  def findByAccount( String id, Pageable pageable ){
-    def account = accountService.findById( id )
-    def result = movementRepository.findByAccountAndDateDeletedIsNull( account, pageable )
-  }
-
   Map findAll( Map params ) throws Exception {
 
     if ( params == null ) {

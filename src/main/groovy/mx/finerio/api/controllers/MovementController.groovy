@@ -15,14 +15,6 @@ class MovementController {
   @Autowired
   MovementService movementService
 
-  @GetMapping( '/movements/{id}' )
-  ResponseEntity getMovement( @PathVariable String id, Pageable pageable ) {
-    movementService.findByAccount( id, pageable ).content
-        .collect { [id: it.id] }
-    ResponseEntity.accepted().build()
-
-  }
-
   @GetMapping('/transactions')
   ResponseEntity findAll( @RequestParam Map<String, String> params ) {
 
