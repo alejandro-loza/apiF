@@ -95,13 +95,25 @@ class CredentialServiceSetFailureSpec extends Specification {
   def "parameter 'message' is null"() {
 
     when:
-      service.setFailure( credentialId, message )
+      def result = service.setFailure( credentialId, message )
     then:
-      BadImplementationException e = thrown()
-      e.message == 'credentialService.setFailure.message.null'
+      1 * credentialRepository.findOne( _ as String ) >>
+          new Credential( customer: new Customer(
+          client: client ),
+          institution: new FinancialInstitution(),
+          user: new User() )
+      1 * credentialFailureMessageService.
+          findByInstitutionAndMessage( _ as FinancialInstitution,
+          _ as String )
+      1 * credentialRepository.save( _ as Credential ) >>
+          new Credential()
+      1 * bankConnectionService.update( _ as Credential,
+          _ as BankConnection.Status )
+      result instanceof Credential
     where:
       credentialId = UUID.randomUUID().toString()
       message = null
+      client = new Client( id: 1 )
 
   }
 
@@ -120,6 +132,8 @@ class CredentialServiceSetFailureSpec extends Specification {
           _ as String )
       1 * credentialRepository.save( _ as Credential ) >>
           new Credential()
+      1 * bankConnectionService.update( _ as Credential,
+          _ as BankConnection.Status )
       result instanceof Credential
     where:
       credentialId = UUID.randomUUID().toString()
