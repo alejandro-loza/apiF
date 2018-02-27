@@ -133,6 +133,19 @@ class AccountService {
     
   }
 
+  Map getFields( Account account ) throws Exception {
+
+    if ( !account ) {
+      throw new BadImplementationException(
+          'accountService.getFields.account.null' )
+    }
+ 
+    [ id: account.id, name: account.name, number: account.number,
+        balance: account.balance, type: account.nature,
+        dateCreated: account.dateCreated ]
+
+  }
+
   private String getAccountName( String originalAccountName )
       throws Exception {
     originalAccountName.replace( '&#092;u00f3', '\u00F3' ).trim()
