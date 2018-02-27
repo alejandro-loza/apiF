@@ -76,12 +76,6 @@ class AccountService {
 
   }
 
-  def findByCredentialId( String id, Pageable pageable ){
-
-    def credential = credentialPersistenceService.findOne( id )
-    accountRepository.getByCredentialId( credential, pageable )
-  }
-
   Map findAll( Map params ) throws Exception {
 
     if ( params == null ) {

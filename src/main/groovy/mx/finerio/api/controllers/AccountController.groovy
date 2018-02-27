@@ -16,14 +16,6 @@ class AccountController {
   @Autowired
   AccountService accountService
 
-  @GetMapping( '/accounts/{id}' )
-  ResponseEntity getAccount( @PathVariable String id, Pageable pageable ) {
-
-    accountService.findByCredentialId( id, pageable )
-    ResponseEntity.accepted().build()
-
-  }
-
   @GetMapping('/accounts')
   ResponseEntity findAll( @RequestParam Map<String, String> params ) {
 
