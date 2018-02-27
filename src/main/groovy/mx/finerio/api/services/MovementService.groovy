@@ -100,6 +100,19 @@ class MovementService {
 
   }
 
+  Map getFields( Movement movement ) throws Exception {
+
+    if ( !movement ) {
+      throw new BadImplementationException(
+          'movementService.getFields.movement.null' )
+    }
+ 
+    [ id: movement.id, description: movement.description,
+        amount: movement.amount, type: movement.type,
+        dateCreated: movement.customDate ]
+
+  }
+
   private Movement create( Account account, Transaction transaction )
       throws Exception {
 
