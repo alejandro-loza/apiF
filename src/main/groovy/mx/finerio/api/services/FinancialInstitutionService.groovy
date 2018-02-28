@@ -17,6 +17,11 @@ class FinancialInstitutionService {
   @Autowired
   FinancialInstitutionRepository financialInstitutionRepository
 
+  Map findAll() throws Exception {
+    [ data: financialInstitutionRepository.findAll().findAll {
+        it.code != 'DINERIO' }, nextCursor: null ]
+  }
+
   FinancialInstitution findOne( Long id ) throws Exception {
 
     if ( id == null ) {
@@ -48,6 +53,18 @@ class FinancialInstitutionService {
     }
 
     financialInstitution
+
+  }
+
+  Map getFields( FinancialInstitution financialInstitution ) throws Exception {
+
+    if ( !financialInstitution ) {
+      throw new BadImplementationException(
+          'financialInstitutionService.getFields.financialInstitution.null' )
+    }
+
+    [ id: financialInstitution.id, name: financialInstitution.name,
+        status: financialInstitution.status ]
 
   }
 
