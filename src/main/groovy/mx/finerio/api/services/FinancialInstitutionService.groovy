@@ -56,4 +56,16 @@ class FinancialInstitutionService {
 
   }
 
+  Map getFields( FinancialInstitution financialInstitution ) throws Exception {
+
+    if ( !financialInstitution ) {
+      throw new BadImplementationException(
+          'financialInstitutionService.getFields.financialInstitution.null' )
+    }
+
+    [ id: financialInstitution.id, name: financialInstitution.name,
+        status: financialInstitution.status ]
+
+  }
+
 }
