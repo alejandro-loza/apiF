@@ -17,6 +17,11 @@ class FinancialInstitutionService {
   @Autowired
   FinancialInstitutionRepository financialInstitutionRepository
 
+  Map findAll() throws Exception {
+    [ data: financialInstitutionRepository.findAll().findAll {
+        it.code != 'DINERIO' }, nextCursor: null ]
+  }
+
   FinancialInstitution findOne( Long id ) throws Exception {
 
     if ( id == null ) {
