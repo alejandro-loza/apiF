@@ -8,10 +8,7 @@ import mx.finerio.api.domain.*
 import mx.finerio.api.dtos.*
 
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.context.annotation.Lazy
-import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 
 @Service
 class CredentialService {
@@ -41,10 +38,6 @@ class CredentialService {
   CryptService cryptService
 
   @Autowired
-  @Lazy
-  CredentialService selfReference
-
-  @Autowired
   ListService listService
 
   @Autowired
@@ -72,7 +65,7 @@ class CredentialService {
 
     def data = [ customer: customer, bank: bank, credentialDto: credentialDto ]
     def instance = createInstance( data )
-    selfReference.asyncRequestData( instance.id )
+    requestData( instance.id )
     instance
 
   }
@@ -130,7 +123,7 @@ class CredentialService {
 
     instance.lastUpdated = new Date()
     instance = credentialRepository.save( instance )
-    selfReference.asyncRequestData( instance.id )
+    requestData( instance.id )
     instance
 
   }
@@ -273,12 +266,6 @@ class CredentialService {
           'credentialService.update.credentialUpdateDto.null' )
     }
 
-  }
-
-  @Async
-  @Transactional
-  void asyncRequestData( String credentialId ) throws Exception {
-    requestData( credentialId )
   }
 
 }

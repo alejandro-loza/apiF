@@ -1,5 +1,6 @@
 package mx.finerio.api.services
 
+import mx.finerio.api.domain.Client
 import mx.finerio.api.domain.Credential
 import mx.finerio.api.domain.Customer
 import mx.finerio.api.domain.User
@@ -16,19 +17,23 @@ class CredentialServiceCreateSpec extends Specification {
 
   def service = new CredentialService()
 
-  def credentialService = Mock( CredentialService )
+  def bankConnectionService = Mock( BankConnectionService )
   def cryptService = Mock( CryptService )
   def customerService = Mock( CustomerService )
   def financialInstitutionService = Mock( FinancialInstitutionService )
+  def securityService = Mock( SecurityService )
+  def scraperService = Mock( DevScraperService )
   def userService = Mock( UserService )
   def credentialRepository = Mock( CredentialRepository )
 
   def setup() {
 
-    service.selfReference = credentialService
+    service.bankConnectionService = bankConnectionService
     service.cryptService = cryptService
     service.customerService = customerService
     service.financialInstitutionService = financialInstitutionService
+    service.securityService = securityService
+    service.scraperService = scraperService
     service.userService = userService
     service.credentialRepository = credentialRepository
 
@@ -48,12 +53,18 @@ class CredentialServiceCreateSpec extends Specification {
       1 * userService.getApiUser() >> new User()
       1 * cryptService.encrypt( _ as String ) >>
           [ message: 'message', iv: 'iv' ]
-      1 * credentialRepository.save( _ as Credential ) >>
+      2 * credentialRepository.save( _ as Credential ) >>
           new Credential( id: 'id' )
-      1 * credentialService.asyncRequestData( _ as String )
+      1 * securityService.getCurrent() >> client
+      1 * credentialRepository.findOne( _ as String ) >>
+          new Credential( customer: new Customer( client: client ),
+          user: new User(), institution: new FinancialInstitution() )
+      1 * bankConnectionService.create( _ as Credential )
+      1 * scraperService.requestData( _ as Map )
       result instanceof Credential
     where:
       credentialDto = getCredentialDto()
+      client = new Client( id: 1L )
 
   }
 

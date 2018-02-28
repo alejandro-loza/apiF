@@ -2,6 +2,7 @@ package mx.finerio.api.services
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
 
 @Service
@@ -22,6 +23,7 @@ class DevScraperService {
   @Autowired
   RestTemplateService restTemplateService
 
+  @Async
   Map requestData( Map data ) throws Exception {
 
     def finalUrl = "${url}/${credentialsPath}"
