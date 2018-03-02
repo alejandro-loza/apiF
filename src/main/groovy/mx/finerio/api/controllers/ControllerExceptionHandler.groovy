@@ -6,9 +6,9 @@ import mx.finerio.api.dtos.ErrorDto
 import mx.finerio.api.exceptions.BadImplementationException
 import mx.finerio.api.exceptions.BadRequestException
 import mx.finerio.api.exceptions.InstanceNotFoundException
+import mx.finerio.api.services.MessageService
 
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.context.MessageSource
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.http.converter.HttpMessageNotReadableException
@@ -21,7 +21,7 @@ import org.springframework.web.method.annotation.MethodArgumentTypeMismatchExcep
 class ControllerExceptionHandler {
 
   @Autowired
-  MessageSource messageSource
+  MessageService messageService
 
   @ExceptionHandler(BadRequestException)
   ResponseEntity handleBadRequestException(
@@ -50,6 +50,7 @@ class ControllerExceptionHandler {
 
     def errors = [ getError( e.message ) ]
     new ResponseEntity( [ errors: errors ], HttpStatus.NOT_FOUND )
+
   }
 
   @ExceptionHandler(MethodArgumentTypeMismatchException)
@@ -76,14 +77,7 @@ class ControllerExceptionHandler {
 
   private ErrorDto getError( String message, String code = null )
       throws Exception {
-
-    new ErrorDto(
-      code: code ? messageSource.getMessage( code, null, null ) : message,
-      title: messageSource.getMessage( message, null, null ),
-      detail: messageSource.getMessage( "${message}.detail".toString(),
-          null, null )
-    )
-
+    new ErrorDto( messageService.findOne( message, code ) )
   }
 
 }

@@ -53,11 +53,9 @@ class CredentialService {
     def customer = customerService.findOne( credentialDto.customerId )
     def bank = financialInstitutionService.findOneAndValidate(
         credentialDto.bankId )
-
-    def existingInstance =
-        credentialRepository.
-            findByCustomerAndInstitutionAndUsernameAndDateDeleted(
-                customer, bank, credentialDto.username, null )
+    def existingInstance = credentialRepository.
+        findByCustomerAndInstitutionAndUsernameAndDateDeleted(
+            customer, bank, credentialDto.username, null )
 
     if ( existingInstance ) {
       throw new BadRequestException( 'credential.create.exists' )
