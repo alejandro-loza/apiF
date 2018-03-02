@@ -161,7 +161,7 @@ class AccountService {
     } else if ( institution.code == 'BANORTE' ) {
       return "***${extraData.short_number}"
     } else if ( institution.code == 'AMEX' ) {
-      return "XXX-${extraData.account_token}"
+      return "XXX-${extraData.card_number_display}"
     }
 
     null
