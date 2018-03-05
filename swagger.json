@@ -1,0 +1,1029 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Finerio Banks API",
+    "description": " Welcome to the Finerio Banks API! We hope you enjoy the journey to connect your application to our systems. With Finerio Banks API, you can fetch bank information from your users, such as accounts, transactions, balances, and more.\n\nFirst of all, you need to acquire your login access.  We use OAuth2 with the 'password' type. Feel free to contact us in order to obtain these data. You need to introduce 4 ones:\n- Client ID\n- Client secret\n- Username\n- Password\n\nOnce you get access to the API (an access token), you can start using the API HTTP endpoints. A normal flow consists on:\n- Register your callbacks (optional, but strongly recommended).\n- Create a customer.\n- Create a credential.\n- Wait to receive data in your callbacks.\n- Process the information received in your callbacks.\n- Get the accounts of a credential.\n- Get the transactions of an account.\n\nAre you ready? Let's go!",
+    "version": "2.0.0",
+    "termsOfService": "https://www.finerio.mx/terms",
+    "contact": {
+      "email": "alejandro.garcia@finerio.mx"
+    }
+  },
+  "host": "api-v2-testing.finerio.mx",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "security": [
+    {
+      "OAuth2": [
+        "read",
+        "write"
+      ]
+    }
+  ],
+  "tags": [
+    {
+      "name": "Banks",
+      "description": "Banks are the financial institutions where your customers have their money."
+    },
+    {
+      "name": "Customers",
+      "description": "A customer is the representation of your customer's application"
+    },
+    {
+      "name": "Credentials",
+      "description": "A credential is the representation of your customer online bank data"
+    },
+    {
+      "name": "Accounts",
+      "description": "An account is the representation of the bank accounts of your customer"
+    },
+    {
+      "name": "Transactions",
+      "description": "A transaction is the representation of the movements of a bank account"
+    },
+    {
+      "name": "Callbacks",
+      "description": "A callback is the URL of your server where we send you several information about your customer's online bank"
+    }
+  ],
+  "paths": {
+    "/banks": {
+      "get": {
+        "tags": [
+          "Banks"
+        ],
+        "summary": "Get a list of banks.",
+        "description": "Get all the banks and financial institutions which Finerio can connect and fetch information.",
+        "responses": {
+          "200": {
+            "description": "Everything was OK. You could get a list of banks successfully.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Bank"
+              }
+            }
+          }
+        }
+      }
+    },
+    "/customers": {
+      "post": {
+        "tags": [
+          "Customers"
+        ],
+        "summary": "Create a customer.",
+        "description": "You need to register your customers in order to get their bank information. Don't worry, you just need to assign them a unique name to each one, such as an email or some kind of ID of your application.",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "customer",
+            "description": "Required parameters for create a customer",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateCustomerBody"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Everything was OK. You have registered a customer successfully.",
+            "schema": {
+              "$ref": "#/definitions/Customer"
+            }
+          },
+          "400": {
+            "description": "Whoops! something went wrong in your request",
+            "schema": {
+              "$ref": "#/definitions/Errors"
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Customers"
+        ],
+        "summary": "Get a list of customers.",
+        "description": "You can obtain a list of the customers you have registered. If you don't send any query parameter, you will get your first 100 customers. If you have more than that, you can use the 'nextCursor' parameter you got in the response of the first request and send it as the 'cursor' query parameter",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "maxResults",
+            "required": false,
+            "type": "integer",
+            "description": "The max number of items to receive in the response. Defaults to and only allows up to 100."
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "type": "integer",
+            "description": "The ID of the first element of the response you will receive. it represents the starting point of your request."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Everything was OK. You could get a list of customers successfully.",
+            "schema": {
+              "$ref": "#/definitions/CustomerList"
+            }
+          },
+          "400": {
+            "description": "Whoops! something went wrong in your request",
+            "schema": {
+              "$ref": "#/definitions/Errors"
+            }
+          },
+          "404": {
+            "description": "Whoops! you requested something that doesn't exist",
+            "schema": {
+              "$ref": "#/definitions/Errors"
+            }
+          }
+        }
+      }
+    },
+    "/customers/{id}": {
+      "get": {
+        "tags": [
+          "Customers"
+        ],
+        "summary": "Get a customer.",
+        "description": "You can fetch the information of an individual customer.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "integer",
+            "format": "int64",
+            "description": "The ID of the customer"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Everything was OK. You could get a customer successfully.",
+            "schema": {
+              "$ref": "#/definitions/Customer"
+            }
+          },
+          "400": {
+            "description": "Whoops! something went wrong in your request",
+            "schema": {
+              "$ref": "#/definitions/Errors"
+            }
+          },
+          "404": {
+            "description": "Whoops! you requested something that doesn't exist",
+            "schema": {
+              "$ref": "#/definitions/Errors"
+            }
+          }
+        }
+      }
+    },
+    "/credentials": {
+      "post": {
+        "tags": [
+          "Credentials"
+        ],
+        "summary": "Create a credential.",
+        "description": "Given a customer, you can register an online bank credential. A credential contains login access to you customer's online bank, so you must handle this information very carefully. Don't be afraid: We do not  accept these data unprotected. You must send it crypted with the Finerio Banks API Public Key (We provide it to you when we give you your access data to the API)",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "Credential",
+            "description": "Required parameters for create a credential",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateCredentialBody"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Everything was OK. You could register a credential successfully and we have begun to process it",
+            "schema": {
+              "$ref": "#/definitions/Credential"
+            }
+          },
+          "400": {
+            "description": "Whoops! something went wrong in your request",
+            "schema": {
+              "$ref": "#/definitions/Errors"
+            }
+          },
+          "404": {
+            "description": "Whoops! you requested something that doesn't exist",
+            "schema": {
+              "$ref": "#/definitions/Errors"
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Credentials"
+        ],
+        "summary": "Get a list of credentials",
+        "description": "Given a customer ID, you can obtain a list of the credentials you have registered to this customer. If you don't send any query parameter, you will get your first 100 credentials. If you have more than that, you can use the 'nextCursor' parameter you got in the response of the first request and send it as the 'cursor' query parameter",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "customerId",
+            "required": true,
+            "type": "integer",
+            "description": "The ID of the customer"
+          },
+          {
+            "in": "query",
+            "name": "maxResults",
+            "required": false,
+            "type": "integer",
+            "description": "The max number of items to receive in the response. Defaults to and only allows up to 100."
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "type": "integer",
+            "description": "The ID of the first element of the response you will receive. it represents the starting point of your request."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Everything was OK. You could get a list of credentials successfully.",
+            "schema": {
+              "$ref": "#/definitions/CredentialList"
+            }
+          },
+          "400": {
+            "description": "Whoops! something went wrong in your request",
+            "schema": {
+              "$ref": "#/definitions/Errors"
+            }
+          },
+          "404": {
+            "description": "Whoops! you requested something that doesn't exist",
+            "schema": {
+              "$ref": "#/definitions/Errors"
+            }
+          }
+        }
+      }
+    },
+    "/credentials/{id}": {
+      "get": {
+        "tags": [
+          "Credentials"
+        ],
+        "summary": "Get a credential.",
+        "description": "You can fetch the information of an individual credential.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "string",
+            "format": "uuid",
+            "description": "The ID of the credential"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Everything was OK. You could get a credential successfully.",
+            "schema": {
+              "$ref": "#/definitions/Credential"
+            }
+          },
+          "400": {
+            "description": "Whoops! something went wrong in your request",
+            "schema": {
+              "$ref": "#/definitions/Errors"
+            }
+          },
+          "404": {
+            "description": "Whoops! you requested something that doesn't exist",
+            "schema": {
+              "$ref": "#/definitions/Errors"
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Credentials"
+        ],
+        "summary": "Update a credential.",
+        "description": "Update credential's data. A credential contains login access to you customer's online bank, so you must handle this information very carefully. Don't be afraid: We do not  accept these data unprotected. You must send it crypted with the Finerio Banks API Public Key (We provide it to you when we give you your access data to the API)",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "string",
+            "format": "uuid",
+            "description": "The ID of the credential"
+          },
+          {
+            "in": "body",
+            "name": "Credential",
+            "description": "Required parameters for update a credential",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateCredentialBody"
+            }
+          }
+        ],
+        "responses": {
+          "202": {
+            "description": "Everything was OK. You could update a credential successfully and we have begun to process it",
+            "schema": {
+              "$ref": "#/definitions/Credential"
+            }
+          },
+          "400": {
+            "description": "Whoops! something went wrong in your request",
+            "schema": {
+              "$ref": "#/definitions/Errors"
+            }
+          },
+          "404": {
+            "description": "Whoops! you requested something that doesn't exist",
+            "schema": {
+              "$ref": "#/definitions/Errors"
+            }
+          }
+        }
+      }
+    },
+    "/accounts": {
+      "get": {
+        "tags": [
+          "Accounts"
+        ],
+        "summary": "Get a list of accounts",
+        "description": "Given a credential ID, you can obtain a list of the accounts you have fetched from this credential. If you don't send any query parameter, you will get your first 100 accounts. If you have more than that, you can use the 'nextCursor' parameter you got in the response of the first request and send it as the 'cursor' query parameter",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "credentialId",
+            "required": true,
+            "type": "string",
+            "format": "uuid",
+            "description": "The ID of the credential"
+          },
+          {
+            "in": "query",
+            "name": "maxResults",
+            "required": false,
+            "type": "integer",
+            "description": "The max number of items to receive in the response. Defaults to and only allows up to 100."
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "type": "integer",
+            "description": "The ID of the first element of the response you will receive. it represents the starting point of your request."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Everything was OK. You could get a list of accounts successfully.",
+            "schema": {
+              "$ref": "#/definitions/AccountList"
+            }
+          },
+          "400": {
+            "description": "Whoops! something went wrong in your request",
+            "schema": {
+              "$ref": "#/definitions/Errors"
+            }
+          },
+          "404": {
+            "description": "Whoops! you requested something that doesn't exist",
+            "schema": {
+              "$ref": "#/definitions/Errors"
+            }
+          }
+        }
+      }
+    },
+    "/transactions": {
+      "get": {
+        "tags": [
+          "Transactions"
+        ],
+        "summary": "Get a list of transactions",
+        "description": "Given an account ID, you can obtain a list of the transactions you have fetched from this account. If you don't send any query parameter, you will get your first 100 transactions. If you have more than that, you can use the 'nextCursor' parameter you got in the response of the first request and send it as the 'cursor' query parameter",
+        "parameters": [
+          {
+            "in": "query",
+            "name": "accountId",
+            "required": true,
+            "type": "string",
+            "format": "uuid",
+            "description": "The ID of the account"
+          },
+          {
+            "in": "query",
+            "name": "maxResults",
+            "required": false,
+            "type": "integer",
+            "description": "The max number of items to receive in the response. Defaults to and only allows up to 100."
+          },
+          {
+            "in": "query",
+            "name": "cursor",
+            "required": false,
+            "type": "integer",
+            "description": "The ID of the first element of the response you will receive. it represents the starting point of your request."
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Everything was OK. You could get a list of transactions successfully.",
+            "schema": {
+              "$ref": "#/definitions/TransactionList"
+            }
+          },
+          "400": {
+            "description": "Whoops! something went wrong in your request",
+            "schema": {
+              "$ref": "#/definitions/Errors"
+            }
+          },
+          "404": {
+            "description": "Whoops! you requested something that doesn't exist",
+            "schema": {
+              "$ref": "#/definitions/Errors"
+            }
+          }
+        }
+      }
+    },
+    "/callbacks": {
+      "post": {
+        "tags": [
+          "Callbacks"
+        ],
+        "summary": "Create a callback.",
+        "description": "You can register several callbacks of your server application. We send to them important information about the credentials of your customers, and we mainly notify you about the status of the connections we make to the banks. It is not required, but strongly recommended you provide callbacks in order to keep synchronized your application with our API in real time.",
+        "parameters": [
+          {
+            "in": "body",
+            "name": "Callback",
+            "description": "Required parameters for create a callback",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateCallbackBody"
+            }
+          }
+        ],
+        "responses": {
+          "201": {
+            "description": "Everything was OK. You could register a callback successfully",
+            "schema": {
+              "$ref": "#/definitions/Callback"
+            }
+          },
+          "400": {
+            "description": "Whoops! something went wrong in your request",
+            "schema": {
+              "$ref": "#/definitions/Errors"
+            }
+          }
+        }
+      },
+      "get": {
+        "tags": [
+          "Callbacks"
+        ],
+        "summary": "Get a list of callbacks.",
+        "description": "You can obtain a list of the customers you have registered.",
+        "responses": {
+          "200": {
+            "description": "Everything was OK. You could get a list of callbacks successfully.",
+            "schema": {
+              "$ref": "#/definitions/CallbackList"
+            }
+          }
+        }
+      }
+    },
+    "/callbacks/{id}": {
+      "get": {
+        "tags": [
+          "Callbacks"
+        ],
+        "summary": "Get a callback.",
+        "description": "You can fetch the information of an individual callbak.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "integer",
+            "format": "int64",
+            "description": "The ID of the callback"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Everything was OK. You could get a callback successfully.",
+            "schema": {
+              "$ref": "#/definitions/Callback"
+            }
+          },
+          "400": {
+            "description": "Whoops! something went wrong in your request",
+            "schema": {
+              "$ref": "#/definitions/Errors"
+            }
+          },
+          "404": {
+            "description": "Whoops! you requested something that doesn't exist",
+            "schema": {
+              "$ref": "#/definitions/Errors"
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Callbacks"
+        ],
+        "summary": "Updates a callback.",
+        "description": "You can update the information of an individual callbak.",
+        "parameters": [
+          {
+            "in": "path",
+            "name": "id",
+            "required": true,
+            "type": "integer",
+            "format": "int64",
+            "description": "The ID of the callback"
+          },
+          {
+            "in": "body",
+            "name": "Callback",
+            "description": "Required parameters for update a callback",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateCallbackBody"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Everything was OK. You could update a callback successfully.",
+            "schema": {
+              "$ref": "#/definitions/Callback"
+            }
+          },
+          "400": {
+            "description": "Whoops! something went wrong in your request",
+            "schema": {
+              "$ref": "#/definitions/Errors"
+            }
+          },
+          "404": {
+            "description": "Whoops! you requested something that doesn't exist",
+            "schema": {
+              "$ref": "#/definitions/Errors"
+            }
+          }
+        }
+      }
+    }
+  },
+  "securityDefinitions": {
+    "OAuth2": {
+      "type": "oauth2",
+      "flow": "password",
+      "tokenUrl": "https://api-v2.finerio.mx/oauth/token",
+      "scopes": {
+        "read": "Read",
+        "write": "Write"
+      }
+    }
+  },
+  "definitions": {
+    "Errors": {
+      "properties": {
+        "errors": {
+          "type": "array",
+          "description": "A List of errors",
+          "items": {
+            "$ref": "#/definitions/Error"
+          }
+        }
+      }
+    },
+    "Error": {
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "The code of the error. You can use this code for i18n messages inside your application",
+          "example": "error.code"
+        },
+        "title": {
+          "type": "string",
+          "description": "A brief explanation of the error",
+          "example": "Error title"
+        },
+        "detail": {
+          "type": "string",
+          "description": "A detail explanation of the error. If this message is not self explanatory, please let us know",
+          "example": "Error detail"
+        }
+      }
+    },
+    "Bank": {
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The unique ID of the bank",
+          "example": 1
+        },
+        "name": {
+          "type": "string",
+          "description": "The commercial name of the bank",
+          "example": "Banamex"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "ACTIVE",
+            "INACTIVE"
+          ],
+          "description": "The current status of the Bank. If a bank has an INACTIVE status, it means we cannot fetch information from it for some external reason.",
+          "example": "ACTIVE"
+        }
+      }
+    },
+    "Customer": {
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The unique ID of the customer",
+          "example": 1
+        },
+        "name": {
+          "type": "string",
+          "description": "The unique name of the customer you provided",
+          "example": "Customer name"
+        },
+        "dateCreated": {
+          "type": "integer",
+          "description": "The date when the customer was created. It is represented as the number of milliseconds since 1970 (Epoch time)",
+          "example": 1519838992000
+        }
+      }
+    },
+    "CreateCustomerBody": {
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The name of your customer. It can be an email, a number, a UUID or anything.",
+          "example": "mycustomer@email.com"
+        }
+      },
+      "required": [
+        "name"
+      ]
+    },
+    "CustomerList": {
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Customer"
+          }
+        },
+        "nextCursor": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The ID of the customer that can be used as the \"nextCursor\" parameter",
+          "example": 1
+        }
+      }
+    },
+    "Credential": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "The unique ID of the credential",
+          "example": "37b294e8-bde2-44b4-a8fd-a71cb284bc20"
+        },
+        "username": {
+          "type": "string",
+          "description": "The username related to this credential.",
+          "example": "username"
+        },
+        "status": {
+          "type": "string",
+          "description": "The current status of the credential.\n- 'ACTIVE' stands for a valid credential, which means we can successfully fetch data from it.\n- 'PENDING' means we are processing it.\n- 'INVALID' is the sad part when we could not make you happy with the information you requested. Apologies.",
+          "enum": [
+            "ACTIVE",
+            "PENDING",
+            "INVALID"
+          ],
+          "example": "ACTIVE"
+        },
+        "dateCreated": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The date when the credential was created. It is represented as the number of milliseconds since 1970 (Epoch time).",
+          "example": 1519838992000
+        }
+      }
+    },
+    "CreateCredentialBody": {
+      "properties": {
+        "customerId": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The ID of the customer related to this credential.",
+          "example": 1
+        },
+        "bankId": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The ID of the bank related to this credential.",
+          "example": 1
+        },
+        "username": {
+          "type": "string",
+          "format": "byte",
+          "description": "The username related to this credential. It must be encryted with the Finerio Banks API Public Key and must be encoded using Base 64.",
+          "example": "dXNlcm5hbWVldWJ0ZnZ1dHlmYnZpbnl1aGd2dXRyZHliZnRpZzd1dHlkeHllcnRma2dibmhqY2ZieGRyeXN2dGRydWJmaWdub3VsaWhtbm91Z25mOG50eWlmdG5ndml1a2hqbWJuamdmYmR1eWdudmtoZ3ZudXloZm5jdnlpZ2t1aGI="
+        },
+        "password": {
+          "type": "string",
+          "format": "byte",
+          "description": "The password related to this credential. It must be encryted with the Finerio Banks API Public Key and must be encoded using Base 64..",
+          "example": "dXNlcm5hbWVldWJ0ZnZ1dHlmYnZpbnl1aGd2dXRyZHliZnRpZzd1dHlkeHllcnRma2dibmhqY2ZieGRyeXN2dGRydWJmaWdub3VsaWhtbm91Z25mOG50eWlmdG5ndml1a2hqbWJuamdmYmR1eWdudmtoZ3ZudXloZm5jdnlpZ2t1aGI="
+        },
+        "securityCode": {
+          "type": "string",
+          "format": "byte",
+          "description": "The security code related to this credential. It must be encryted with the Finerio Banks API Public Key and must be encoded using Base 64. Only for HSBC credentials.",
+          "example": "dXNlcm5hbWVldWJ0ZnZ1dHlmYnZpbnl1aGd2dXRyZHliZnRpZzd1dHlkeHllcnRma2dibmhqY2ZieGRyeXN2dGRydWJmaWdub3VsaWhtbm91Z25mOG50eWlmdG5ndml1a2hqbWJuamdmYmR1eWdudmtoZ3ZudXloZm5jdnlpZ2t1aGI="
+        }
+      },
+      "required": [
+        "username",
+        "password",
+        "bankId",
+        "customerId"
+      ]
+    },
+    "CredentialList": {
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Credential"
+          }
+        },
+        "nextCursor": {
+          "type": "string",
+          "format": "uuid",
+          "description": "The ID of the credential that can be used as the \"nextCursor\" parameter",
+          "example": "37b294e8-bde2-44b4-a8fd-a71cb284bc20"
+        }
+      }
+    },
+    "UpdateCredentialBody": {
+      "properties": {
+        "password": {
+          "type": "string",
+          "format": "byte",
+          "description": "The password related to this credential. It must be encryted with the Finerio Banks API Public Key and must be encoded using Base 64..",
+          "example": "dXNlcm5hbWVldWJ0ZnZ1dHlmYnZpbnl1aGd2dXRyZHliZnRpZzd1dHlkeHllcnRma2dibmhqY2ZieGRyeXN2dGRydWJmaWdub3VsaWhtbm91Z25mOG50eWlmdG5ndml1a2hqbWJuamdmYmR1eWdudmtoZ3ZudXloZm5jdnlpZ2t1aGI="
+        },
+        "securityCode": {
+          "type": "string",
+          "format": "byte",
+          "description": "The security code related to this credential. It must be encryted with the Finerio Banks API Public Key and must be encoded using Base 64. Only for HSBC credentials.",
+          "example": "dXNlcm5hbWVldWJ0ZnZ1dHlmYnZpbnl1aGd2dXRyZHliZnRpZzd1dHlkeHllcnRma2dibmhqY2ZieGRyeXN2dGRydWJmaWdub3VsaWhtbm91Z25mOG50eWlmdG5ndml1a2hqbWJuamdmYmR1eWdudmtoZ3ZudXloZm5jdnlpZ2t1aGI="
+        }
+      },
+      "required": [
+        "password"
+      ]
+    },
+    "Account": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "The ID of the account",
+          "example": "37b294e8-bde2-44b4-a8fd-a71cb284bc20"
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the account",
+          "example": "CLASICA - MXN-078"
+        },
+        "number": {
+          "type": "string",
+          "description": "The number of the account",
+          "example": "61***4540"
+        },
+        "balance": {
+          "type": "number",
+          "description": "The balance of the account",
+          "example": 123.45
+        },
+        "type": {
+          "type": "string",
+          "description": "The type of the account.",
+          "example": "Crédito",
+          "enum": [
+            "Crédito",
+            "Débito",
+            "Inversión",
+            "Cheques"
+          ]
+        },
+        "dateCreated": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The date when the account was created. It is represented as the number of milliseconds since 1970 (Epoch time).",
+          "example": 1519838992000
+        }
+      }
+    },
+    "AccountList": {
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Account"
+          }
+        },
+        "nextCursor": {
+          "type": "string",
+          "format": "uuid",
+          "description": "The ID of the account that can be used as the \"nextCursor\" parameter",
+          "example": "37b294e8-bde2-44b4-a8fd-a71cb284bc20"
+        }
+      }
+    },
+    "Transaction": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "The ID of the transaction",
+          "example": "37b294e8-bde2-44b4-a8fd-a71cb284bc20"
+        },
+        "description": {
+          "type": "string",
+          "description": "A detailed description of the transaction",
+          "example": "CARGO PAGO TARJETA CREDITO"
+        },
+        "amount": {
+          "type": "number",
+          "description": "The amount of the transaction",
+          "example": 123.45
+        },
+        "type": {
+          "type": "string",
+          "description": "The type of transaction",
+          "enum": [
+            "CHARGE",
+            "DEPOSIT"
+          ]
+        },
+        "dateCreated": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The date when the transaction was created. It is represented as the number of milliseconds since 1970 (Epoch time).",
+          "example": 1519838992000
+        }
+      }
+    },
+    "TransactionList": {
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Transaction"
+          }
+        },
+        "nextCursor": {
+          "type": "string",
+          "format": "uuid",
+          "description": "The ID of the transaction that can be used as the \"nextCursor\" parameter",
+          "example": "37b294e8-bde2-44b4-a8fd-a71cb284bc20"
+        }
+      }
+    },
+    "Callback": {
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The ID of the callback",
+          "example": 1
+        },
+        "url": {
+          "type": "string",
+          "description": "The url of the callback",
+          "example": "https://example.com/callback"
+        },
+        "nature": {
+          "type": "string",
+          "description": "The nature of the callback",
+          "enum": [
+            "NOTIFY",
+            "SUCCESS",
+            "FAILURE",
+            "ACCOUNTS",
+            "TRANSACTIONS"
+          ]
+        },
+        "dateCreated": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The date when the callback was created. It is represented as the number of milliseconds since 1970 (Epoch time).",
+          "example": 1519838992000
+        },
+        "lastUpdated": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The date when the callback was updated. It is represented as the number of milliseconds since 1970 (Epoch time).",
+          "example": 1519838992000
+        }
+      }
+    },
+    "CreateCallbackBody": {
+      "properties": {
+        "url": {
+          "type": "string",
+          "description": "The url of the callback",
+          "example": "https://example.com/callback"
+        },
+        "nature": {
+          "type": "string",
+          "description": "The nature of the callback",
+          "enum": [
+            "NOTIFY",
+            "SUCCESS",
+            "FAILURE",
+            "ACCOUNTS",
+            "TRANSACTIONS"
+          ],
+          "example": "NOTIFY"
+        }
+      },
+      "required": [
+        "url",
+        "nature"
+      ]
+    },
+    "CallbackList": {
+      "properties": {
+        "data": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Callback"
+          }
+        },
+        "nextCursor": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The ID of the callback that can be used as the \"nextCursor\" parameter",
+          "example": 1
+        }
+      }
+    },
+    "UpdateCallbackBody": {
+      "properties": {
+        "url": {
+          "type": "string",
+          "description": "The url of the callback",
+          "example": "https://example.com/callback"
+        }
+      },
+      "required": [
+        "url"
+      ]
+    }
+  }
+}
