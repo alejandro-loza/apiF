@@ -610,7 +610,7 @@
     "OAuth2": {
       "type": "oauth2",
       "flow": "password",
-      "tokenUrl": "https://api-v2.finerio.mx/oauth/token",
+      "tokenUrl": "https://api-v2-testing.finerio.mx/oauth/token",
       "scopes": {
         "read": "Read",
         "write": "Write"
