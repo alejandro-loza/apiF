@@ -205,6 +205,26 @@ class CredentialService {
 
   }
 
+  void processInteractive( String id,
+      CredentialInteractiveDto credentialInteractiveDto ) throws Exception {
+
+    if ( !credentialInteractiveDto ) {
+      throw new BadImplementationException(
+          'credentialService.processInteractive.credentialInteractiveDto.null' )
+    }
+ 
+    def credential = findOne( id )
+    def data = [ data: [
+      stage: 'interactive',
+      id: credential.id,
+      user_id: credential.user.id,
+      otp: credentialInteractiveDto.token
+    ] ]
+    scraperWebSocketService.send( new JsonBuilder( data ).toString() )
+
+
+  }
+
   private Credential createInstance( Map data ) throws Exception {
 
     def credentialDto = data.credentialDto
