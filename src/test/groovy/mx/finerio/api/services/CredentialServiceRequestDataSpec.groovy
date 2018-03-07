@@ -17,6 +17,7 @@ class CredentialServiceRequestDataSpec extends Specification {
 
   def bankConnectionService = Mock( BankConnectionService )
   def scraperService = Mock( DevScraperService )
+  def scraperWebSocketService = Mock( ScraperWebSocketService )
   def securityService = Mock( SecurityService )
   def credentialRepository = Mock( CredentialRepository )
 
@@ -24,6 +25,7 @@ class CredentialServiceRequestDataSpec extends Specification {
 
     service.bankConnectionService = bankConnectionService
     service.scraperService = scraperService
+    service.scraperWebSocketService = scraperWebSocketService
     service.securityService = securityService
     service.credentialRepository = credentialRepository
 
@@ -43,6 +45,26 @@ class CredentialServiceRequestDataSpec extends Specification {
       1 * credentialRepository.save( _ as Credential )
       1 * bankConnectionService.create( _ as Credential )
       1 * scraperService.requestData( _ as Map ) >> [ hello: 'world' ]
+    where:
+      credentialId = UUID.randomUUID().toString()
+      client = new Client( id: 1 )
+
+  }
+
+  def "invoking method successfully (interactive bank)"() {
+
+    when:
+      service.requestData( credentialId )
+    then:
+      1 * securityService.getCurrent() >> client
+      1 * credentialRepository.findOne( _ as String ) >>
+          new Credential( customer: new Customer(
+          client: client ),
+          institution: new FinancialInstitution( code: 'BBVA'),
+          user: new User() )
+      1 * credentialRepository.save( _ as Credential )
+      1 * bankConnectionService.create( _ as Credential )
+      1 * scraperWebSocketService.send( _ as String )
     where:
       credentialId = UUID.randomUUID().toString()
       client = new Client( id: 1 )
