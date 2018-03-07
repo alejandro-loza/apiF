@@ -8,7 +8,7 @@ import org.hibernate.annotations.GenericGenerator
 
 @Entity
 @Table(name = 'credential')
-@ToString(excludes = 'password, iv', includeNames = true, includePackage = false)
+@ToString(excludes = 'password, securityCode, iv', includeNames = true, includePackage = false)
 class Credential {
 
   enum Status {

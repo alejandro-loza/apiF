@@ -31,6 +31,7 @@ dependencies {
   compile('org.liquibase:liquibase-core')
   compile( 'com.squareup.okhttp3:okhttp:3.9.1' )
   compile('org.springframework.security.oauth:spring-security-oauth2')
+  compile('org.bouncycastle:bcpkix-jdk15on:1.57')
 
   runtime('mysql:mysql-connector-java')
 
