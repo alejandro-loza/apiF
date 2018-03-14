@@ -3,6 +3,7 @@ package mx.finerio.api.controllers
 import javax.validation.Valid
 
 import mx.finerio.api.dtos.CredentialDto
+import mx.finerio.api.dtos.CredentialInteractiveDto
 import mx.finerio.api.dtos.CredentialUpdateDto
 import mx.finerio.api.services.CredentialService
 
@@ -61,6 +62,15 @@ class CredentialController {
       credentialService.update( id, credentialUpdateDto )
     }
 
+    ResponseEntity.accepted().build()
+
+  }
+
+  @PutMapping('/credentials/{id}/interactive')
+  ResponseEntity processInteractive( @PathVariable String id,
+      @RequestBody @Valid CredentialInteractiveDto credentialInteractiveDto ) {
+
+    credentialService.processInteractive( id, credentialInteractiveDto )
     ResponseEntity.accepted().build()
 
   }

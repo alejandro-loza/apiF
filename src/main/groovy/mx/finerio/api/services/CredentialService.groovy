@@ -1,5 +1,7 @@
 package mx.finerio.api.services
 
+import groovy.json.JsonBuilder
+
 import mx.finerio.api.exceptions.BadImplementationException
 import mx.finerio.api.exceptions.BadRequestException
 import mx.finerio.api.exceptions.InstanceNotFoundException
@@ -39,6 +41,9 @@ class CredentialService {
 
   @Autowired
   ListService listService
+
+  @Autowired
+  ScraperWebSocketService scraperWebSocketService
 
   @Autowired
   SecurityService securityService
@@ -100,6 +105,23 @@ class CredentialService {
 
   }
 
+  Credential findAndValidate( String id ) throws Exception {
+
+    if ( !id ) {
+      throw new BadImplementationException(
+          'credentialService.findAndValidate.id.null' )
+    }
+
+    def credential = credentialRepository.findOne( id )
+
+    if ( !credential || credential.dateDeleted ) {
+      throw new InstanceNotFoundException( 'credential.not.found' )
+    }
+
+    credential
+
+  }
+
   Credential update( String id, CredentialUpdateDto credentialUpdateDto
       ) throws Exception {
 
@@ -132,17 +154,13 @@ class CredentialService {
     credential.providerId = 3L
     credential.errorCode = null
     credentialRepository.save( credential )
-    def data = [
-      id: credential.id,
-      username: credential.username,
-      password: credential.password,
-      iv: credential.iv,
-      user: [ id: credential.user.id ],
-      institution: [ id: credential.institution.id ],
-      securityCode: credential.securityCode
-    ]
     bankConnectionService.create( credential )
-    scraperService.requestData( data )
+
+    if ( credential.institution.code == 'BBVA' ) {
+      sendToScraperWebSocket( credential )
+    } else {
+      sendToScraper( credential )
+    }
 
   }
 
@@ -187,6 +205,26 @@ class CredentialService {
 
   }
 
+  void processInteractive( String id,
+      CredentialInteractiveDto credentialInteractiveDto ) throws Exception {
+
+    if ( !credentialInteractiveDto ) {
+      throw new BadImplementationException(
+          'credentialService.processInteractive.credentialInteractiveDto.null' )
+    }
+ 
+    def credential = findOne( id )
+    def data = [ data: [
+      stage: 'interactive',
+      id: credential.id,
+      user_id: credential.user.id,
+      otp: credentialInteractiveDto.token
+    ] ]
+    scraperWebSocketService.send( new JsonBuilder( data ).toString() )
+
+
+  }
+
   private Credential createInstance( Map data ) throws Exception {
 
     def credentialDto = data.credentialDto
@@ -206,23 +244,6 @@ class CredentialService {
     instance.version = 0
     instance.providerId = 3L
     credentialRepository.save( instance )
-
-  }
-
-  Credential findAndValidate( String id ) throws Exception {
-
-    if ( !id ) {
-      throw new BadImplementationException(
-          'credentialService.findAndValidate.id.null' )
-    }
-
-    def credential = credentialRepository.findOne( id )
-
-    if ( !credential || credential.dateDeleted ) {
-      throw new InstanceNotFoundException( 'credential.not.found' )
-    }
-
-    credential
 
   }
 
@@ -263,6 +284,35 @@ class CredentialService {
       throw new BadImplementationException(
           'credentialService.update.credentialUpdateDto.null' )
     }
+
+  }
+
+  private void sendToScraper( Credential credential ) throws Exception {
+
+    def data = [
+      id: credential.id,
+      username: credential.username,
+      password: credential.password,
+      iv: credential.iv,
+      user: [ id: credential.user.id ],
+      institution: [ id: credential.institution.id ],
+      securityCode: credential.securityCode
+    ]
+    scraperService.requestData( data )
+
+  }
+
+  private void sendToScraperWebSocket( Credential credential )
+      throws Exception {
+
+    def data = [ data: [
+      stage: 'start',
+      id: credential.id,
+      tarjeta: credential.username,
+      password: credential.password,
+      iv: credential.iv
+    ] ]
+    scraperWebSocketService.send( new JsonBuilder( data ).toString() )
 
   }
 
