@@ -13,6 +13,7 @@ import mx.finerio.api.services.AccountService
 import mx.finerio.api.services.CallbackService
 import mx.finerio.api.services.CredentialService
 import mx.finerio.api.services.MovementService
+import mx.finerio.api.services.TransactionService
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
@@ -38,6 +39,9 @@ class ScraperCallbackController {
   @Autowired
   MovementService movementService
 
+  @Autowired
+  TransactionService transactionService
+
   @PostMapping( '/callbacks/accounts' )
   ResponseEntity accounts( @RequestBody AccountDto accountDto ) {
 
@@ -55,6 +59,7 @@ class ScraperCallbackController {
   ResponseEntity transactions( @RequestBody TransactionDto transactionDto ) {
 
     def movements = movementService.createAll( transactionDto.data )
+    transactionService.createAll( transactionDto.data )
     def credential = credentialService.findAndValidate(
         transactionDto?.data?.credential_id as String )
     callbackService.sendToClient( credential?.customer?.client,
