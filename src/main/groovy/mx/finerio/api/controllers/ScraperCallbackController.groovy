@@ -65,7 +65,7 @@ class ScraperCallbackController {
       callbackService.sendToClient( credential?.customer?.client,
           Callback.Nature.NOTIFY, [ credentialId: credential.id,
           accountId: transactionDto.data.account_id,
-          stage: 'categorize_transactions'  ] )
+          stage: 'categorize_transactions' ] )
     }
 
     movements.each { movementService.createConcept( it ) }
