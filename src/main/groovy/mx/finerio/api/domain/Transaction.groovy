@@ -37,6 +37,9 @@ public class Transaction {
   @JoinColumn(name = 'category_id', nullable = true)
   Category category
   
+  @Column(name = 'hash', nullable = false)
+  byte[] hash
+
   @Column(name = 'date_created', nullable = false)
   Timestamp dateCreated
 
