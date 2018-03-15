@@ -63,7 +63,7 @@ class ScraperCallbackServiceProcessTransactionsSpec extends Specification {
       1 * credentialService.findAndValidate( _ as String ) >>
           new Credential( id: 'id', customer: new Customer(
           client: new Client( categorizeTransactions: false ) ) )
-      2 * callbackService.sendToClient( _ as Client, _ as Callback.Nature,
+      1 * callbackService.sendToClient( _ as Client, _ as Callback.Nature,
           _ as Map )
       2 * movementService.createConcept( _ as Movement )
       0 * transactionService.categorize( _ as Transaction )
