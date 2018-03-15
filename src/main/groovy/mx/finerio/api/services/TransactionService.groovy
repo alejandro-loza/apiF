@@ -4,8 +4,10 @@ import java.sql.Timestamp
 
 import mx.finerio.api.domain.Account
 import mx.finerio.api.domain.Transaction
+import mx.finerio.api.domain.TransactionSpecs
 import mx.finerio.api.domain.repository.TransactionRepository
 import mx.finerio.api.dtos.Transaction as TransactionCreateDto
+import mx.finerio.api.dtos.TransactionListDto
 import mx.finerio.api.dtos.TransactionData
 import mx.finerio.api.exceptions.BadImplementationException
 import mx.finerio.api.exceptions.BadRequestException
@@ -30,6 +32,9 @@ class TransactionService {
   CleanerRestService cleanerRestService  
 
   @Autowired
+  ListService listService
+
+  @Autowired
   Sha1Service sha1Service
 
   @Autowired
@@ -47,6 +52,55 @@ class TransactionService {
     transactionData.transactions.findResults { transaction ->
       create( account, transaction )
     }
+
+  }
+
+  Map findAll( Map params ) throws Exception {
+
+    if ( params == null ) {
+      throw new BadImplementationException(
+          'transactionService.findAll.params.null' )
+    }
+
+    def dto = getFindAllDto( params )
+    def spec = TransactionSpecs.findAll( dto )
+    listService.findAll( dto, transactionRepository, spec )
+
+  }
+
+  Transaction findOne( Long id ) throws Exception {
+
+    if ( !id ) {
+      throw new BadImplementationException(
+          'transactionService.findOne.id.null' )
+    }
+
+    def instance = transactionRepository.findOne( id )
+
+    if ( !instance || instance.dateDeleted ) {
+      throw new InstanceNotFoundException( 'transaction.not.found' )
+    }
+
+    try {
+      accountService.findOne( instance?.account?.id )
+    } catch ( InstanceNotFoundException e ) {
+      throw new InstanceNotFoundException( 'transaction.not.found' )
+    }
+
+    instance
+
+  }
+
+  Map getFields( Transaction transaction ) throws Exception {
+
+    if ( !transaction ) {
+      throw new BadImplementationException(
+          'transactionService.getFields.transaction.null' )
+    }
+
+    [ id: transaction.id, description: transaction.description,
+        amount: transaction.amount, isCharge: transaction.charge,
+        date: transaction.bankDate, categoryId: transaction.category?.id ]
 
   }
 
@@ -103,6 +157,29 @@ class TransactionService {
     def input = "||${date.format("yyyyMMddHHmmss")}" +
         "|${description}|${amount}|${charge}||"
     sha1Service.encrypt( input.toString() )
+
+  }
+
+  private TransactionListDto getFindAllDto( Map params ) throws Exception {
+
+    if ( !params.accountId ) {
+      throw new BadRequestException( 'transaction.findAll.accountId.null' )
+    }
+
+    def dto = new TransactionListDto()
+    dto.account = accountService.findOne( params.accountId )
+    listService.validateFindAllDto( dto, params )
+
+    if ( params.cursor ) {
+      try {
+        findOne( params.cursor as Long )
+        dto.id = params.cursor as Long
+      } catch ( NumberFormatException e ) {
+        throw new BadRequestException( 'cursor.invalid' )
+      }
+    }
+
+    dto
 
   }
 
