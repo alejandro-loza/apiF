@@ -59,7 +59,7 @@ class ScraperCallbackController {
   ResponseEntity transactions( @RequestBody TransactionDto transactionDto ) {
 
     def movements = movementService.createAll( transactionDto.data )
-    transactionService.createAll( transactionDto.data )
+    def transactions = transactionService.createAll( transactionDto.data )
     def credential = credentialService.findAndValidate(
         transactionDto?.data?.credential_id as String )
     callbackService.sendToClient( credential?.customer?.client,
@@ -74,6 +74,7 @@ class ScraperCallbackController {
     }
 
     movements.each { movementService.createConcept( it ) }
+    transactions.each { transactionService.categorize( it ) }
     ResponseEntity.ok().build()
 
   }
