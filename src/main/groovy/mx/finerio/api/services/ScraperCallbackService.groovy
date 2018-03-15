@@ -41,7 +41,10 @@ class ScraperCallbackService {
     }
 
     movements.each { movementService.createConcept( it ) }
-    transactions.each { transactionService.categorize( it ) }
+
+    if ( credential?.customer?.client?.categorizeTransactions ) {
+      transactions.each { transactionService.categorize( it ) }
+    }
 
   }
 

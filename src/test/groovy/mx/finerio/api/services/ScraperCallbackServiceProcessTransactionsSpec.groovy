@@ -40,12 +40,33 @@ class ScraperCallbackServiceProcessTransactionsSpec extends Specification {
       1 * transactionService.createAll( _ as TransactionData ) >>
           [ new Transaction(), new Transaction() ]
       1 * credentialService.findAndValidate( _ as String ) >>
-        new Credential( id: 'id', customer: new Customer(
-        client: new Client() ) )
+          new Credential( id: 'id', customer: new Customer(
+          client: new Client( categorizeTransactions: true ) ) )
       2 * callbackService.sendToClient( _ as Client, _ as Callback.Nature,
           _ as Map )
       2 * movementService.createConcept( _ as Movement )
       2 * transactionService.categorize( _ as Transaction )
+    where:
+      transactionDto = getTransactionDto()
+
+  }
+
+  def "client does not categorize transactions"() {
+
+    when:
+      service.processTransactions( transactionDto )
+    then:
+      1 * movementService.createAll( _ as TransactionData ) >>
+          [ new Movement(), new Movement() ]
+      1 * transactionService.createAll( _ as TransactionData ) >>
+          [ new Transaction(), new Transaction() ]
+      1 * credentialService.findAndValidate( _ as String ) >>
+          new Credential( id: 'id', customer: new Customer(
+          client: new Client( categorizeTransactions: false ) ) )
+      2 * callbackService.sendToClient( _ as Client, _ as Callback.Nature,
+          _ as Map )
+      2 * movementService.createConcept( _ as Movement )
+      0 * transactionService.categorize( _ as Transaction )
     where:
       transactionDto = getTransactionDto()
 
@@ -59,8 +80,8 @@ class ScraperCallbackServiceProcessTransactionsSpec extends Specification {
       1 * movementService.createAll( _ as TransactionData ) >> []
       1 * transactionService.createAll( _ as TransactionData ) >> []
       1 * credentialService.findAndValidate( _ as String ) >>
-        new Credential( id: 'id', customer: new Customer(
-        client: new Client() ) )
+          new Credential( id: 'id', customer: new Customer(
+          client: new Client() ) )
       1 * callbackService.sendToClient( _ as Client, _ as Callback.Nature,
           _ as Map )
       0 * movementService.createConcept( _ as Movement )
