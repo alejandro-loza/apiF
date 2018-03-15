@@ -21,7 +21,7 @@ class Sha1ServiceEncrypt {
       'mx.finerio.api.aop.Sha1ServiceEncrypt' )
 
   @Pointcut(
-    value='execution(mx.finerio.api.domain.Credential mx.finerio.api.services.Sha1Service.encrypt(..)) && bean(sha1Service) && args(input)',
+    value='execution(byte[] mx.finerio.api.services.Sha1Service.encrypt(..)) && bean(sha1Service) && args(input)',
     argNames='input'
   )
   public void encrypt( String input ) {}

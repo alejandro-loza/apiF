@@ -21,6 +21,15 @@ class TransactionService {
   AccountService accountService
 
   @Autowired
+  CategorizerService categorizerService  
+
+  @Autowired
+  CategoryService categoryService  
+
+  @Autowired
+  CleanerRestService cleanerRestService  
+
+  @Autowired
   Sha1Service sha1Service
 
   @Autowired
@@ -38,6 +47,26 @@ class TransactionService {
     transactionData.transactions.findResults { transaction ->
       create( account, transaction )
     }
+
+  }
+
+  void categorize( Transaction transaction ) throws Exception {
+
+    if ( !transaction ) {
+      throw new BadImplementationException(
+          'transactionService.categorize.transaction.null' )
+    }
+
+    def cleanedText = cleanerRestService.clean( transaction.description )
+    def categorizerResult = categorizerService.search( cleanedText )
+
+    if ( !categorizerResult?.categoryId ) {
+      return
+    }
+
+    def category = categoryService.findOne( categorizerResult.categoryId )
+    transaction.category = category
+    transactionRepository.save( transaction )
 
   }
 
