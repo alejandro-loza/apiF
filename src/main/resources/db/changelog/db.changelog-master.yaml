@@ -26,3 +26,5 @@ databaseChangeLog:
     file: db/changelog/transactions_hash.yaml
 - include:
     file: db/changelog/transactions_timestamps.yaml
+- include:
+    file: db/changelog/clients_categorize_transactions.yaml

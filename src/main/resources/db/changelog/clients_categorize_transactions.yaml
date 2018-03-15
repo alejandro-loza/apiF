@@ -1,0 +1,13 @@
+databaseChangeLog:
+- changeSet:
+    id: clients_categorize_transactions
+    author: alejandro.garcia
+    changes:
+    - addColumn:
+        tableName: clients
+        columns:
+        - column:
+            name: categorize_transactions
+            type: BOOLEAN
+            constraints:
+              nullable: false
