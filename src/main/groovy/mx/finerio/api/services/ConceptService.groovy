@@ -49,17 +49,14 @@ class ConceptService {
         def category = categoryRepository.findById(attributes.category?.id)
         if (movement.type == Movement.Type.CHARGE && !category) {
             def user = getUser(movement)
-//            category = categoryService.findMatch( [ concept:attributes.description, userId:user ] )
-//            if ( !category ) {
-              def cleanedText = cleanerRestService.clean( attributes.description )
-              movement.customDescription = cleanedText
-              def result = categorizerService.search( cleanedText )
+            def cleanedText = cleanerRestService.clean( attributes.description )
+            movement.customDescription = cleanedText
+            def result = categorizerService.search( cleanedText )
 
-              if ( result?.categoryId ) {
-                category = categoryRepository.findOne( result.categoryId )
-              }
+            if ( result?.categoryId ) {
+              category = categoryRepository.findOne( result.categoryId )
+            }
 
-//          }
         }
 
         def type = attributes.type ? attributes.type as Concept.Type : Concept.Type.USER

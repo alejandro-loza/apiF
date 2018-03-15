@@ -22,17 +22,20 @@ class Client implements UserDetails {
   @Column(name = 'password', nullable = false, length = 255)
   String password
 
-  @Column(name = 'enabled', nullable = true)
+  @Column(name = 'enabled', nullable = false)
   boolean enabled
 
-  @Column(name = 'account_non_expired', nullable = true)
+  @Column(name = 'account_non_expired', nullable = false)
   boolean accountNonExpired
 
-  @Column(name = 'account_non_locked', nullable = true)
+  @Column(name = 'account_non_locked', nullable = false)
   boolean accountNonLocked
 
-  @Column(name = 'credentials_non_expired', nullable = true)
+  @Column(name = 'credentials_non_expired', nullable = false)
   boolean credentialsNonExpired
+
+  @Column(name = 'categorize_transactions', nullable = false)
+  boolean categorizeTransactions
 
   @Transient
   List authorities

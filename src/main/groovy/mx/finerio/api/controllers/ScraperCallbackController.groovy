@@ -12,7 +12,7 @@ import mx.finerio.api.dtos.SuccessCallbackDto
 import mx.finerio.api.services.AccountService
 import mx.finerio.api.services.CallbackService
 import mx.finerio.api.services.CredentialService
-import mx.finerio.api.services.MovementService
+import mx.finerio.api.services.ScraperCallbackService
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
@@ -36,7 +36,7 @@ class ScraperCallbackController {
   CredentialService credentialService
 
   @Autowired
-  MovementService movementService
+  ScraperCallbackService scraperCallbackService
 
   @PostMapping( '/callbacks/accounts' )
   ResponseEntity accounts( @RequestBody AccountDto accountDto ) {
@@ -54,21 +54,7 @@ class ScraperCallbackController {
   @PostMapping( '/callbacks/transactions' )
   ResponseEntity transactions( @RequestBody TransactionDto transactionDto ) {
 
-    def movements = movementService.createAll( transactionDto.data )
-    def credential = credentialService.findAndValidate(
-        transactionDto?.data?.credential_id as String )
-    callbackService.sendToClient( credential?.customer?.client,
-        Callback.Nature.TRANSACTIONS, [ credentialId: credential.id,
-        accountId: transactionDto.data.account_id ] )
-
-    if ( movements ) {
-      callbackService.sendToClient( credential?.customer?.client,
-          Callback.Nature.NOTIFY, [ credentialId: credential.id,
-          accountId: transactionDto.data.account_id,
-          stage: 'categorize_transactions'  ] )
-    }
-
-    movements.each { movementService.createConcept( it ) }
+    scraperCallbackService.processTransactions( transactionDto )
     ResponseEntity.ok().build()
 
   }

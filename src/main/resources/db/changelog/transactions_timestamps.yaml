@@ -1,0 +1,37 @@
+databaseChangeLog:
+- changeSet:
+    id: transactions_timestamps
+    author: alejandro.garcia
+    changes:
+    - newDataType:
+        tableName: transactions
+        columnName: bank_date
+        newDataType: DATETIME(3)
+    - addNotNullConstraint:
+        tableName: transactions
+        columnName: bank_date
+        columnDataType: DATETIME(3)
+    - newDataType:
+        tableName: transactions
+        columnName: date_created
+        newDataType: DATETIME(3)
+    - addNotNullConstraint:
+        tableName: transactions
+        columnName: date_created
+        columnDataType: DATETIME(3)
+    - newDataType:
+        tableName: transactions
+        columnName: last_updated
+        newDataType: DATETIME(3)
+    - addNotNullConstraint:
+        tableName: transactions
+        columnName: last_updated
+        columnDataType: DATETIME(3)
+    - newDataType:
+        tableName: transactions
+        columnName: date_deleted
+        newDataType: DATETIME(3)
+    - dropNotNullConstraint:
+        tableName: transactions
+        columnName: date_deleted
+        columnDataType: DATETIME(3)

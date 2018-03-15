@@ -1,0 +1,87 @@
+databaseChangeLog:
+- changeSet:
+    id: transactions
+    author: alejandro.garcia
+    changes:
+    - createTable:
+        tableName: transactions
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+              nullable: false
+        - column:
+            name: account_id
+            type: java.sql.Types.VARCHAR(255)
+            constraints:
+              nullable: false
+        - column:
+            name: bank_date
+            type: java.sql.Types.TIMESTAMP
+            constraints:
+              nullable: false
+            defaultValueComputed: CURRENT_TIMESTAMP(3)
+        - column:
+            name: description
+            type: java.sql.Types.VARCHAR(255)
+            constraints:
+              nullable: false
+        - column:
+            name: amount
+            type: java.sql.Types.DECIMAL(19,2)
+            constraints:
+              nullable: false
+        - column:
+            name: category_id
+            type: java.sql.Types.VARCHAR(255)
+            constraints:
+              nullable: true
+        - column:
+            name: charge
+            type: BOOLEAN
+            constraints:
+              nullable: false
+        - column:
+            name: date_created
+            type: java.sql.Types.TIMESTAMP
+            constraints:
+              nullable: false
+            defaultValueComputed: CURRENT_TIMESTAMP(3)
+        - column:
+            name: last_updated
+            type: java.sql.Types.TIMESTAMP
+            constraints:
+              nullable: false
+            defaultValueComputed: CURRENT_TIMESTAMP(3)
+        - column:
+            name: date_deleted
+            type: java.sql.Types.TIMESTAMP
+            constraints:
+              nullable: true
+- changeSet:
+    id: transactions_accounts_fk
+    author: alejandro.garcia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: account_id
+        baseTableName: transactions
+        constraintName: fk_transactions_accounts
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: id
+        referencedTableName: account
+- changeSet:
+    id: transactions_categories_fk
+    author: alejandro.garcia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: category_id
+        baseTableName: transactions
+        constraintName: fk_transactions_categories
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: id
+        referencedTableName: category
