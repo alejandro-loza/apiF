@@ -9,4 +9,5 @@ interface CategoryRepository extends JpaRepository<Category, String>, JpaSpecifi
 
   Category findById( String id )   
 
+  List<Category> findAllByUserIsNullOrderByIdAsc()
 }
