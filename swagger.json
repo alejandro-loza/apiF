@@ -2,11 +2,11 @@
   "swagger": "2.0",
   "info": {
     "title": "Finerio Banks API",
-    "description": " Welcome to the Finerio Banks API! We hope you enjoy the journey to connect your application to our systems. With the Finerio Banks API, you can fetch bank information from your users, such as accounts, transactions, balances, and more.\n\nFirst, you need to acquire your login access.  We use OAuth2 with the 'password' type. Please contact us in order to obtain your login access.\n\nIn Finerio we utilize four standard fields to obtain an access token:\n- Client ID\n- Client secret\n- Username\n- Password\n\nOnce you get access to the API (an access token), you can start using the API HTTP endpoints. A normal flow consists of:\n- Register your callbacks (optional, but strongly recommended).\n- Create a customer.\n- Create a credential.\n- Wait to receive data in your callbacks.\n- Process the information received in your callbacks.\n- Get the accounts of a credential.\n- Get the transactions of an account.\n\nAre you ready? Let's go!",
+    "description": "Welcome to the Finerio Banks API! We hope you enjoy the journey to connect your application to our systems. With the Finerio Banks API, you can fetch bank information from your users, such as accounts, transactions, balances, and more.\n\nFirst, you need to acquire your login access.  We use OAuth2 with the 'password' type. Please contact us in order to obtain your login access.\n\nIn Finerio we utilize four standard fields to obtain an access token:\n- Client ID\n- Client secret\n- Username\n- Password\n\nOnce you get access to the API (an access token), you can start using the API HTTP endpoints. A normal flow consists of:\n- Register your callbacks (optional, but strongly recommended).\n- Create a customer.\n- Create a credential.\n- Wait to receive data in your callbacks.\n- Process the information received in your callbacks.\n- Get the accounts of a credential.\n- Get the transactions of an account.\n\nAre you ready? Let's go!",
     "version": "2.0.0",
     "termsOfService": "https://www.finerio.mx/terms",
     "contact": {
-      "email": "alejandro.garcia@finerio.mx"
+      "email": "contacto@finerio.mx"
     }
   },
   "host": "api-v2-testing.finerio.mx",
@@ -51,6 +51,10 @@
     {
       "name": "Callbacks",
       "description": "A callback is the URL of your server where we send you several information about your customer's online bank"
+    },
+    {
+      "name": "Categories",
+      "description": "Categories are the classification of transactions, if available"
     }
   ],
   "paths": {
@@ -254,7 +258,8 @@
             "in": "query",
             "name": "cursor",
             "required": false,
-            "type": "integer",
+            "type": "string",
+            "format": "uuid",
             "description": "The ID of the first element of the response that you will receive. It represents the starting point of your request."
           }
         ],
@@ -392,7 +397,8 @@
             "in": "query",
             "name": "cursor",
             "required": false,
-            "type": "integer",
+            "type": "string",
+            "format": "uuid",
             "description": "The ID of the first element of the response that you will receive. It represents the starting point of your request."
           }
         ],
@@ -600,6 +606,26 @@
             "description": "Whoops! You requested something that doesn't exist",
             "schema": {
               "$ref": "#/definitions/Errors"
+            }
+          }
+        }
+      }
+    },
+    "/categories": {
+      "get": {
+        "tags": [
+          "Categories"
+        ],
+        "summary": "Get a list of categories.",
+        "description": "Get all the categories with which Finerio can classify transactions.",
+        "responses": {
+          "200": {
+            "description": "Everything was OK. You successfully obtained the list of categories.",
+            "schema": {
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Category"
+              }
             }
           }
         }
@@ -887,10 +913,10 @@
     "Transaction": {
       "properties": {
         "id": {
-          "type": "string",
-          "format": "uuid",
+          "type": "integer",
+          "format": "base64",
           "description": "The ID of the transaction",
-          "example": "37b294e8-bde2-44b4-a8fd-a71cb284bc20"
+          "example": 1
         },
         "description": {
           "type": "string",
@@ -902,19 +928,21 @@
           "description": "The amount of the transaction",
           "example": 123.45
         },
-        "type": {
-          "type": "string",
-          "description": "The type of transaction",
-          "enum": [
-            "CHARGE",
-            "DEPOSIT"
-          ]
+        "isCharge": {
+          "type": "boolean",
+          "description": "Indicates if the transaction is a charge"
         },
-        "dateCreated": {
+        "date": {
           "type": "integer",
           "format": "int64",
           "description": "The date that the transaction was performed. It is represented as the number of milliseconds since 1970 (Epoch time).",
           "example": 1519838992000
+        },
+        "categoryId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "The category ID of this transaction, if available",
+          "example": "37b294e8-bde2-44b4-a8fd-a71cb284bc20"
         }
       }
     },
@@ -927,10 +955,10 @@
           }
         },
         "nextCursor": {
-          "type": "string",
-          "format": "uuid",
+          "type": "integer",
+          "format": "base64",
           "description": "The ID of the transaction that can be used as the \"nextCursor\" parameter",
-          "example": "37b294e8-bde2-44b4-a8fd-a71cb284bc20"
+          "example": 1
         }
       }
     },
@@ -1024,6 +1052,27 @@
       "required": [
         "url"
       ]
+    },
+    "Category": {
+      "properties": {
+        "id": {
+          "type": "string",
+          "format": "uuid",
+          "description": "The unique ID of the category",
+          "example": 1
+        },
+        "name": {
+          "type": "string",
+          "description": "The name of the category",
+          "example": "Alimentos"
+        },
+        "parentId": {
+          "type": "string",
+          "format": "uuid",
+          "description": "The parent of this category.",
+          "example": "37b294e8-bde2-44b4-a8fd-a71cb284bc20"
+        }
+      }
     }
   }
 }
