@@ -16,20 +16,30 @@ import org.springframework.stereotype.Service
 @Service
 class ScraperWebSocketService {
 
+  @Value('${scraper.ws.path}')
+  String url
+
   def session
   
-  ScraperWebSocketService( @Value('${scraper.ws.path}') String url ) {
-
-    def container = ContainerProvider.webSocketContainer
-    session = container.connectToServer( ScraperClientEndpointService,
-        URI.create( url ) )
-    
-  }
-  
   void send( String message ) throws Exception {
+
+    createSession()
     session.basicRemote.sendText( message )
+
   }
   
+  private void createSession() throws Exception {
+
+    if ( !session ) {
+
+      def container = ContainerProvider.webSocketContainer
+      session = container.connectToServer( ScraperClientEndpointService,
+          URI.create( url ) )
+
+    }
+
+  }
+
 }
 
 @ClientEndpoint
