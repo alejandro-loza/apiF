@@ -156,7 +156,8 @@ class AccountService {
 
     if ( institution.code == 'SANTANDER' ) {
       return extraData.number ?: extraData.tarjeta
-    } else if ( institution.code == 'HSBC' || institution.code == 'INVEX' ) {
+    } else if ( institution.code == 'HSBC' || institution.code == 'INVEX' ||
+        institution.code == 'BBVA' ) {
       return extraData.number
     } else if ( institution.code == 'BANORTE' ) {
       return "***${extraData.short_number}"
@@ -197,6 +198,9 @@ class AccountService {
     } else if ( institution.code == 'HSBC' && number.size() >= 8 ) {
       def size = number.size()
       return "${number[ 0..3 ]}%${ number[ (size - 4)..(size - 1) ]}"
+    } else if ( institution.code == 'BBVA' && number.size() >= 5 ) {
+      def size = number.size()
+      return "%${number[ (size - 4)..(size - 1) ]}"
     }
 
     number
