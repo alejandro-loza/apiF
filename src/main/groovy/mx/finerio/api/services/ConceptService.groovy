@@ -24,7 +24,7 @@ class ConceptService {
   CategoryRepository categoryRepository  
 
   @Autowired
-  CleanerRestService cleanerRestService  
+  CleanerService cleanerService  
 
   @Autowired
   CategorizerService categorizerService  
@@ -49,7 +49,7 @@ class ConceptService {
         def category = categoryRepository.findById(attributes.category?.id)
         if (movement.type == Movement.Type.CHARGE && !category) {
             def user = getUser(movement)
-            def cleanedText = cleanerRestService.clean( attributes.description )
+            def cleanedText = cleanerService.clean( attributes.description )
             movement.customDescription = cleanedText
             def result = categorizerService.search( cleanedText )
 
