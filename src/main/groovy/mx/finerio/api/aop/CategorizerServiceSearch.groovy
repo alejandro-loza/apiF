@@ -19,7 +19,7 @@ class CategorizerServiceSearch {
       'mx.finerio.api.aop.CategorizerServiceSearch' )
 
   @Pointcut(
-    value='execution(java.util.Map mx.finerio.api.services.CategorizerService.search(..)) && bean(categorizerService) && args(text)',
+    value='execution(Object mx.finerio.api.services.CategorizerService.search(..)) && bean(categorizerService) && args(text)',
     argNames='text'
   )
   public void search( String text ) {}
@@ -33,7 +33,7 @@ class CategorizerServiceSearch {
     pointcut='search(String)',
     returning='response'
   )
-  void afterReturning( Map response ) {
+  void afterReturning( Object response ) {
     log.info( '>> response: {}', response )
   }
 

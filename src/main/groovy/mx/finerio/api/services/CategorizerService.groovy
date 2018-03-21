@@ -21,7 +21,7 @@ class CategorizerService {
   @Value( '${categorizer.auth.password}' )
   String password
 
-  Map search( String text ) throws Exception {
+  def search( String text ) throws Exception {
 
     if ( !text ) {
       throw new BadImplementationException( 'categorizerService.search.text.null' )
