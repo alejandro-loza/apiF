@@ -29,7 +29,7 @@ class TransactionService {
   CategoryService categoryService  
 
   @Autowired
-  CleanerRestService cleanerRestService  
+  CleanerService cleanerService  
 
   @Autowired
   ListService listService
@@ -111,7 +111,7 @@ class TransactionService {
           'transactionService.categorize.transaction.null' )
     }
 
-    def cleanedText = cleanerRestService.clean( transaction.description )
+    def cleanedText = cleanerService.clean( transaction.description )
     def categorizerResult = categorizerService.search( cleanedText )
 
     if ( !categorizerResult?.categoryId ) {

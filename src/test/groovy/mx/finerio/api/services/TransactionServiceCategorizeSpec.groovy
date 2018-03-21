@@ -13,14 +13,14 @@ class TransactionServiceCategorizeSpec extends Specification {
 
   def categorizerService = Mock( CategorizerService )
   def categoryService = Mock( CategoryService )
-  def cleanerRestService = Mock( CleanerRestService )
+  def cleanerService = Mock( CleanerService )
   def transactionRepository = Mock( TransactionRepository )
 
   def setup() {
 
     service.categorizerService = categorizerService
     service.categoryService = categoryService
-    service.cleanerRestService = cleanerRestService
+    service.cleanerService = cleanerService
     service.transactionRepository = transactionRepository
 
   }
@@ -30,7 +30,7 @@ class TransactionServiceCategorizeSpec extends Specification {
     when:
       service.categorize( transaction )
     then:
-      1 * cleanerRestService.clean( _ as String ) >> 'cleanedText'
+      1 * cleanerService.clean( _ as String ) >> 'cleanedText'
       1 * categorizerService.search( _ as String ) >>
           [ categoryId: 'categoryId' ]
       1 * categoryService.findOne( _ as String ) >> new Category()
@@ -45,7 +45,7 @@ class TransactionServiceCategorizeSpec extends Specification {
     when:
       service.categorize( transaction )
     then:
-      1 * cleanerRestService.clean( _ as String ) >> 'cleanedText'
+      1 * cleanerService.clean( _ as String ) >> 'cleanedText'
       1 * categorizerService.search( _ as String ) >> [:]
       0 * categoryService.findOne( _ as String ) >> new Category()
       0 * transactionRepository.save( _ as Transaction )

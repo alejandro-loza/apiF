@@ -7,30 +7,30 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 
 @Service
-class CategorizerService {
+class CleanerService {
 
   @Autowired
   RestTemplateService restTemplateService
 
-  @Value( '${categorizer.url}' )
+  @Value( '${cleaner.url}' )
   String url
 
-  @Value( '${categorizer.auth.username}' )
+  @Value( '${cleaner.auth.username}' )
   String username
 
-  @Value( '${categorizer.auth.password}' )
+  @Value( '${cleaner.auth.password}' )
   String password
 
-  Map search( String text ) throws Exception {
+  String clean( String text ) throws Exception {
 
     if ( !text ) {
-      throw new BadImplementationException( 'categorizerService.search.text.null' )
+      throw new BadImplementationException( 'cleanerService.clean.text.null' )
     }
 
     def token = "${username}:${password}".bytes.encodeBase64().toString()
     def headers = [ 'Authorization': "Basic ${token}"]
     def params = [ input: text ]
-    restTemplateService.get( url, headers, params )
+    restTemplateService.get( url, headers, params ).result
 
   }
 

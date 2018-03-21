@@ -1,7 +1,5 @@
 package mx.finerio.api.aop
 
-import mx.finerio.api.domain.*
-
 import org.aspectj.lang.annotation.AfterReturning
 import org.aspectj.lang.annotation.AfterThrowing
 import org.aspectj.lang.annotation.Aspect
@@ -15,24 +13,24 @@ import org.springframework.stereotype.Component
 
 @Component
 @Aspect
-class ConfigServiceFindByItem {
+class CleanerServiceClean {
 
   final static Logger log = LoggerFactory.getLogger(
-      'mx.finerio.api.aop.ConfigServiceFindByItem' )
+      'mx.finerio.api.aop.CleanerServiceClean' )
 
   @Pointcut(
-    value='execution(String mx.finerio.api.services.ConfigService.findByItem(..)) && bean(configService) && args(item)',
-    argNames='item'
+    value='execution(String mx.finerio.api.services.CleanerService.clean(..)) && bean(cleanerService) && args(text)',
+    argNames='text'
   )
-  public void findByItem(Config.Item item ) {}
+  public void clean( String text ) {}
 
-  @Before('findByItem(item)')
-  void before(Config.Item item ) {
-    log.info( "<< item: {}", item )
+  @Before('clean(text)')
+  void before( String text ) {
+    log.info( "<< text: {}", text )
   }
 
   @AfterReturning(
-    pointcut='findByItem(mx.finerio.api.domain.Config.Item)',
+    pointcut='clean(String)',
     returning='response'
   )
   void afterReturning( String response ) {
@@ -40,7 +38,7 @@ class ConfigServiceFindByItem {
   }
 
   @AfterThrowing(
-    pointcut='findByItem(mx.finerio.api.domain.Config.Item)',
+    pointcut='clean(String)',
     throwing='e'
   )
   void afterThrowing( Exception e ) {
