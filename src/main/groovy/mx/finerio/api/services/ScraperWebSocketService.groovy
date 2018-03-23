@@ -32,9 +32,15 @@ class ScraperWebSocketService {
           'scraperWebSocketService.send.scraperWebSocketSendDto.null' )
     }
 
-    closeSession( scraperWebSocketDto.id )
-    def session = createSession()
-    session.basicRemote.sendText( message )
+    if ( scraperWebSocketSendDto.destroyPreviousSession ) {
+
+      closeSession( scraperWebSocketSendDto.id )
+      sessions[ scraperWebSocketSendDto.id ] = createSession()
+
+    }
+
+    sessions[ scraperWebSocketSendDto.id ].basicRemote.sendText(
+        scraperWebSocketSendDto.message )
 
   }
   

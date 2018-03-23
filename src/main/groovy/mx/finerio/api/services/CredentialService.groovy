@@ -223,7 +223,8 @@ class CredentialService {
     ] ]
     scraperWebSocketService.send( new ScraperWebSocketSendDto(
         id: credential.id,
-        message: new JsonBuilder( data ).toString() ) )
+        message: new JsonBuilder( data ).toString(),
+        destroyPreviousSession: false ) )
 
   }
 
@@ -316,7 +317,8 @@ class CredentialService {
     ] ]
     scraperWebSocketService.send( new ScraperWebSocketSendDto(
         id: credential.id,
-        message: new JsonBuilder( data ).toString() ) )
+        message: new JsonBuilder( data ).toString(),
+        destroyPreviousSession: true ) )
 
   }
 

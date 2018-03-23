@@ -98,7 +98,7 @@ class ScraperCallbackService {
   private void closeWebSocketSession( Credential credential )
       throws Exception {
 
-    if ( !credential.institution.code == 'BBVA' ) {
+    if ( credential.institution.code != 'BBVA' ) {
       return
     }
 

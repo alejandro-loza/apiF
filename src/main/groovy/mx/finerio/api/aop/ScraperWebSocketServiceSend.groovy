@@ -43,7 +43,7 @@ class ScraperWebSocketServiceSend {
     throwing='e'
   )
   void afterThrowing( Exception e ) {
-    log.info( "XX ${e.class.simpleName} - ${e.scraperWebSocketSendDto}" )
+    log.info( "XX ${e.class.simpleName} - ${e.message}" )
   }
 
 }

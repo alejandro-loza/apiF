@@ -7,5 +7,6 @@ class ScraperWebSocketSendDto {
 
   String id
   String message
+  Boolean destroyPreviousSession = false
 
 }
