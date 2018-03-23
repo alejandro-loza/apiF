@@ -7,6 +7,9 @@ import javax.websocket.OnMessage
 import javax.websocket.OnOpen
 import javax.websocket.Session
 
+import mx.finerio.api.dtos.ScraperWebSocketSendDto
+import mx.finerio.api.exceptions.BadImplementationException
+
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
@@ -19,24 +22,38 @@ class ScraperWebSocketService {
   @Value('${scraper.ws.path}')
   String url
 
-  def session
+  def sessions = [:]
   
-  void send( String message ) throws Exception {
+  void send( ScraperWebSocketSendDto scraperWebSocketSendDto )
+      throws Exception {
 
-    createSession()
+    if ( !scraperWebSocketSendDto ) {
+      throw new BadImplementationException(
+          'scraperWebSocketService.send.scraperWebSocketSendDto.null' )
+    }
+
+    closeSession( scraperWebSocketDto.id )
+    def session = createSession()
     session.basicRemote.sendText( message )
 
   }
   
-  private void createSession() throws Exception {
+  void closeSession( String id ) throws Exception {
 
-    if ( !session ) {
-
-      def container = ContainerProvider.webSocketContainer
-      session = container.connectToServer( ScraperClientEndpointService,
-          URI.create( url ) )
-
+    if ( !id ) {
+      throw new BadImplementationException(
+          'scraperWebSocketService.closeSession.id.null' )
     }
+
+    sessions.remove( id )?.close()
+
+  }
+
+  private Session createSession() throws Exception {
+
+    def container = ContainerProvider.webSocketContainer
+    container.connectToServer( ScraperClientEndpointService,
+        URI.create( url ) )
 
   }
 
@@ -64,4 +81,3 @@ class ScraperClientEndpointService {
   }
 
 }
-

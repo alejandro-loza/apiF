@@ -1,6 +1,9 @@
 package mx.finerio.api.services
 
 import mx.finerio.api.domain.Callback
+import mx.finerio.api.domain.Credential
+import mx.finerio.api.dtos.FailureCallbackDto
+import mx.finerio.api.dtos.SuccessCallbackDto
 import mx.finerio.api.dtos.TransactionDto
 import mx.finerio.api.exceptions.BadImplementationException
 
@@ -20,6 +23,9 @@ class ScraperCallbackService {
   MovementService movementService
 
   @Autowired
+  ScraperWebSocketService scraperWebSocketService
+
+  @Autowired
   TransactionService transactionService
 
   void processTransactions( TransactionDto transactionDto ) throws Exception {
@@ -36,13 +42,46 @@ class ScraperCallbackService {
 
     if ( credential?.customer?.client?.categorizeTransactions ) {
 
+      transactions.each { transactionService.categorize( it ) }
       callbackService.sendToClient( credential?.customer?.client,
           Callback.Nature.NOTIFY, [ credentialId: credential.id,
           accountId: transactionDto.data.account_id,
           stage: 'categorize_transactions' ] )
-      transactions.each { transactionService.categorize( it ) }
 
     }
+
+  }
+
+  void processSuccess( SuccessCallbackDto successCallbackDto )
+      throws Exception {
+
+    if ( !successCallbackDto ) {
+      throw new BadImplementationException(
+          'scraperCallbackService.processSuccess.successCallbackDto.null' )
+    }
+
+    def credential = credentialService.updateStatus(
+        successCallbackDto?.data?.credential_id, Credential.Status.ACTIVE )
+    callbackService.sendToClient( credential?.customer?.client,
+        Callback.Nature.SUCCESS, [ credentialId: credential.id ] )
+    closeWebSocketSession( credential )
+
+  }
+
+  void processFailure( FailureCallbackDto failureCallbackDto ) throws Exception {
+
+    if ( !failureCallbackDto ) {
+      throw new BadImplementationException(
+          'scraperCallbackService.processFailure.failureCallbackDto.null' )
+    }
+
+    def credential = credentialService.setFailure(
+        failureCallbackDto?.data?.credential_id,
+        failureCallbackDto?.data?.error_message )
+    callbackService.sendToClient( credential?.customer?.client,
+        Callback.Nature.FAILURE, [ credentialId: credential.id,
+        message: credential.errorCode  ] )
+    closeWebSocketSession( credential )
 
   }
 
@@ -53,6 +92,17 @@ class ScraperCallbackService {
       throw new BadImplementationException(
           'scraperCallbackService.processTransactions.transactionDto.null' )
     }
+
+  }
+
+  private void closeWebSocketSession( Credential credential )
+      throws Exception {
+
+    if ( !credential.institution.code == 'BBVA' ) {
+      return
+    }
+
+    scraperWebSocketService.closeSession( credential.id )
 
   }
 
