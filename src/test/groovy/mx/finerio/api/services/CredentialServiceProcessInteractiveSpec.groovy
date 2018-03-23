@@ -7,6 +7,7 @@ import mx.finerio.api.domain.repository.CredentialRepository
 import mx.finerio.api.domain.FinancialInstitution
 import mx.finerio.api.domain.User
 import mx.finerio.api.dtos.CredentialInteractiveDto
+import mx.finerio.api.dtos.ScraperWebSocketSendDto
 import mx.finerio.api.exceptions.BadImplementationException
 import mx.finerio.api.exceptions.InstanceNotFoundException
 
@@ -39,7 +40,7 @@ class CredentialServiceProcessInteractiveSpec extends Specification {
           client: client ),
           institution: new FinancialInstitution(),
           user: new User() )
-      1 * scraperWebSocketService.send( _ as String )
+      1 * scraperWebSocketService.send( _ as ScraperWebSocketSendDto )
     where:
       id = UUID.randomUUID().toString()
       client = new Client( id: 1 )

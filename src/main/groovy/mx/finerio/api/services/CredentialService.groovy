@@ -8,6 +8,7 @@ import mx.finerio.api.exceptions.InstanceNotFoundException
 import mx.finerio.api.domain.repository.*
 import mx.finerio.api.domain.*
 import mx.finerio.api.dtos.*
+import mx.finerio.api.dtos.ScraperWebSocketSendDto
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -220,8 +221,10 @@ class CredentialService {
       user_id: credential.user.id,
       otp: credentialInteractiveDto.token
     ] ]
-    scraperWebSocketService.send( new JsonBuilder( data ).toString() )
-
+    scraperWebSocketService.send( new ScraperWebSocketSendDto(
+        id: credential.id,
+        message: new JsonBuilder( data ).toString(),
+        destroyPreviousSession: false ) )
 
   }
 
@@ -312,7 +315,10 @@ class CredentialService {
       password: credential.password,
       iv: credential.iv
     ] ]
-    scraperWebSocketService.send( new JsonBuilder( data ).toString() )
+    scraperWebSocketService.send( new ScraperWebSocketSendDto(
+        id: credential.id,
+        message: new JsonBuilder( data ).toString(),
+        destroyPreviousSession: true ) )
 
   }
 

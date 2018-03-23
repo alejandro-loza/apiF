@@ -1,5 +1,7 @@
 package mx.finerio.api.aop
 
+import mx.finerio.api.dtos.ScraperWebSocketSendDto
+
 import org.aspectj.lang.annotation.AfterReturning
 import org.aspectj.lang.annotation.AfterThrowing
 import org.aspectj.lang.annotation.Aspect
@@ -19,25 +21,25 @@ class ScraperWebSocketServiceSend {
       'mx.finerio.api.aop.ScraperWebSocketServiceSend' )
 
   @Pointcut(
-    value='execution(void mx.finerio.api.services.ScraperWebSocketService.send(..)) && bean(scraperWebSocketService) && args(message)',
-    argNames='message'
+    value='execution(void mx.finerio.api.services.ScraperWebSocketService.send(..)) && bean(scraperWebSocketService) && args(scraperWebSocketSendDto)',
+    argNames='scraperWebSocketSendDto'
   )
-  public void send( String message ) {}
+  public void send( ScraperWebSocketSendDto scraperWebSocketSendDto ) {}
 
-  @Before('send(message)')
-  void before( String message ) {
-    log.info( "<< message: {}", message )
+  @Before('send(scraperWebSocketSendDto)')
+  void before( ScraperWebSocketSendDto scraperWebSocketSendDto ) {
+    log.info( "<< scraperWebSocketSendDto: {}", scraperWebSocketSendDto )
   }
 
   @AfterReturning(
-    pointcut='send(String)'
+    pointcut='send(mx.finerio.api.dtos.ScraperWebSocketSendDto)'
   )
   void afterReturning() {
     log.info( '>> OK' )
   }
 
   @AfterThrowing(
-    pointcut='send(String)',
+    pointcut='send(mx.finerio.api.dtos.ScraperWebSocketSendDto)',
     throwing='e'
   )
   void afterThrowing( Exception e ) {

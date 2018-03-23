@@ -60,23 +60,20 @@ class ScraperCallbackController {
   }
 
   @PostMapping( '/callbacks/success' )
-  ResponseEntity success( @RequestBody SuccessCallbackDto request ) {
+  ResponseEntity success(
+      @RequestBody SuccessCallbackDto successCallbackDto ) {
 
-    def credential = credentialService.updateStatus(
-        request?.data?.credential_id, Credential.Status.ACTIVE )
-    callbackService.sendToClient( credential?.customer?.client,
-        Callback.Nature.SUCCESS, [ credentialId: credential.id ] )
+    scraperCallbackService.processSuccess( successCallbackDto )
+    ResponseEntity.ok().build()
 
   }
 
   @PostMapping( '/callbacks/failure' )
-  ResponseEntity failure( @RequestBody FailureCallbackDto request ) {
+  ResponseEntity failure(
+      @RequestBody FailureCallbackDto failureCallbackDto ) {
 
-    def credential = credentialService.setFailure(
-        request?.data?.credential_id, request?.data?.error_message )
-    callbackService.sendToClient( credential?.customer?.client,
-        Callback.Nature.FAILURE, [ credentialId: credential.id,
-        message: credential.errorCode  ] )
+    scraperCallbackService.processFailure( failureCallbackDto )
+    ResponseEntity.ok().build()
 
   }
 
