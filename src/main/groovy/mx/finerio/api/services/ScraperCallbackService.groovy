@@ -9,6 +9,7 @@ import mx.finerio.api.exceptions.BadImplementationException
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class ScraperCallbackService {
@@ -62,12 +63,13 @@ class ScraperCallbackService {
 
     def credential = credentialService.updateStatus(
         successCallbackDto?.data?.credential_id, Credential.Status.ACTIVE )
+    closeWebSocketSession( credential )
     callbackService.sendToClient( credential?.customer?.client,
         Callback.Nature.SUCCESS, [ credentialId: credential.id ] )
-    closeWebSocketSession( credential )
 
   }
 
+  @Transactional
   void processFailure( FailureCallbackDto failureCallbackDto ) throws Exception {
 
     if ( !failureCallbackDto ) {
@@ -78,10 +80,10 @@ class ScraperCallbackService {
     def credential = credentialService.setFailure(
         failureCallbackDto?.data?.credential_id,
         failureCallbackDto?.data?.error_message )
+    closeWebSocketSession( credential )
     callbackService.sendToClient( credential?.customer?.client,
         Callback.Nature.FAILURE, [ credentialId: credential.id,
         message: credential.errorCode  ] )
-    closeWebSocketSession( credential )
 
   }
 
