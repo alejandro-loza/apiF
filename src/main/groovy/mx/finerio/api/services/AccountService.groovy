@@ -46,7 +46,8 @@ class AccountService {
     investment: 'Inversi\u00F3n',
     loan: 'Pr\u00E9stamo',
     mortgage: 'Hipoteca',
-    savings: 'Ahorros'
+    savings: 'Ahorros',
+    saving: 'Ahorros'
   ]
 
   Account create( AccountData accountData ) {
