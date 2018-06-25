@@ -4,6 +4,7 @@ import mx.finerio.api.domain.BankConnection
 import mx.finerio.api.domain.Client
 import mx.finerio.api.domain.Credential
 import mx.finerio.api.domain.Customer
+import mx.finerio.api.domain.repository.BankConnectionRepository
 import mx.finerio.api.domain.repository.CredentialRepository
 import mx.finerio.api.domain.FinancialInstitution
 import mx.finerio.api.domain.User
@@ -23,6 +24,7 @@ class CredentialServiceRequestDataSpec extends Specification {
   def scraperCallbackService = Mock( ScraperCallbackService )
   def scraperWebSocketService = Mock( ScraperWebSocketService )
   def securityService = Mock( SecurityService )
+  def bankConnectionRepository = Mock( BankConnectionRepository )
   def credentialRepository = Mock( CredentialRepository )
 
   def setup() {
@@ -32,6 +34,7 @@ class CredentialServiceRequestDataSpec extends Specification {
     service.scraperCallbackService = scraperCallbackService
     service.scraperWebSocketService = scraperWebSocketService
     service.securityService = securityService
+    service.bankConnectionRepository = bankConnectionRepository
     service.credentialRepository = credentialRepository
 
   }
@@ -70,6 +73,7 @@ class CredentialServiceRequestDataSpec extends Specification {
       1 * bankConnectionService.findLast( _ as Credential ) >>
           new BankConnection( startDate: getStartDate( 1 ) )
       1 * credentialRepository.save( _ as Credential )
+      1 * bankConnectionRepository.save( _ as BankConnection )
       1 * scraperCallbackService.processSuccess( _ as SuccessCallbackDto )
     where:
       credentialId = UUID.randomUUID().toString()

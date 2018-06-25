@@ -20,6 +20,9 @@ class CredentialService {
   BankConnectionService bankConnectionService
 
   @Autowired
+  BankConnectionRepository bankConnectionRepository
+
+  @Autowired
   CredentialFailureMessageService credentialFailureMessageService
 
   @Autowired
@@ -342,6 +345,8 @@ class CredentialService {
     credential.status = bankConnection.status == BankConnection.Status.SUCCESS ?
         Credential.Status.ACTIVE : Credential.Status.INVALID
     credentialRepository.save( credential )
+    bankConnection.status = BankConnection.Status.PENDING
+    bankConnectionRepository.save( bankConnection )
     def successCallbackDto = new SuccessCallbackDto()
     def data = new SuccessCallbackData()
     data.credential_id = credential.id
