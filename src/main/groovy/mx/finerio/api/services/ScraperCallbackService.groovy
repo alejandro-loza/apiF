@@ -29,6 +29,10 @@ class ScraperCallbackService {
   @Autowired
   TransactionService transactionService
 
+  @Autowired
+  TransactionPostProcessorService transactionPostProcessorService
+
+
   void processTransactions( TransactionDto transactionDto ) throws Exception {
 
     validateProcessTransactionsInput( transactionDto )
@@ -40,7 +44,7 @@ class ScraperCallbackService {
         Callback.Nature.TRANSACTIONS, [ credentialId: credential.id,
         accountId: transactionDto.data.account_id ] )
     movements.each { movementService.createConcept( it ) }
-
+    movements.each{ transactionPostProcessorService.processDuplicated( it ) }
     if ( credential?.customer?.client?.categorizeTransactions ) {
 
       transactions.each { transactionService.categorize( it ) }

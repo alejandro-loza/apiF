@@ -2,6 +2,7 @@ package mx.finerio.api.services
 
 import mx.finerio.api.domain.*
 import mx.finerio.api.domain.repository.*
+import mx.finerio.api.exceptions.*
 
 import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
@@ -71,6 +72,23 @@ class ConceptService {
         movementRepository.save( movement )
         conceptRepository.save( item )
         item
+    }
+
+    Concept findByMovement( Movement movement ) throws Exception {
+
+      if ( !movement ) {
+        throw new BadImplementationException(
+            'conceptService.findByMovement.movement.null' )
+      }
+   
+      def instance = conceptRepository.findByMovement(movement)
+
+      if ( !instance ) {
+        throw new InstanceNotFoundException( 'concept.not.found' )
+      }
+   
+      instance
+
     }
 
     def updateAmounts(Concept concept) {

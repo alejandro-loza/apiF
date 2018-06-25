@@ -72,6 +72,22 @@ class MovementService {
 
   }
 
+  Movement updateDuplicated( Movement movement ) throws Exception {
+    if ( !movement || !movement.id) {
+      throw new BadImplementationException(
+          'movementService.updateDuplicated.movement.null' )
+    }
+ 
+    def instance = findOne( movement.id )
+
+    instance.duplicated = true
+    instance.lastUpdated = new Date()
+    movementRepository.save( instance )
+    
+    instance
+
+  }
+
   Movement findOne( String id ) throws Exception {
 
     if ( !id ) {
