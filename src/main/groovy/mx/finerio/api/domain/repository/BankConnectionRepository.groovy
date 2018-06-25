@@ -9,4 +9,8 @@ interface BankConnectionRepository extends JpaRepository<BankConnection, Long> {
 
   BankConnection findFirstByCredentialAndStatus( Credential credential,
       BankConnection.Status status )
+
+  BankConnection findFirstByCredentialOrderByStartDateDesc(
+      Credential credential )
+
 }
