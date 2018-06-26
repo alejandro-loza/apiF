@@ -337,6 +337,11 @@ class CredentialService {
     cal.time = new Date()
     cal.add( Calendar.HOUR, -8 )
     if ( bankConnection.startDate <= cal.time ) { return false }
+
+    if ( bankConnection.status == BankConnection.Status.FAILURE ) {
+      return false
+    }
+
     true
 
   }
