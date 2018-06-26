@@ -12,13 +12,11 @@ class TransactionPostProcessorServiceProcessDuplicatedSpec extends Specification
 
   def movementService = Mock( MovementService )
   def conceptService = Mock( ConceptService )
-  def credentialService = Mock( CredentialService )
 
   def setup() {
 
     service.movementService = movementService
     service.conceptService = conceptService
-    service.credentialService = credentialService
 
   }
 

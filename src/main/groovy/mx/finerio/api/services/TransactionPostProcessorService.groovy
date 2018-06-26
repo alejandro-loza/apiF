@@ -12,9 +12,6 @@ import org.springframework.transaction.annotation.Transactional
 class TransactionPostProcessorService {
 
   @Autowired
-  CredentialService credentialService
-
-  @Autowired
   MovementService movementService
 
   @Autowired
@@ -27,7 +24,6 @@ class TransactionPostProcessorService {
     }
     def mov  = movementService.findOne( movement.id )
     def concept  = conceptService.findByMovement( movement )
-
     if( mov.account.nature == "Cr\u00E9dito" ){
       if( mov.type == Movement.Type.DEPOSIT ){
         mov = movementService.updateDuplicated( mov )
