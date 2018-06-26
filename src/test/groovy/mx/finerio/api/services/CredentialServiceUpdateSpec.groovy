@@ -1,5 +1,6 @@
 package mx.finerio.api.services
 
+import mx.finerio.api.domain.BankConnection
 import mx.finerio.api.domain.Client
 import mx.finerio.api.domain.Credential
 import mx.finerio.api.domain.Customer
@@ -43,6 +44,7 @@ class CredentialServiceUpdateSpec extends Specification {
       2 * credentialRepository.findOne( _ as String ) >>
           new Credential( customer: new Customer( client: client ),
           user: new User(), institution: new FinancialInstitution( id: 1L ) )
+      2 * bankConnectionService.findLast( _ as Credential ) >> null
       1 * financialInstitutionService.findOneAndValidate( _ as Long )
       1 * cryptService.encrypt( _ as String ) >>
           [ message: 'message', iv: 'iv' ]
@@ -50,6 +52,25 @@ class CredentialServiceUpdateSpec extends Specification {
           new Credential( id: 'id' )
       1 * bankConnectionService.create( _ as Credential )
       1 * scraperService.requestData( _ as Map )
+      result instanceof Credential
+    where:
+      id = 'uuid'
+      credentialUpdateDto = getCredentialUpdateDto()
+      client = new Client( id: 1 )
+
+  }
+
+  def "invoking method successfully (credential updated an hour ago)"() {
+
+    when:
+      def result = service.update( id, credentialUpdateDto )
+    then:
+      1 * securityService.getCurrent() >> client
+      1 * credentialRepository.findOne( _ as String ) >>
+          new Credential( customer: new Customer( client: client ),
+          user: new User(), institution: new FinancialInstitution( id: 1L ) )
+      1 * bankConnectionService.findLast( _ as Credential ) >>
+          new BankConnection( startDate: new Date() )
       result instanceof Credential
     where:
       id = 'uuid'
