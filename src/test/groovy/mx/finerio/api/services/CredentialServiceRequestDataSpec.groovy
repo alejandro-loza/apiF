@@ -1,11 +1,14 @@
 package mx.finerio.api.services
 
+import mx.finerio.api.domain.BankConnection
 import mx.finerio.api.domain.Client
 import mx.finerio.api.domain.Credential
 import mx.finerio.api.domain.Customer
+import mx.finerio.api.domain.repository.BankConnectionRepository
 import mx.finerio.api.domain.repository.CredentialRepository
 import mx.finerio.api.domain.FinancialInstitution
 import mx.finerio.api.domain.User
+import mx.finerio.api.dtos.SuccessCallbackDto
 import mx.finerio.api.dtos.ScraperWebSocketSendDto
 import mx.finerio.api.exceptions.BadImplementationException
 import mx.finerio.api.exceptions.InstanceNotFoundException
@@ -18,6 +21,7 @@ class CredentialServiceRequestDataSpec extends Specification {
 
   def bankConnectionService = Mock( BankConnectionService )
   def scraperService = Mock( DevScraperService )
+  def scraperCallbackService = Mock( ScraperCallbackService )
   def scraperWebSocketService = Mock( ScraperWebSocketService )
   def securityService = Mock( SecurityService )
   def credentialRepository = Mock( CredentialRepository )
@@ -26,6 +30,7 @@ class CredentialServiceRequestDataSpec extends Specification {
 
     service.bankConnectionService = bankConnectionService
     service.scraperService = scraperService
+    service.scraperCallbackService = scraperCallbackService
     service.scraperWebSocketService = scraperWebSocketService
     service.securityService = securityService
     service.credentialRepository = credentialRepository
@@ -43,6 +48,47 @@ class CredentialServiceRequestDataSpec extends Specification {
           client: client ),
           institution: new FinancialInstitution(),
           user: new User() )
+      1 * credentialRepository.save( _ as Credential )
+      1 * bankConnectionService.create( _ as Credential )
+      1 * scraperService.requestData( _ as Map ) >> [ hello: 'world' ]
+    where:
+      credentialId = UUID.randomUUID().toString()
+      client = new Client( id: 1 )
+
+  }
+
+  def "invoking method successfully (credential updated an hour ago)"() {
+
+    when:
+      service.requestData( credentialId )
+    then:
+      1 * securityService.getCurrent() >> client
+      1 * credentialRepository.findOne( _ as String ) >>
+          new Credential( customer: new Customer(
+          client: client ),
+          institution: new FinancialInstitution(),
+          user: new User() )
+      1 * bankConnectionService.findLast( _ as Credential ) >>
+          new BankConnection( startDate: getStartDate( 1 ) )
+    where:
+      credentialId = UUID.randomUUID().toString()
+      client = new Client( id: 1 )
+
+  }
+
+  def "invoking method successfully (credential updated a day ago)"() {
+
+    when:
+      service.requestData( credentialId )
+    then:
+      1 * securityService.getCurrent() >> client
+      1 * credentialRepository.findOne( _ as String ) >>
+          new Credential( customer: new Customer(
+          client: client ),
+          institution: new FinancialInstitution(),
+          user: new User() )
+      1 * bankConnectionService.findLast( _ as Credential ) >>
+          new BankConnection( startDate: getStartDate( 24 ) )
       1 * credentialRepository.save( _ as Credential )
       1 * bankConnectionService.create( _ as Credential )
       1 * scraperService.requestData( _ as Map ) >> [ hello: 'world' ]
@@ -108,6 +154,14 @@ class CredentialServiceRequestDataSpec extends Specification {
     where:
       credentialId = UUID.randomUUID().toString()
       client = new Client( id: 1 )
+
+  }
+
+  private Date getStartDate( int days ) throws Exception {
+
+    def cal = Calendar.instance
+    cal.add( Calendar.HOUR, -days )
+    cal.time
 
   }
 

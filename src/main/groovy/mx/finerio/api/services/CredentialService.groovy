@@ -44,6 +44,9 @@ class CredentialService {
   ListService listService
 
   @Autowired
+  ScraperCallbackService scraperCallbackService
+
+  @Autowired
   ScraperWebSocketService scraperWebSocketService
 
   @Autowired
@@ -128,6 +131,7 @@ class CredentialService {
 
     validateUpdateInput( id, credentialUpdateDto )
     def instance = findOne( id )
+    if ( credentialRecentlyUpdated( instance ) ) { return instance }
     financialInstitutionService.findOneAndValidate( instance.institution.id )
 
     if ( credentialUpdateDto.securityCode ) {
@@ -152,6 +156,8 @@ class CredentialService {
   void requestData( String credentialId ) throws Exception {
 
     def credential = findOne( credentialId )
+    if ( credentialRecentlyUpdated( credential ) ) { return }
+    credential.status = Credential.Status.VALIDATE
     credential.providerId = 3L
     credential.errorCode = null
     credentialRepository.save( credential )
@@ -319,6 +325,24 @@ class CredentialService {
         id: credential.id,
         message: new JsonBuilder( data ).toString(),
         destroyPreviousSession: true ) )
+
+  }
+
+  private boolean credentialRecentlyUpdated( Credential credential )
+      throws Exception {
+
+    def bankConnection = bankConnectionService.findLast( credential )
+    if ( !bankConnection ) { return false }
+    def cal = Calendar.instance
+    cal.time = new Date()
+    cal.add( Calendar.HOUR, -8 )
+    if ( bankConnection.startDate <= cal.time ) { return false }
+
+    if ( bankConnection.status == BankConnection.Status.FAILURE ) {
+      return false
+    }
+
+    true
 
   }
 
