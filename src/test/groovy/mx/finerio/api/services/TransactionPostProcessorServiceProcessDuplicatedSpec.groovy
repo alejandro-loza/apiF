@@ -20,14 +20,13 @@ class TransactionPostProcessorServiceProcessDuplicatedSpec extends Specification
 
   }
 
-  def "invoking method successfully"() {
+  def "invoking method successfully (DEPOSIT)"() {
 
     when:
       def result = service.processDuplicated( movement )
     then:
       1 * movementService.findOne( _ as String ) >>
         new Movement( id: "uuid", account: account, type: Movement.Type.DEPOSIT )
-      1 * conceptService.findByMovement( _ as Movement ) >> new Concept( id: "uuid" )
       1 * movementService.updateDuplicated( _ as Movement ) >>
         new Movement( 
             id: "uuid", 
@@ -42,14 +41,67 @@ class TransactionPostProcessorServiceProcessDuplicatedSpec extends Specification
 
   }
 
-  def "invoking method successfully (no DEPOSIT)"() {
+  def "invoking method successfully (CHARGE)"() {
 
     when:
       def result = service.processDuplicated( movement )
     then:
       1 * movementService.findOne( _ as String ) >>
-        new Movement( id: "uuid", account: account )
+        new Movement( id: "uuid", account: account, type: Movement.Type.CHARGE )
+      1 * conceptService.findByMovement( _ as Movement ) >> 
+        new Concept( id: "uuid", category: new Category( name:"Cajero automático" ) )
+      1 * movementService.updateDuplicated( _ as Movement ) >>
+        new Movement( 
+            id: "uuid", 
+            account: account, 
+            type: Movement.Type.DEPOSIT,
+            duplicated: false)
+      result instanceof Movement
+      result.duplicated == false
+    where:
+      movement = new Movement( id: "uuid" )
+      account = new Account( id: "uuid", nature: "Crédito" )
+
+  }
+
+  def "CHARGE and 'category' != 'Cajero automático'"() {
+
+    when:
+      def result = service.processDuplicated( movement )
+    then:
+      1 * movementService.findOne( _ as String ) >>
+        new Movement( id: "uuid", account: account, type: Movement.Type.CHARGE )
+      1 * conceptService.findByMovement( _ as Movement ) >> 
+        new Concept( id: "uuid", category: new Category( name:"Cajero" ) )
+      result instanceof Movement
+    where:
+      movement = new Movement( id: "uuid" )
+      account = new Account( id: "uuid", nature: "Crédito" )
+
+  }
+
+  def "CHARGE and 'category' is null"() {
+
+    when:
+      def result = service.processDuplicated( movement )
+    then:
+      1 * movementService.findOne( _ as String ) >>
+        new Movement( id: "uuid", account: account, type: Movement.Type.CHARGE )
       1 * conceptService.findByMovement( _ as Movement ) >> new Concept( id: "uuid" )
+      result instanceof Movement
+    where:
+      movement = new Movement( id: "uuid" )
+      account = new Account( id: "uuid", nature: "Crédito" )
+
+  }
+
+  def "DEPOSIT and 'nature' is null"() {
+
+    when:
+      def result = service.processDuplicated( movement )
+    then:
+      1 * movementService.findOne( _ as String ) >>
+        new Movement( id: "uuid", account: account, type: Movement.Type.DEPOSIT )
       result instanceof Movement
     where:
       movement = new Movement( id: "uuid" )
@@ -57,14 +109,27 @@ class TransactionPostProcessorServiceProcessDuplicatedSpec extends Specification
 
   }
 
-  def "invoking method successfully (no duplicated)"() {
+  def "DEPOSIT and 'nature' != Crédito"() {
+
+    when:
+      def result = service.processDuplicated( movement )
+    then:
+      1 * movementService.findOne( _ as String ) >>
+        new Movement( id: "uuid", account: account, type: Movement.Type.DEPOSIT )
+      result instanceof Movement
+    where:
+      movement = new Movement( id: "uuid" )
+      account = new Account( id: "uuid", nature: "Ahorro" )
+
+  }
+
+  def "parameter type' is null"() {
 
     when:
       def result = service.processDuplicated( movement )
     then:
       1 * movementService.findOne( _ as String ) >>
         new Movement( id: "uuid", account: account )
-      1 * conceptService.findByMovement( _ as Movement ) >> new Concept( id: "uuid" )
       result instanceof Movement
     where:
       movement = new Movement( id: "uuid" )

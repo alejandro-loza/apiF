@@ -23,9 +23,14 @@ class TransactionPostProcessorService {
       throw new BadRequestException( 'transactionPostProcessor.processDuplicated.movement.null' )
     }
     def mov  = movementService.findOne( movement.id )
-    def concept  = conceptService.findByMovement( movement )
-    if( mov.account.nature == "Cr\u00E9dito" ){
-      if( mov.type == Movement.Type.DEPOSIT ){
+    if( mov.type == Movement.Type.DEPOSIT ){
+      if( mov.account.nature && mov.account.nature == "Cr\u00E9dito" ){
+        mov = movementService.updateDuplicated( mov )
+        return mov  
+      }
+    }else if( mov.type == Movement.Type.CHARGE ){
+      def concept  = conceptService.findByMovement( movement )
+      if( concept.category?.name == "Cajero automático" ){
         mov = movementService.updateDuplicated( mov )
         return mov  
       }
