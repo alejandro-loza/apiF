@@ -35,9 +35,9 @@ class AccountServiceCreateSpec extends Specification {
     then:
       1 * credentialService.findAndValidate( _ as String ) >>
           new Credential( institution: institution, user: user )
-      1 * accountRepository.findByInstitutionAndUserAndNumber(
+      1 * accountRepository.findFirstByInstitutionAndUserAndNumberOrderByDateCreatedDesc(
           _ as FinancialInstitution, _ as User, _ as String )
-      1 * accountRepository.findByInstitutionAndUserAndNumberLike(
+      1 * accountRepository.findFirstByInstitutionAndUserAndNumberLikeOrderByDateCreatedDesc(
           _ as FinancialInstitution, _ as User, _ as String )
       1 * accountRepository.save( _ as Account )
       1 * accountCredentialRepository.findAllByAccountAndCredential(
@@ -58,10 +58,10 @@ class AccountServiceCreateSpec extends Specification {
     then:
       1 * credentialService.findAndValidate( _ as String ) >>
           new Credential( institution: institution, user: user )
-      1 * accountRepository.findByInstitutionAndUserAndNumber(
+      1 * accountRepository.findFirstByInstitutionAndUserAndNumberOrderByDateCreatedDesc(
           _ as FinancialInstitution, _ as User, _ as String ) >>
           new Account()
-      0 * accountRepository.findByInstitutionAndUserAndNumberLike(
+      0 * accountRepository.findFirstByInstitutionAndUserAndNumberLikeOrderByDateCreatedDesc(
           _ as FinancialInstitution, _ as User, _ as String )
       1 * accountRepository.save( _ as Account )
       1 * accountCredentialRepository.findAllByAccountAndCredential(
@@ -82,9 +82,9 @@ class AccountServiceCreateSpec extends Specification {
     then:
       1 * credentialService.findAndValidate( _ as String ) >>
           new Credential( institution: institution, user: user )
-      1 * accountRepository.findByInstitutionAndUserAndNumber(
+      1 * accountRepository.findFirstByInstitutionAndUserAndNumberOrderByDateCreatedDesc(
           _ as FinancialInstitution, _ as User, _ as String )
-      1 * accountRepository.findByInstitutionAndUserAndNumberLike(
+      1 * accountRepository.findFirstByInstitutionAndUserAndNumberLikeOrderByDateCreatedDesc(
           _ as FinancialInstitution, _ as User, _ as String ) >>
           new Account()
       1 * accountRepository.save( _ as Account )
@@ -106,9 +106,9 @@ class AccountServiceCreateSpec extends Specification {
     then:
       1 * credentialService.findAndValidate( _ as String ) >>
           new Credential( institution: institution, user: user )
-      1 * accountRepository.findByInstitutionAndUserAndNumber(
+      1 * accountRepository.findFirstByInstitutionAndUserAndNumberOrderByDateCreatedDesc(
           _ as FinancialInstitution, _ as User, _ as String )
-      1 * accountRepository.findByInstitutionAndUserAndNumberLike(
+      1 * accountRepository.findFirstByInstitutionAndUserAndNumberLikeOrderByDateCreatedDesc(
           _ as FinancialInstitution, _ as User, _ as String )
       1 * accountRepository.save( _ as Account )
       1 * accountCredentialRepository.findAllByAccountAndCredential(
