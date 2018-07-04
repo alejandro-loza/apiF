@@ -173,12 +173,12 @@ class AccountService {
   private Account findDuplicated( FinancialInstitution institution, User user,
       String number, String name ) throws Exception {
 
-    def instance = accountRepository.findByInstitutionAndUserAndNumberAndDeleted(
-        institution, user, number, false )
+    def instance = accountRepository.findFirstByInstitutionAndUserAndNumberOrderByDateCreatedDesc(
+        institution, user, number )
 
     if ( !instance ) {
-      instance = accountRepository.findByInstitutionAndUserAndNumberLikeAndDeleted(
-        institution, user, getMaskedNumber( institution, number ), false )
+      instance = accountRepository.findFirstByInstitutionAndUserAndNumberLikeOrderByDateCreatedDesc(
+        institution, user, getMaskedNumber( institution, number ) )
     }
 
     instance
