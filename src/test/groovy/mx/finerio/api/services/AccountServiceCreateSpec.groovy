@@ -35,10 +35,10 @@ class AccountServiceCreateSpec extends Specification {
     then:
       1 * credentialService.findAndValidate( _ as String ) >>
           new Credential( institution: institution, user: user )
-      1 * accountRepository.findByInstitutionAndUserAndNumberAndDeleted(
-          _ as FinancialInstitution, _ as User, _ as String, _ as Boolean )
-      1 * accountRepository.findByInstitutionAndUserAndNumberLikeAndDeleted(
-          _ as FinancialInstitution, _ as User, _ as String, _ as Boolean )
+      1 * accountRepository.findByInstitutionAndUserAndNumber(
+          _ as FinancialInstitution, _ as User, _ as String )
+      1 * accountRepository.findByInstitutionAndUserAndNumberLike(
+          _ as FinancialInstitution, _ as User, _ as String )
       1 * accountRepository.save( _ as Account )
       1 * accountCredentialRepository.findAllByAccountAndCredential(
           _ as Account, _ as Credential )
@@ -58,11 +58,11 @@ class AccountServiceCreateSpec extends Specification {
     then:
       1 * credentialService.findAndValidate( _ as String ) >>
           new Credential( institution: institution, user: user )
-      1 * accountRepository.findByInstitutionAndUserAndNumberAndDeleted(
-          _ as FinancialInstitution, _ as User, _ as String, _ as Boolean ) >>
+      1 * accountRepository.findByInstitutionAndUserAndNumber(
+          _ as FinancialInstitution, _ as User, _ as String ) >>
           new Account()
-      0 * accountRepository.findByInstitutionAndUserAndNumberLikeAndDeleted(
-          _ as FinancialInstitution, _ as User, _ as String, _ as Boolean )
+      0 * accountRepository.findByInstitutionAndUserAndNumberLike(
+          _ as FinancialInstitution, _ as User, _ as String )
       1 * accountRepository.save( _ as Account )
       1 * accountCredentialRepository.findAllByAccountAndCredential(
           _ as Account, _ as Credential )
@@ -82,10 +82,10 @@ class AccountServiceCreateSpec extends Specification {
     then:
       1 * credentialService.findAndValidate( _ as String ) >>
           new Credential( institution: institution, user: user )
-      1 * accountRepository.findByInstitutionAndUserAndNumberAndDeleted(
-          _ as FinancialInstitution, _ as User, _ as String, _ as Boolean )
-      1 * accountRepository.findByInstitutionAndUserAndNumberLikeAndDeleted(
-          _ as FinancialInstitution, _ as User, _ as String, _ as Boolean ) >>
+      1 * accountRepository.findByInstitutionAndUserAndNumber(
+          _ as FinancialInstitution, _ as User, _ as String )
+      1 * accountRepository.findByInstitutionAndUserAndNumberLike(
+          _ as FinancialInstitution, _ as User, _ as String ) >>
           new Account()
       1 * accountRepository.save( _ as Account )
       1 * accountCredentialRepository.findAllByAccountAndCredential(
@@ -106,10 +106,10 @@ class AccountServiceCreateSpec extends Specification {
     then:
       1 * credentialService.findAndValidate( _ as String ) >>
           new Credential( institution: institution, user: user )
-      1 * accountRepository.findByInstitutionAndUserAndNumberAndDeleted(
-          _ as FinancialInstitution, _ as User, _ as String, _ as Boolean )
-      1 * accountRepository.findByInstitutionAndUserAndNumberLikeAndDeleted(
-          _ as FinancialInstitution, _ as User, _ as String, _ as Boolean )
+      1 * accountRepository.findByInstitutionAndUserAndNumber(
+          _ as FinancialInstitution, _ as User, _ as String )
+      1 * accountRepository.findByInstitutionAndUserAndNumberLike(
+          _ as FinancialInstitution, _ as User, _ as String )
       1 * accountRepository.save( _ as Account )
       1 * accountCredentialRepository.findAllByAccountAndCredential(
           _ as Account, _ as Credential ) >> [ new AccountCredential() ]

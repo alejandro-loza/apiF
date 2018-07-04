@@ -10,9 +10,9 @@ import mx.finerio.api.domain.*
 
 interface AccountRepository extends JpaRepository<Account, String >, JpaSpecificationExecutor {
   
-  Account findByInstitutionAndUserAndNumberAndDeleted(FinancialInstitution financialInstitution, User user, String number, boolean deleted)
+  Account findByInstitutionAndUserAndNumber(FinancialInstitution financialInstitution, User user, String number)
   Account findByInstitutionAndUserAndNameAndDeleted(FinancialInstitution financialInstitution, User user, String name, boolean deleted) 
-  Account findByInstitutionAndUserAndNumberLikeAndDeleted(FinancialInstitution financialInstitution, User user, String number, boolean deleted)  
+  Account findByInstitutionAndUserAndNumberLike(FinancialInstitution financialInstitution, User user, String number)
   Account findById( String id )
 
   @Query( value= "select ac.account from AccountCredential ac where ac.credential = ?1 " )
