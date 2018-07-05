@@ -181,6 +181,12 @@ class AccountService {
         institution, user, getMaskedNumber( institution, number ) )
     }
 
+    if ( instance?.deleted &&
+        !accountCredentialRepository.findAllByAccountAndCredential(
+        instance, credential ) ) {
+      instance = null
+    }
+
     instance
 
   }
