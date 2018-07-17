@@ -32,6 +32,9 @@ class ScraperCallbackService {
   @Autowired
   TransactionPostProcessorService transactionPostProcessorService
 
+  @Autowired
+  TransactionsApiService transactionsApiService
+
 
   void processTransactions( TransactionDto transactionDto ) throws Exception {
 
@@ -45,6 +48,7 @@ class ScraperCallbackService {
         accountId: transactionDto.data.account_id ] )
     movements.each { movementService.createConcept( it ) }
     movements.each{ transactionPostProcessorService.processDuplicated( it ) }
+    movements.each{ transactionsApiService.findDuplicated( it ) }
     if ( credential?.customer?.client?.categorizeTransactions ) {
 
       transactions.each { transactionService.categorize( it ) }

@@ -124,6 +124,22 @@ class MovementService {
 
   }
 
+  List getMovementsToDuplicated( String id ){
+
+    if ( !id ) {
+      throw new BadImplementationException(
+          'movementService.getMovementsToDuplicated.id.null' )
+    }
+    def instance = findOne( id )
+    def movements = movementRepository.findByAccountAndAmountAndTypeAndDateDeletedIsNull( 
+        instance.account, instance.amount, instance.type )
+    if( !movements ){
+      throw new InstanceNotFoundException( 'movements.not.found' )
+    }
+    movements
+
+  }
+
   private Movement create( Account account, Transaction transaction )
       throws Exception {
 
