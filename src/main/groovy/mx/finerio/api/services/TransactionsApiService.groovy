@@ -25,25 +25,50 @@ class TransactionsApiService {
   @Value( '${transactions-api.auth.password}' )
   String password
 
-  def findDuplicated( Movement movement ) throws Exception {
+  void findDuplicated( Movement movement ) throws Exception {
 
     if ( !movement || !movement.id) {
       throw new BadRequestException( 'transactionsApi.findDuplicated.movement.null' )
     }
-    def mov  = movementService.getMovementsToDuplicated( movement.id )
+    List mov  = movementService.getMovementsToDuplicated( movement.id )
+    List f = prepareList( mov, movement )
+    Map params = [:]  
+    params.endpoint = "searchAll"
+    params.params = [ list: f.description.join(",") ]
+    def restFind = find( params )
+
+    println restFind?.base 
+    restFind.results.each{ 
+      println "" 
+      println it 
+    }
+
     mov
+  }
+
+  private List prepareList( List mov, Movement mv ){
+
+    def dateMinus = mv.date.minus(5)
+    List list = mov.findAll{ it.date <= mv.date && it.date >= dateMinus }
+    def nl = []
+    nl << mv
+    list.each{
+      if( it != mv ){ nl << it }
+    }
+    nl
+
   }
 
   private Map find( Map map ) throws Exception {
 
     if ( !map ) {
-      throw new BadImplementationException( 'cleanerService.clean.text.null' )
+      throw new BadImplementationException( 'transactionsApiService.find.map.null' )
     }
 
     def token = "${username}:${password}".bytes.encodeBase64().toString()
     def headers = [ 'Authorization': "Basic ${token}"]
-    def params = [ input: text ]
-    restTemplateService.get( url, headers, params ).result
+    def params = map.params
+    restTemplateService.get( url + map.endpoint, headers, params ).result
 
   }
 
