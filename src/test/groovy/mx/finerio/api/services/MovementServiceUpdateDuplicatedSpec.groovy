@@ -40,7 +40,7 @@ class MovementServiceUpdateDuplicatedSpec extends Specification {
               )
       result instanceof Movement
       result.duplicated == true
-      result.lastUpdated == new Date()
+      result.lastUpdated.toString().equals ( new Date().toString() )
     where:
       movement = new Movement( id: 'uuid', account: new Account( id: 'id' ) )
 

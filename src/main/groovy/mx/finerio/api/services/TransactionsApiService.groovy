@@ -25,38 +25,45 @@ class TransactionsApiService {
   @Value( '${transactions-api.auth.password}' )
   String password
 
-  void findDuplicated( Movement movement ) throws Exception {
+  final Map percent =[
+    BBVA: [ percent: 81, date: 5 ], 
+    BNMX: [ percent: 81, date: 5 ],
+    AOOL: [ percent: 81, date: 5 ],
+    SANTANDER: [ percent: 81, date: 5 ],
+    HSBC: [ percent: 81, date: 5 ],
+    AMEX: [ percent: 81, date: 5 ],
+    INVEX: [ percent: 81, date: 5 ],
+    SCOTIA: [ percent: 81, date: 5 ],
+    BANORTE: [ percent: 81, date: 5 ],
+    INBURSA: [ percent: 81, date: 5 ]
+  ]
+
+  Movement findDuplicated( Movement movement ) throws Exception {
 
     if ( !movement || !movement.id) {
       throw new BadRequestException( 'transactionsApi.findDuplicated.movement.null' )
     }
     List mov  = movementService.getMovementsToDuplicated( movement.id )
     List f = prepareList( mov, movement )
-    println "Movimiento entrante: \n${movement.date} \t ${movement.description}\n"
-    println "Numero de posibles duplicados: " + ( f.size()-1 )  
-    f.each{ 
-      if( it != movement ){  println "${it.date} \t ${it.description}" }
-    } 
     if ( f.size() >= 2 ){  
       Map params = [:]  
       params.endpoint = "searchAll"
       params.params = [ list: f.description.join(",") ]
       def restFind = find( params )
-
       def reasonResponse = restFind.results.findAll{ 
-        ( it.reason.data != "Not found" ) || ( it.similarity.percent >= 80 )
+        ( it.reason.data != "Not found" ) || ( it.similarity.percent >= percent["${movement.account.institution.code}"].percent )
       }
       if( reasonResponse ){
-        println "\nreason" 
-        reasonResponse.each{ println "${it.similarity} \t ${it.reason.data} \t ${it.description}" } 
+        movement = movementService.updateDuplicated( movement )
       }
     }
+    movement
 
   }
 
   private List prepareList( List mov, Movement mv ){
 
-    def dateMinus = mv.date.minus(5)
+    def dateMinus = mv.date.minus( percent["${mv.account.institution.code}"].date )
     List list = mov.findAll{ it.date <= mv.date && it.date >= dateMinus }
     def nl = []
     nl << mv

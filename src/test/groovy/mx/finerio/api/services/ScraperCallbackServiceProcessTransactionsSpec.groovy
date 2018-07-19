@@ -21,6 +21,7 @@ class ScraperCallbackServiceProcessTransactionsSpec extends Specification {
   def movementService = Mock( MovementService )
   def transactionService = Mock( TransactionService )
   def transactionPostProcessorService = Mock( TransactionPostProcessorService )
+  def transactionsApiService = Mock( TransactionsApiService )
 
   def setup() {
 
@@ -29,6 +30,7 @@ class ScraperCallbackServiceProcessTransactionsSpec extends Specification {
     service.movementService = movementService
     service.transactionService = transactionService
     service.transactionPostProcessorService = transactionPostProcessorService
+    service.transactionsApiService = transactionsApiService
 
   }
 
@@ -48,6 +50,7 @@ class ScraperCallbackServiceProcessTransactionsSpec extends Specification {
           _ as Map )
       2 * movementService.createConcept( _ as Movement )
       2 * transactionPostProcessorService.processDuplicated( _ as Movement )
+      2 * transactionsApiService.findDuplicated( _ as Movement )
       2 * transactionService.categorize( _ as Transaction )
     where:
       transactionDto = getTransactionDto()
@@ -70,6 +73,7 @@ class ScraperCallbackServiceProcessTransactionsSpec extends Specification {
           _ as Map )
       2 * movementService.createConcept( _ as Movement )
       2 * transactionPostProcessorService.processDuplicated( _ as Movement )
+      2 * transactionsApiService.findDuplicated( _ as Movement )
       0 * transactionService.categorize( _ as Transaction )
     where:
       transactionDto = getTransactionDto()
