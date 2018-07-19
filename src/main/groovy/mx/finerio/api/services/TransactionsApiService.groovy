@@ -45,6 +45,10 @@ class TransactionsApiService {
     }
     List mov  = movementService.getMovementsToDuplicated( movement.id )
     List f = prepareList( mov, movement )
+    boolean auts = equalsMovements( f )
+    if( auts ){
+      return movementService.updateDuplicated( movement )
+    }
     if ( f.size() >= 2 ){  
       Map params = [:]  
       params.endpoint = "searchAll"
@@ -58,6 +62,22 @@ class TransactionsApiService {
       }
     }
     movement
+
+  }
+
+  private boolean equalsMovements( List movs ){
+
+    boolean bool = false
+    def s1 = movs[0].description.split("AUT. ")
+    if( s1.size() > 1 ){
+      for( int i =1; i<movs.size(); i++ ){
+        def s2 = movs[i].description.split("AUT. ")
+        if( s2.size() > 1 ){
+          if( s1[1] == s2[1] ){ return true }
+        }
+      }
+    }
+    bool
 
   }
 
