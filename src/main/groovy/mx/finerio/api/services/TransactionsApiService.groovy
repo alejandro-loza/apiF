@@ -32,18 +32,26 @@ class TransactionsApiService {
     }
     List mov  = movementService.getMovementsToDuplicated( movement.id )
     List f = prepareList( mov, movement )
-    Map params = [:]  
-    params.endpoint = "searchAll"
-    params.params = [ list: f.description.join(",") ]
-    def restFind = find( params )
+    println "Movimiento entrante: \n${movement.date} \t ${movement.description}\n"
+    println "Numero de posibles duplicados: " + ( f.size()-1 )  
+    f.each{ 
+      if( it != movement ){  println "${it.date} \t ${it.description}" }
+    } 
+    if ( f.size() >= 2 ){  
+      Map params = [:]  
+      params.endpoint = "searchAll"
+      params.params = [ list: f.description.join(",") ]
+      def restFind = find( params )
 
-    println restFind?.base 
-    restFind.results.each{ 
-      println "" 
-      println it 
+      def reasonResponse = restFind.results.findAll{ 
+        ( it.reason.data != "Not found" ) || ( it.similarity.percent >= 80 )
+      }
+      if( reasonResponse ){
+        println "\nreason" 
+        reasonResponse.each{ println "${it.similarity} \t ${it.reason.data} \t ${it.description}" } 
+      }
     }
 
-    mov
   }
 
   private List prepareList( List mov, Movement mv ){
