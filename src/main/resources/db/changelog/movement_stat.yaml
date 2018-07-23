@@ -1,0 +1,69 @@
+databaseChangeLog:
+- changeSet:
+    id: movement_stat
+    author: jose.vargas
+    changes:
+    - createTable:
+        tableName: movement_stat
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+              nullable: false
+        - column:
+            name: user_id
+            type: java.sql.Types.VARCHAR(255)
+            constraints:
+              nullable: false
+        - column:
+            name: category_id
+            type: java.sql.Types.VARCHAR(255)
+            constraints:
+              nullable: true                            
+        - column:
+            name: type
+            type: java.sql.Types.VARCHAR(255)
+            constraints:
+              nullable: false
+        - column:
+            name: amount
+            type: java.sql.Types.DECIMAL(19,2)
+            constraints:
+              nullable: false
+        - column:
+            name: init_date
+            type: java.sql.Types.TIMESTAMP
+            constraints:
+              nullable: true
+        - column:
+            name: final_date
+            type: java.sql.Types.TIMESTAMP
+            constraints:
+              nullable: true  
+- changeSet:
+    id: movement_stat_users_fk
+    author: jose.vargas
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: user_id
+        baseTableName: movement_stat
+        constraintName: fk_movement_stat_user
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: id
+        referencedTableName: user
+- changeSet:
+    id: movement_stat_categories_fk
+    author: jose.vargas
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: category_id
+        baseTableName: movement_stat
+        constraintName: fk_movement_stat_categories
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: id
+        referencedTableName: category

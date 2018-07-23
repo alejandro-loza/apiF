@@ -28,3 +28,5 @@ databaseChangeLog:
     file: db/changelog/transactions_timestamps.yaml
 - include:
     file: db/changelog/clients_categorize_transactions.yaml
+- include:
+    file: db/changelog/movement_stat.yaml
