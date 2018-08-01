@@ -38,6 +38,19 @@ class TransactionsApiService {
     INBURSA: [ percent: 81, date: 5 ]
   ]
 
+  List findTransference( List list ){
+    
+    if ( !list ) {
+      throw new BadRequestException( 'transactionsApi.findTransference.list.null' )
+    }
+    Map params = [:]  
+    params.endpoint = "searchAll"
+    params.params = [ list: list.join(",") ]
+    def restFind = find( params )
+    return restFind.results ?: []
+
+  }
+
   Movement findDuplicated( Movement movement ) throws Exception {
 
     if ( !movement || !movement.id) {

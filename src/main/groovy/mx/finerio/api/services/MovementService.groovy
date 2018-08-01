@@ -124,6 +124,35 @@ class MovementService {
 
   }
 
+  List getMovementsToTransference( String id, Movement.Type type ){
+
+    if ( !id ) {
+      throw new BadImplementationException(
+          'movementService.getMovementsToDuplicated.id.null' )
+    }
+    if ( !type ) {
+      throw new BadImplementationException(
+          'movementService.getMovementsToDuplicated.type.null' )
+    }
+    def instance = findOne( id )
+    List accounts = accountService.findAllByUser( instance.account )
+    def movements = sumMovementList( accounts, instance, type ) ?: []
+    movements
+
+  }
+
+  private List sumMovementList( List list, Movement mov, Movement.Type type ){
+
+    List listfinal = []
+    list.each{
+      def movements = movementRepository.findByAccountAndAmountAndTypeAndDateDeletedIsNull( 
+        it, mov.amount , type )
+      listfinal += movements
+    }
+    listfinal
+
+  }
+
   List getMovementsToDuplicated( String id ){
 
     if ( !id ) {
