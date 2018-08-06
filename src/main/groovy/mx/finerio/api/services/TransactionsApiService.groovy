@@ -38,14 +38,20 @@ class TransactionsApiService {
     INBURSA: [ percent: 81, date: 5 ]
   ]
 
-  List findTransference( List list ){
+  List findTransference( Map map ) throws Exception {
     
-    if ( !list ) {
+    if ( !map.list ) {
       throw new BadRequestException( 'transactionsApi.findTransference.list.null' )
     }
+    if ( !map.type ) {
+      throw new BadRequestException( 'transactionsApi.findTransference.type.null' )
+    }
+    if ( !map.bank ) {
+      throw new BadRequestException( 'transactionsApi.findTransference.bank.null' )
+    }
     Map params = [:]  
-    params.endpoint = "searchAll"
-    params.params = [ list: list.join(",") ]
+    params.endpoint = "searchTransferences"
+    params.params = [ list: map.list.join(","), type: map.type.toString(), bank: map.bank ]
     def restFind = find( params )
     return restFind.results ?: []
 

@@ -44,6 +44,7 @@ class TransactionPostProcessorService {
   }
 
   private void updateTransference( Movement mov ){
+    
     def tp
     if( mov.type == Movement.Type.DEPOSIT ){ tp = Movement.Type.CHARGE }
     if( mov.type == Movement.Type.CHARGE ){ tp = Movement.Type.DEPOSIT }
@@ -52,18 +53,18 @@ class TransactionPostProcessorService {
         def dateMinus = mov.date.minus( 5 )
         List list = movsTransf.findAll{ it.date <= mov.date && it.date >= dateMinus }
         if(list){
-          def descriptions = list.collect{ it.description }
+          def descriptions = []
           descriptions << mov.description
-println "descriptions"
-descriptions.each{ println it }
-         def result = transactionsApiService.findTransference( list )
+          descriptions += list.collect{ it.description }
+          def params = [ list: list, type: mov.type, bank: mov.account.institution.code ]
+          def result = transactionsApiService.findTransference( params )
 println "result"
 result.each{ println it }
            
         }
       }
 
-
   }
+
 
 }
