@@ -56,10 +56,12 @@ class TransactionPostProcessorService {
           def descriptions = []
           descriptions << mov.description
           descriptions += list.collect{ it.description }
-          def params = [ list: list, type: mov.type, bank: mov.account.institution.code ]
+          def params = [ list: descriptions, type: mov.type, bank: mov.account.institution.code ]
           def result = transactionsApiService.findTransference( params )
-println "result"
-result.each{ println it }
+          def flag = result.findAll{  it.transference == true }
+          if( flag ){
+            println flag
+          }
            
         }
       }

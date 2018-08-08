@@ -19,7 +19,7 @@ class TransactionsApiServiceFindDuplicated {
     value='execution(mx.finerio.api.domain.Movement mx.finerio.api.services.TransactionsApiService.findDuplicated(..)) && bean(transactionsApiService) && args(movement)',
     argNames='movement'
   )
-  public void findDuplicated( Movement id ) {}
+  public void findDuplicated( Movement movement ) {}
 
   @Before('findDuplicated(movement)')
   void before( Movement movement ) {
