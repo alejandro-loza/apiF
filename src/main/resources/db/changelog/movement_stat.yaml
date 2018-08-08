@@ -35,12 +35,12 @@ databaseChangeLog:
               nullable: false
         - column:
             name: init_date
-            type: java.sql.Types.TIMESTAMP
+            type: DATETIME
             constraints:
               nullable: true
         - column:
             name: final_date
-            type: java.sql.Types.TIMESTAMP
+            type: DATETIME
             constraints:
               nullable: true  
 - changeSet:
