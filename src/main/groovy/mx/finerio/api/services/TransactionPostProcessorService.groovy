@@ -60,7 +60,12 @@ class TransactionPostProcessorService {
           def result = transactionsApiService.findTransference( params )
           def flag = result.findAll{  it.transference == true }
           if( flag ){
-            println flag
+            def listMatch = list.findAll{ it.description.toLowerCase() in flag.description }
+            listMatch.unique()
+            listMatch.each{
+              movementService.updateDuplicated( it )
+            }
+            movementService.updateDuplicated( mov )
           }
            
         }
