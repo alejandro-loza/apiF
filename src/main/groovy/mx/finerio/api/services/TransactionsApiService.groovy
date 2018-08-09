@@ -40,6 +40,9 @@ class TransactionsApiService {
 
   List findTransference( Map map ) throws Exception {
     
+    if ( !map ) {
+      throw new BadRequestException( 'transactionsApi.findTransference.map.null' )
+    }
     if ( !map.list ) {
       throw new BadRequestException( 'transactionsApi.findTransference.list.null' )
     }
