@@ -31,7 +31,7 @@ class ForgotPasswordService {
 	@Autowired
 	PasswordEncoder passwordEncoder
 	
-	@Value('${mail.service.template.forgot.password.name')
+	@Value('${mail.service.template.forgot.password.name}')
 	String templateName
 	
 	@Value('${finerio.email.front.url}')
