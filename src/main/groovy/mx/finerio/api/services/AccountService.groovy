@@ -46,8 +46,7 @@ class AccountService {
     investment: 'Inversi\u00F3n',
     loan: 'Pr\u00E9stamo',
     mortgage: 'Hipoteca',
-    savings: 'Ahorros',
-    saving: 'Ahorros'
+    savings: 'Ahorros'
   ]
 
   Account create( AccountData accountData ) {
@@ -68,7 +67,7 @@ class AccountService {
     account.number = number
     account.user = credential.user
     account.balance = accountData.balance
-    account.nature = NATURES[ accountData.nature ]
+    account.nature = NATURES[ accountData.nature ] ?: accountData.nature
     account.dateCreated = account.dateCreated ?: new Date()
     account.lastUpdated = new Date()
     accountRepository.save( account )
