@@ -160,6 +160,7 @@ class CredentialService {
     credential.status = Credential.Status.VALIDATE
     credential.providerId = 3L
     credential.errorCode = null
+    credential.lastUpdated = new Date()
     credentialRepository.save( credential )
     bankConnectionService.create( credential )
 
