@@ -22,7 +22,7 @@ class CategorizerServiceSearchSpec extends Specification {
   def "everything is OK"() {
 
     when:
-      def result = service.search( text ) 
+      def result = service.search( text, income ) 
     then:
       1 * restTemplateService.get( _ as String, _ as Map, _ as Map ) >>
           [ result: 'hello world' ]
@@ -30,30 +30,46 @@ class CategorizerServiceSearchSpec extends Specification {
       result.result != null
     where:
       text = 'text'
+      income = true
+
+  }
+
+  def "parameter 'income' is null"() {
+
+    when:
+      service.search( text, income ) 
+    then:
+      BadImplementationException e = thrown()
+      e.message == 'categorizerService.search.income.null'
+    where:
+      text = 'text'
+      income = null
 
   }
 
   def "parameter 'text' is null"() {
 
     when:
-      service.search( text ) 
+      service.search( text, income ) 
     then:
       BadImplementationException e = thrown()
       e.message == 'categorizerService.search.text.null'
     where:
       text = null
+      income = false
 
   }
 
   def "parameter 'text' is blank"() {
 
     when:
-      service.search( text ) 
+      service.search( text, income ) 
     then:
       BadImplementationException e = thrown()
       e.message == 'categorizerService.search.text.null'
     where:
       text = ''
+      income = false
 
   }
 

@@ -47,12 +47,19 @@ class ConceptService {
     private Concept createConcept(Movement movement, Map attributes) {
 
         def category = categoryRepository.findById(attributes.category?.id)
-        if (movement.type == Movement.Type.CHARGE && !category) {
+        if ( !category ) {
             def user = getUser(movement)
-            def cleanedText = cleanerService.clean( attributes.description )
-            movement.customDescription = cleanedText
-            def result = categorizerService.search( cleanedText )
-
+            def result
+            if (movement.type == Movement.Type.CHARGE ) {
+              def cleanedText = cleanerService.clean( attributes.description, false )
+              movement.customDescription = cleanedText
+              result = categorizerService.search( cleanedText, false )
+            }
+            if (movement.type == Movement.Type.DEPOSIT ) {
+              def cleanedText = cleanerService.clean( attributes.description, true )
+              movement.customDescription = cleanedText
+              result = categorizerService.search( cleanedText, true )
+            }
             if ( result?.categoryId ) {
               category = categoryRepository.findOne( result.categoryId )
             }
