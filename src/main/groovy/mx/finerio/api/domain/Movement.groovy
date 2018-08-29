@@ -61,5 +61,11 @@ public class Movement{
 
   @Column(name = 'date_deleted', nullable = true)
   Date dateDeleted
-
+  
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = 'category_id', nullable = false)
+  Category category
+  
+  @Column(name = 'has_concepts', nullable = true)
+  Boolean hasConcepts
 }

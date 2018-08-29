@@ -68,6 +68,8 @@ class ConceptService {
 	item.movement = movement
 	item.version = 0
         this.updateAmounts( item )
+		movement.category = category
+		movement.hasConcepts=false
         movementRepository.save( movement )
         conceptRepository.save( item )
         item
