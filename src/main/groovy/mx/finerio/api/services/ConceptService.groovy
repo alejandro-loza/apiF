@@ -48,7 +48,6 @@ class ConceptService {
 
         def category = categoryRepository.findById(attributes.category?.id)
         if (movement.type == Movement.Type.CHARGE && !category) {
-            def user = getUser(movement)
             def cleanedText = cleanerService.clean( attributes.description )
             movement.customDescription = cleanedText
             def result = categorizerService.search( cleanedText )

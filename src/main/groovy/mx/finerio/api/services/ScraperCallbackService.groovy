@@ -39,7 +39,7 @@ class ScraperCallbackService {
     callbackService.sendToClient( credential?.customer?.client,
         Callback.Nature.TRANSACTIONS, [ credentialId: credential.id,
         accountId: transactionDto.data.account_id ] )
-    movements.each { movementService.createConcept( it ) }
+    movements.each { movementService.generateAndSetCategory( it ) }
 
     if ( credential?.customer?.client?.categorizeTransactions ) {
 
