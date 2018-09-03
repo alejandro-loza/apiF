@@ -27,6 +27,9 @@ class ScraperCallbackService {
   ScraperWebSocketService scraperWebSocketService
 
   @Autowired
+  TransactionCategorizerService transactionCategorizerService
+
+  @Autowired
   TransactionService transactionService
 
   void processTransactions( TransactionDto transactionDto ) throws Exception {
@@ -39,7 +42,7 @@ class ScraperCallbackService {
     callbackService.sendToClient( credential?.customer?.client,
         Callback.Nature.TRANSACTIONS, [ credentialId: credential.id,
         accountId: transactionDto.data.account_id ] )
-    movements.each { movementService.createConcept( it ) }
+    transactionCategorizerService.categorizeAll( movements )
 
     if ( credential?.customer?.client?.categorizeTransactions ) {
 
