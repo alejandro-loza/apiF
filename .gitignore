@@ -28,3 +28,4 @@ nbdist/
 src/main/resources/application-dev.properties
 log/
 public/
+.DS_Store
