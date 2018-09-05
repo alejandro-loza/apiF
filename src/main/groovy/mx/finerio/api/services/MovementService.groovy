@@ -42,9 +42,8 @@ class MovementService {
     }
 
     def account = accountService.findById( transactionData.account_id )
-
     transactionData.transactions.findResults { transaction ->
-      create( account, transaction )
+      create( account, transaction, account.deleted )
     }
 
   }
@@ -124,8 +123,8 @@ class MovementService {
 
   }
 
-  private Movement create( Account account, Transaction transaction )
-      throws Exception {
+  private Movement create( Account account, Transaction transaction,
+      boolean deleted ) throws Exception {
 
     def date = new Date().parse( "yyyy-MM-dd'T'HH:mm:ss",
         transaction.made_on ) ?: new Date()
@@ -133,19 +132,26 @@ class MovementService {
     def amount = new BigDecimal( rawAmount ).abs().setScale( 2, BigDecimal.ROUND_HALF_UP )
     def type = rawAmount < 0 ? Movement.Type.CHARGE : Movement.Type.DEPOSIT
     def description = transaction.description.take( 255 )
-    def instance = movementRepository.findByDateAndDescriptionAndAmountAndTypeAndAccountAndDateDeletedIsNull(
+    def instance = movementRepository.
+        findFirstByDateAndDescriptionAndAmountAndTypeAndAccountOrderByDateCreatedDesc(
         date, description, amount, type, account )
     def movement = instance ?: new Movement()
     movement.account = account
     movement.date = date
-    movement.customDate = date
+    movement.customDate = movement.customDate ?: date
     movement.description = description
-    movement.customDescription = description
+    movement.customDescription = movement.customDescription ?: description
     movement.amount = amount
     movement.balance = amount
     movement.type = type
-    movement.dateCreated = movement.dateCreated ?: new Date()
-    movement.lastUpdated = new Date()
+    def now = new Date()
+    movement.dateCreated = movement.dateCreated ?: now
+    movement.lastUpdated = now
+
+    if ( deleted ) {
+      movement.dateDeleted = now
+    }
+
     movementRepository.save( movement )
 
     if ( !instance ) {

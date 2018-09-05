@@ -35,15 +35,16 @@ class AccountServiceCreateSpec extends Specification {
     then:
       1 * credentialService.findAndValidate( _ as String ) >>
           new Credential( institution: institution, user: user )
-      1 * accountRepository.findByInstitutionAndUserAndNumberAndDeleted(
-          _ as FinancialInstitution, _ as User, _ as String, _ as Boolean )
-      1 * accountRepository.findByInstitutionAndUserAndNumberLikeAndDeleted(
-          _ as FinancialInstitution, _ as User, _ as String, _ as Boolean )
+      1 * accountRepository.findFirstByInstitutionAndUserAndNumberOrderByDateCreatedDesc(
+          _ as FinancialInstitution, _ as User, _ as String )
+      1 * accountRepository.findFirstByInstitutionAndUserAndNumberLikeOrderByDateCreatedDesc(
+          _ as FinancialInstitution, _ as User, _ as String )
       1 * accountRepository.save( _ as Account )
       1 * accountCredentialRepository.findAllByAccountAndCredential(
           _ as Account, _ as Credential )
       1 * accountCredentialRepository.save( _ as AccountCredential )
       result instanceof Account
+      result.nature == 'Cuenta'
     where:
       accountData = getAccountData()
       institution = new FinancialInstitution( code: 'CODE' )
@@ -58,11 +59,11 @@ class AccountServiceCreateSpec extends Specification {
     then:
       1 * credentialService.findAndValidate( _ as String ) >>
           new Credential( institution: institution, user: user )
-      1 * accountRepository.findByInstitutionAndUserAndNumberAndDeleted(
-          _ as FinancialInstitution, _ as User, _ as String, _ as Boolean ) >>
+      1 * accountRepository.findFirstByInstitutionAndUserAndNumberOrderByDateCreatedDesc(
+          _ as FinancialInstitution, _ as User, _ as String ) >>
           new Account()
-      0 * accountRepository.findByInstitutionAndUserAndNumberLikeAndDeleted(
-          _ as FinancialInstitution, _ as User, _ as String, _ as Boolean )
+      0 * accountRepository.findFirstByInstitutionAndUserAndNumberLikeOrderByDateCreatedDesc(
+          _ as FinancialInstitution, _ as User, _ as String )
       1 * accountRepository.save( _ as Account )
       1 * accountCredentialRepository.findAllByAccountAndCredential(
           _ as Account, _ as Credential )
@@ -82,10 +83,10 @@ class AccountServiceCreateSpec extends Specification {
     then:
       1 * credentialService.findAndValidate( _ as String ) >>
           new Credential( institution: institution, user: user )
-      1 * accountRepository.findByInstitutionAndUserAndNumberAndDeleted(
-          _ as FinancialInstitution, _ as User, _ as String, _ as Boolean )
-      1 * accountRepository.findByInstitutionAndUserAndNumberLikeAndDeleted(
-          _ as FinancialInstitution, _ as User, _ as String, _ as Boolean ) >>
+      1 * accountRepository.findFirstByInstitutionAndUserAndNumberOrderByDateCreatedDesc(
+          _ as FinancialInstitution, _ as User, _ as String )
+      1 * accountRepository.findFirstByInstitutionAndUserAndNumberLikeOrderByDateCreatedDesc(
+          _ as FinancialInstitution, _ as User, _ as String ) >>
           new Account()
       1 * accountRepository.save( _ as Account )
       1 * accountCredentialRepository.findAllByAccountAndCredential(
@@ -106,10 +107,10 @@ class AccountServiceCreateSpec extends Specification {
     then:
       1 * credentialService.findAndValidate( _ as String ) >>
           new Credential( institution: institution, user: user )
-      1 * accountRepository.findByInstitutionAndUserAndNumberAndDeleted(
-          _ as FinancialInstitution, _ as User, _ as String, _ as Boolean )
-      1 * accountRepository.findByInstitutionAndUserAndNumberLikeAndDeleted(
-          _ as FinancialInstitution, _ as User, _ as String, _ as Boolean )
+      1 * accountRepository.findFirstByInstitutionAndUserAndNumberOrderByDateCreatedDesc(
+          _ as FinancialInstitution, _ as User, _ as String )
+      1 * accountRepository.findFirstByInstitutionAndUserAndNumberLikeOrderByDateCreatedDesc(
+          _ as FinancialInstitution, _ as User, _ as String )
       1 * accountRepository.save( _ as Account )
       1 * accountCredentialRepository.findAllByAccountAndCredential(
           _ as Account, _ as Credential ) >> [ new AccountCredential() ]
@@ -117,6 +118,33 @@ class AccountServiceCreateSpec extends Specification {
       result instanceof Account
     where:
       accountData = getAccountData()
+      institution = new FinancialInstitution( code: 'CODE' )
+      user = new User()
+
+  }
+
+  def "account nature not mapped"() {
+
+    given:
+      accountData.nature = myNature
+    when:
+      def result = service.create( accountData )
+    then:
+      1 * credentialService.findAndValidate( _ as String ) >>
+          new Credential( institution: institution, user: user )
+      1 * accountRepository.findFirstByInstitutionAndUserAndNumberOrderByDateCreatedDesc(
+          _ as FinancialInstitution, _ as User, _ as String )
+      1 * accountRepository.findFirstByInstitutionAndUserAndNumberLikeOrderByDateCreatedDesc(
+          _ as FinancialInstitution, _ as User, _ as String )
+      1 * accountRepository.save( _ as Account )
+      1 * accountCredentialRepository.findAllByAccountAndCredential(
+          _ as Account, _ as Credential )
+      1 * accountCredentialRepository.save( _ as AccountCredential )
+      result instanceof Account
+      result.nature == myNature
+    where:
+      accountData = getAccountData()
+      myNature = 'something'
       institution = new FinancialInstitution( code: 'CODE' )
       user = new User()
 
@@ -138,7 +166,8 @@ class AccountServiceCreateSpec extends Specification {
 
     new AccountData(
       credential_id: 'credential_id',
-      name: 'name'
+      name: 'name',
+      nature: 'account'
     )
 
   }

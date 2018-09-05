@@ -27,6 +27,9 @@ class ScraperCallbackService {
   ScraperWebSocketService scraperWebSocketService
 
   @Autowired
+  TransactionCategorizerService transactionCategorizerService
+
+  @Autowired
   TransactionService transactionService
 
   @Autowired
@@ -43,8 +46,9 @@ class ScraperCallbackService {
     callbackService.sendToClient( credential?.customer?.client,
         Callback.Nature.TRANSACTIONS, [ credentialId: credential.id,
         accountId: transactionDto.data.account_id ] )
-    movements.each { movementService.createConcept( it ) }
-    movements.each{ transactionPostProcessorService.processDuplicated( it ) }
+    transactionCategorizerService.categorizeAll( movements )
+    movements.each { transactionPostProcessorService.processDuplicated( it ) }
+
     if ( credential?.customer?.client?.categorizeTransactions ) {
 
       transactions.each { transactionService.categorize( it ) }
