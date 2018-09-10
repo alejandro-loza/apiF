@@ -10,9 +10,13 @@ class TransactionCategorizerServiceCategorizeAllSpec extends Specification {
   def service = new TransactionCategorizerService()
 
   def movementService = Mock( MovementService )
+  def transactionPostProcessorService = Mock( TransactionPostProcessorService )
 
   def setup() {
+
     service.movementService = movementService
+    service.transactionPostProcessorService = transactionPostProcessorService
+
   }
 
   def "invoking method successfully"() {
