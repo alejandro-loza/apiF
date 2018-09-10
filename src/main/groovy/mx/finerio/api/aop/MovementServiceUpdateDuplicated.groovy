@@ -17,10 +17,10 @@ class MovementServiceUpdateDuplicated {
       'mx.finerio.api.aop.MovementServiceUpdateDuplicated' )
 
   @Pointcut(
-    value='execution(mx.finerio.api.domain.Movement mx.finerio.api.services.MovementService.updateDuplicated(..)) && bean(movementService) && args(movement)',
+    value='execution(void mx.finerio.api.services.MovementService.updateDuplicated(..)) && bean(movementService) && args(movement)',
     argNames='movement'
   )
-  public void updateDuplicated( Movement id ) {}
+  public void updateDuplicated( Movement movement ) {}
 
   @Before('updateDuplicated(movement)')
   void before( Movement movement ) {
@@ -28,11 +28,10 @@ class MovementServiceUpdateDuplicated {
   }
 
   @AfterReturning(
-    pointcut='updateDuplicated(mx.finerio.api.domain.Movement)',
-    returning='response'
+    pointcut='updateDuplicated(mx.finerio.api.domain.Movement)'
   )
-  void afterReturning( Movement response ) {
-    log.info( '>> response: {}', response )
+  void afterReturning() {
+    log.info( '>> OK' )
   }
 
   @AfterThrowing(

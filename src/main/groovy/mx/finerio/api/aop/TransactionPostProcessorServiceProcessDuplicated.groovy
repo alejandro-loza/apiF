@@ -16,10 +16,10 @@ class TransactionPostProcessorServiceProcessDuplicated {
       'mx.finerio.api.aop.TransactionPostProcessorServiceProcessDuplicated' )
 
   @Pointcut(
-    value='execution(mx.finerio.api.domain.Movement mx.finerio.api.services.TransactionPostProcessorService.processDuplicated(..)) && bean(transactionPostProcessorService) && args(movement)',
+    value='execution(void mx.finerio.api.services.TransactionPostProcessorService.processDuplicated(..)) && bean(transactionPostProcessorService) && args(movement)',
     argNames='movement'
   )
-  public void processDuplicated( Movement id ) {}
+  public void processDuplicated( Movement movement ) {}
 
   @Before('processDuplicated(movement)')
   void before( Movement movement ) {
@@ -27,11 +27,10 @@ class TransactionPostProcessorServiceProcessDuplicated {
   }
 
   @AfterReturning(
-    pointcut='processDuplicated(mx.finerio.api.domain.Movement)',
-    returning='response'
+    pointcut='processDuplicated(mx.finerio.api.domain.Movement)'
   )
-  void afterReturning( Movement response ) {
-    log.info( '>> response: {}', response )
+  void afterReturning() {
+    log.info( '>> OK' )
   }
 
   @AfterThrowing(

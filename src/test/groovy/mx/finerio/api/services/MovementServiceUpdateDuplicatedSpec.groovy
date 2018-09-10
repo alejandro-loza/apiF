@@ -23,26 +23,12 @@ class MovementServiceUpdateDuplicatedSpec extends Specification {
   def "invoking method successfully"() {
     
     when:
-      def result = service.updateDuplicated( movement )
+      service.updateDuplicated( movement )
     then:
-      1 * movementRepository.findOne( _ as String ) >>
-        new Movement( 
-              id: "uuid",
-              duplicated:false,
-              account: new Account(id:"id")
-              )
-      1 * accountService.findOne( _ as String ) >> new Account(id:"id")
-      1 * movementRepository.save( _ as Movement ) >>
-          new Movement( 
-              id: "uuid",
-              duplicated:true,
-              lastUpdated: new Date()
-              )
-      result instanceof Movement
-      result.duplicated == true
-      result.lastUpdated == new Date()
+      1 * movementRepository.save( _ as Movement )
+      movement.duplicated == true
     where:
-      movement = new Movement( id: 'uuid', account: new Account( id: 'id' ) )
+      movement = new Movement()
 
   }
 
