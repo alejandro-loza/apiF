@@ -21,6 +21,7 @@ class TransactionPostProcessorService {
   @Value('${categories.atm.id}')
   String atmId
 
+  @Transactional
   void processDuplicated( Movement movement ) throws Exception {
 
     if ( !movement ) {
