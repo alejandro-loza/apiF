@@ -1,4 +1,3 @@
-
 package mx.finerio.api.aop
 
 import mx.finerio.api.domain.Movement
@@ -11,31 +10,31 @@ import org.springframework.stereotype.Component
 
 @Component
 @Aspect
-class MovementServiceUpdateDuplicated {
+class TransactionPostProcessorServiceUpdateTransference {
 
   final static Logger log = LoggerFactory.getLogger(
-      'mx.finerio.api.aop.MovementServiceUpdateDuplicated' )
+      'mx.finerio.api.aop.TransactionPostProcessorServiceUpdateTransference' )
 
   @Pointcut(
-    value='execution(void mx.finerio.api.services.MovementService.updateDuplicated(..)) && bean(movementService) && args(movement)',
+    value='execution(void mx.finerio.api.services.TransactionPostProcessorService.updateTransference(..)) && bean(transactionPostProcessorService) && args(movement)',
     argNames='movement'
   )
-  public void updateDuplicated( Movement movement ) {}
+  public void updateTransference( Movement movement ) {}
 
-  @Before('updateDuplicated(movement)')
+  @Before('updateTransference(movement)')
   void before( Movement movement ) {
     log.info( "<< movement: {}", movement )
   }
 
   @AfterReturning(
-    pointcut='updateDuplicated(mx.finerio.api.domain.Movement)'
+    pointcut='updateTransference(mx.finerio.api.domain.Movement)'
   )
   void afterReturning() {
     log.info( '>> OK' )
   }
 
   @AfterThrowing(
-    pointcut='updateDuplicated(mx.finerio.api.domain.Movement)',
+    pointcut='updateTransference(mx.finerio.api.domain.Movement)',
     throwing='e'
   )
   void afterThrowing( Exception e ) {

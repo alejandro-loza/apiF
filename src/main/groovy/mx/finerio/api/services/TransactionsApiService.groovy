@@ -65,7 +65,7 @@ class TransactionsApiService {
     if ( !movement || !movement.id) {
       throw new BadRequestException( 'transactionsApi.findDuplicated.movement.null' )
     }
-    List mov  = movementService.getMovementsToDuplicated( movement.id )
+    List mov  = movementService.getMovementsToDuplicated( movement )
     List f = prepareList( mov, movement )
     if ( f.size() >= 2 ){  
       Map params = [:]  
@@ -76,7 +76,7 @@ class TransactionsApiService {
         ( it.reason.data != "Not found" ) || ( it.similarity.percent >= percent["${movement.account.institution.code}"].percent )
       }
       if( reasonResponse ){
-        movement = movementService.updateDuplicated( movement )
+        movementService.updateDuplicated( movement )
       }
     }
     movement
@@ -85,12 +85,13 @@ class TransactionsApiService {
 
   private List prepareList( List mov, Movement mv ){
 
+    if ( mov.size() == 1 ) { return [] }
     def dateMinus = mv.date.minus( percent["${mv.account.institution.code}"].date )
     List list = mov.findAll{ it.date <= mv.date && it.date >= dateMinus }
     def nl = []
     nl << mv
     list.each{
-      if( it != mv ){ nl << it }
+      if( it.id != mv.id ){ nl << it }
     }
     nl
 

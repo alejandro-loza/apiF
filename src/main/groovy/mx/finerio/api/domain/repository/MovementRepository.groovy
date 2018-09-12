@@ -7,9 +7,9 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor
 
 import mx.finerio.api.domain.*
 
-interface MovementRepository extends JpaRepository<Movement, Long>, JpaSpecificationExecutor {
+interface MovementRepository extends JpaRepository<Movement, String>, JpaSpecificationExecutor {
 
-  Movement findByDateAndDescriptionAndAmountAndTypeAndAccountAndDateDeletedIsNull( Date date, String Description, BigDecimal amount, Movement.Type type, Account account )
+  Movement findFirstByDateAndDescriptionAndAmountAndTypeAndAccountOrderByDateCreatedDesc( Date date, String Description, BigDecimal amount, Movement.Type type, Account account )
   Movement findByIdAndDateDeletedIsNull( String id )
 
   List<Movement> findByAccountAndDateDeletedIsNull( Account account )

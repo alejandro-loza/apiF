@@ -54,6 +54,18 @@ class BankConnectionService {
 
   }
 
+  BankConnection findLast( Credential credential )throws Exception {
+
+    if ( !credential ) {
+      throw new BadImplementationException(
+          'bankConnectionService.findLast.credential.null' )
+    }
+
+    bankConnectionRepository
+        .findFirstByCredentialOrderByStartDateDesc( credential )
+
+  }
+
   private BankConnection findByCredentialAndStatus( Credential credential,
       BankConnection.Status status ) throws Exception {
 

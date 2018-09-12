@@ -27,14 +27,10 @@ class ScraperCallbackService {
   ScraperWebSocketService scraperWebSocketService
 
   @Autowired
+  TransactionCategorizerService transactionCategorizerService
+
+  @Autowired
   TransactionService transactionService
-
-  @Autowired
-  TransactionPostProcessorService transactionPostProcessorService
-
-  @Autowired
-  TransactionsApiService transactionsApiService
-
 
   void processTransactions( TransactionDto transactionDto ) throws Exception {
 
@@ -46,9 +42,8 @@ class ScraperCallbackService {
     callbackService.sendToClient( credential?.customer?.client,
         Callback.Nature.TRANSACTIONS, [ credentialId: credential.id,
         accountId: transactionDto.data.account_id ] )
-    movements.each { movementService.createConcept( it ) }
-    movements.each{ transactionPostProcessorService.processDuplicated( it ) }
-    movements.each{ transactionsApiService.findDuplicated( it ) }
+    transactionCategorizerService.categorizeAll( movements )
+
     if ( credential?.customer?.client?.categorizeTransactions ) {
 
       transactions.each { transactionService.categorize( it ) }

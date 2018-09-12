@@ -12,128 +12,49 @@ class TransactionPostProcessorServiceProcessDuplicatedSpec extends Specification
 
   def movementService = Mock( MovementService )
   def conceptService = Mock( ConceptService )
+  def atmId = 'atmId'
 
   def setup() {
 
     service.movementService = movementService
     service.conceptService = conceptService
+    service.atmId = atmId
 
   }
 
-  def "invoking method successfully (DEPOSIT)"() {
+  def "invoking method successfully (credit card income)"() {
 
     when:
-      def result = service.processDuplicated( movement )
+      service.processDuplicated( movement )
     then:
-      1 * movementService.findOne( _ as String ) >>
-        new Movement( id: "uuid", account: account, type: Movement.Type.DEPOSIT )
-      1 * movementService.updateDuplicated( _ as Movement ) >>
-        new Movement( 
-            id: "uuid", 
-            account: account, 
-            type: Movement.Type.DEPOSIT,
-            duplicated: false)
-      result instanceof Movement
-      result.duplicated == false
+      1 * movementService.updateDuplicated( _ as Movement )
     where:
-      movement = new Movement( id: "uuid" )
-      account = new Account( id: "uuid", nature: "Crédito" )
+      movement = new Movement( type: Movement.Type.DEPOSIT,
+          account: new Account( nature: "Cr\u00E9dito" ) )
 
   }
 
-  def "invoking method successfully (CHARGE)"() {
+  def "invoking method successfully (atm outcome)"() {
 
     when:
-      def result = service.processDuplicated( movement )
+      service.processDuplicated( movement )
     then:
-      1 * movementService.findOne( _ as String ) >>
-        new Movement( id: "uuid", account: account, type: Movement.Type.CHARGE )
-      1 * conceptService.findByMovement( _ as Movement ) >> 
-        new Concept( id: "uuid", category: new Category( name:"Cajero automático" ) )
-      1 * movementService.updateDuplicated( _ as Movement ) >>
-        new Movement( 
-            id: "uuid", 
-            account: account, 
-            type: Movement.Type.DEPOSIT,
-            duplicated: false)
-      result instanceof Movement
-      result.duplicated == false
+      1 * conceptService.findByMovement( _ as Movement ) >>
+          new Concept( category: new Category( id: atmId ) )
+      1 * movementService.updateDuplicated( _ as Movement )
     where:
-      movement = new Movement( id: "uuid" )
-      account = new Account( id: "uuid", nature: "Crédito" )
+      movement = new Movement( type: Movement.Type.CHARGE )
 
   }
 
-  def "CHARGE and 'category' != 'Cajero automático'"() {
+  def "invoking method successfully (not duplicated)"() {
 
     when:
-      def result = service.processDuplicated( movement )
+      service.processDuplicated( movement )
     then:
-      1 * movementService.findOne( _ as String ) >>
-        new Movement( id: "uuid", account: account, type: Movement.Type.CHARGE )
-      1 * conceptService.findByMovement( _ as Movement ) >> 
-        new Concept( id: "uuid", category: new Category( name:"Cajero" ) )
-      result instanceof Movement
+      0 * movementService.updateDuplicated( _ as Movement )
     where:
-      movement = new Movement( id: "uuid" )
-      account = new Account( id: "uuid", nature: "Crédito" )
-
-  }
-
-  def "CHARGE and 'category' is null"() {
-
-    when:
-      def result = service.processDuplicated( movement )
-    then:
-      1 * movementService.findOne( _ as String ) >>
-        new Movement( id: "uuid", account: account, type: Movement.Type.CHARGE )
-      1 * conceptService.findByMovement( _ as Movement ) >> new Concept( id: "uuid" )
-      result instanceof Movement
-    where:
-      movement = new Movement( id: "uuid" )
-      account = new Account( id: "uuid", nature: "Crédito" )
-
-  }
-
-  def "DEPOSIT and 'nature' is null"() {
-
-    when:
-      def result = service.processDuplicated( movement )
-    then:
-      1 * movementService.findOne( _ as String ) >>
-        new Movement( id: "uuid", account: account, type: Movement.Type.DEPOSIT )
-      result instanceof Movement
-    where:
-      movement = new Movement( id: "uuid" )
-      account = new Account( id: "uuid" )
-
-  }
-
-  def "DEPOSIT and 'nature' != Crédito"() {
-
-    when:
-      def result = service.processDuplicated( movement )
-    then:
-      1 * movementService.findOne( _ as String ) >>
-        new Movement( id: "uuid", account: account, type: Movement.Type.DEPOSIT )
-      result instanceof Movement
-    where:
-      movement = new Movement( id: "uuid" )
-      account = new Account( id: "uuid", nature: "Ahorro" )
-
-  }
-
-  def "parameter type' is null"() {
-
-    when:
-      def result = service.processDuplicated( movement )
-    then:
-      1 * movementService.findOne( _ as String ) >>
-        new Movement( id: "uuid", account: account )
-      result instanceof Movement
-    where:
-      movement = new Movement( id: "uuid" )
-      account = new Account( id: "uuid" )
+      movement = new Movement()
 
   }
 
@@ -142,7 +63,7 @@ class TransactionPostProcessorServiceProcessDuplicatedSpec extends Specification
     when:
       service.processDuplicated( movement )
     then:
-      BadRequestException e = thrown()
+      BadImplementationException e = thrown()
       e.message == 'transactionPostProcessor.processDuplicated.movement.null'
     where:
       movement = null
