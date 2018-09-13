@@ -13,7 +13,7 @@ interface MovementRepository extends JpaRepository<Movement, String>, JpaSpecifi
   Movement findByIdAndDateDeletedIsNull( String id )
 
   List<Movement> findByAccountAndDateDeletedIsNull( Account account )
-  List<Movement> findByAccountAndAmountAndTypeAndDateDeletedIsNull( Account account, BigDecimal amount, Movement.Type type )
+  List<Movement> findTop50ByAccountAndAmountAndTypeAndDateDeletedIsNull( Account account, BigDecimal amount, Movement.Type type )
 
   Page<Movement> findByAccountAndDateDeletedIsNull( Account account, Pageable pageable )
 

@@ -140,7 +140,7 @@ class MovementService {
 
     List listfinal = []
     list.each{
-      def movements = movementRepository.findByAccountAndAmountAndTypeAndDateDeletedIsNull( 
+      def movements = movementRepository.findTop50ByAccountAndAmountAndTypeAndDateDeletedIsNull(
         it, mov.amount , type )
       listfinal += movements
     }
@@ -154,7 +154,7 @@ class MovementService {
       throw new BadImplementationException(
           'movementService.getMovementsToDuplicated.id.null' )
     }
-    def movements = movementRepository.findByAccountAndAmountAndTypeAndDateDeletedIsNull( 
+    def movements = movementRepository.findTop50ByAccountAndAmountAndTypeAndDateDeletedIsNull(
         movement.account, movement.amount, movement.type )
     if( !movements ){
       throw new InstanceNotFoundException( 'movements.not.found' )
