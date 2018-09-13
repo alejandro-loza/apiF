@@ -8,7 +8,8 @@ import org.hibernate.annotations.GenericGenerator
 
 @Entity
 @Table(name = 'movement')
-@ToString(includes = 'id', includeNames = true, includePackage = false)
+@ToString(includes = 'id, description, amount, type, date',
+    includeNames = true, includePackage = false)
 public class Movement{
 
   enum Type {

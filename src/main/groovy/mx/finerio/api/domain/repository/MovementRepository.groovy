@@ -7,12 +7,13 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor
 
 import mx.finerio.api.domain.*
 
-interface MovementRepository extends JpaRepository<Movement, Long>, JpaSpecificationExecutor {
+interface MovementRepository extends JpaRepository<Movement, String>, JpaSpecificationExecutor {
 
   Movement findFirstByDateAndDescriptionAndAmountAndTypeAndAccountOrderByDateCreatedDesc( Date date, String Description, BigDecimal amount, Movement.Type type, Account account )
   Movement findByIdAndDateDeletedIsNull( String id )
 
   List<Movement> findByAccountAndDateDeletedIsNull( Account account )
+  List<Movement> findTop50ByAccountAndAmountAndTypeAndDateDeletedIsNull( Account account, BigDecimal amount, Movement.Type type )
 
   Page<Movement> findByAccountAndDateDeletedIsNull( Account account, Pageable pageable )
 
