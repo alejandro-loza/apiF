@@ -17,6 +17,9 @@ class TransactionCategorizerService {
   MovementService movementService
 
   @Autowired
+  TransactionsApiService transactionsApiService
+
+  @Autowired
   TransactionPostProcessorService transactionPostProcessorService
 
   @Value('${categorizer.maxThreads}')
@@ -56,7 +59,8 @@ class TransactionCategorizerService {
     
     for ( Integer i = 0; i < movements.size(); i++ ) {
       executorService.execute( new CategorizerThread( movementService,
-        transactionPostProcessorService, movements[ i ] ) )
+        transactionsApiService, transactionPostProcessorService,
+        movements[ i ] ) )
     }
     
     executorService.shutdown()
@@ -69,14 +73,17 @@ class TransactionCategorizerService {
 class CategorizerThread implements Runnable {
 
   MovementService movementService
+  TransactionsApiService transactionsApiService
   TransactionPostProcessorService transactionPostProcessorService
   Movement movement
   
   CategorizerThread( MovementService movementService,
+      TransactionsApiService transactionsApiService,
       TransactionPostProcessorService transactionPostProcessorService,
       Movement movement ) {
 
     this.movementService = movementService
+    this.transactionsApiService = transactionsApiService
     this.transactionPostProcessorService = transactionPostProcessorService
     this.movement = movement
 
@@ -86,6 +93,8 @@ class CategorizerThread implements Runnable {
 
     movementService.createConcept( movement )
     transactionPostProcessorService.processDuplicated( movement )
+    transactionPostProcessorService.updateTransference( movement )
+    transactionsApiService.findDuplicated( movement )
 
   }
 
