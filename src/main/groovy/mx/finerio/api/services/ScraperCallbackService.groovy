@@ -32,6 +32,9 @@ class ScraperCallbackService {
   @Autowired
   TransactionService transactionService
 
+  @Autowired
+  CredentialStatusHistoryService credentialStatusHistoryService
+
   void processTransactions( TransactionDto transactionDto ) throws Exception {
 
     validateProcessTransactionsInput( transactionDto )
@@ -66,6 +69,7 @@ class ScraperCallbackService {
 
     def credential = credentialService.updateStatus(
         successCallbackDto?.data?.credential_id, Credential.Status.ACTIVE )
+    credentialStatusHistoryService.update( credential )
     closeWebSocketSession( credential )
     callbackService.sendToClient( credential?.customer?.client,
         Callback.Nature.SUCCESS, [ credentialId: credential.id ] )
@@ -83,6 +87,7 @@ class ScraperCallbackService {
     def credential = credentialService.setFailure(
         failureCallbackDto?.data?.credential_id,
         failureCallbackDto?.data?.error_message )
+    credentialStatusHistoryService.update( credential )
     closeWebSocketSession( credential )
     callbackService.sendToClient( credential?.customer?.client,
         Callback.Nature.FAILURE, [ credentialId: credential.id,

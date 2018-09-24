@@ -12,6 +12,7 @@ import mx.finerio.api.dtos.SuccessCallbackDto
 import mx.finerio.api.services.AccountService
 import mx.finerio.api.services.CallbackService
 import mx.finerio.api.services.CredentialService
+import mx.finerio.api.services.CredentialStatusHistoryService
 import mx.finerio.api.services.ScraperCallbackService
 
 import org.springframework.beans.factory.annotation.Autowired
@@ -36,6 +37,9 @@ class ScraperCallbackController {
   CredentialService credentialService
 
   @Autowired
+  CredentialStatusHistoryService credentialStatusHistoryService
+
+  @Autowired
   ScraperCallbackService scraperCallbackService
 
   @PostMapping( '/callbacks/accounts' )
@@ -44,6 +48,7 @@ class ScraperCallbackController {
     def account = accountService.create( accountDto.data )
     def credential = credentialService.findAndValidate(
         accountDto?.data?.credential_id as String )
+    credentialStatusHistoryService.create( credential )
     callbackService.sendToClient( credential?.customer?.client,
         Callback.Nature.ACCOUNTS, [ credentialId: credential.id,
         accountId: account.id ] )
