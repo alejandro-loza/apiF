@@ -23,6 +23,9 @@ class CredentialService {
   CredentialFailureMessageService credentialFailureMessageService
 
   @Autowired
+  CredentialStatusHistoryService credentialStatusHistoryService
+
+  @Autowired
   CustomerService customerService
 
   @Autowired
@@ -163,6 +166,7 @@ class CredentialService {
     credential.lastUpdated = new Date()
     credentialRepository.save( credential )
     bankConnectionService.create( credential )
+    credentialStatusHistoryService.create( credential )
 
     if ( credential.institution.code == 'BBVA' ) {
       sendToScraperWebSocket( credential )
