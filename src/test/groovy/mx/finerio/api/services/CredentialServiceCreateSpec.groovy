@@ -18,6 +18,7 @@ class CredentialServiceCreateSpec extends Specification {
   def service = new CredentialService()
 
   def bankConnectionService = Mock( BankConnectionService )
+  def credentialStatusHistoryService = Mock( CredentialStatusHistoryService )
   def cryptService = Mock( CryptService )
   def customerService = Mock( CustomerService )
   def financialInstitutionService = Mock( FinancialInstitutionService )
@@ -29,6 +30,7 @@ class CredentialServiceCreateSpec extends Specification {
   def setup() {
 
     service.bankConnectionService = bankConnectionService
+    service.credentialStatusHistoryService = credentialStatusHistoryService
     service.cryptService = cryptService
     service.customerService = customerService
     service.financialInstitutionService = financialInstitutionService
@@ -60,6 +62,7 @@ class CredentialServiceCreateSpec extends Specification {
           new Credential( customer: new Customer( client: client ),
           user: new User(), institution: new FinancialInstitution() )
       1 * bankConnectionService.create( _ as Credential )
+      1 * credentialStatusHistoryService.create( _ as Credential )
       1 * scraperService.requestData( _ as Map )
       result instanceof Credential
     where:
