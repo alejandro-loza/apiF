@@ -30,3 +30,5 @@ databaseChangeLog:
     file: db/changelog/clients_categorize_transactions.yaml
 - include:
     file: db/changelog/movement_stat.yaml
+- include:
+    file: db/changelog/summary.yaml    
