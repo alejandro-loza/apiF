@@ -172,6 +172,7 @@ class MovementService {
     def amount = new BigDecimal( rawAmount ).abs().setScale( 2, BigDecimal.ROUND_HALF_UP )
     def type = rawAmount < 0 ? Movement.Type.CHARGE : Movement.Type.DEPOSIT
     def description = transaction.description.take( 255 )
+    if ( description?.size() == 0 ) { return null }
     def instance = movementRepository.
         findFirstByDateAndDescriptionAndAmountAndTypeAndAccountOrderByDateCreatedDesc(
         date, description, amount, type, account )
