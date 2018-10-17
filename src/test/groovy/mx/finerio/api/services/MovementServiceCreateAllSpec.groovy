@@ -58,6 +58,25 @@ class MovementServiceCreateAllSpec extends Specification {
 
   }
 
+  def "movements with empty description"() {
+
+    given:
+      transactionData.transactions.each { it.description = '' }
+    when:
+      def result = service.createAll( transactionData )
+    then:
+      1 * accountService.findById( _ as String ) >> new Account()
+      0 * movementRepository.findFirstByDateAndDescriptionAndAmountAndTypeAndAccountOrderByDateCreatedDesc(
+        _ as Date, _ as String, _ as BigDecimal, _ as Movement.Type,
+        _ as Account ) >> new Movement()
+      0 * movementRepository.save( _ as Movement ) >> new Movement()
+      result instanceof List
+      result.size() == 0
+    where:
+      transactionData = getTransactionData()
+
+  }
+
   def "parameter 'transactionData' is null"() {
 
     when:
