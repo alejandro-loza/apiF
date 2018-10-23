@@ -3,8 +3,6 @@ package mx.finerio.api.services
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.context.MessageSource
-import org.springframework.context.annotation.Bean
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder
 import org.springframework.security.crypto.password.PasswordEncoder
 import org.springframework.stereotype.Service
 
@@ -146,9 +144,5 @@ class ForgotPasswordService {
 		pcr
 	}
 	
-	@Bean
-	 BCryptPasswordEncoder passwordEncoder() {
-		 new BCryptPasswordEncoder(10);
-	}
 }
 
