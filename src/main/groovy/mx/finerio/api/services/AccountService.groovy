@@ -46,8 +46,7 @@ class AccountService {
     investment: 'Inversi\u00F3n',
     loan: 'Pr\u00E9stamo',
     mortgage: 'Hipoteca',
-    savings: 'Ahorros',
-    saving: 'Ahorros'
+    savings: 'Ahorros'
   ]
 
   Account create( AccountData accountData ) {
@@ -68,7 +67,7 @@ class AccountService {
     account.number = number
     account.user = credential.user
     account.balance = accountData.balance
-    account.nature = NATURES[ accountData.nature ]
+    account.nature = NATURES[ accountData.nature ] ?: accountData.nature
     account.dateCreated = account.dateCreated ?: new Date()
     account.lastUpdated = new Date()
     accountRepository.save( account )
@@ -115,6 +114,23 @@ class AccountService {
 
     instance.account
 
+  }
+
+  List findAllByUser( Account account ) throws Exception {
+
+    if ( !account ) {
+      throw new BadImplementationException(
+          'accountService.findAllByUser.account.null' )
+    }
+
+    def acc = findById( account.id )
+    def accounts = accountRepository.findByUserAndDeleted( acc.user, false )
+
+    if ( !accounts ) {
+      throw new InstanceNotFoundException( 'accounts.not.found' )
+    }
+    accounts
+    
   }
 
   Account findById( String id ) throws Exception {

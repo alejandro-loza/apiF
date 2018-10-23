@@ -2,6 +2,7 @@ package mx.finerio.api.services
 
 import mx.finerio.api.domain.*
 import mx.finerio.api.domain.repository.*
+import mx.finerio.api.exceptions.*
 
 import groovy.json.JsonBuilder
 import groovy.json.JsonSlurper
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class ConceptService {
@@ -35,7 +37,7 @@ class ConceptService {
   @Autowired
   UserService userService
 
-
+    @Transactional
     Concept create( String movementId, Map attributes ) {
         def movement = movementRepository.findByIdAndDateDeletedIsNull(movementId)
         if (!movement) {
@@ -47,12 +49,19 @@ class ConceptService {
     private Concept createConcept(Movement movement, Map attributes) {
 
         def category = categoryRepository.findById(attributes.category?.id)
-        if (movement.type == Movement.Type.CHARGE && !category) {
+        if ( !category ) {
             def user = getUser(movement)
-            def cleanedText = cleanerService.clean( attributes.description )
-            movement.customDescription = cleanedText
-            def result = categorizerService.search( cleanedText )
-
+            def result
+            if (movement.type == Movement.Type.CHARGE ) {
+              def cleanedText = cleanerService.clean( attributes.description, false )
+              movement.customDescription = cleanedText
+              result = categorizerService.search( cleanedText, false )
+            }
+            if (movement.type == Movement.Type.DEPOSIT ) {
+              def cleanedText = cleanerService.clean( attributes.description, true )
+              movement.customDescription = cleanedText
+              result = categorizerService.search( cleanedText, true )
+            }
             if ( result?.categoryId ) {
               category = categoryRepository.findOne( result.categoryId )
             }
@@ -71,6 +80,23 @@ class ConceptService {
         movementRepository.save( movement )
         conceptRepository.save( item )
         item
+    }
+
+    Concept findByMovement( Movement movement ) throws Exception {
+
+      if ( !movement ) {
+        throw new BadImplementationException(
+            'conceptService.findByMovement.movement.null' )
+      }
+   
+      def instance = conceptRepository.findByMovement(movement)
+
+      if ( !instance ) {
+        throw new InstanceNotFoundException( 'concept.not.found' )
+      }
+   
+      instance
+
     }
 
     def updateAmounts(Concept concept) {

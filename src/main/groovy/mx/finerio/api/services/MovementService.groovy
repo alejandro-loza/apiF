@@ -71,6 +71,19 @@ class MovementService {
 
   }
 
+  void updateDuplicated( Movement movement ) throws Exception {
+
+    if ( !movement ) {
+      throw new BadImplementationException(
+          'movementService.updateDuplicated.movement.null' )
+    }
+ 
+    movement.duplicated = true
+    movement.lastUpdated = new Date()
+    movementRepository.save( movement )
+
+  }
+
   Movement findOne( String id ) throws Exception {
 
     if ( !id ) {
@@ -107,6 +120,49 @@ class MovementService {
 
   }
 
+  List getMovementsToTransference( Movement movement, Movement.Type type ){
+
+    if ( !movement ) {
+      throw new BadImplementationException(
+          'movementService.getMovementsToDuplicated.movement.null' )
+    }
+    if ( !type ) {
+      throw new BadImplementationException(
+          'movementService.getMovementsToDuplicated.type.null' )
+    }
+    List accounts = accountService.findAllByUser( movement.account )
+    def movements = sumMovementList( accounts, movement, type ) ?: []
+    movements
+
+  }
+
+  private List sumMovementList( List list, Movement mov, Movement.Type type ){
+
+    List listfinal = []
+    list.each{
+      def movements = movementRepository.findTop50ByAccountAndAmountAndTypeAndDateDeletedIsNull(
+        it, mov.amount , type )
+      listfinal += movements
+    }
+    listfinal
+
+  }
+
+  List getMovementsToDuplicated( Movement movement ){
+
+    if ( !movement ) {
+      throw new BadImplementationException(
+          'movementService.getMovementsToDuplicated.id.null' )
+    }
+    def movements = movementRepository.findTop50ByAccountAndAmountAndTypeAndDateDeletedIsNull(
+        movement.account, movement.amount, movement.type )
+    if( !movements ){
+      throw new InstanceNotFoundException( 'movements.not.found' )
+    }
+    movements
+
+  }
+
   private Movement create( Account account, Transaction transaction,
       boolean deleted ) throws Exception {
 
@@ -116,6 +172,7 @@ class MovementService {
     def amount = new BigDecimal( rawAmount ).abs().setScale( 2, BigDecimal.ROUND_HALF_UP )
     def type = rawAmount < 0 ? Movement.Type.CHARGE : Movement.Type.DEPOSIT
     def description = transaction.description.take( 255 )
+    if ( description?.size() == 0 ) { return null }
     def instance = movementRepository.
         findFirstByDateAndDescriptionAndAmountAndTypeAndAccountOrderByDateCreatedDesc(
         date, description, amount, type, account )
