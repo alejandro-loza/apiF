@@ -25,7 +25,7 @@ class TransactionsApiService {
   @Value( '${transactions-api.auth.password}' )
   String password
 
-  final Map percent =[
+  private static final Map percent =[
     BBVA: [ percent: 81, date: 5 ], 
     BNMX: [ percent: 81, date: 5 ],
     AOOL: [ percent: 81, date: 5 ],

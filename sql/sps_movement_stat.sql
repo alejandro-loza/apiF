@@ -84,8 +84,10 @@ CREATE PROCEDURE sp_get_initandfinaldate (IN v_date datetime,IN v_daysinit  int(
   BEGIN
 
    DECLARE v_monthofyear VARCHAR (255);
+   DECLARE v_dayofmonth VARCHAR (255);
    DECLARE v_lastdaymonth VARCHAR (255);
    DECLARE v_firstdatemonth VARCHAR (255);
+   DECLARE v_sixteendatemonth VARCHAR (255);
    DECLARE v_year VARCHAR (255);
    DECLARE v_partdate VARCHAR (255);
 
@@ -95,7 +97,24 @@ CREATE PROCEDURE sp_get_initandfinaldate (IN v_date datetime,IN v_daysinit  int(
        SET v_initdate=CONCAT(v_partdate,' 00:00:00.000000');  
        SET v_finaldate=CONCAT(DATE_ADD(v_partdate, INTERVAL 1 DAY),' 00:00:00.000000'); 
 
-     ELSEIF v_daysinit >= 28 AND  v_daysfinal  <= 31 THEN
+     ELSEIF v_daysinit >= 13 AND  v_daysfinal  <= 16 THEN
+
+      SET v_monthofyear=MONTH(v_date);
+      SET v_year=YEAR(v_date);
+      SET v_dayofmonth=DAYOFMONTH(v_date);
+      SET v_sixteendatemonth=CONCAT(v_year,'-',v_monthofyear,'-16');
+     
+        IF v_dayofmonth < 16  THEN
+          SET v_firstdatemonth=CONCAT(v_year,'-',v_monthofyear,'-01');
+          SET v_initdate=CONCAT(v_firstdatemonth,' 00:00:00.000000');
+          SET v_finaldate=CONCAT(v_sixteendatemonth,' 00:00:00.000000');
+        ELSE
+          SET v_initdate=CONCAT(v_sixteendatemonth,' 00:00:00.000000');
+          SET v_lastdaymonth=LAST_DAY(v_date);
+          SET v_finaldate=CONCAT(DATE_ADD(v_lastdaymonth, INTERVAL 1 DAY),' 00:00:00.000000');  
+        END IF;
+
+    ELSEIF v_daysinit >= 28 AND  v_daysfinal  <= 31 THEN
 
       SET v_monthofyear=MONTH(v_date);
       SET v_year=YEAR(v_date);
@@ -104,6 +123,7 @@ CREATE PROCEDURE sp_get_initandfinaldate (IN v_date datetime,IN v_daysinit  int(
 
       SET v_initdate=CONCAT(v_firstdatemonth,' 00:00:00.000000');  
       SET v_finaldate=CONCAT(DATE_ADD(v_lastdaymonth, INTERVAL 1 DAY),' 00:00:00.000000');  
+
 
     END IF;
   END;
