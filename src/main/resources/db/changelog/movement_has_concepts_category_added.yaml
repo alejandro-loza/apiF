@@ -1,0 +1,33 @@
+databaseChangeLog:
+- changeSet:
+    id: movement_has_concept_category_added
+    author: jose.vargas
+    changes:
+    - addColumn:
+        tableName: movement
+        columns:
+        - column:
+            name: category_id 
+            type: java.sql.Types.VARCHAR(255)
+            constraints:
+              nullable: true
+    - addColumn:
+        tableName: movement
+        columns:
+        - column:
+            name: has_concepts
+            type: BOOLEAN
+            constraints:
+              nullable: true           
+- changeSet:
+    id: movement_categories_fk
+    author: jose.vargas
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: category_id
+        baseTableName: movement
+        constraintName: fk_movement_categories
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: id
+        referencedTableName: category

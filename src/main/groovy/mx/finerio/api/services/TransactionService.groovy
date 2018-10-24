@@ -111,8 +111,8 @@ class TransactionService {
           'transactionService.categorize.transaction.null' )
     }
 
-    def cleanedText = cleanerService.clean( transaction.description )
-    def categorizerResult = categorizerService.search( cleanedText )
+    def cleanedText = cleanerService.clean( transaction.description, false )
+    def categorizerResult = categorizerService.search( cleanedText, false )
 
     if ( !categorizerResult?.categoryId ) {
       return

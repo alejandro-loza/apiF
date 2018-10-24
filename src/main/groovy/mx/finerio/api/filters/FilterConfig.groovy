@@ -24,4 +24,9 @@ class FilterConfig {
     new CredentialFilter()
   }
 
+  @Bean
+  CorsFilter getCors() {
+	new CorsFilter()
+  }
+  
 }

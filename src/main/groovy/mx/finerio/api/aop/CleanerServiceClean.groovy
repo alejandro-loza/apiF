@@ -19,18 +19,18 @@ class CleanerServiceClean {
       'mx.finerio.api.aop.CleanerServiceClean' )
 
   @Pointcut(
-    value='execution(String mx.finerio.api.services.CleanerService.clean(..)) && bean(cleanerService) && args(text)',
-    argNames='text'
+    value='execution(String mx.finerio.api.services.CleanerService.clean(..)) && bean(cleanerService) && args(text, income)',
+    argNames='text, income'
   )
-  public void clean( String text ) {}
+  public void clean( String text, Boolean income ) {}
 
-  @Before('clean(text)')
-  void before( String text ) {
-    log.info( "<< text: {}", text )
+  @Before('clean(text, income)')
+  void before( String text, Boolean income ) {
+    log.info( "<< text: {}, income: {}", text, income )
   }
 
   @AfterReturning(
-    pointcut='clean(String)',
+    pointcut='clean(String, Boolean)',
     returning='response'
   )
   void afterReturning( String response ) {
@@ -38,7 +38,7 @@ class CleanerServiceClean {
   }
 
   @AfterThrowing(
-    pointcut='clean(String)',
+    pointcut='clean(String, Boolean)',
     throwing='e'
   )
   void afterThrowing( Exception e ) {

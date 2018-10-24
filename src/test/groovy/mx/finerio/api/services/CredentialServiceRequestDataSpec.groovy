@@ -20,6 +20,7 @@ class CredentialServiceRequestDataSpec extends Specification {
   def service = new CredentialService()
 
   def bankConnectionService = Mock( BankConnectionService )
+  def credentialStatusHistoryService = Mock( CredentialStatusHistoryService )
   def scraperService = Mock( DevScraperService )
   def scraperCallbackService = Mock( ScraperCallbackService )
   def scraperWebSocketService = Mock( ScraperWebSocketService )
@@ -29,6 +30,7 @@ class CredentialServiceRequestDataSpec extends Specification {
   def setup() {
 
     service.bankConnectionService = bankConnectionService
+    service.credentialStatusHistoryService = credentialStatusHistoryService
     service.scraperService = scraperService
     service.scraperCallbackService = scraperCallbackService
     service.scraperWebSocketService = scraperWebSocketService
@@ -50,6 +52,7 @@ class CredentialServiceRequestDataSpec extends Specification {
           user: new User() )
       1 * credentialRepository.save( _ as Credential )
       1 * bankConnectionService.create( _ as Credential )
+      1 * credentialStatusHistoryService.create( _ as Credential )
       1 * scraperService.requestData( _ as Map ) >> [ hello: 'world' ]
     where:
       credentialId = UUID.randomUUID().toString()
@@ -91,6 +94,7 @@ class CredentialServiceRequestDataSpec extends Specification {
           new BankConnection( startDate: getStartDate( 24 ) )
       1 * credentialRepository.save( _ as Credential )
       1 * bankConnectionService.create( _ as Credential )
+      1 * credentialStatusHistoryService.create( _ as Credential )
       1 * scraperService.requestData( _ as Map ) >> [ hello: 'world' ]
     where:
       credentialId = UUID.randomUUID().toString()
@@ -111,6 +115,7 @@ class CredentialServiceRequestDataSpec extends Specification {
           user: new User() )
       1 * credentialRepository.save( _ as Credential )
       1 * bankConnectionService.create( _ as Credential )
+      1 * credentialStatusHistoryService.create( _ as Credential )
       1 * scraperWebSocketService.send( _ as ScraperWebSocketSendDto )
     where:
       credentialId = UUID.randomUUID().toString()

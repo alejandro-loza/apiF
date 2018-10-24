@@ -15,7 +15,7 @@ apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
 
 group = 'mx.finerio'
-version = '0.2.16'
+version = '0.2.24'
 sourceCompatibility = 1.8
 
 repositories {
@@ -32,6 +32,7 @@ dependencies {
   compile( 'com.squareup.okhttp3:okhttp:3.9.1' )
   compile('org.springframework.security.oauth:spring-security-oauth2')
   compile('org.bouncycastle:bcpkix-jdk15on:1.57')
+  compile('com.github.groovy-wslite:groovy-wslite:1.1.2')
 
   runtime('mysql:mysql-connector-java')
 
