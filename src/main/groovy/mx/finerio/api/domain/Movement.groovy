@@ -8,7 +8,8 @@ import org.hibernate.annotations.GenericGenerator
 
 @Entity
 @Table(name = 'movement')
-@ToString(includes = 'id', includeNames = true, includePackage = false)
+@ToString(includes = 'id, description, amount, type, date',
+    includeNames = true, includePackage = false)
 public class Movement{
 
   enum Type {
@@ -63,7 +64,7 @@ public class Movement{
   Date dateDeleted
   
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = 'category_id', nullable = false)
+  @JoinColumn(name = 'category_id', nullable = true)
   Category category
   
   @Column(name = 'has_concepts', nullable = true)

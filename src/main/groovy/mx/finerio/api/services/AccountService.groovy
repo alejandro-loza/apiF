@@ -116,6 +116,23 @@ class AccountService {
 
   }
 
+  List findAllByUser( Account account ) throws Exception {
+
+    if ( !account ) {
+      throw new BadImplementationException(
+          'accountService.findAllByUser.account.null' )
+    }
+
+    def acc = findById( account.id )
+    def accounts = accountRepository.findByUserAndDeleted( acc.user, false )
+
+    if ( !accounts ) {
+      throw new InstanceNotFoundException( 'accounts.not.found' )
+    }
+    accounts
+    
+  }
+
   Account findById( String id ) throws Exception {
 
     if ( !id ) {

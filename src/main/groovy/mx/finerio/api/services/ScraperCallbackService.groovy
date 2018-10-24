@@ -27,7 +27,13 @@ class ScraperCallbackService {
   ScraperWebSocketService scraperWebSocketService
 
   @Autowired
+  TransactionCategorizerService transactionCategorizerService
+
+  @Autowired
   TransactionService transactionService
+
+  @Autowired
+  CredentialStatusHistoryService credentialStatusHistoryService
 
   void processTransactions( TransactionDto transactionDto ) throws Exception {
 
@@ -39,7 +45,7 @@ class ScraperCallbackService {
     callbackService.sendToClient( credential?.customer?.client,
         Callback.Nature.TRANSACTIONS, [ credentialId: credential.id,
         accountId: transactionDto.data.account_id ] )
-    movements.each { movementService.generateAndSetCategory( it ) }
+    transactionCategorizerService.categorizeAll( movements )
 
     if ( credential?.customer?.client?.categorizeTransactions ) {
 
@@ -63,6 +69,7 @@ class ScraperCallbackService {
 
     def credential = credentialService.updateStatus(
         successCallbackDto?.data?.credential_id, Credential.Status.ACTIVE )
+    credentialStatusHistoryService.update( credential )
     closeWebSocketSession( credential )
     callbackService.sendToClient( credential?.customer?.client,
         Callback.Nature.SUCCESS, [ credentialId: credential.id ] )
@@ -80,6 +87,7 @@ class ScraperCallbackService {
     def credential = credentialService.setFailure(
         failureCallbackDto?.data?.credential_id,
         failureCallbackDto?.data?.error_message )
+    credentialStatusHistoryService.update( credential )
     closeWebSocketSession( credential )
     callbackService.sendToClient( credential?.customer?.client,
         Callback.Nature.FAILURE, [ credentialId: credential.id,

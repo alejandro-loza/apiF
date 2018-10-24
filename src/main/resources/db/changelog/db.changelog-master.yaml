@@ -31,4 +31,8 @@ databaseChangeLog:
 - include:
     file: db/changelog/movement_stat.yaml
 - include:
+    file: db/changelog/credential_status_history.yaml
+- include:
+    file: db/changelog/password_change_request.yaml    
+- include:
     file: db/changelog/movement_has_concepts_category_added.yaml     

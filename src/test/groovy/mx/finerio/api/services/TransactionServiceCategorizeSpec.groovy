@@ -30,8 +30,8 @@ class TransactionServiceCategorizeSpec extends Specification {
     when:
       service.categorize( transaction )
     then:
-      1 * cleanerService.clean( _ as String ) >> 'cleanedText'
-      1 * categorizerService.search( _ as String ) >>
+      1 * cleanerService.clean( _ as String, _ as Boolean ) >> 'cleanedText'
+      1 * categorizerService.search( _ as String, _ as Boolean ) >>
           [ categoryId: 'categoryId' ]
       1 * categoryService.findOne( _ as String ) >> new Category()
       1 * transactionRepository.save( _ as Transaction )
@@ -45,8 +45,8 @@ class TransactionServiceCategorizeSpec extends Specification {
     when:
       service.categorize( transaction )
     then:
-      1 * cleanerService.clean( _ as String ) >> 'cleanedText'
-      1 * categorizerService.search( _ as String ) >> [:]
+      1 * cleanerService.clean( _ as String, _ as Boolean ) >> 'cleanedText'
+      1 * categorizerService.search( _ as String, _ as Boolean ) >> [:]
       0 * categoryService.findOne( _ as String ) >> new Category()
       0 * transactionRepository.save( _ as Transaction )
     where:

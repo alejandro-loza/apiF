@@ -28,11 +28,6 @@ class AuthorizationServerConfiguration extends AuthorizationServerConfigurerAdap
   @Autowired
   DataSource dataSource
 
-  @Bean
-  PasswordEncoder passwordEncoder() {
-    return new BCryptPasswordEncoder()
-  }
-
   @Override
   void configure( AuthorizationServerEndpointsConfigurer configurer )
       throws Exception {

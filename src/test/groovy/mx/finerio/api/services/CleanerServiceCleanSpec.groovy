@@ -22,7 +22,7 @@ class CleanerServiceCleanSpec extends Specification {
   def "everything is OK"() {
 
     when:
-      def result = service.clean( text ) 
+      def result = service.clean( text, income ) 
     then:
       1 * restTemplateService.get( _ as String, _ as Map, _ as Map ) >>
           [ result: 'hello world' ]
@@ -30,30 +30,46 @@ class CleanerServiceCleanSpec extends Specification {
       result == 'hello world'
     where:
       text = 'text'
+      income = false
+
+  }
+
+  def "parameter 'income' is null"() {
+
+    when:
+      service.clean( text, income ) 
+    then:
+      BadImplementationException e = thrown()
+      e.message == 'cleanerService.clean.income.null'
+    where:
+      text = 'text'
+      income = null
 
   }
 
   def "parameter 'text' is null"() {
 
     when:
-      service.clean( text ) 
+      service.clean( text, income ) 
     then:
       BadImplementationException e = thrown()
       e.message == 'cleanerService.clean.text.null'
     where:
       text = null
+      income = false
 
   }
 
   def "parameter 'text' is blank"() {
 
     when:
-      service.clean( text ) 
+      service.clean( text, income ) 
     then:
       BadImplementationException e = thrown()
       e.message == 'cleanerService.clean.text.null'
     where:
       text = ''
+      income = false
 
   }
 
