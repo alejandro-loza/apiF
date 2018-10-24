@@ -91,7 +91,7 @@ class CategorizerThread implements Runnable {
   
   void run() {
 
-    movementService.createConcept( movement )
+    movementService.generateAndSetCategory( movement )
     transactionPostProcessorService.processDuplicated( movement )
     transactionPostProcessorService.updateTransference( movement )
     transactionsApiService.findDuplicated( movement )

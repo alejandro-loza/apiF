@@ -10,11 +10,20 @@ import mx.finerio.api.exceptions.BadRequestException
 import mx.finerio.api.exceptions.InstanceNotFoundException
 
 import org.springframework.data.domain.Pageable;
+
+import java.util.Map
+
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
 @Service
 class MovementService {
+	
+  @Autowired
+  CategoryRepository categoryRepository
+  
+  @Autowired
+  CleanerService cleanerService
 
   @Autowired
   MovementRepository movementRepository
@@ -27,6 +36,9 @@ class MovementService {
 
   @Autowired
   ConceptService conceptService
+  
+  @Autowired
+  CategorizerService categorizerService
 
   @Autowired
   ListService listService
@@ -47,8 +59,35 @@ class MovementService {
     }
 
   }
+  
+  Movement generateAndSetCategory(String movementId) {
+	  def movement = movementRepository.findByIdAndDateDeletedIsNull(movementId)
+	  if (!movement) {
+		  return null
+	  }
+	  generateAndSetCategory(movement)
+  }
+  
+   void generateAndSetCategory(Movement movement) {
+	  
+	  def category = null
+          def deposit = movement.type == Movement.Type.DEPOSIT
+          def cleanedText = cleanerService.clean( movement.description, deposit )
+          movement.customDescription = cleanedText
+          def result = categorizerService.search( cleanedText, deposit )
+
+          if ( result?.categoryId ) {
+            category = categoryRepository.findOne( result.categoryId )
+          }
+
+	  movement.category=category
+	  movement.hasConcepts=false
+	  movementRepository.save( movement )
+  }
 
   void createConcept( Movement movement ) throws Exception {
+	  
+	
 
     def conceptData = [
       description: movement.description,
