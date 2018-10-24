@@ -1,0 +1,75 @@
+databaseChangeLog:
+- changeSet:
+    id: summary
+    author: jose.vargas
+    changes:
+    - createTable:
+        tableName: summary
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+              nullable: false
+        - column:              
+            name: number_movs
+            type: INT
+            constraints:
+              default: 0
+              nullable: false              
+        - column:
+            name: user_id
+            type: java.sql.Types.VARCHAR(255)
+            constraints:
+              nullable: false
+        - column:
+            name: description
+            type: java.sql.Types.VARCHAR(255)
+            constraints:
+              nullable: false              
+        - column:
+            name: category_id
+            type: java.sql.Types.VARCHAR(255)
+            constraints:
+              nullable: true                            
+        - column:
+            name: amount
+            type: java.sql.Types.DECIMAL(19,2)
+            constraints:
+              nullable: false
+        - column:
+            name: init_date
+            type: DATETIME
+            constraints:
+              nullable: true
+        - column:
+            name: final_date
+            type: DATETIME
+            constraints:
+              nullable: true  
+- changeSet:
+    id: summary_users_fk
+    author: jose.vargas
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: user_id
+        baseTableName: summary
+        constraintName: fk_summary_user
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: id
+        referencedTableName: user
+- changeSet:
+    id: summary_categories_fk
+    author: jose.vargas
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: category_id
+        baseTableName: summary
+        constraintName: fk_summary_categories
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: id
+        referencedTableName: category
