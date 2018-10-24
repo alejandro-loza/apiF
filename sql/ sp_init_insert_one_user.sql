@@ -1,7 +1,7 @@
-  delimiter |
-  DROP PROCEDURE IF EXISTS sp_init_insert_movement_stat;
+delimiter |
+DROP PROCEDURE IF EXISTS sp_init_insert_one_user;
 
-CREATE PROCEDURE sp_init_insert_movement_stat ( IN v_daysinit int(11), IN v_daysfinal int(11))
+CREATE PROCEDURE sp_init_insert_one_user ( IN v_daysinit int(11), IN v_daysfinal int(11), IN v_user_id VARCHAR (255))
   BEGIN
 
   DECLARE v_movement_id VARCHAR (255);
@@ -17,7 +17,12 @@ CREATE PROCEDURE sp_init_insert_movement_stat ( IN v_daysinit int(11), IN v_days
   DECLARE v_total decimal(19,2); 
 
   DECLARE done INT DEFAULT FALSE;
-  DEClARE concept_cursor CURSOR FOR SELECT movement_id, category_id, amount FROM concept;
+  DEClARE concept_cursor CURSOR FOR SELECT c.movement_id, c.category_id, c.amount 
+                                    FROM concept c 
+                                    INNER JOIN movement m ON c.movement_id = m.id 
+                                    INNER JOIN account a ON m.account_id = a.id
+                                    WHERE a.user_id = v_user_id;
+
   DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
  
  
@@ -55,4 +60,3 @@ CREATE PROCEDURE sp_init_insert_movement_stat ( IN v_daysinit int(11), IN v_days
   
   END;
   |
-delimiter ;

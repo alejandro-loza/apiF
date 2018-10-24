@@ -1,6 +1,7 @@
 package mx.finerio.api.services
 
 import java.sql.Date
+import java.util.Map
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
@@ -8,6 +9,7 @@ import org.springframework.stereotype.Service
 import mx.finerio.api.domain.MovementStat
 import mx.finerio.api.domain.MovementStatSpecs
 import mx.finerio.api.domain.repository.MovementStatRepository
+import mx.finerio.api.dtos.ListDto
 import mx.finerio.api.dtos.MovementStatListDto
 import mx.finerio.api.exceptions.BadImplementationException
 import mx.finerio.api.exceptions.BadRequestException
@@ -20,16 +22,10 @@ class MovementStatService {
 	MovementStatRepository movementStatRepository
 	
 	@Autowired
-	ListService listService
-	
-	@Autowired
 	UserService userService
 	
 	@Autowired
 	CategoryService categoryService
-	
-	
-	
 	
 	Map findAll( Map params ) throws Exception {
 		
@@ -40,7 +36,13 @@ class MovementStatService {
 		 
 			def dto = getFindAllDto( params )
 			def spec = MovementStatSpecs.findAll( dto )
-			listService.findAll( dto, movementStatRepository, spec )
+			def instances = movementStatRepository.findAll( spec )
+		    
+			if(dto.groupedByCategory) {
+			  instances=doGroupByCategory(instances)
+			}
+			
+			 [ data: instances ]
 		  }
 	
 		  
@@ -58,6 +60,10 @@ class MovementStatService {
 			  dto.category= categoryService.findOne( params.category )
 			}
 			
+		  if ( params.groupedByCategory ) {
+				validateGroupedByCategory(params,dto)
+			  }
+			
 			if ( params.type) {
 				if( "DEPOSIT".equals(params.type) || "CHARGE".equals(params.type)) {
 					if("DEPOSIT".equals(params.type)) {
@@ -70,11 +76,9 @@ class MovementStatService {
 				}
 			}
 		  
-			validateAmounts(params,dto);
+			validateAmounts(params,dto)
  
-			validateDates(params,dto);
-		
-		  listService.validateFindAllDto( dto, params )
+			validateDates(params,dto)
 	  
 		  dto
 	  
@@ -129,8 +133,49 @@ class MovementStatService {
 		}
 		
 	}	
+	
+	void validateGroupedByCategory(Map params, MovementStatListDto dto ) throws Exception {
 		
+			try {
+			  dto.groupedByCategory = params.groupedByCategory as Boolean
+			} catch ( NumberFormatException e ) {
+			  throw new BadRequestException( 'movementStat.findAll.groupedByCategory.wrong' )
+			}
 		
+		  }
+		  
+	 List doGroupByCategory(List instances ) throws Exception {
+		 	  
+			def categoyInstances=instances.collect{
+				if(it.category.parent){
+				     it.category=it.category.parent
+				}
+				it
+			}
+			
+			def resInstances=[]
+			
+			categoyInstances.each{
+				
+			   def item=it
+				
+				def foundItem=resInstances.find{		
+					it.category==item.category &&
+					it.type==item.type &&
+					it.initDate==item.initDate &&
+					it.finalDate==item.finalDate
+				}
+				
+				if (foundItem) {
+					foundItem.amount+=it.amount
+				}else {
+					resInstances<<it
+				}
+				
+			}
+			resInstances	
+	}
+			  
 	Map getFields( MovementStat movementStat ) throws Exception {
 				
 			if ( !movementStat ) {
@@ -139,12 +184,11 @@ class MovementStatService {
 			}		
 			
 			def dateFormat='yyyy/MM/dd HH:mm:ss'
-			//def tz=TimeZone.getTimeZone("GMT-0")
 			
 			[ id: movementStat.id, user:movementStat.user.id, 
 			   category: movementStat.category?.id, type: movementStat.type,
 			   amount:movementStat.amount, initDate:movementStat.initDate.format(dateFormat),
-			   final_date:movementStat.finalDate.format(dateFormat) ]			
+			   final_date:movementStat.finalDate.format(dateFormat)]			
 		
 		  }
 			
