@@ -42,7 +42,6 @@ databaseChangeLog:
             name: final_date
             type: java.sql.Types.TIMESTAMP
             constraints:
-            constraints:
               nullable: true  
 - changeSet:
     id: movement_stat_users_fk
