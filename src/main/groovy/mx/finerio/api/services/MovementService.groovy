@@ -15,6 +15,7 @@ import java.util.Map
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class MovementService {
@@ -202,7 +203,8 @@ class MovementService {
 
   }
 
-  private Movement create( Account account, Transaction transaction,
+  @Transactional
+  Movement create( Account account, Transaction transaction,
       boolean deleted ) throws Exception {
 
     def date = new Date().parse( "yyyy-MM-dd'T'HH:mm:ss",
@@ -232,11 +234,12 @@ class MovementService {
       movement.dateDeleted = now
     }
 
-    movementRepository.save( movement )
-
     if ( !instance ) {
+      generateAndSetCategory( movement )
       return movement
     }
+
+    movementRepository.save( movement )
 
     null
 
