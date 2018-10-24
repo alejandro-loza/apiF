@@ -10,11 +10,20 @@ import mx.finerio.api.exceptions.BadRequestException
 import mx.finerio.api.exceptions.InstanceNotFoundException
 
 import org.springframework.data.domain.Pageable;
+
+import java.util.Map
+
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
 @Service
 class MovementService {
+	
+  @Autowired
+  CategoryRepository categoryRepository
+  
+  @Autowired
+  CleanerService cleanerService
 
   @Autowired
   MovementRepository movementRepository
@@ -27,6 +36,9 @@ class MovementService {
 
   @Autowired
   ConceptService conceptService
+  
+  @Autowired
+  CategorizerService categorizerService
 
   @Autowired
   ListService listService
@@ -47,8 +59,35 @@ class MovementService {
     }
 
   }
+  
+  Movement generateAndSetCategory(String movementId) {
+	  def movement = movementRepository.findByIdAndDateDeletedIsNull(movementId)
+	  if (!movement) {
+		  return null
+	  }
+	  generateAndSetCategory(movement)
+  }
+  
+   void generateAndSetCategory(Movement movement) {
+	  
+	  def category = null
+          def deposit = movement.type == Movement.Type.DEPOSIT
+          def cleanedText = cleanerService.clean( movement.description, deposit )
+          movement.customDescription = cleanedText
+          def result = categorizerService.search( cleanedText, deposit )
+
+          if ( result?.categoryId ) {
+            category = categoryRepository.findOne( result.categoryId )
+          }
+
+	  movement.category=category
+	  movement.hasConcepts=false
+	  movementRepository.save( movement )
+  }
 
   void createConcept( Movement movement ) throws Exception {
+	  
+	
 
     def conceptData = [
       description: movement.description,
@@ -68,6 +107,19 @@ class MovementService {
     def dto = getFindAllDto( params )
     def spec = MovementSpecs.findAll( dto )
     listService.findAll( dto, movementRepository, spec )
+
+  }
+
+  void updateDuplicated( Movement movement ) throws Exception {
+
+    if ( !movement ) {
+      throw new BadImplementationException(
+          'movementService.updateDuplicated.movement.null' )
+    }
+ 
+    movement.duplicated = true
+    movement.lastUpdated = new Date()
+    movementRepository.save( movement )
 
   }
 
@@ -107,6 +159,49 @@ class MovementService {
 
   }
 
+  List getMovementsToTransference( Movement movement, Movement.Type type ){
+
+    if ( !movement ) {
+      throw new BadImplementationException(
+          'movementService.getMovementsToDuplicated.movement.null' )
+    }
+    if ( !type ) {
+      throw new BadImplementationException(
+          'movementService.getMovementsToDuplicated.type.null' )
+    }
+    List accounts = accountService.findAllByUser( movement.account )
+    def movements = sumMovementList( accounts, movement, type ) ?: []
+    movements
+
+  }
+
+  private List sumMovementList( List list, Movement mov, Movement.Type type ){
+
+    List listfinal = []
+    list.each{
+      def movements = movementRepository.findTop50ByAccountAndAmountAndTypeAndDateDeletedIsNull(
+        it, mov.amount , type )
+      listfinal += movements
+    }
+    listfinal
+
+  }
+
+  List getMovementsToDuplicated( Movement movement ){
+
+    if ( !movement ) {
+      throw new BadImplementationException(
+          'movementService.getMovementsToDuplicated.id.null' )
+    }
+    def movements = movementRepository.findTop50ByAccountAndAmountAndTypeAndDateDeletedIsNull(
+        movement.account, movement.amount, movement.type )
+    if( !movements ){
+      throw new InstanceNotFoundException( 'movements.not.found' )
+    }
+    movements
+
+  }
+
   private Movement create( Account account, Transaction transaction,
       boolean deleted ) throws Exception {
 
@@ -116,6 +211,7 @@ class MovementService {
     def amount = new BigDecimal( rawAmount ).abs().setScale( 2, BigDecimal.ROUND_HALF_UP )
     def type = rawAmount < 0 ? Movement.Type.CHARGE : Movement.Type.DEPOSIT
     def description = transaction.description.take( 255 )
+    if ( description?.size() == 0 ) { return null }
     def instance = movementRepository.
         findFirstByDateAndDescriptionAndAmountAndTypeAndAccountOrderByDateCreatedDesc(
         date, description, amount, type, account )

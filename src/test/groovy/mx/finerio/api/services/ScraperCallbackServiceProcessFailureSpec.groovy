@@ -18,12 +18,14 @@ class ScraperCallbackServiceProcessFailureSpec extends Specification {
   def callbackService = Mock( CallbackService )
   def credentialService = Mock( CredentialService )
   def scraperWebSocketService = Mock( ScraperWebSocketService )
+  def credentialStatusHistoryService = Mock( CredentialStatusHistoryService )
 
   def setup() {
 
     service.callbackService = callbackService
     service.credentialService = credentialService
     service.scraperWebSocketService = scraperWebSocketService
+    service.credentialStatusHistoryService = credentialStatusHistoryService
 
   }
 
@@ -36,6 +38,7 @@ class ScraperCallbackServiceProcessFailureSpec extends Specification {
           new Credential( id: 'id', customer: new Customer(
           client: new Client() ),
           institution: new FinancialInstitution( code: 'BBVA' ) )
+      1 * credentialStatusHistoryService.update( _ as Credential )    
       1 * callbackService.sendToClient( _ as Client, _ as Callback.Nature,
           _ as Map )
       1 * scraperWebSocketService.closeSession( _ as String )

@@ -19,6 +19,7 @@ class ScraperCallbackServiceProcessTransactionsSpec extends Specification {
   def callbackService = Mock( CallbackService )
   def credentialService = Mock( CredentialService )
   def movementService = Mock( MovementService )
+  def transactionCategorizerService = Mock( TransactionCategorizerService )
   def transactionService = Mock( TransactionService )
 
   def setup() {
@@ -26,6 +27,7 @@ class ScraperCallbackServiceProcessTransactionsSpec extends Specification {
     service.callbackService = callbackService
     service.credentialService = credentialService
     service.movementService = movementService
+    service.transactionCategorizerService = transactionCategorizerService
     service.transactionService = transactionService
 
   }
@@ -44,7 +46,7 @@ class ScraperCallbackServiceProcessTransactionsSpec extends Specification {
           client: new Client( categorizeTransactions: true ) ) )
       2 * callbackService.sendToClient( _ as Client, _ as Callback.Nature,
           _ as Map )
-      2 * movementService.createConcept( _ as Movement )
+      1 * transactionCategorizerService.categorizeAll( _ as List )
       2 * transactionService.categorize( _ as Transaction )
     where:
       transactionDto = getTransactionDto()
@@ -65,7 +67,7 @@ class ScraperCallbackServiceProcessTransactionsSpec extends Specification {
           client: new Client( categorizeTransactions: false ) ) )
       1 * callbackService.sendToClient( _ as Client, _ as Callback.Nature,
           _ as Map )
-      2 * movementService.createConcept( _ as Movement )
+      1 * transactionCategorizerService.categorizeAll( _ as List )
       0 * transactionService.categorize( _ as Transaction )
     where:
       transactionDto = getTransactionDto()
@@ -84,7 +86,7 @@ class ScraperCallbackServiceProcessTransactionsSpec extends Specification {
           client: new Client() ) )
       1 * callbackService.sendToClient( _ as Client, _ as Callback.Nature,
           _ as Map )
-      0 * movementService.createConcept( _ as Movement )
+      1 * transactionCategorizerService.categorizeAll( _ as List )
       0 * transactionService.categorize( _ as Transaction )
     where:
       transactionDto = getTransactionDto()
