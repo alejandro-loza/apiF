@@ -40,7 +40,9 @@ class TransactionPostProcessorService {
     } else if ( movement.type == Movement.Type.CHARGE ) {
 
       if ( movement?.category?.id == atmId ) {
-        duplicated = true
+        if ( ((float) movement.amount % 50) == 0 ) {
+          duplicated = true
+        }
       }
 
     }
