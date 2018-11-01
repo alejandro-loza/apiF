@@ -69,4 +69,7 @@ class Account {
   @Column(name = 'date_deleted', nullable = false)
   Date dateDeleted
 
+  @Column(name = 'id_bank', nullable = true, length = 255)
+  String idBank
+
 }

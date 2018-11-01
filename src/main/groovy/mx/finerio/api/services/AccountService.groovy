@@ -60,8 +60,14 @@ class AccountService {
     def cleanedName = getAccountName( accountData.name )
     def number = getNumber( credential.institution, accountData.extra_data )
         ?: cleanedName
-    def account = findDuplicated( credential, number,
+    def account
+    if( accountData.id ){
+      account = findDuplicatedById( credential, accountData.id ) ?: new Account()
+      account.idBank = accountData.id
+    }else{
+      account = findDuplicated( credential, number,
         cleanedName ) ?: new Account()
+    }
     account.name = cleanedName
     account.institution = credential.institution
     account.number = number
@@ -183,6 +189,23 @@ class AccountService {
     }
 
     null
+
+  }
+
+  private Account findDuplicatedById( Credential credential, String id ) throws Exception {
+
+    def institution = credential.institution
+    def user = credential.user
+    def instance = accountRepository.findFirstByInstitutionAndUserAndIdBankOrderByDateCreatedDesc(
+        institution, user, id )
+
+    if ( instance?.deleted &&
+        !accountCredentialRepository.findAllByAccountAndCredential(
+        instance, credential ) ) {
+      instance = null
+    }
+
+    instance
 
   }
 

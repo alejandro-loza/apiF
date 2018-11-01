@@ -11,6 +11,7 @@ import mx.finerio.api.domain.*
 interface AccountRepository extends JpaRepository<Account, String >, JpaSpecificationExecutor {
   
   Account findFirstByInstitutionAndUserAndNumberOrderByDateCreatedDesc(FinancialInstitution financialInstitution, User user, String number)
+  Account findFirstByInstitutionAndUserAndIdBankOrderByDateCreatedDesc(FinancialInstitution financialInstitution, User user, String idBank)
   Account findByInstitutionAndUserAndNameAndDeleted(FinancialInstitution financialInstitution, User user, String name, boolean deleted) 
   Account findFirstByInstitutionAndUserAndNumberLikeOrderByDateCreatedDesc(FinancialInstitution financialInstitution, User user, String number)
   Account findById( String id )
