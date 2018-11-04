@@ -33,6 +33,9 @@ class AccountService {
   @Autowired
   AccountCredentialRepository accountCredentialRepository
 
+  @Autowired
+  CreditDetailsService creditDetailsService
+
   private static final Map NATURES = [
     account: 'Cuenta',
     bonus: 'Bono',
@@ -78,6 +81,9 @@ class AccountService {
     account.lastUpdated = new Date()
     accountRepository.save( account )
     createAccountCredential( account, credential )
+    if( accountData.credit_card_detail ){
+      creditDetailsService.create( accountData.credit_card_detail, account )
+    }
     account
 
   }

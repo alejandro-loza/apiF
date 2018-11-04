@@ -11,5 +11,6 @@ class AccountData {
   BigDecimal balance
   Map extra_data
   String id
+  CreditDetailsDto credit_card_detail
 
 }
