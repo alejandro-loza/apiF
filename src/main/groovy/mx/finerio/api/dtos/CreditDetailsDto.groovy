@@ -12,13 +12,13 @@ class CreditDetailsDto {
   @Size(min = 1, max = 50, message = 'creditDetails.card_number.size')
   String card_number
 
-  Date closing_date
+  String closing_date
 
   BigDecimal credit_limit
 
-  Date due_date
+  String due_date
 
-  Date last_closing_date
+  String last_closing_date
 
   BigDecimal minimum_payment
 

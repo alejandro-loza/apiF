@@ -33,13 +33,7 @@ class CreditDetailsService {
           'creditDetailsService.create.account.null' )
     }
  
-    def instance = creditDetailsRepository.findByAccount( account )
-
-    if ( instance ) {
-      throw new BadRequestException( 'creditDetails.create.exists' )
-    }
-
-    instance = new CreditDetails()
+    def instance = creditDetailsRepository.findByAccount( account ) ?: new CreditDetails()
     instance.account = account
     instance.closingDate = new Date().parse( "yyyy-MM-dd'T'HH:mm:ss",
         creditDetailsDto.closing_date ) ?: new Date()
@@ -52,7 +46,13 @@ class CreditDetailsService {
     instance.lastClosingDate = new Date().parse( "yyyy-MM-dd'T'HH:mm:ss",
         creditDetailsDto.last_closing_date ) ?: new Date()
     instance.annualPercentageRate = creditDetailsDto.annual_porcentage_rate
-    instance.cardNumber = creditDetailsDto.card_number
+    if( creditDetailsDto.card_number ){
+      def cn = creditDetailsDto.card_number
+      def maskNumber = ( cn.size() == 16 ) ? "XXXX${cn.reverse().take(4).reverse()}" : cn
+      instance.cardNumber = maskNumber
+    }else{
+      instance.cardNumber = creditDetailsDto.card_number
+    }
     creditDetailsRepository.save( instance )
  
     instance
