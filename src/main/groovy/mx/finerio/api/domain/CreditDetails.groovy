@@ -46,4 +46,13 @@ class CreditDetails {
   @Column(name = 'card_number', nullable = false, length = 30)
   String cardNumber
 
+  @Column(name = 'date_created', nullable = false)
+  Date dateCreated
+
+  @Column(name = 'last_updated', nullable = false)
+  Date lastUpdated
+
+  @Column(name = 'date_deleted', nullable = true)
+  Date dateDeleted
+  
 }

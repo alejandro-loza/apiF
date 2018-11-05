@@ -40,3 +40,5 @@ databaseChangeLog:
     file: db/changelog/summary.yaml    
 - include:
     file: db/changelog/account_id_bank.yaml 
+- include:
+    file: db/changelog/credit_details_dates.yaml 

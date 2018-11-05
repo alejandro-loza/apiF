@@ -33,7 +33,11 @@ class CreditDetailsService {
           'creditDetailsService.create.account.null' )
     }
  
-    def instance = creditDetailsRepository.findByAccount( account ) ?: new CreditDetails()
+    def instance = creditDetailsRepository.findByAccountAndDateDeletedIsNull( account ) 
+    if( !instance ){ 
+      instance = new CreditDetails()
+      instance.dateCreated = new Date()
+    }
     instance.account = account
     instance.closingDate = new Date().parse( "yyyy-MM-dd'T'HH:mm:ss",
         creditDetailsDto.closing_date ) ?: new Date()
@@ -53,6 +57,7 @@ class CreditDetailsService {
     }else{
       instance.cardNumber = creditDetailsDto.card_number
     }
+    instance.lastUpdated = new Date()
     creditDetailsRepository.save( instance )
  
     instance

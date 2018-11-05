@@ -28,7 +28,7 @@ class CreditDetailsServiceCreateSpec extends Specification {
     when:
       def result = service.create( creditDetailsDto, account )
     then:
-      1 * creditDetailsRepository.findByAccount(
+      1 * creditDetailsRepository.findByAccountAndDateDeletedIsNull(
           _ as Account ) >> null
       1 * creditDetailsRepository.save(
           _ as CreditDetails ) >> getCreditDetails( 1L )
@@ -44,7 +44,7 @@ class CreditDetailsServiceCreateSpec extends Specification {
     when:
       service.create( creditDetailsDto, account )
     then:
-      1 * creditDetailsRepository.findByAccount(
+      1 * creditDetailsRepository.findByAccountAndDateDeletedIsNull(
           _ as Account ) >> getCreditDetails( 1L )
     where:
       creditDetailsDto = getCreditDetailsDto()

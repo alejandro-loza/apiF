@@ -1,0 +1,23 @@
+databaseChangeLog:
+- changeSet:
+    id: credit_details_dates
+    author: erick.mercado
+    changes:
+    - addColumn:
+        tableName: credit_details
+        columns:
+        - column:
+            name: date_created
+            type: DATETIME
+            constraints:
+              nullable: true
+        - column:
+            name: last_updated
+            type: DATETIME
+            constraints:
+              nullable: true
+        - column:
+            name: date_deleted
+            type: DATETIME
+            constraints:
+              nullable: true              
