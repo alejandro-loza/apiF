@@ -39,9 +39,7 @@ class TransactionPostProcessorService {
       duplicated = true
     } else if ( movement.type == Movement.Type.CHARGE ) {
 
-      def concept = conceptService.findByMovement( movement )
-
-      if ( concept?.category?.id == atmId ) {
+      if ( movement?.category?.id == atmId ) {
         duplicated = true
       }
 

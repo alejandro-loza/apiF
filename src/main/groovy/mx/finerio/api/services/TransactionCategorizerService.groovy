@@ -14,9 +14,6 @@ import org.springframework.stereotype.Service
 class TransactionCategorizerService {
 
   @Autowired
-  MovementService movementService
-
-  @Autowired
   TransactionsApiService transactionsApiService
 
   @Autowired
@@ -58,9 +55,8 @@ class TransactionCategorizerService {
     def executorService = Executors.newCachedThreadPool()
     
     for ( Integer i = 0; i < movements.size(); i++ ) {
-      executorService.execute( new CategorizerThread( movementService,
-        transactionsApiService, transactionPostProcessorService,
-        movements[ i ] ) )
+      executorService.execute( new CategorizerThread( transactionsApiService,
+        transactionPostProcessorService, movements[ i ] ) )
     }
     
     executorService.shutdown()
@@ -72,17 +68,14 @@ class TransactionCategorizerService {
 
 class CategorizerThread implements Runnable {
 
-  MovementService movementService
   TransactionsApiService transactionsApiService
   TransactionPostProcessorService transactionPostProcessorService
   Movement movement
   
-  CategorizerThread( MovementService movementService,
-      TransactionsApiService transactionsApiService,
+  CategorizerThread( TransactionsApiService transactionsApiService,
       TransactionPostProcessorService transactionPostProcessorService,
       Movement movement ) {
 
-    this.movementService = movementService
     this.transactionsApiService = transactionsApiService
     this.transactionPostProcessorService = transactionPostProcessorService
     this.movement = movement
@@ -91,7 +84,6 @@ class CategorizerThread implements Runnable {
   
   void run() {
 
-    movementService.createConcept( movement )
     transactionPostProcessorService.processDuplicated( movement )
     transactionPostProcessorService.updateTransference( movement )
     transactionsApiService.findDuplicated( movement )

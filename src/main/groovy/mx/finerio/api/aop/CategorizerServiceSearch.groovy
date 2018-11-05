@@ -19,18 +19,18 @@ class CategorizerServiceSearch {
       'mx.finerio.api.aop.CategorizerServiceSearch' )
 
   @Pointcut(
-    value='execution(Object mx.finerio.api.services.CategorizerService.search(..)) && bean(categorizerService) && args(text)',
-    argNames='text'
+    value='execution(Object mx.finerio.api.services.CategorizerService.search(..)) && bean(categorizerService) && args(text, income)',
+    argNames='text, income'
   )
-  public void search( String text ) {}
+  public void search( String text, Boolean income ) {}
 
-  @Before('search(text)')
-  void before( String text ) {
-    log.info( "<< text: {}", text )
+  @Before('search(text, income)')
+  void before( String text, Boolean income ) {
+    log.info( "<< text: {}, income: {}", text, income )
   }
 
   @AfterReturning(
-    pointcut='search(String)',
+    pointcut='search(String, Boolean)',
     returning='response'
   )
   void afterReturning( Object response ) {
@@ -38,7 +38,7 @@ class CategorizerServiceSearch {
   }
 
   @AfterThrowing(
-    pointcut='search(String)',
+    pointcut='search(String, Boolean)',
     throwing='e'
   )
   void afterThrowing( Exception e ) {
