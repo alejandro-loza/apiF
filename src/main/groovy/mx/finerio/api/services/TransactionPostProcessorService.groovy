@@ -40,7 +40,8 @@ class TransactionPostProcessorService {
     } else if ( movement.type == Movement.Type.CHARGE ) {
 
       if ( movement?.category?.id == atmId ) {
-        if ( ((float) movement.amount % 50) == 0 ) {
+        if ( BigDecimal.ZERO.compareTo( 
+              movement.amount.remainder(new BigDecimal(50)) ) == 0 ) {
           duplicated = true
         }
       }
