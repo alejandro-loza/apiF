@@ -25,6 +25,22 @@ class FilterConfig {
   }
 
   @Bean
+  FilterRegistrationBean jsonFilterRegistrationBean() {
+
+    def registrationBean = new FilterRegistrationBean()
+    registrationBean.name = 'json'
+    registrationBean.setUrlPatterns( [ '/callbacks/*' ] )
+    registrationBean.filter = getJsonFilter()
+    registrationBean
+
+  }
+
+  @Bean
+  JsonFilter getJsonFilter() {
+    new JsonFilter()
+  }
+
+  @Bean
   CorsFilter getCors() {
 	new CorsFilter()
   }
