@@ -32,23 +32,32 @@ class CreditDetailsService {
       throw new BadImplementationException(
           'creditDetailsService.create.account.null' )
     }
- 
+    def flag = nullAll( creditDetailsDto )
+    if( flag ){  
+      return null
+    }
+    createInstance( creditDetailsDto, account )
+
+  }
+
+  private CreditDetails createInstance( CreditDetailsDto creditDetailsDto, Account account ){
+
     def instance = creditDetailsRepository.findByAccountAndDateDeletedIsNull( account ) 
     if( !instance ){ 
       instance = new CreditDetails()
       instance.dateCreated = new Date()
     }
     instance.account = account
-    instance.closingDate = new Date().parse( "yyyy-MM-dd'T'HH:mm:ss",
-        creditDetailsDto.closing_date ) ?: new Date()
-    instance.nonInterestPayment = creditDetailsDto.non_interest_payment
+    instance.closingDate = creditDetailsDto.closing_date ? new Date().parse( "yyyy-MM-dd'T'HH:mm:ss",
+        creditDetailsDto.closing_date ) : null
+    instance.nonInterestPayment = creditDetailsDto.non_interest_payment  
     instance.statementBalance = creditDetailsDto.statement_balance
-    instance.minimumPayment = creditDetailsDto.minimum_payment
-    instance.limitCredit = creditDetailsDto.credit_limit
-    instance.dueDate = new Date().parse( "yyyy-MM-dd'T'HH:mm:ss",
-        creditDetailsDto.due_date ) ?: new Date()
-    instance.lastClosingDate = new Date().parse( "yyyy-MM-dd'T'HH:mm:ss",
-        creditDetailsDto.last_closing_date ) ?: new Date()
+    instance.minimumPayment = creditDetailsDto.minimum_payment  
+    instance.limitCredit = creditDetailsDto.credit_limit 
+    instance.dueDate = creditDetailsDto.due_date ? new Date().parse( "yyyy-MM-dd'T'HH:mm:ss",
+        creditDetailsDto.due_date ) : null
+    instance.lastClosingDate = creditDetailsDto.last_closing_date ? new Date().parse( "yyyy-MM-dd'T'HH:mm:ss",
+        creditDetailsDto.last_closing_date ) : null
     instance.annualPercentageRate = creditDetailsDto.annual_porcentage_rate
     if( creditDetailsDto.card_number ){
       def cn = creditDetailsDto.card_number
@@ -59,9 +68,23 @@ class CreditDetailsService {
     }
     instance.lastUpdated = new Date()
     creditDetailsRepository.save( instance )
- 
     instance
+  
+  }
 
+  private Boolean nullAll( CreditDetailsDto creditDetailsDto ){
+    def flag = true
+    if( creditDetailsDto.closing_date
+    || creditDetailsDto.non_interest_payment
+    || creditDetailsDto.statement_balance
+    || creditDetailsDto.minimum_payment
+    || creditDetailsDto.credit_limit
+    || creditDetailsDto.due_date
+    || creditDetailsDto.closing_date
+    || creditDetailsDto.annual_porcentage_rate
+    || creditDetailsDto.card_number
+    ){ flag = false }  
+    flag  
   }
 
 

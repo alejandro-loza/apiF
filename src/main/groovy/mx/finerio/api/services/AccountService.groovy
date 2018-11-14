@@ -63,14 +63,9 @@ class AccountService {
     def cleanedName = getAccountName( accountData.name )
     def number = getNumber( credential.institution, accountData.extra_data )
         ?: cleanedName
-    def account
-    if( accountData.id ){
-      account = findDuplicatedById( credential, accountData.id ) ?: new Account()
-      account.idBank = accountData.id
-    }else{
-      account = findDuplicated( credential, number,
-        cleanedName ) ?: new Account()
-    }
+    def account = findDuplicated( credential, number,
+        accountData.id ) ?: new Account() 
+    account.idBank = accountData.id
     account.name = cleanedName
     account.institution = credential.institution
     account.number = number
@@ -81,7 +76,7 @@ class AccountService {
     account.lastUpdated = new Date()
     accountRepository.save( account )
     createAccountCredential( account, credential )
-    if( accountData.credit_card_detail ){
+    if( accountData.credit_card_detail && accountData.is_credit_card ){
       creditDetailsService.create( accountData.credit_card_detail, account )
     }
     account
@@ -198,25 +193,8 @@ class AccountService {
 
   }
 
-  private Account findDuplicatedById( Credential credential, String id ) throws Exception {
-
-    def institution = credential.institution
-    def user = credential.user
-    def instance = accountRepository.findFirstByInstitutionAndUserAndIdBankOrderByDateCreatedDesc(
-        institution, user, id )
-
-    if ( instance?.deleted &&
-        !accountCredentialRepository.findAllByAccountAndCredential(
-        instance, credential ) ) {
-      instance = null
-    }
-
-    instance
-
-  }
-
   private Account findDuplicated( Credential credential, String number,
-      String name ) throws Exception {
+      String id ) throws Exception {
 
     def institution = credential.institution
     def user = credential.user
@@ -227,8 +205,12 @@ class AccountService {
       instance = accountRepository.findFirstByInstitutionAndUserAndNumberLikeOrderByDateCreatedDesc(
         institution, user, getMaskedNumber( institution, number ) )
     }
+    if ( !instance && id ) {
+      instance = accountRepository.findFirstByInstitutionAndUserAndIdBankOrderByDateCreatedDesc(
+        institution, user, id )
+    }
 
-    if ( instance?.deleted &&
+    if ( instance?.deleted && instance?.dateDeleted && 
         !accountCredentialRepository.findAllByAccountAndCredential(
         instance, credential ) ) {
       instance = null

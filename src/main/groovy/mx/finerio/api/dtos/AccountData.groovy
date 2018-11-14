@@ -12,5 +12,6 @@ class AccountData {
   Map extra_data
   String id
   CreditDetailsDto credit_card_detail
+  Boolean is_credit_card
 
 }
