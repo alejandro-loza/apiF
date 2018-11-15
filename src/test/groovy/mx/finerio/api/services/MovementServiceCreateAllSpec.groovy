@@ -1,7 +1,9 @@
 package mx.finerio.api.services
 
 import mx.finerio.api.domain.Account
+import mx.finerio.api.domain.Category
 import mx.finerio.api.domain.Movement
+import mx.finerio.api.domain.repository.CategoryRepository
 import mx.finerio.api.domain.repository.MovementRepository
 import mx.finerio.api.dtos.Transaction
 import mx.finerio.api.dtos.TransactionData
@@ -14,11 +16,17 @@ class MovementServiceCreateAllSpec extends Specification {
   def service = new MovementService()
 
   def accountService = Mock( AccountService )
+  def categorizerService = Mock( CategorizerService )
+  def cleanerService = Mock( CleanerService )
+  def categoryRepository = Mock( CategoryRepository )
   def movementRepository = Mock( MovementRepository )
 
   def setup() {
 
     service.accountService = accountService
+    service.categorizerService = categorizerService
+    service.cleanerService = cleanerService
+    service.categoryRepository = categoryRepository
     service.movementRepository = movementRepository
 
   }
@@ -29,6 +37,10 @@ class MovementServiceCreateAllSpec extends Specification {
       def result = service.createAll( transactionData )
     then:
       1 * accountService.findById( _ as String ) >> new Account()
+      3 * cleanerService.clean( _ as String, _ as Boolean ) >> 'hello'
+      3 * categorizerService.search( _ as String, _ as Boolean ) >>
+          [ categoryId: 'categoryId' ]
+      3 * categoryRepository.findOne( _ as String ) >> new Category()
       3 * movementRepository.findFirstByDateAndDescriptionAndAmountAndTypeAndAccountOrderByDateCreatedDesc(
         _ as Date, _ as String, _ as BigDecimal, _ as Movement.Type,
         _ as Account )

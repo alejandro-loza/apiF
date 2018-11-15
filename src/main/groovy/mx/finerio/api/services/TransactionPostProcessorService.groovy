@@ -16,9 +16,6 @@ class TransactionPostProcessorService {
   MovementService movementService
 
   @Autowired
-  ConceptService conceptService
-
-  @Autowired
   TransactionsApiService transactionsApiService
 
   @Value('${categories.atm.id}')
@@ -40,7 +37,10 @@ class TransactionPostProcessorService {
     } else if ( movement.type == Movement.Type.CHARGE ) {
 
       if ( movement?.category?.id == atmId ) {
-        duplicated = true
+        if ( BigDecimal.ZERO.compareTo( 
+              movement.amount.remainder(new BigDecimal(50)) ) == 0 ) {
+          duplicated = true
+        }
       }
 
     }
