@@ -16,9 +16,6 @@ class TransactionPostProcessorService {
   MovementService movementService
 
   @Autowired
-  ConceptService conceptService
-
-  @Autowired
   TransactionsApiService transactionsApiService
 
   @Value('${categories.atm.id}')
