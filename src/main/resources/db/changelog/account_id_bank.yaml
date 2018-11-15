@@ -1,0 +1,13 @@
+databaseChangeLog:
+- changeSet:
+    id: account_id_bank
+    author: erick.mercado
+    changes:
+    - addColumn:
+        tableName: account
+        columns:
+        - column:
+            name: id_bank
+            type: java.sql.Types.VARCHAR(255)
+            constraints:
+              nullable: true
