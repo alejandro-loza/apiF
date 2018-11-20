@@ -147,7 +147,7 @@ class MovementStatService {
 	 List doGroupByCategory(List instances ) throws Exception {
 		 	  
 			def categoyInstances=instances.collect{
-				if(it.category.parent){
+				if(it.category?.parent){
 				     it.category=it.category.parent
 				}
 				it
