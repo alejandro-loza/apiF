@@ -11,6 +11,7 @@ import mx.finerio.api.dtos.*
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class CreditDetailsService {
@@ -21,6 +22,7 @@ class CreditDetailsService {
   @Autowired
   CreditDetailsRepository creditDetailsRepository
 
+  @Transactional
   CreditDetails create( CreditDetailsDto creditDetailsDto, Account account ) throws Exception {
 
     if ( !creditDetailsDto ) {
@@ -42,12 +44,14 @@ class CreditDetailsService {
 
   private CreditDetails createInstance( CreditDetailsDto creditDetailsDto, Account account ){
 
-    def instance = creditDetailsRepository.findByAccountAndDateDeletedIsNull( account ) 
+    def instance = creditDetailsRepository.findByCreditDetailsIdAccountAndDateDeletedIsNull( account ) 
     if( !instance ){ 
       instance = new CreditDetails()
       instance.dateCreated = new Date()
+      def creditDetailsId = new CreditDetailsId( )
+        creditDetailsId.account = account
+      instance.creditDetailsId = creditDetailsId
     }
-    instance.account = account
     instance.closingDate = creditDetailsDto.closing_date ? new Date().parse( "yyyy-MM-dd'T'HH:mm:ss",
         creditDetailsDto.closing_date ) : null
     instance.nonInterestPayment = creditDetailsDto.non_interest_payment  

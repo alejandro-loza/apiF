@@ -11,13 +11,8 @@ import org.hibernate.annotations.GenericGenerator
 @ToString(includePackage = false, includeNames = true)
 class CreditDetails {
 
-  @Id @GeneratedValue
-  @Column(name = 'id', updatable = false)
-  Long id
-
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = 'account_id', nullable = false)
-  Account account
+  @EmbeddedId
+  CreditDetailsId creditDetailsId 
 
   @Column(name = 'closing_date', nullable = true)
   Date closingDate
