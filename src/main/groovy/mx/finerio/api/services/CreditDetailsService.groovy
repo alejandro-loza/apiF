@@ -22,7 +22,6 @@ class CreditDetailsService {
   @Autowired
   CreditDetailsRepository creditDetailsRepository
 
-  @Transactional
   CreditDetails create( CreditDetailsDto creditDetailsDto, Account account ) throws Exception {
 
     if ( !creditDetailsDto ) {
@@ -42,6 +41,7 @@ class CreditDetailsService {
 
   }
 
+  @Transactional
   private CreditDetails createInstance( CreditDetailsDto creditDetailsDto, Account account ){
 
     def instance = creditDetailsRepository.findByCreditDetailsIdAccountAndDateDeletedIsNull( account ) 
