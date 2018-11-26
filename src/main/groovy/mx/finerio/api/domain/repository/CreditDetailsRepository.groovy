@@ -7,6 +7,6 @@ import mx.finerio.api.domain.*
 
 interface CreditDetailsRepository extends JpaRepository<CreditDetails, Long>, JpaSpecificationExecutor {
 
-  CreditDetails findByAccountAndDateDeletedIsNull( Account account )
+  CreditDetails findByCreditDetailsIdAccountAndDateDeletedIsNull( Account account )
 
 }
