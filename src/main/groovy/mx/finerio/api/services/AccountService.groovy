@@ -209,6 +209,9 @@ class AccountService {
       instance = accountRepository.findFirstByInstitutionAndUserAndIdBankOrderByDateCreatedDesc(
         institution, user, id )
     }
+    if ( instance && id ) {
+      if( instance.idBank != id ){ instance = null }
+    }
 
     if ( instance?.deleted && instance?.dateDeleted && 
         !accountCredentialRepository.findAllByAccountAndCredential(
