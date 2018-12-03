@@ -198,16 +198,31 @@ class AccountService {
 
     def institution = credential.institution
     def user = credential.user
-    def instance = accountRepository.findFirstByInstitutionAndUserAndNumberOrderByDateCreatedDesc(
+    def instance 
+    if ( id ) {
+      instance = accountRepository.findFirstByInstitutionAndUserAndIdBankOrderByDateCreatedDesc(
+        institution, user, id )
+    }
+    instance = validateFinder( credential, id, instance )
+
+    if ( !instance ) {
+      instance= accountRepository.findFirstByInstitutionAndUserAndNumberOrderByDateCreatedDesc(
         institution, user, number )
+    }
+    instance = validateFinder( credential, id, instance )
 
     if ( !instance ) {
       instance = accountRepository.findFirstByInstitutionAndUserAndNumberLikeOrderByDateCreatedDesc(
         institution, user, getMaskedNumber( institution, number ) )
     }
-    if ( !instance && id ) {
-      instance = accountRepository.findFirstByInstitutionAndUserAndIdBankOrderByDateCreatedDesc(
-        institution, user, id )
+    validateFinder( credential, id, instance )
+
+  }
+
+  private Account validateFinder( Credential credential, String id, Account instance){
+
+    if ( instance && id ) {
+      if( instance.idBank && instance.idBank != id ){ instance = null }
     }
 
     if ( instance?.deleted && instance?.dateDeleted && 
@@ -215,7 +230,6 @@ class AccountService {
         instance, credential ) ) {
       instance = null
     }
-
     instance
 
   }
