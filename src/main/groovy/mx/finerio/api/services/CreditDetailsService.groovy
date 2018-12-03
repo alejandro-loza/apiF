@@ -54,7 +54,11 @@ class CreditDetailsService {
     }
     instance.closingDate = creditDetailsDto.closing_date ? new Date().parse( "yyyy-MM-dd'T'HH:mm:ss",
         creditDetailsDto.closing_date ) : null
-    instance.nonInterestPayment = creditDetailsDto.non_interest_payment  
+    if( creditDetailsDto.non_interest_payment && creditDetailsDto.non_interest_payment != 0.0 ){
+      instance.nonInterestPayment = creditDetailsDto.non_interest_payment  
+    }else{
+      instance.nonInterestPayment = creditDetailsDto.statement_balance  
+    }
     instance.statementBalance = creditDetailsDto.statement_balance
     instance.minimumPayment = creditDetailsDto.minimum_payment  
     instance.limitCredit = creditDetailsDto.credit_limit 
