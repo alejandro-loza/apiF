@@ -42,7 +42,8 @@ class RestTemplateService {
     def urlBuilder = HttpUrl.parse( url ).newBuilder()
 
     params.each {
-      urlBuilder.addQueryParameter( it.key, it.value )
+      def tCl =   it.value.replaceAll("\\\\", "")
+      urlBuilder.addQueryParameter( it.key, tCl )
     }
 
     def client = getClient()
