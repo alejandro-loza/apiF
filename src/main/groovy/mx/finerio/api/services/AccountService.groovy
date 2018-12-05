@@ -199,7 +199,7 @@ class AccountService {
     def institution = credential.institution
     def user = credential.user
     def instance 
-    if ( id ) {
+    if ( id && institution.code != "HSBC" && institution.code != "BNMX" ) {
       instance = accountRepository.findFirstByInstitutionAndUserAndIdBankOrderByDateCreatedDesc(
         institution, user, id )
     }
@@ -222,7 +222,9 @@ class AccountService {
   private Account validateFinder( Credential credential, String id, Account instance){
 
     if ( instance && id ) {
-      if( instance.idBank && instance.idBank != id ){ instance = null }
+      if( credential.institution.code != "HSBC" &&
+          credential.institution.code != "BNMX" &&
+          instance.idBank && instance.idBank != id ){ instance = null }
     }
 
     if ( instance?.deleted && instance?.dateDeleted && 
