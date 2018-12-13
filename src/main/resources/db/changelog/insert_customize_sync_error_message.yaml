@@ -1,0 +1,21 @@
+databaseChangeLog:
+- changeSet:
+    id: insert_customize_sync_error_message
+    author: jose.vargas
+    changes:
+      - modifyDataType:
+          columnName: friendly_message
+          newDataType: varchar(200)
+          tableName: credential_failure_messages      
+      - sql:
+          sql: insert into credential_failure_messages (institution_id, original_message, friendly_message, date_created) values (1,"408","Hubo un problema de conexión con tu banco. Sincroniza tu cuenta nuevamente en 5 minutos.", now())
+      - sql:          
+          sql: insert into credential_failure_messages (institution_id, original_message, friendly_message, date_created) values (1,"203","Tu banca en línea está bloqueada. Desbloquéala y sincroniza nuevamente tu cuenta.", now())
+      - sql:          
+          sql: insert into credential_failure_messages (institution_id, original_message, friendly_message, date_created) values (1,"401","Tu usuario o contraseña son incorrectos. Utiliza las claves de acceso del portal de banca en línea. ", now())
+      - sql:          
+          sql: insert into credential_failure_messages (institution_id, original_message, friendly_message, date_created) values (1,"4011","Tu usuario o contraseña son incorrectos, quizá los hayas cambiado. Sincroniza nuevamente tu cuenta, actualizando la contraseña.", now())
+      - sql:          
+          sql: insert into credential_failure_messages (institution_id, original_message, friendly_message, date_created) values (1,"503","Hay otra sesión activa en tu banca en línea. Ciérrala y sincroniza nuevamente tu cuenta en 5 minutos. ", now())
+      - sql:          
+          sql: insert into credential_failure_messages (institution_id, original_message, friendly_message, date_created) values (1,"500","Hubo un problema de conexión con tu banco. Sincroniza tu cuenta nuevamente en 5 minutos.", now())

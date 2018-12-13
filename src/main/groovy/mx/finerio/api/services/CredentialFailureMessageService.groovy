@@ -3,7 +3,10 @@ package mx.finerio.api.services
 import mx.finerio.api.domain.CredentialFailureMessage
 import mx.finerio.api.domain.FinancialInstitution
 import mx.finerio.api.domain.repository.CredentialFailureMessageRepository
+import mx.finerio.api.domain.repository.BankConnectionRepository
 import mx.finerio.api.exceptions.BadImplementationException
+import mx.finerio.api.domain.BankConnection
+import mx.finerio.api.domain.Credential
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -18,16 +21,27 @@ class CredentialFailureMessageService {
   @Value('${credentialFailure.defaultMessage}')
   String defaultMessage
 
-  String findByInstitutionAndMessage(
-      FinancialInstitution institution, String message ) throws Exception {
+  @Autowired
+  BankConnectionRepository bankConnectionRepository
 
-    validateFindByInstitutionAndMessage( institution, message )
-    def credentialFailureMessage = credentialFailureMessageRepository
-        .findFirstByInstitutionAndOriginalMessage(
-        institution, message.take( 200 ) )
+  String findByInstitutionAndMessage( Credential credential,
+      FinancialInstitution institution, String statusCode ) throws Exception {
+
+    validateFindByInstitutionAndMessage( institution, statusCode )
+
+    def credentialFailureMessage
+    if( statusCode.equals("401" ) ){
+      def bankConnection = bankConnectionRepository.findFirstByCredentialAndStatus(credential,BankConnection.Status.SUCCESS)
+      if ( bankConnection ){
+        credentialFailureMessage = credentialFailureMessageRepository.findFirstByOriginalMessage( '4011' )
+      }else{
+        credentialFailureMessage = credentialFailureMessageRepository.findFirstByOriginalMessage( statusCode ) 
+      }     
+    }else{
+        credentialFailureMessage = credentialFailureMessageRepository.findFirstByOriginalMessage( statusCode )
+    }
 
     if ( !credentialFailureMessage ) {
-      create( institution, message, defaultMessage )
       return defaultMessage
     } else {
       return credentialFailureMessage.friendlyMessage
