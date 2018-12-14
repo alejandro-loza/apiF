@@ -200,6 +200,7 @@ class CredentialService {
     credential.status = Credential.Status.INVALID
     credentialRepository.save( credential )
     bankConnectionService.update( credential, BankConnection.Status.FAILURE )
+    
     credential
 
   }

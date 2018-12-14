@@ -24,22 +24,29 @@ class CredentialFailureMessageService {
   @Autowired
   BankConnectionRepository bankConnectionRepository
 
+   @Autowired
+  CustomErrorMessageService customErrorMessageService
+
   String findByInstitutionAndMessage( Credential credential,
       FinancialInstitution institution, String statusCode ) throws Exception {
 
-    validateFindByInstitutionAndMessage( institution, statusCode )
+    validateFindByInstitutionAndMessage( credential, institution, statusCode )
 
     def credentialFailureMessage
+    def newStatusCode
     if( statusCode.equals("401" ) ){
       def bankConnection = bankConnectionRepository.findFirstByCredentialAndStatus(credential,BankConnection.Status.SUCCESS)
       if ( bankConnection ){
-        credentialFailureMessage = credentialFailureMessageRepository.findFirstByOriginalMessage( '4011' )
+        newStatusCode='4011'
       }else{
-        credentialFailureMessage = credentialFailureMessageRepository.findFirstByOriginalMessage( statusCode ) 
+        newStatusCode=statusCode
       }     
     }else{
-        credentialFailureMessage = credentialFailureMessageRepository.findFirstByOriginalMessage( statusCode )
+        newStatusCode=statusCode
     }
+ 
+   credentialFailureMessage = credentialFailureMessageRepository.findFirstByOriginalMessage( newStatusCode )
+   customErrorMessageService.sendCustomEmail(credential.user?.username,newStatusCode)
 
     if ( !credentialFailureMessage ) {
       return defaultMessage
@@ -49,8 +56,14 @@ class CredentialFailureMessageService {
 
   }
 
-  private void validateFindByInstitutionAndMessage(
+  private void validateFindByInstitutionAndMessage(Credential credential,
       FinancialInstitution institution, String message ) throws Exception {
+
+    if ( !credential ) {
+      throw new BadImplementationException(
+          'credentialFailureMessageService' +
+          '.findByInstitutionAndMessage.credential.null' )
+    }
 
     if ( !institution ) {
       throw new BadImplementationException(

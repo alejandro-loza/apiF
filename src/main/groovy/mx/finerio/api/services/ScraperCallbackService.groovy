@@ -86,7 +86,7 @@ class ScraperCallbackService {
 
     def strStatusCode=String.valueOf( failureCallbackDto?.data?.status_code )
     def credential = credentialService.setFailure(
-        failureCallbackDto?.data?.credential_id,strStatusCode)
+        failureCallbackDto?.data?.credential_id, strStatusCode )
     credentialStatusHistoryService.update( credential )
     closeWebSocketSession( credential )
     callbackService.sendToClient( credential?.customer?.client,
