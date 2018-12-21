@@ -192,15 +192,15 @@ class CredentialService {
 
   }
 
-  Credential setFailure( String credentialId, String message ) throws Exception {
+  Credential setFailure( String credentialId, String statusCode ) throws Exception {
 
     def credential = findAndValidate( credentialId )
     credential.errorCode = credentialFailureMessageService.
-        findByInstitutionAndMessage( credential.institution,
-        message ?: 'BLANK MSG' )
+    findByInstitutionAndMessage( credential, credential.institution, statusCode ?: 'BLANK MSG' )
     credential.status = Credential.Status.INVALID
     credentialRepository.save( credential )
     bankConnectionService.update( credential, BankConnection.Status.FAILURE )
+    
     credential
 
   }

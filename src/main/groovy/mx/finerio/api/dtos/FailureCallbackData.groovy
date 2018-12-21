@@ -7,5 +7,6 @@ class FailureCallbackData {
 
   String credential_id
   String error_message
+  Integer status_code
 
 }
