@@ -11,4 +11,6 @@ interface CredentialFailureMessageRepository
   CredentialFailureMessage findFirstByInstitutionAndOriginalMessage(
       FinancialInstitution institution, String originalMessage )
 
+    CredentialFailureMessage findFirstByOriginalMessage( String originalMessage )
+
 }

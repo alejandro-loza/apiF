@@ -24,7 +24,7 @@ class CredentialFailureMessage {
   String originalMessage
 
   @NotNull
-  @Size(min = 1, max = 50)
+  @Size(min = 1, max = 200)
   @Column(name = 'friendly_message')
   String friendlyMessage
 

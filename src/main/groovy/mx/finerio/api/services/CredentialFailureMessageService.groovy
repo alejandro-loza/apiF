@@ -3,7 +3,10 @@ package mx.finerio.api.services
 import mx.finerio.api.domain.CredentialFailureMessage
 import mx.finerio.api.domain.FinancialInstitution
 import mx.finerio.api.domain.repository.CredentialFailureMessageRepository
+import mx.finerio.api.domain.repository.BankConnectionRepository
 import mx.finerio.api.exceptions.BadImplementationException
+import mx.finerio.api.domain.BankConnection
+import mx.finerio.api.domain.Credential
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -18,16 +21,34 @@ class CredentialFailureMessageService {
   @Value('${credentialFailure.defaultMessage}')
   String defaultMessage
 
-  String findByInstitutionAndMessage(
-      FinancialInstitution institution, String message ) throws Exception {
+  @Autowired
+  BankConnectionRepository bankConnectionRepository
 
-    validateFindByInstitutionAndMessage( institution, message )
-    def credentialFailureMessage = credentialFailureMessageRepository
-        .findFirstByInstitutionAndOriginalMessage(
-        institution, message.take( 200 ) )
+   @Autowired
+  CustomErrorMessageService customErrorMessageService
+
+  String findByInstitutionAndMessage( Credential credential,
+      FinancialInstitution institution, String statusCode ) throws Exception {
+
+    validateFindByInstitutionAndMessage( credential, institution, statusCode )
+
+    def credentialFailureMessage
+    def newStatusCode
+    if( statusCode.equals("401" ) ){
+      def bankConnection = bankConnectionRepository.findFirstByCredentialAndStatus(credential,BankConnection.Status.SUCCESS)
+      if ( bankConnection ){
+        newStatusCode='4011'
+      }else{
+        newStatusCode=statusCode
+      }     
+    }else{
+        newStatusCode=statusCode
+    }
+ 
+   credentialFailureMessage = credentialFailureMessageRepository.findFirstByOriginalMessage( newStatusCode )
+   customErrorMessageService.sendCustomEmail(credential.user?.username,newStatusCode)
 
     if ( !credentialFailureMessage ) {
-      create( institution, message, defaultMessage )
       return defaultMessage
     } else {
       return credentialFailureMessage.friendlyMessage
@@ -35,8 +56,14 @@ class CredentialFailureMessageService {
 
   }
 
-  private void validateFindByInstitutionAndMessage(
+  private void validateFindByInstitutionAndMessage(Credential credential,
       FinancialInstitution institution, String message ) throws Exception {
+
+    if ( !credential ) {
+      throw new BadImplementationException(
+          'credentialFailureMessageService' +
+          '.findByInstitutionAndMessage.credential.null' )
+    }
 
     if ( !institution ) {
       throw new BadImplementationException(
