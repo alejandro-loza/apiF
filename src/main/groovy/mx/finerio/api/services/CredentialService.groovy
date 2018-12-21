@@ -129,6 +129,26 @@ class CredentialService {
 
   }
 
+  Credential validateUserCredential( Credential credential, String userId ) throws Exception {
+  
+    if ( !credential ) {
+      throw new BadImplementationException(
+          'credentialService.validateUserCredential.credential.null' )
+    }
+    if ( !userId ) {
+      throw new BadImplementationException(
+          'credentialService.validateUserCredential.userId.null' )
+    }
+    def user = userService.findById( userId )
+    if ( !user ) {
+      throw new InstanceNotFoundException( 'user.not.found' )
+    }
+    if( credential.user != user ){ return null }
+    return credential
+    
+
+  }
+
   Credential update( String id, CredentialUpdateDto credentialUpdateDto
       ) throws Exception {
 
