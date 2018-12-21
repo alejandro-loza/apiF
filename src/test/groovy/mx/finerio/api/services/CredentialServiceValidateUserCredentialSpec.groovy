@@ -23,7 +23,7 @@ class CredentialServiceValidateUserCredentialSpec extends Specification {
     when:
       def result = service.validateUserCredential( credential, userId )
     then:
-      1 * userService.findById( _ as String ) >> new User( id:"id" )
+      1 * userService.findById( _ as String ) >> credential.user
       result instanceof Credential
     where:
       userId = 'id'
