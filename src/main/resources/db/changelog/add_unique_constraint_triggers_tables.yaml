@@ -1,0 +1,12 @@
+databaseChangeLog:
+- changeSet:
+    id: addUniqueConstraintTriggersTables
+    author: jose.vargas
+    changes:    
+    - addUniqueConstraint:
+          columnNames: category_id,type,init_date,final_date
+          constraintName: const_movement_stat_unique_columns
+          deferrable: true
+          initiallyDeferred: true
+          tableName: movement_stat
+       
