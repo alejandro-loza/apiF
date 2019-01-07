@@ -43,6 +43,4 @@ databaseChangeLog:
 - include:
     file: db/changelog/credit_details_dates.yaml
 - include:
-    file: db/changelog/insert_customize_sync_error_message.yaml 
-- include:
-    file: db/changelog/add_unique_constraint_triggers_tables.yaml
+    file: db/changelog/insert_customize_sync_error_message.yaml
