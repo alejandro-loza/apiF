@@ -30,17 +30,24 @@ class CustomErrorMessageService {
    	@Value('${mail.service.template.customMsg.error500}')
 	String templateName500
 
+	@Value('${credential.errorMessages.active}')
+	Boolean isErrorMessagesActive	
+
 	@Autowired
 	EmailRestService emailRestService
 
-	void sendCustomEmail( String emailId, String statusCode ) {
+	String sendCustomEmail( String emailId, String statusCode ) {
 
-		try{
-			emailRestService.send( emailId, this."templateName${statusCode}", [:] )
-		}catch(groovy.lang.MissingPropertyException e){
-			log.error("Unknown status code: ${statusCode} mail not sent")
-		
+		if( isErrorMessagesActive ){
+			try{
+				emailRestService.send( emailId, this."templateName${statusCode}", [:] )
+				return 'Email Sent-- ${emailId} ${statusCode}'
+			}catch(groovy.lang.MissingPropertyException e){
+				log.error("Unknown status code: ${statusCode} mail not sent")
+			
+			}
 		}
+       'Email not sent (not active)'
 	}
 
 }
