@@ -41,7 +41,7 @@ class CustomErrorMessageService {
 		if( isErrorMessagesActive ){
 			try{
 				emailRestService.send( emailId, this."templateName${statusCode}", [:] )
-				return 'Email Sent'
+				return 'Email Sent-- ${emailId} ${statusCode}'
 			}catch(groovy.lang.MissingPropertyException e){
 				log.error("Unknown status code: ${statusCode} mail not sent")
 			
