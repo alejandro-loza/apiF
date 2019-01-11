@@ -35,6 +35,8 @@ class AccountServiceCreateSpec extends Specification {
     then:
       1 * credentialService.findAndValidate( _ as String ) >>
           new Credential( institution: institution, user: user )
+      1 * credentialService.validateUserCredential( _ as Credential, _ as String ) >>
+          new Credential( institution: institution, user: user )
       1 * accountRepository.findFirstByInstitutionAndUserAndNumberOrderByDateCreatedDesc(
           _ as FinancialInstitution, _ as User, _ as String )
       1 * accountRepository.findFirstByInstitutionAndUserAndNumberLikeOrderByDateCreatedDesc(
@@ -58,6 +60,8 @@ class AccountServiceCreateSpec extends Specification {
       def result = service.create( accountData )
     then:
       1 * credentialService.findAndValidate( _ as String ) >>
+          new Credential( institution: institution, user: user )
+      1 * credentialService.validateUserCredential( _ as Credential, _ as String ) >>
           new Credential( institution: institution, user: user )
       1 * accountRepository.findFirstByInstitutionAndUserAndNumberOrderByDateCreatedDesc(
           _ as FinancialInstitution, _ as User, _ as String ) >>
@@ -83,6 +87,8 @@ class AccountServiceCreateSpec extends Specification {
     then:
       1 * credentialService.findAndValidate( _ as String ) >>
           new Credential( institution: institution, user: user )
+      1 * credentialService.validateUserCredential( _ as Credential, _ as String ) >>
+          new Credential( institution: institution, user: user )
       1 * accountRepository.findFirstByInstitutionAndUserAndNumberOrderByDateCreatedDesc(
           _ as FinancialInstitution, _ as User, _ as String )
       1 * accountRepository.findFirstByInstitutionAndUserAndNumberLikeOrderByDateCreatedDesc(
@@ -106,6 +112,8 @@ class AccountServiceCreateSpec extends Specification {
       def result = service.create( accountData )
     then:
       1 * credentialService.findAndValidate( _ as String ) >>
+          new Credential( institution: institution, user: user )
+      1 * credentialService.validateUserCredential( _ as Credential, _ as String ) >>
           new Credential( institution: institution, user: user )
       1 * accountRepository.findFirstByInstitutionAndUserAndNumberOrderByDateCreatedDesc(
           _ as FinancialInstitution, _ as User, _ as String )
@@ -131,6 +139,8 @@ class AccountServiceCreateSpec extends Specification {
       def result = service.create( accountData )
     then:
       1 * credentialService.findAndValidate( _ as String ) >>
+          new Credential( institution: institution, user: user )
+      1 * credentialService.validateUserCredential( _ as Credential, _ as String ) >>
           new Credential( institution: institution, user: user )
       1 * accountRepository.findFirstByInstitutionAndUserAndNumberOrderByDateCreatedDesc(
           _ as FinancialInstitution, _ as User, _ as String )
@@ -165,6 +175,7 @@ class AccountServiceCreateSpec extends Specification {
   private AccountData getAccountData() throws Exception {
 
     new AccountData(
+      user_id: 'user_id',
       credential_id: 'credential_id',
       name: 'name',
       nature: 'account'
