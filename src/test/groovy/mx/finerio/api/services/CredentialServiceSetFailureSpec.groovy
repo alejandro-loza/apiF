@@ -39,7 +39,7 @@ class CredentialServiceSetFailureSpec extends Specification {
           institution: new FinancialInstitution(),
           user: new User() )
       1 * credentialFailureMessageService.
-          findByInstitutionAndMessage( _ as FinancialInstitution,
+          findByInstitutionAndMessage( _ as Credential, _ as FinancialInstitution,
           _ as String )
       1 * credentialRepository.save( _ as Credential ) >>
           new Credential()
@@ -103,7 +103,7 @@ class CredentialServiceSetFailureSpec extends Specification {
           institution: new FinancialInstitution(),
           user: new User() )
       1 * credentialFailureMessageService.
-          findByInstitutionAndMessage( _ as FinancialInstitution,
+          findByInstitutionAndMessage(  _ as Credential,_ as FinancialInstitution,
           _ as String )
       1 * credentialRepository.save( _ as Credential ) >>
           new Credential()
@@ -128,7 +128,7 @@ class CredentialServiceSetFailureSpec extends Specification {
           institution: new FinancialInstitution(),
           user: new User() )
       1 * credentialFailureMessageService.
-          findByInstitutionAndMessage( _ as FinancialInstitution,
+          findByInstitutionAndMessage(  _ as Credential, _ as FinancialInstitution,
           _ as String )
       1 * credentialRepository.save( _ as Credential ) >>
           new Credential()
