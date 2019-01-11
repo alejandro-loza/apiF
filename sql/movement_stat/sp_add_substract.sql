@@ -11,6 +11,13 @@ CREATE PROCEDURE sp_add_substract (IN v_movement_id varchar(255), IN v_category_
   DECLARE v_amount decimal(19,2); 
   DECLARE v_initdate datetime;
   DECLARE v_finaldate datetime;
+  DECLARE CONTINUE HANDLER FOR SQLSTATE '23000'
+  BEGIN
+     IF v_operation = 'PLUS' THEN
+      UPDATE  movement_stat SET amount=(new_amount+v_amount) WHERE id=v_id;
+     END IF;
+  END;
+
 
 
   IF v_type is NULL THEN

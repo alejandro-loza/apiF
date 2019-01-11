@@ -12,6 +12,12 @@ CREATE PROCEDURE sp_summary_add_substract (IN v_movement_id varchar(255), IN v_c
   DECLARE v_initdate datetime;
   DECLARE v_finaldate datetime;
   DECLARE v_number_movs int;
+  DECLARE CONTINUE HANDLER FOR SQLSTATE '23000'
+  BEGIN
+     IF v_operation = 'PLUS' THEN
+      UPDATE  summary SET amount=(v_amount+new_amount), number_movs=(v_number_movs+1) WHERE id=v_id; 
+     END IF;
+  END;  
 
   IF v_type is NULL THEN
      SELECT m.type, m.custom_date, a.user_id, m.duplicated 
