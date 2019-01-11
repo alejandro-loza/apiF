@@ -43,4 +43,4 @@ databaseChangeLog:
 - include:
     file: db/changelog/credit_details_dates.yaml
 - include:
-    file: db/changelog/insert_customize_sync_error_message.yaml 
+    file: db/changelog/insert_customize_sync_error_message.yaml

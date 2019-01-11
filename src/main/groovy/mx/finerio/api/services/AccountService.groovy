@@ -60,6 +60,7 @@ class AccountService {
     }
 
     def credential = credentialService.findAndValidate( accountData.credential_id )
+    credential = credentialService.validateUserCredential( credential, accountData.user_id )
     def cleanedName = getAccountName( accountData.name )
     def number = getNumber( credential.institution, accountData.extra_data )
         ?: cleanedName
@@ -199,7 +200,9 @@ class AccountService {
     def institution = credential.institution
     def user = credential.user
     def instance 
-    if ( id && institution.code != "HSBC" && institution.code != "BNMX" ) {
+    if ( id && institution.code != "HSBC" && 
+        institution.code != "BNMX" && 
+        institution.code != "LIVERPOOL" ) {
       instance = accountRepository.findFirstByInstitutionAndUserAndIdBankOrderByDateCreatedDesc(
         institution, user, id )
     }
@@ -224,6 +227,7 @@ class AccountService {
     if ( instance && id ) {
       if( credential.institution.code != "HSBC" &&
           credential.institution.code != "BNMX" &&
+          credential.institution.code != "LIVERPOOL" &&
           instance.idBank && instance.idBank != id ){ instance = null }
     }
 

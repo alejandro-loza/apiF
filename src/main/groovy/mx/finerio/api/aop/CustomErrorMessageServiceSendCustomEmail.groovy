@@ -20,7 +20,7 @@ class CustomErrorMessageServiceSendCustomEmail {
       'mx.finerio.vest.aop.CustomErrorMessageServiceSendCustomEmail' )
 
   @Pointcut(
-    value='execution(void mx.finerio.api.services.CustomErrorMessageService.sendCustomEmail(..)) && bean(customErrorMessageService) && args(emailId,statusCode)',
+    value='execution(String mx.finerio.api.services.CustomErrorMessageService.sendCustomEmail(..)) && bean(customErrorMessageService) && args(emailId,statusCode)',
     argNames='emailId,statusCode'
   )
   public void sendCustomEmail( String emailId, String statusCode ) {}
@@ -31,10 +31,11 @@ class CustomErrorMessageServiceSendCustomEmail {
   }
 
   @AfterReturning(
-    pointcut='sendCustomEmail(String,String)'
+    pointcut='sendCustomEmail(String,String)',
+    returning='response'
   )
-  void afterReturning() {
-    log.info( ">> Ok" )
+  void afterReturning(String response) {
+    log.info( "<< response: {}",response )
   }
 
   @AfterThrowing(
