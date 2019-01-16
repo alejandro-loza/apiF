@@ -57,6 +57,10 @@ class ScraperWebSocketService {
     sessions[ scraperWebSocketSendDto.id ]?.session?.basicRemote?.sendText(
         scraperWebSocketSendDto.message )
 
+    if ( scraperWebSocketSendDto.tokenSent ) {
+      closeSession( scraperWebSocketSendDto.id )
+    }
+
   }
   
   void closeSession( String id ) throws Exception {
@@ -80,12 +84,15 @@ class ScraperWebSocketService {
       if ( nowMillis - it.value.time >= 60000 ) {
         it.value.session.basicRemote
             .sendText( '{"data":{"stage":"logout"}}' )
-        return it.key
+        return it
       }
 
       null
 
-    }.each { setCredentialFailure( it ) }
+    }.each {
+      setCredentialFailure( it.key )
+      closeSession( it.key )
+    }
 
   }
 
