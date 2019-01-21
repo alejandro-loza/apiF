@@ -54,7 +54,7 @@ class ScraperCallbackController {
   @PostMapping( '/callbacks/transactions' )
   ResponseEntity transactions( @RequestBody TransactionDto transactionDto ) {
 
-    scraperCallbackService.processTransactions( transactionDto )
+    scraperCallbackService.queueTransactions( transactionDto )
     ResponseEntity.ok().build()
 
   }

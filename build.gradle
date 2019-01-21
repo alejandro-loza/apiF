@@ -23,6 +23,7 @@ repositories {
 }
 
 dependencies {
+  compile('com.microsoft.azure:azure-servicebus:1.2.8')
   compile('org.springframework.boot:spring-boot-starter-aop')
   compile('org.springframework.boot:spring-boot-starter-data-jpa')
   compile('org.springframework.boot:spring-boot-starter-security')
