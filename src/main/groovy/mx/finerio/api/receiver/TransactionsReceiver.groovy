@@ -31,18 +31,24 @@ class TransactionsReceiver implements InitializingBean {
  	QueueClient queueClient
  	ExecutorService executorService
   	final String serviceUrl
-  	final String serviceName 	
+  	final String serviceName 
+     Integer maxConcurrentCalls
+     Integer maxAutoRenewDuration  
 
     @Autowired
- 	public TransactionsReceiver( @Value('${servicebus.azure.transactions.url}') final String serviceUrl, 
-    @Value('${servicebus.azure.transactions.name}') final String serviceName ){
+ 	public TransactionsReceiver( @Value('${servicebus.azure.transactions.stringConnection}') final String serviceUrl, 
+    @Value('${servicebus.azure.transactions.name}') final String serviceName,
+    @Value('${servicebus.azure.transactions.receiver.maxConcurrentCalls}') final String maxConcurrentCalls,
+    @Value('${servicebus.azure.transactions.receiver.maxAutoRenewDurationMinutes}') final String maxAutoRenewDuration  ){
 
  		this.serviceUrl = serviceUrl
-    	this.serviceName = serviceName
+    this.serviceName = serviceName
+    this.maxConcurrentCalls = maxConcurrentCalls as Integer
+    this.maxAutoRenewDuration = maxAutoRenewDuration as Integer
 
  		queueClient = new QueueClient(new ConnectionStringBuilder
       	( serviceUrl, serviceName ), ReceiveMode.RECEIVEANDDELETE)
-   		executorService = Executors.newSingleThreadExecutor()
+   		executorService = Executors.newCachedThreadPool()
 
  	}
 
@@ -75,7 +81,7 @@ class TransactionsReceiver implements InitializingBean {
 	           }
            },
     
-    new MessageHandlerOptions(1, true, Duration.ofMinutes(10)),executorService)
+    new MessageHandlerOptions( maxConcurrentCalls, true, Duration.ofMinutes( maxAutoRenewDuration )),executorService)
     }
 
     private TransactionDto getTransactionDtoFromMap( transactionMap ){

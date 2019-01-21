@@ -22,26 +22,29 @@ class AzureQueueService {
 
   final static Logger log = LoggerFactory.getLogger(
     'mx.finerio.api.services.AzureQueueService' )
-
+ 
   final String serviceUrl
   final String serviceName
-
+  final Integer timeToLive
+  ConnectionStringBuilder connection
   QueueClient sendClient
 
   @Autowired
-  public AzureQueueService (@Value('${servicebus.azure.transactions.url}') final String serviceUrl, 
-    @Value('${servicebus.azure.transactions.name}') final String serviceName ){
+  public AzureQueueService (@Value('${servicebus.azure.transactions.stringConnection}') final String serviceUrl, 
+    @Value('${servicebus.azure.transactions.name}') final String serviceName,
+    @Value('${servicebus.azure.transactions.susbscriber.timeToLiveMinutes}') final String timeToLive ){
 
     this.serviceUrl = serviceUrl
     this.serviceName = serviceName
+    this.timeToLive = timeToLive as Integer
 
-    sendClient = new QueueClient( new ConnectionStringBuilder
-      ( serviceUrl, serviceName ), ReceiveMode.PEEKLOCK)
+    connection = new ConnectionStringBuilder( serviceUrl, serviceName )
+    sendClient = new QueueClient( connection , ReceiveMode.PEEKLOCK )
 
   }
 
   void queueTransactions( TransactionDto transactionDto ) throws Exception {
-     sendMessagesAsync( transactionDto ).thenRunAsync( { sendClient.closeAsync() })
+          sendMessagesAsync( transactionDto )
   }
 
   private CompletableFuture<Void> sendMessagesAsync( TransactionDto transactionDto ) {
@@ -53,10 +56,10 @@ class AzureQueueService {
     message.setContentType("application/json")
     message.setLabel("transaction")
     message.setMessageId( ( new Date().getTime() as String ) + randomNumber );
-    message.setTimeToLive(Duration.ofMinutes( 60 ))
-    log.info( "Message sent to transactions queue: Id ${message.getMessageId()}" )
+    message.setTimeToLive(Duration.ofMinutes( timeToLive ))
 
     tasks.add(
+      log.info( "Message sent to transactions queue: Id ${message.getMessageId()}" )
       sendClient.sendAsync(message).thenRunAsync( {
         log.info( "Message acknowledged in transactions queue: Id ${message.getMessageId()}" )
       }))  
