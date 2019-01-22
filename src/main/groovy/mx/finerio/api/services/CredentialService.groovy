@@ -154,6 +154,7 @@ class CredentialService {
 
     validateUpdateInput( id, credentialUpdateDto )
     def instance = findOne( id )
+    if ( instance.status == Credential.Status.VALIDATE ) { return instance }
     if ( credentialRecentlyUpdated( instance ) ) { return instance }
     financialInstitutionService.findOneAndValidate( instance.institution.id )
 
