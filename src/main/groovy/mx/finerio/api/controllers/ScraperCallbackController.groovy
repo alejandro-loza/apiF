@@ -10,9 +10,11 @@ import mx.finerio.api.dtos.TransactionDto
 import mx.finerio.api.dtos.NotifyCallbackDto
 import mx.finerio.api.dtos.SuccessCallbackDto
 import mx.finerio.api.services.AccountService
+import mx.finerio.api.services.AzureQueueService
 import mx.finerio.api.services.CallbackService
 import mx.finerio.api.services.CredentialService
 import mx.finerio.api.services.ScraperCallbackService
+import mx.finerio.api.domain.TransactionMessageType
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
+
 
 @RestController
 class ScraperCallbackController {
@@ -37,6 +40,9 @@ class ScraperCallbackController {
 
   @Autowired
   ScraperCallbackService scraperCallbackService
+  
+  @Autowired
+  AzureQueueService azureQueueService
 
   @PostMapping( '/callbacks/accounts' )
   ResponseEntity accounts( @RequestBody AccountDto accountDto ) {
@@ -53,8 +59,7 @@ class ScraperCallbackController {
 
   @PostMapping( '/callbacks/transactions' )
   ResponseEntity transactions( @RequestBody TransactionDto transactionDto ) {
-
-    scraperCallbackService.queueTransactions( transactionDto )
+    azureQueueService.queueTransactions( transactionDto, TransactionMessageType.CONTENT )
     ResponseEntity.ok().build()
 
   }
@@ -62,8 +67,9 @@ class ScraperCallbackController {
   @PostMapping( '/callbacks/success' )
   ResponseEntity success(
       @RequestBody SuccessCallbackDto successCallbackDto ) {
-
-    scraperCallbackService.processSuccess( successCallbackDto )
+     TransactionDto transactionDto = 
+      TransactionDto.getInstanceFromCredentialId( successCallbackDto.data?.credential_id )
+      azureQueueService.queueTransactions( transactionDto, TransactionMessageType.END )
     ResponseEntity.ok().build()
 
   }

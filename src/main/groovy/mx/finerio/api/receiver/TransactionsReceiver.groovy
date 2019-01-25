@@ -17,12 +17,13 @@ import static java.nio.charset.StandardCharsets.*
 import org.springframework.beans.factory.annotation.Value
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import mx.finerio.api.domain.TransactionMessageType
 
 @Component
 class TransactionsReceiver implements InitializingBean {
 
 
-  	final static Logger log = LoggerFactory.getLogger(
+  final static Logger log = LoggerFactory.getLogger(
     'mx.finerio.api.receiver.TransactionsReceiver' )	
 
 	@Autowired
@@ -30,10 +31,10 @@ class TransactionsReceiver implements InitializingBean {
 
  	QueueClient queueClient
  	ExecutorService executorService
-  	final String serviceUrl
-  	final String serviceName 
-     Integer maxConcurrentCalls
-     Integer maxAutoRenewDuration  
+	final String serviceUrl
+	final String serviceName 
+  Integer maxConcurrentCalls
+  Integer maxAutoRenewDuration 
 
     @Autowired
  	public TransactionsReceiver( @Value('${servicebus.azure.transactions.stringConnection}') final String serviceUrl, 
@@ -45,43 +46,65 @@ class TransactionsReceiver implements InitializingBean {
     this.serviceName = serviceName
     this.maxConcurrentCalls = maxConcurrentCalls as Integer
     this.maxAutoRenewDuration = maxAutoRenewDuration as Integer
-
- 		queueClient = new QueueClient(new ConnectionStringBuilder
-      	( serviceUrl, serviceName ), ReceiveMode.RECEIVEANDDELETE)
-   		executorService = Executors.newCachedThreadPool()
+    
+    queueClient = new QueueClient( new ConnectionStringBuilder( serviceUrl, serviceName ), ReceiveMode.PEEKLOCK )
+   	executorService = Executors.newCachedThreadPool()
 
  	}
 
   	private  void registerReceiver() throws Exception {
 
-    	queueClient.registerMessageHandler(
-    		new IMessageHandler() {
+    	queueClient.registerSessionHandler(
+    		new ISessionHandler() {
                                        
-	           public CompletableFuture<Void> onMessageAsync(IMessage message) {
+	           public CompletableFuture<Void> onMessageAsync( IMessageSession session, IMessage message ) {
 	        
-   	       			log.info( "Transaction message received  with id: ${message.getMessageId()}" )
+   	       			log.info( "Transaction message received  with id: << Id:${message.getMessageId()}, sessionId:${message.getSessionId()}, type:${message.getLabel()}" )
 	             
-	               if (message.getLabel() != null &&
-	                       message.getContentType() != null &&
-	                       message.getLabel().contentEquals("transaction") &&
-	                       message.getContentType().contentEquals("application/json")) {
+	               if ( message.label  && message.contentType &&
+	                       message.contentType.contentEquals("application/json")) {
 
-	                   	byte[] body = message.getBody()
+	                   	byte[] body = message.body
 	                   	def transactionMap= [:]
                	  		transactionMap = new JsonSlurper().parseText( new String( body, UTF_8) )	            
 	                    def transactionDto = getTransactionDtoFromMap( transactionMap )
-	                 	scraperCallbackService.processTransactions(transactionDto)
+                      processTransactionMessage( message.label, transactionDto)
+	                 	
 	               }
 
 	               return CompletableFuture.completedFuture(null)
 	           }
 
-	           public void notifyException(Throwable throwable, ExceptionPhase exceptionPhase) {
+	           public void notifyException( Throwable throwable, ExceptionPhase exceptionPhase ) {
 	               log.error( "${exceptionPhase}  ${throwable.getMessage()}" )
 	           }
+             public CompletableFuture<Void> OnCloseSessionAsync( IMessageSession session ){
+                 log.error( "Session closed with SessionId:  ${session.getSessionId}" )
+             }
            },
     
-    new MessageHandlerOptions( maxConcurrentCalls, true, Duration.ofMinutes( maxAutoRenewDuration )),executorService)
+    new SessionHandlerOptions( maxConcurrentCalls, true, Duration.ofMinutes( maxAutoRenewDuration )),executorService)
+    }
+
+
+    private void processTransactionMessage( String type, TransactionDto transactionDto ){
+
+      def messageType = type as TransactionMessageType
+     switch ( messageType ) {
+       case TransactionMessageType.START:
+          log.info( "Message of type START received credentialId: ${transactionDto.data.credential_id}" )
+       break
+       case TransactionMessageType.CONTENT:
+       log.info( "Message of type CONTENT received credentialId: ${transactionDto.data.credential_id}" )
+        scraperCallbackService.processTransactions( transactionDto )
+       break
+       case TransactionMessageType.END:
+        log.info( "Message of type END received credentialId: ${transactionDto.data.credential_id}" )
+         scraperCallbackService.processSuccess( 
+          SuccessCallbackDto.getInstanceFromCredentialId( transactionDto.data.credential_id ) )
+       break;   
+      }
+
     }
 
     private TransactionDto getTransactionDtoFromMap( transactionMap ){

@@ -34,15 +34,7 @@ class ScraperCallbackService {
 
   @Autowired
   CredentialStatusHistoryService credentialStatusHistoryService
-
-  @Autowired
-  AzureQueueService azureQueueService
-
-
-  void queueTransactions( TransactionDto transactionDto ) throws Exception {
-    azureQueueService.queueTransactions( transactionDto )
-   }
-   
+  
   @Transactional
   void processTransactions( TransactionDto transactionDto ) throws Exception {
 
