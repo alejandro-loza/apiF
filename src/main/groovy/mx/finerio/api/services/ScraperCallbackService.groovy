@@ -59,7 +59,7 @@ class ScraperCallbackService {
     }
 
   }
-
+ @Transactional
   void processSuccess( SuccessCallbackDto successCallbackDto )
       throws Exception {
 

@@ -16,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
+import javax.annotation.PreDestroy
 
 @Service
 class AzureQueueService {
@@ -28,7 +29,7 @@ class AzureQueueService {
   final String serviceName
   final Integer timeToLive
   ConnectionStringBuilder connection
-  IMessageSender sendClient
+  QueueClient sendClient
 
   @Autowired
   public AzureQueueService (@Value('${servicebus.azure.transactions.stringConnection}') final String serviceUrl, 
@@ -40,31 +41,30 @@ class AzureQueueService {
     this.timeToLive = timeToLive as Integer
 
     connection = new ConnectionStringBuilder( serviceUrl, serviceName )
-    sendClient = ClientFactory.createMessageSenderFromConnectionStringBuilder( connection )
+    sendClient = new QueueClient(new ConnectionStringBuilder
+        ( serviceUrl, serviceName ), ReceiveMode.PEEKLOCK)
 
   }
 
-  void queueTransactions( TransactionDto transactionDto, TransactionMessageType transactionMessageType  ) throws Exception {
-    sendMessagesAsync( transactionDto, transactionMessageType )
-  }
-
-  private void sendMessagesAsync( TransactionDto transactionDto, TransactionMessageType type ) {
+  void queueTransactions( TransactionDto transactionDto, TransactionMessageType type  ) throws Exception {
 
     String randomNumber = "-" + ( ( Math.random() * 1000 ) ) as String 
     Message message = new Message( new JsonBuilder( transactionDto ).toPrettyString().getBytes( UTF_8) )
-
     message.contentType='application/json'
     message.label = type.name()
     message.messageId = ( new Date().getTime() as String ) + randomNumber 
     message.timeToLive = Duration.ofMinutes( timeToLive ) 
     message.sessionId = transactionDto?.data?.credential_id
  
+    sendClient.send( message )
     log.info( "Sending message to transactions queue >> Id:${message.getMessageId()}, sessionId:${message.getSessionId()}, type:${message.getLabel()}" )
-      sendClient.sendAsync( message ).thenRunAsync( {
-        log.info( "Message acknowledged in transactions queue << Id:${message.getMessageId()}, sessionId:${message.getSessionId()}, type:${message.getLabel()}" )
-      })  
-        
+
   }
 
+    @PreDestroy
+    public void OnDestroy() {
+      sendClient.close()
+      log.info('Sender connection to transactions queue closed')
+    }
 
 }

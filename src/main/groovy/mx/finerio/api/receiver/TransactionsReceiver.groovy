@@ -18,6 +18,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import mx.finerio.api.domain.TransactionMessageType
+import javax.annotation.PreDestroy
 
 @Component
 class TransactionsReceiver implements InitializingBean {
@@ -68,22 +69,24 @@ class TransactionsReceiver implements InitializingBean {
 	                   	def transactionMap= [:]
                	  		transactionMap = new JsonSlurper().parseText( new String( body, UTF_8) )	            
 	                    def transactionDto = getTransactionDtoFromMap( transactionMap )
-                      processTransactionMessage( message.label, transactionDto)
+                      processTransactionMessage( message.label, transactionDto )
+                      log.info( "Transaction message processed successfully id: << Id:${message.getMessageId()}, sessionId:${message.getSessionId()}, type:${message.getLabel()}" )
 	                 	
 	               }
 
 	               return CompletableFuture.completedFuture(null)
 	           }
 
-	           public void notifyException( Throwable throwable, ExceptionPhase exceptionPhase ) {
-	               log.error( "${exceptionPhase}  ${throwable.getMessage()}" )
+ 	           public void notifyException( Throwable throwable, ExceptionPhase exceptionPhase ) {
+                 log.info( "Exception on message id: << Id:${message.getMessageId()}, sessionId:${message.getSessionId()}, type:${message.getLabel()}" )
+	     
 	           }
              public CompletableFuture<Void> OnCloseSessionAsync( IMessageSession session ){
-                 log.error( "Session closed with SessionId:  ${session.getSessionId}" )
+                 log.info( "Session closed with SessionId:  ${session.getSessionId()}" )
              }
            },
     
-    new SessionHandlerOptions( maxConcurrentCalls, true, Duration.ofMinutes( maxAutoRenewDuration )),executorService)
+    new SessionHandlerOptions( maxConcurrentCalls, true, Duration.ofMinutes( maxAutoRenewDuration )), executorService)
     }
 
 
@@ -92,15 +95,15 @@ class TransactionsReceiver implements InitializingBean {
       def messageType = type as TransactionMessageType
      switch ( messageType ) {
        case TransactionMessageType.START:
-          log.info( "Message of type START received credentialId: ${transactionDto.data.credential_id}" )
+          log.info( "Message of type START received credentialId: ${transactionDto.data.credential_id} " )
        break
        case TransactionMessageType.CONTENT:
-       log.info( "Message of type CONTENT received credentialId: ${transactionDto.data.credential_id}" )
-        scraperCallbackService.processTransactions( transactionDto )
+          log.info( "Message of type CONTENT received credentialId: ${transactionDto.data.credential_id}" )
+          scraperCallbackService.processTransactions( transactionDto )
        break
        case TransactionMessageType.END:
-        log.info( "Message of type END received credentialId: ${transactionDto.data.credential_id}" )
-         scraperCallbackService.processSuccess( 
+          log.info( "Message of type END received credentialId: ${transactionDto.data.credential_id}" )
+          scraperCallbackService.processSuccess( 
           SuccessCallbackDto.getInstanceFromCredentialId( transactionDto.data.credential_id ) )
        break;   
       }
@@ -136,6 +139,13 @@ class TransactionsReceiver implements InitializingBean {
     public void afterPropertiesSet() throws Exception {
        this.registerReceiver()
        log.info( "-------- Transaction azure receiver registered -----------" )
+    }
+
+    @PreDestroy
+    public void OnDestroy() {
+      queueClient.close()
+      executorService.shutdown()
+      log.info('Queue client of transaction queue and executorService closed')
     }
 
 }

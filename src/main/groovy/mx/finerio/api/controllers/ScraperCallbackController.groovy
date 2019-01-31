@@ -77,7 +77,6 @@ class ScraperCallbackController {
   @PostMapping( '/callbacks/failure' )
   ResponseEntity failure(
       @RequestBody FailureCallbackDto failureCallbackDto ) {
-
     scraperCallbackService.processFailure( failureCallbackDto )
     ResponseEntity.ok().build()
 
@@ -85,13 +84,23 @@ class ScraperCallbackController {
 
   @PostMapping( '/callbacks/notify' )
   ResponseEntity notify( @RequestBody NotifyCallbackDto request ) {
-
+    queueStartNotify(request)
     def credential = credentialService.findAndValidate(
         request?.data?.credential_id as String )
     callbackService.sendToClient( credential?.customer?.client,
         Callback.Nature.NOTIFY, [ credentialId: credential.id,
         stage: request?.data?.stage  ] )
+  }
 
+  private queueStartNotify( NotifyCallbackDto request ){
+    if( request && request?.data?.credential_id 
+        && request?.data?.stage?.equals("start") ){
+
+      TransactionDto transactionDto = 
+      TransactionDto.getInstanceFromCredentialId( request.data?.credential_id )
+      azureQueueService.queueTransactions( transactionDto, TransactionMessageType.START )
+
+    }
   }
 
 }
