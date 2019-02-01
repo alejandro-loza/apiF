@@ -99,7 +99,8 @@ class TransactionsReceiver implements InitializingBean {
        break
        case TransactionMessageType.CONTENT:
           log.info( "Message of type CONTENT received credentialId: ${transactionDto.data.credential_id}" )
-          scraperCallbackService.processTransactions( transactionDto )
+          def movements = scraperCallbackService.processTransactions( transactionDto )
+          scraperCallbackService.processMovements( movements )
        break
        case TransactionMessageType.END:
           log.info( "Message of type END received credentialId: ${transactionDto.data.credential_id}" )

@@ -19,16 +19,12 @@ class ScraperCallbackServiceProcessTransactionsSpec extends Specification {
   def callbackService = Mock( CallbackService )
   def credentialService = Mock( CredentialService )
   def movementService = Mock( MovementService )
-  def transactionCategorizerService = Mock( TransactionCategorizerService )
-  def transactionService = Mock( TransactionService )
 
   def setup() {
 
     service.callbackService = callbackService
     service.credentialService = credentialService
     service.movementService = movementService
-    service.transactionCategorizerService = transactionCategorizerService
-    service.transactionService = transactionService
 
   }
 
@@ -39,15 +35,11 @@ class ScraperCallbackServiceProcessTransactionsSpec extends Specification {
     then:
       1 * movementService.createAll( _ as TransactionData ) >>
           [ new Movement(), new Movement() ]
-      1 * transactionService.createAll( _ as TransactionData ) >>
-          [ new Transaction(), new Transaction() ]
       1 * credentialService.findAndValidate( _ as String ) >>
           new Credential( id: 'id', customer: new Customer(
           client: new Client( categorizeTransactions: true ) ) )
-      2 * callbackService.sendToClient( _ as Client, _ as Callback.Nature,
+      1 * callbackService.sendToClient( _ as Client, _ as Callback.Nature,
           _ as Map )
-      1 * transactionCategorizerService.categorizeAll( _ as List )
-      2 * transactionService.categorize( _ as Transaction )
     where:
       transactionDto = getTransactionDto()
 
@@ -60,15 +52,11 @@ class ScraperCallbackServiceProcessTransactionsSpec extends Specification {
     then:
       1 * movementService.createAll( _ as TransactionData ) >>
           [ new Movement(), new Movement() ]
-      1 * transactionService.createAll( _ as TransactionData ) >>
-          [ new Transaction(), new Transaction() ]
       1 * credentialService.findAndValidate( _ as String ) >>
           new Credential( id: 'id', customer: new Customer(
           client: new Client( categorizeTransactions: false ) ) )
       1 * callbackService.sendToClient( _ as Client, _ as Callback.Nature,
           _ as Map )
-      1 * transactionCategorizerService.categorizeAll( _ as List )
-      0 * transactionService.categorize( _ as Transaction )
     where:
       transactionDto = getTransactionDto()
 
@@ -80,14 +68,11 @@ class ScraperCallbackServiceProcessTransactionsSpec extends Specification {
       service.processTransactions( transactionDto )
     then:
       1 * movementService.createAll( _ as TransactionData ) >> []
-      1 * transactionService.createAll( _ as TransactionData ) >> []
       1 * credentialService.findAndValidate( _ as String ) >>
           new Credential( id: 'id', customer: new Customer(
           client: new Client() ) )
       1 * callbackService.sendToClient( _ as Client, _ as Callback.Nature,
           _ as Map )
-      1 * transactionCategorizerService.categorizeAll( _ as List )
-      0 * transactionService.categorize( _ as Transaction )
     where:
       transactionDto = getTransactionDto()
 

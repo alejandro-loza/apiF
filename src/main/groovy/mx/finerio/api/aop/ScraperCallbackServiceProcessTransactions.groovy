@@ -21,7 +21,7 @@ class ScraperCallbackServiceProcessTransactions {
       'mx.finerio.api.aop.ScraperCallbackServiceProcessTransactions' )
 
   @Pointcut(
-    value='execution(void mx.finerio.api.services.ScraperCallbackService.processTransactions(..)) && bean(scraperCallbackService) && args(transactionDto)',
+    value='execution(java.util.List mx.finerio.api.services.ScraperCallbackService.processTransactions(..)) && bean(scraperCallbackService) && args(transactionDto)',
     argNames='transactionDto'
   )
   public void processTransactions( TransactionDto transactionDto ) {}
@@ -32,10 +32,11 @@ class ScraperCallbackServiceProcessTransactions {
   }
 
   @AfterReturning(
-    pointcut='processTransactions(mx.finerio.api.dtos.TransactionDto)'
+    pointcut='processTransactions(mx.finerio.api.dtos.TransactionDto)',
+    returning='movements'
   )
-  void afterReturning() {
-    log.info( '>> OK' )
+  void afterReturning( List movements ) {
+    log.info( '>> movments: {}', movements )
   }
 
   @AfterThrowing(
