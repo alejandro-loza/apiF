@@ -34,7 +34,8 @@ class ScraperCallbackService {
 
   @Autowired
   CredentialStatusHistoryService credentialStatusHistoryService
-
+  
+  @Transactional
   void processTransactions( TransactionDto transactionDto ) throws Exception {
 
     validateProcessTransactionsInput( transactionDto )
@@ -58,7 +59,7 @@ class ScraperCallbackService {
     }
 
   }
-
+ @Transactional
   void processSuccess( SuccessCallbackDto successCallbackDto )
       throws Exception {
 

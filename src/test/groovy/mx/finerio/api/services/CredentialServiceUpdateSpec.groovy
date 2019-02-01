@@ -82,6 +82,24 @@ class CredentialServiceUpdateSpec extends Specification {
 
   }
 
+  def "invoking method successfully (credential status == VALIDATE)"() {
+
+    when:
+      def result = service.update( id, credentialUpdateDto )
+    then:
+      1 * securityService.getCurrent() >> client
+      1 * credentialRepository.findOne( _ as String ) >>
+          new Credential( customer: new Customer( client: client ),
+          user: new User(), institution: new FinancialInstitution( id: 1L ),
+          status: Credential.Status.VALIDATE )
+      result instanceof Credential
+    where:
+      id = 'uuid'
+      credentialUpdateDto = getCredentialUpdateDto()
+      client = new Client( id: 1 )
+
+  }
+
   def "parameter 'id' is null"() {
 
     when:
