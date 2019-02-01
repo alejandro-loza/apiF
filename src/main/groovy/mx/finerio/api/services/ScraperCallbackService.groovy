@@ -30,36 +30,28 @@ class ScraperCallbackService {
   TransactionCategorizerService transactionCategorizerService
 
   @Autowired
-  TransactionService transactionService
-
-  @Autowired
   CredentialStatusHistoryService credentialStatusHistoryService
   
   @Transactional
-  void processTransactions( TransactionDto transactionDto ) throws Exception {
+  List processTransactions( TransactionDto transactionDto ) throws Exception {
 
     validateProcessTransactionsInput( transactionDto )
     def movements = movementService.createAll( transactionDto.data )
-    def transactions = transactionService.createAll( transactionDto.data )
     def credential = credentialService.findAndValidate(
         transactionDto?.data?.credential_id as String )
     callbackService.sendToClient( credential?.customer?.client,
         Callback.Nature.TRANSACTIONS, [ credentialId: credential.id,
         accountId: transactionDto.data.account_id ] )
-    transactionCategorizerService.categorizeAll( movements )
-
-    if ( credential?.customer?.client?.categorizeTransactions ) {
-
-      transactions.each { transactionService.categorize( it ) }
-      callbackService.sendToClient( credential?.customer?.client,
-          Callback.Nature.NOTIFY, [ credentialId: credential.id,
-          accountId: transactionDto.data.account_id,
-          stage: 'categorize_transactions' ] )
-
-    }
+    movements
 
   }
- @Transactional
+
+  @Transactional
+  void processMovements( List movements ) throws Exception {
+    transactionCategorizerService.categorizeAll( movements )
+  }
+
+  @Transactional
   void processSuccess( SuccessCallbackDto successCallbackDto )
       throws Exception {
 
