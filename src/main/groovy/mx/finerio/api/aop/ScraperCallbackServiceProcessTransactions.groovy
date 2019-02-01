@@ -36,7 +36,7 @@ class ScraperCallbackServiceProcessTransactions {
     returning='movements'
   )
   void afterReturning( List movements ) {
-    log.info( '>> movments: {}', movements )
+    log.info( '>> movements: {}', movements )
   }
 
   @AfterThrowing(
