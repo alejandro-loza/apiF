@@ -195,10 +195,7 @@ class MovementService {
           'movementService.getMovementsToDuplicated.id.null' )
     }
     def movements = movementRepository.findTop50ByAccountAndAmountAndTypeAndDateDeletedIsNull(
-        movement.account, movement.amount, movement.type )
-    if( !movements ){
-      throw new InstanceNotFoundException( 'movements.not.found' )
-    }
+        movement.account, movement.amount, movement.type ) ?: []
     movements
 
   }

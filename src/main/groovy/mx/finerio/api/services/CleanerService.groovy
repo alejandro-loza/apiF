@@ -34,7 +34,12 @@ class CleanerService {
     def headers = [ 'Authorization': "Basic ${token}"]
     def params = [ input: text ]
     if(income){ params.income = "true" }
-    restTemplateService.get( url, headers, params ).result
+    def out = text
+    try{
+      out = restTemplateService.get( url, headers, params ).result
+      out = out ?: text
+    }catch( Exception e){ }
+    out
 
   }
 
