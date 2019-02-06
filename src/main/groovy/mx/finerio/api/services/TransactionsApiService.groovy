@@ -56,7 +56,7 @@ class TransactionsApiService {
     params.endpoint = "searchTransferences"
     params.params = [ list: map.list.join(","), type: map.type.toString(), bank: map.bank ]
     def restFind = find( params )
-    return restFind.results ?: []
+    return (restFind?.results) ?: []
 
   }
 
@@ -66,17 +66,22 @@ class TransactionsApiService {
       throw new BadRequestException( 'transactionsApi.findDuplicated.movement.null' )
     }
     List mov  = movementService.getMovementsToDuplicated( movement )
-    List f = prepareList( mov, movement )
-    if ( f.size() >= 2 ){  
-      Map params = [:]  
-      params.endpoint = "searchAll"
-      params.params = [ list: f.description.join(",") ]
-      def restFind = find( params )
-      def reasonResponse = restFind.results.findAll{ 
-        ( it.reason.data != "Not found" ) || ( it.similarity.percent >= percent["${movement.account.institution.code}"].percent )
-      }
-      if( reasonResponse ){
-        movementService.updateDuplicated( movement )
+    if( mov ){
+      List f = prepareList( mov, movement )
+      if ( f.size() >= 2 ){  
+        Map params = [:]  
+        params.endpoint = "searchAll"
+        params.params = [ list: f.description.join(",") ]
+        def restFind = find( params )
+        if( !restFind?.results ){
+          return movement
+        }
+        def reasonResponse = restFind.results.findAll{ 
+          ( it.reason.data != "Not found" ) || ( it.similarity.percent >= percent["${movement.account.institution.code}"].percent )
+        }
+        if( reasonResponse ){
+          movementService.updateDuplicated( movement )
+        }
       }
     }
     movement

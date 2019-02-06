@@ -34,7 +34,11 @@ class CategorizerService {
     def headers = [ 'Authorization': "Basic ${token}"]
     def params = [ input: text ]
     if(income){ params.income = "true" }
-    restTemplateService.get( url, headers, params )
+    def out = [:] 
+    try{
+      out = restTemplateService.get( url, headers, params )
+    }catch( Exception e){ }
+    out
 
   }
 
