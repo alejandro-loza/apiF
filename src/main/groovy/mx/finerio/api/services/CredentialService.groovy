@@ -346,7 +346,8 @@ class CredentialService {
       id: credential.id,
       tarjeta: credential.username,
       password: credential.password,
-      iv: credential.iv
+      iv: credential.iv,
+      user: [ id: credential.user.id ]
     ] ]
     scraperWebSocketService.send( new ScraperWebSocketSendDto(
         id: credential.id,
