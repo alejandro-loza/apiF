@@ -40,9 +40,6 @@ class ScraperCallbackServiceProcessSuccessSpec extends Specification {
           client: new Client() ),
           institution: new FinancialInstitution( code: 'BBVA' ) )
       1 * credentialStatusHistoryService.update( _ as Credential )    
-      1 * callbackService.sendToClient( _ as Client, _ as Callback.Nature,
-          _ as Map )
-      1 * scraperWebSocketService.closeSession( _ as String )
     where:
       successCallbackDto = getSuccessCallbackDto()
 

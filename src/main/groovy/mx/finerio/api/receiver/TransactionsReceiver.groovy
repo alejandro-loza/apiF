@@ -104,8 +104,9 @@ class TransactionsReceiver implements InitializingBean {
        break
        case TransactionMessageType.END:
           log.info( "Message of type END received credentialId: ${transactionDto.data.credential_id}" )
-          scraperCallbackService.processSuccess( 
+          def credential = scraperCallbackService.processSuccess( 
           SuccessCallbackDto.getInstanceFromCredentialId( transactionDto.data.credential_id ) )
+          scraperCallbackService.postProcessSuccess( credential )
        break;   
       }
 
