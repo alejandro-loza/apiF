@@ -52,7 +52,7 @@ class ScraperCallbackService {
   }
 
   @Transactional
-  void processSuccess( SuccessCallbackDto successCallbackDto )
+  Credential processSuccess( SuccessCallbackDto successCallbackDto )
       throws Exception {
 
     if ( !successCallbackDto ) {
@@ -63,10 +63,14 @@ class ScraperCallbackService {
     def credential = credentialService.updateStatus(
         successCallbackDto?.data?.credential_id, Credential.Status.ACTIVE )
     credentialStatusHistoryService.update( credential )
+
+    credential
+  }
+
+  void postProcessSuccess( Credential credential ) throws Exception {
     closeWebSocketSession( credential )
     callbackService.sendToClient( credential?.customer?.client,
         Callback.Nature.SUCCESS, [ credentialId: credential.id ] )
-
   }
 
   @Transactional
@@ -87,6 +91,8 @@ class ScraperCallbackService {
         message: credential.errorCode  ] )
 
   }
+
+     
 
   private void validateProcessTransactionsInput(
       TransactionDto transactionDto ) throws Exception {

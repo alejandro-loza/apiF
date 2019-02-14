@@ -7,6 +7,7 @@ import org.aspectj.lang.annotation.AfterThrowing
 import org.aspectj.lang.annotation.Aspect
 import org.aspectj.lang.annotation.Before
 import org.aspectj.lang.annotation.Pointcut
+import mx.finerio.api.domain.Credential
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -21,7 +22,7 @@ class ScraperCallbackServiceProcessSuccess {
       'mx.finerio.api.aop.ScraperCallbackServiceProcessSuccess' )
 
   @Pointcut(
-    value='execution(void mx.finerio.api.services.ScraperCallbackService.processSuccess(..)) && bean(scraperCallbackService) && args(successCallbackDto)',
+    value='execution(mx.finerio.api.domain.Credential mx.finerio.api.services.ScraperCallbackService.processSuccess(..)) && bean(scraperCallbackService) && args(successCallbackDto)',
     argNames='successCallbackDto'
   )
   public void processSuccess( SuccessCallbackDto successCallbackDto ) {}
@@ -32,10 +33,11 @@ class ScraperCallbackServiceProcessSuccess {
   }
 
   @AfterReturning(
-    pointcut='processSuccess(mx.finerio.api.dtos.SuccessCallbackDto)'
+    pointcut='processSuccess(mx.finerio.api.dtos.SuccessCallbackDto)',
+    returning='response'
   )
-  void afterReturning() {
-    log.info( '>> OK' )
+  void afterReturning(Credential response) {
+    log.info( '>> response: {}', response )
   }
 
   @AfterThrowing(

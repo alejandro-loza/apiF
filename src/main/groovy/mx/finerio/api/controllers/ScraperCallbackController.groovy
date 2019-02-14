@@ -94,7 +94,7 @@ class ScraperCallbackController {
 
   private queueStartNotify( NotifyCallbackDto request ){
     if( request && request?.data?.credential_id 
-        && request?.data?.stage?.equals("start") ){
+        && request?.data?.stage?.equals("fetch_transactions") ){
 
       TransactionDto transactionDto = 
       TransactionDto.getInstanceFromCredentialId( request.data?.credential_id )
