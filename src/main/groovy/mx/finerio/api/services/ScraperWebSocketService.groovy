@@ -82,16 +82,25 @@ class ScraperWebSocketService {
     sessions.findResults {
 
       if ( nowMillis - it.value.time >= 60000 ) {
-        it.value.session.basicRemote
-            .sendText( '{"data":{"stage":"logout"}}' )
+
+        try {
+          it.value.session.basicRemote
+              .sendText( '{"data":{"stage":"logout"}}' )
+        } catch ( Exception e ) {}
+
         return it
+
       }
 
       null
 
     }.each {
-      setCredentialFailure( it.key )
-      closeSession( it.key )
+
+      try {
+        setCredentialFailure( it.key )
+        closeSession( it.key )
+      } catch ( Exception e ) {}
+
     }
 
   }
