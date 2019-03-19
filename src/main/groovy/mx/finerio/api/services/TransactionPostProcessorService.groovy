@@ -41,13 +41,14 @@ class TransactionPostProcessorService {
   String transferenceId
 
   @Transactional
-  void processDuplicated( Movement movement ) throws Exception {
+  Movement processDuplicated( Movement movement ) throws Exception {
 
     if ( !movement ) {
       throw new BadImplementationException(
           'transactionPostProcessor.processDuplicated.movement.null' )
     }
 
+    def atmMovement = null
     def duplicated = false
 
     if ( movement.type == Movement.Type.DEPOSIT &&
@@ -59,13 +60,14 @@ class TransactionPostProcessorService {
         if ( BigDecimal.ZERO.compareTo( 
               movement.amount.remainder(new BigDecimal(50)) ) == 0 ) {
           duplicated = true
+          atmMovement = processAtmWithdrawal( movement, duplicated )
         }
-        processAtmWithdrawal( movement, duplicated )
       }
 
     }
 
     if ( duplicated ) { movementService.updateDuplicated( movement ) }
+    return atmMovement
 
   }
 
@@ -100,7 +102,7 @@ class TransactionPostProcessorService {
 
   }
 
-  private void processAtmWithdrawal( Movement movement, Boolean duplicated )
+  private Movement processAtmWithdrawal( Movement movement, Boolean duplicated )
       throws Exception {
 
     if ( movement.category?.id != atmId ||
@@ -124,6 +126,7 @@ class TransactionPostProcessorService {
     atmMovement.category = categoryRepository.findOne( transferenceId )
     atmMovement.duplicated = duplicated
     movementRepository.save( atmMovement )
+    atmMovement
     
   }
 

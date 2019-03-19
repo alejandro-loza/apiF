@@ -60,7 +60,7 @@ class TransactionsApiService {
 
   }
 
-  Movement findDuplicated( Movement movement ) throws Exception {
+  Boolean findDuplicated( Movement movement ) throws Exception {
 
     if ( !movement || !movement.id) {
       throw new BadRequestException( 'transactionsApi.findDuplicated.movement.null' )
@@ -81,10 +81,12 @@ class TransactionsApiService {
         }
         if( reasonResponse ){
           movementService.updateDuplicated( movement )
+          return true
         }
       }
     }
-    movement
+
+    false
 
   }
 
