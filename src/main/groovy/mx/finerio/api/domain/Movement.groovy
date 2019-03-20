@@ -69,4 +69,8 @@ public class Movement{
   
   @Column(name = 'has_concepts', nullable = true)
   Boolean hasConcepts
+
+  @Column(name = 'in_balance', nullable = true)
+  Boolean inBalance
+
 }
