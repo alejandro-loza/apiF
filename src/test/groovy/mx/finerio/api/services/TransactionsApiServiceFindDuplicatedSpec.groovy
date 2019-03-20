@@ -29,7 +29,7 @@ class TransactionsApiServiceFindDuplicatedSpec extends Specification {
       1 * movementService.getMovementsToDuplicated( _ as Movement ) >> getListMovements()
       1 * restTemplateService.get( _ as String, _ as Map, _ as Map  ) >> rest
       1 * movementService.updateDuplicated( _ as Movement )
-      result instanceof Movement
+      result == true
     where:
       movement = getMovement( "0",0 )
       rest = [ result: [ results: [ [reason: [data:"numbers"], similarity: [percent:91.5] ] ] ] ]
@@ -41,7 +41,7 @@ class TransactionsApiServiceFindDuplicatedSpec extends Specification {
       def result = service.findDuplicated( movement )
     then:
       1 * movementService.getMovementsToDuplicated( _ as Movement ) >> []
-      result instanceof Movement
+      result == false
     where:
       movement = getMovement( "a",0 )
   }

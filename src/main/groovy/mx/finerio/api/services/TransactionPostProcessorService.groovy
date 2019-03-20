@@ -1,6 +1,7 @@
 package mx.finerio.api.services
 
 import mx.finerio.api.domain.*
+import mx.finerio.api.domain.repository.*
 import mx.finerio.api.dtos.*
 import mx.finerio.api.exceptions.*
 
@@ -18,17 +19,36 @@ class TransactionPostProcessorService {
   @Autowired
   TransactionsApiService transactionsApiService
 
+  @Autowired
+  AccountRepository accountRepository
+  
+  @Autowired
+  CategoryRepository categoryRepository
+  
+  @Autowired
+  FinancialInstitutionRepository financialInstitutionRepository
+  
+  @Autowired
+  MovementRepository movementRepository
+
   @Value('${categories.atm.id}')
   String atmId
 
+  @Value('${categories.atm.transference.description}')
+  String atmMovementDescription
+
+  @Value('${categories.transference.id}')
+  String transferenceId
+
   @Transactional
-  void processDuplicated( Movement movement ) throws Exception {
+  Movement processDuplicated( Movement movement ) throws Exception {
 
     if ( !movement ) {
       throw new BadImplementationException(
           'transactionPostProcessor.processDuplicated.movement.null' )
     }
 
+    def atmMovement = null
     def duplicated = false
 
     if ( movement.type == Movement.Type.DEPOSIT &&
@@ -40,12 +60,14 @@ class TransactionPostProcessorService {
         if ( BigDecimal.ZERO.compareTo( 
               movement.amount.remainder(new BigDecimal(50)) ) == 0 ) {
           duplicated = true
+          atmMovement = processAtmWithdrawal( movement, duplicated )
         }
       }
 
     }
 
     if ( duplicated ) { movementService.updateDuplicated( movement ) }
+    return atmMovement
 
   }
 
@@ -80,5 +102,51 @@ class TransactionPostProcessorService {
 
   }
 
+  private Movement processAtmWithdrawal( Movement movement, Boolean duplicated )
+      throws Exception {
+
+    if ( movement.category?.id != atmId ||
+        movement.type != Movement.Type.CHARGE ) {
+      return
+    }
+
+    def atmAccount = getAtmAccount( movement.account.user )
+    if ( atmAccount == null ) { return }
+    def atmMovement = new Movement()
+    atmMovement.account = atmAccount
+    atmMovement.date = movement.date
+    atmMovement.customDate = movement.customDate
+    atmMovement.description = atmMovementDescription
+    atmMovement.customDescription = atmMovementDescription
+    atmMovement.amount = movement.amount
+    atmMovement.balance = movement.balance
+    atmMovement.type = Movement.Type.DEPOSIT
+    atmMovement.dateCreated = movement.dateCreated
+    atmMovement.lastUpdated = movement.lastUpdated
+    atmMovement.category = categoryRepository.findOne( transferenceId )
+    atmMovement.duplicated = duplicated
+    movementRepository.save( atmMovement )
+    atmMovement
+    
+  }
+
+  private Account getAtmAccount( User user ) throws Exception {
+
+    def cashBank = financialInstitutionRepository.findById( 4L )
+    def cashAccounts = accountRepository.findByUserAndInstitutionAndDateDeletedIsNull(
+        user, cashBank )
+    def atmAccount = cashAccounts.find{ it.nature?.contains( '_atm_d' ) }
+
+    if ( atmAccount == null ) {
+      atmAccount = cashAccounts.find{ it.nature?.contains( '_csh_d' ) }
+    }
+    
+    if ( atmAccount == null ) {
+      atmAccount = cashAccounts.find{ it.nature?.contains( 'ma_cash' ) }
+    }
+
+    return atmAccount
+ 
+  }
 
 }

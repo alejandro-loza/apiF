@@ -8,10 +8,10 @@ import spock.lang.Specification
 class TransactionCategorizerServiceCategorizeAllSpec extends Specification {
 
   def service = new TransactionCategorizerService()
-  def transactionPostProcessorService = Mock( TransactionPostProcessorService )
+  def transactionsAtmService = Mock( TransactionsAtmService )
 
   def setup() {
-    service.transactionPostProcessorService = transactionPostProcessorService
+    service.transactionsAtmService = transactionsAtmService
   }
 
   def "invoking method successfully"() {
