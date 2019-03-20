@@ -14,10 +14,7 @@ import org.springframework.stereotype.Service
 class TransactionCategorizerService {
 
   @Autowired
-  TransactionsApiService transactionsApiService
-
-  @Autowired
-  TransactionPostProcessorService transactionPostProcessorService
+  TransactionsAtmService transactionsAtmService
 
   @Value('${categorizer.maxThreads}')
   Integer maxThreads
@@ -55,8 +52,8 @@ class TransactionCategorizerService {
     def executorService = Executors.newCachedThreadPool()
     
     for ( Integer i = 0; i < movements.size(); i++ ) {
-      executorService.execute( new CategorizerThread( transactionsApiService,
-        transactionPostProcessorService, movements[ i ] ) )
+      executorService.execute( new CategorizerThread( transactionsAtmService,
+        movements[ i ] ) )
     }
     
     executorService.shutdown()
@@ -68,26 +65,19 @@ class TransactionCategorizerService {
 
 class CategorizerThread implements Runnable {
 
-  TransactionsApiService transactionsApiService
-  TransactionPostProcessorService transactionPostProcessorService
+  TransactionsAtmService transactionsAtmService
   Movement movement
   
-  CategorizerThread( TransactionsApiService transactionsApiService,
-      TransactionPostProcessorService transactionPostProcessorService,
+  CategorizerThread( TransactionsAtmService transactionsAtmService,
       Movement movement ) {
 
-    this.transactionsApiService = transactionsApiService
-    this.transactionPostProcessorService = transactionPostProcessorService
+    this.transactionsAtmService = transactionsAtmService
     this.movement = movement
 
   }
   
   void run() {
-
-    transactionPostProcessorService.processDuplicated( movement )
-    transactionPostProcessorService.updateTransference( movement )
-    transactionsApiService.findDuplicated( movement )
-
+    transactionsAtmService.processMovement( movement )
   }
 
 }

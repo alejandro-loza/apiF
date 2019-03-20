@@ -16,7 +16,7 @@ class TransactionsApiServiceFindDuplicated {
       'mx.finerio.api.aop.TransactionsApiServiceFindDuplicated' )
 
   @Pointcut(
-    value='execution(mx.finerio.api.domain.Movement mx.finerio.api.services.TransactionsApiService.findDuplicated(..)) && bean(transactionsApiService) && args(movement)',
+    value='execution(Boolean mx.finerio.api.services.TransactionsApiService.findDuplicated(..)) && bean(transactionsApiService) && args(movement)',
     argNames='movement'
   )
   public void findDuplicated( Movement movement ) {}
@@ -28,10 +28,10 @@ class TransactionsApiServiceFindDuplicated {
 
   @AfterReturning(
     pointcut='findDuplicated(mx.finerio.api.domain.Movement)',
-    returning='response'
+    returning='duplicated'
   )
-  void afterReturning( Movement response ) {
-    log.info( '>> response: {}', response )
+  void afterReturning( Boolean duplicated ) {
+    log.info( '>> duplicated: {}', duplicated )
   }
 
   @AfterThrowing(

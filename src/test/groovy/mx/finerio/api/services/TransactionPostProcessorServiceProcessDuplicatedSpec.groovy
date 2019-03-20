@@ -9,14 +9,20 @@ import spock.lang.Specification
 class TransactionPostProcessorServiceProcessDuplicatedSpec extends Specification {
 
   def service = new TransactionPostProcessorService()
+  def accountRepository = Mock( AccountRepository )
+  def categoryRepository = Mock( CategoryRepository )
+  def financialInstitutionRepository = Mock( FinancialInstitutionRepository )
+  def movementRepository = Mock( MovementRepository )
 
   def movementService = Mock( MovementService )
-  def atmId = 'atmId'
 
   def setup() {
 
     service.movementService = movementService
-    service.atmId = atmId
+    service.accountRepository = accountRepository
+    service.categoryRepository = categoryRepository
+    service.financialInstitutionRepository = financialInstitutionRepository
+    service.movementRepository = movementRepository
 
   }
 
@@ -32,16 +38,89 @@ class TransactionPostProcessorServiceProcessDuplicatedSpec extends Specification
 
   }
 
-  @spock.lang.Ignore
   def "invoking method successfully (atm outcome)"() {
 
+    given:
+      service.atmId = atmId
     when:
       service.processDuplicated( movement )
     then:
       1 * movementService.updateDuplicated( _ as Movement )
+      1 * financialInstitutionRepository.findById( _ as Long ) >>
+          new FinancialInstitution()
+      1 * accountRepository.findByUserAndInstitutionAndDateDeletedIsNull(
+          _ as User, _ as FinancialInstitution ) >> [ getManualAccount( 'debit' ) ]
     where:
       movement = new Movement( type: Movement.Type.CHARGE,
-      category: new Category( id: atmId ) )
+      amount: 100.00, category: getCategory( 'atmId' ),
+      account: new Account( nature: "Cr\u00E9dito", user: new User() ) )
+      atmId = 'atmId'
+
+  }
+
+  def "invoking method successfully (atm outcome, atm default account)"() {
+
+    given:
+      service.atmId = atmId
+      service.transferenceId = 'transferenceId'
+    when:
+      service.processDuplicated( movement )
+    then:
+      1 * movementService.updateDuplicated( _ as Movement )
+      1 * financialInstitutionRepository.findById( _ as Long ) >>
+          new FinancialInstitution()
+      1 * accountRepository.findByUserAndInstitutionAndDateDeletedIsNull(
+          _ as User, _ as FinancialInstitution ) >> [ getManualAccount( '_atm_d' ) ]
+      1 * movementRepository.save( _ as Movement )
+    where:
+      movement = new Movement( type: Movement.Type.CHARGE,
+      amount: 100.00, category: getCategory( 'atmId' ),
+      account: new Account( nature: "Cr\u00E9dito", user: new User() ) )
+      atmId = 'atmId'
+
+  }
+
+  def "invoking method successfully (atm outcome, cash default account)"() {
+
+    given:
+      service.atmId = atmId
+      service.transferenceId = 'transferenceId'
+    when:
+      service.processDuplicated( movement )
+    then:
+      1 * movementService.updateDuplicated( _ as Movement )
+      1 * financialInstitutionRepository.findById( _ as Long ) >>
+          new FinancialInstitution()
+      1 * accountRepository.findByUserAndInstitutionAndDateDeletedIsNull(
+          _ as User, _ as FinancialInstitution ) >> [ getManualAccount( '_csh_d' ) ]
+      1 * movementRepository.save( _ as Movement )
+    where:
+      movement = new Movement( type: Movement.Type.CHARGE,
+      amount: 100.00, category: getCategory( 'atmId' ),
+      account: new Account( nature: "Cr\u00E9dito", user: new User() ) )
+      atmId = 'atmId'
+
+  }
+
+  def "invoking method successfully (atm outcome, cash account)"() {
+
+    given:
+      service.atmId = atmId
+      service.transferenceId = 'transferenceId'
+    when:
+      service.processDuplicated( movement )
+    then:
+      1 * movementService.updateDuplicated( _ as Movement )
+      1 * financialInstitutionRepository.findById( _ as Long ) >>
+          new FinancialInstitution()
+      1 * accountRepository.findByUserAndInstitutionAndDateDeletedIsNull(
+          _ as User, _ as FinancialInstitution ) >> [ getManualAccount( 'ma_cash' ) ]
+      1 * movementRepository.save( _ as Movement )
+    where:
+      movement = new Movement( type: Movement.Type.CHARGE,
+      amount: 100.00, category: getCategory( 'atmId' ),
+      account: new Account( nature: "Cr\u00E9dito", user: new User() ) )
+      atmId = 'atmId'
 
   }
 
@@ -65,6 +144,22 @@ class TransactionPostProcessorServiceProcessDuplicatedSpec extends Specification
       e.message == 'transactionPostProcessor.processDuplicated.movement.null'
     where:
       movement = null
+
+  }
+
+  private Category getCategory( String id ) throws Exception {
+
+    def category = new Category()
+    category.id = id
+    category
+
+  }
+
+  private Account getManualAccount( String nature ) throws Exception {
+
+    def account = new Account()
+    account.nature = nature
+    return account
 
   }
 
