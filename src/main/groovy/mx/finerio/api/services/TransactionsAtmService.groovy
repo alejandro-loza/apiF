@@ -8,6 +8,7 @@ import mx.finerio.api.exceptions.BadImplementationException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class TransactionsAtmService {
@@ -30,6 +31,13 @@ class TransactionsAtmService {
         movement )
     transactionPostProcessorService.updateTransference( movement )
     def duplicated = transactionsApiService.findDuplicated( movement )
+    processAtmMovement( atmMovement, duplicated )
+
+  }
+
+  @Transactional
+  void processAtmMovement( Movement atmMovement, Boolean duplicated )
+      throws Exception {
 
     if ( atmMovement != null && !duplicated ) {
 
