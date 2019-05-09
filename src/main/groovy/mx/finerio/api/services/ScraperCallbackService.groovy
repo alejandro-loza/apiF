@@ -88,7 +88,7 @@ class ScraperCallbackService {
     closeWebSocketSession( credential )
     callbackService.sendToClient( credential?.customer?.client,
         Callback.Nature.FAILURE, [ credentialId: credential.id,
-        message: credential.errorCode  ] )
+        message: credential.errorCode, code: strStatusCode ] )
 
   }
 
