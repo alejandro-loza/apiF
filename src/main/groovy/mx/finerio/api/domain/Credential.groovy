@@ -71,4 +71,7 @@ class Credential {
   @Column(name = 'date_deleted', nullable = true)
   Date dateDeleted
 
+  @Column(name = 'status_code', nullable = true, length = 5)
+  String statusCode
+
 }
