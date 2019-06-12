@@ -219,6 +219,7 @@ class CredentialService {
     credential.errorCode = credentialFailureMessageService.
     findByInstitutionAndMessage( credential, credential.institution, statusCode ?: 'BLANK MSG' )
     credential.status = Credential.Status.INVALID
+    credential.statusCode = statusCode
     credentialRepository.save( credential )
     bankConnectionService.update( credential, BankConnection.Status.FAILURE )
     
