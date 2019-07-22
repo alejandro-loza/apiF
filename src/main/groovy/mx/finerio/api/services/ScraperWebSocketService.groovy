@@ -7,8 +7,6 @@ import javax.websocket.OnMessage
 import javax.websocket.OnOpen
 import javax.websocket.Session
 
-import mx.finerio.api.dtos.FailureCallbackData
-import mx.finerio.api.dtos.FailureCallbackDto
 import mx.finerio.api.dtos.ScraperWebSocketSendDto
 import mx.finerio.api.exceptions.BadImplementationException
 
@@ -97,7 +95,6 @@ class ScraperWebSocketService {
     }.each {
 
       try {
-        setCredentialFailure( it.key )
         closeSession( it.key )
       } catch ( Exception e ) {}
 
@@ -110,16 +107,6 @@ class ScraperWebSocketService {
     def container = ContainerProvider.webSocketContainer
     container.connectToServer( ScraperClientEndpointService,
         URI.create( url ) )
-
-  }
-
-  private void setCredentialFailure( String credentialId ) throws Exception {
-
-    scraperCallbackService.processFailure( new FailureCallbackDto(
-      data: new FailureCallbackData(
-        credential_id: credentialId,
-        error_message: timeoutMessage
-    ) ) )
 
   }
 
