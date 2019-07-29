@@ -78,7 +78,7 @@ class TransactionsReceiver implements InitializingBean {
 	           }
 
  	           public void notifyException( Throwable throwable, ExceptionPhase exceptionPhase ) {
-                 log.info( "Exception on message id: << Id:${message.getMessageId()}, sessionId:${message.getSessionId()}, type:${message.getLabel()}" )
+                 log.info( "Notify Exception on message << ${throwable.getMessage() }" )
 	     
 	           }
              public CompletableFuture<Void> OnCloseSessionAsync( IMessageSession session ){
@@ -124,6 +124,7 @@ class TransactionsReceiver implements InitializingBean {
         	transaction.made_on = it.made_on
         	transaction.description = it.description  
         	transaction.amount = it.amount
+          transaction.extra_data = it.extra_data
         	transactionList.add( transaction )
 
         }

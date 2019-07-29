@@ -44,3 +44,5 @@ databaseChangeLog:
     file: db/changelog/credit_details_dates.yaml
 - include:
     file: db/changelog/insert_customize_sync_error_message.yaml
+- include:
+    file: db/changelog/movement_scraper_duplicated_id.yaml

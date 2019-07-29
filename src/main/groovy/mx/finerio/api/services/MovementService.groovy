@@ -211,7 +211,13 @@ class MovementService {
     def type = rawAmount < 0 ? Movement.Type.CHARGE : Movement.Type.DEPOSIT
     def description = transaction.description.take( 255 )
     if ( description?.size() == 0 ) { return null }
-    def instance = movementRepository.
+    def instance 
+    if( transaction.extra_data?.Transaction_id ){
+      instance = movementRepository.
+        findFirstByScraperDuplicatedIdAndDateDeletedIsNull( 
+            transaction.extra_data?.Transaction_id )
+    }
+    instance = instance ?: movementRepository.
         findFirstByDateAndDescriptionAndAmountAndTypeAndAccountOrderByDateCreatedDesc(
         date, description, amount, type, account )
     def movement = instance ?: new Movement()
@@ -226,6 +232,7 @@ class MovementService {
     def now = new Date()
     movement.dateCreated = movement.dateCreated ?: now
     movement.lastUpdated = now
+    movement.scraperDuplicatedId = transaction.extra_data?.Transaction_id
 
     if ( deleted ) {
       movement.dateDeleted = now
