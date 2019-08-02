@@ -49,7 +49,7 @@ class TransactionsReceiver implements InitializingBean {
     this.maxAutoRenewDuration = maxAutoRenewDuration as Integer
     
     queueClient = new QueueClient( new ConnectionStringBuilder( serviceUrl, serviceName ), ReceiveMode.PEEKLOCK )
-   	executorService = Executors.newCachedThreadPool()
+   	executorService = Executors.newFixedThreadPool( this.maxConcurrentCalls )
 
  	}
 
