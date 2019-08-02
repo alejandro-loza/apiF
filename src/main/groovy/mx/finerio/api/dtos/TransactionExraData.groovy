@@ -5,6 +5,6 @@ import groovy.transform.ToString
 @ToString(includePackage = false, includeNames = true)
 class TransactionExtraData {
 
-  String Transaction_id
+  String transaction_Id
 
 }

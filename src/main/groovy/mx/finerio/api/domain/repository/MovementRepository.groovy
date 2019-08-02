@@ -9,7 +9,7 @@ import mx.finerio.api.domain.*
 
 interface MovementRepository extends JpaRepository<Movement, String>, JpaSpecificationExecutor {
 
-  Movement findFirstByDateAndDescriptionAndAmountAndTypeAndAccountOrderByDateCreatedDesc( Date date, String Description, BigDecimal amount, Movement.Type type, Account account )
+  Movement findFirstByDateAndDescriptionAndAmountAndTypeAndAccountAndScraperDuplicatedIdIsNullOrderByDateCreatedDesc( Date date, String Description, BigDecimal amount, Movement.Type type, Account account )
   Movement findByIdAndDateDeletedIsNull( String id )
 
   List<Movement> findByAccountAndDateDeletedIsNull( Account account )
@@ -17,6 +17,6 @@ interface MovementRepository extends JpaRepository<Movement, String>, JpaSpecifi
 
   Page<Movement> findByAccountAndDateDeletedIsNull( Account account, Pageable pageable )
 
-  Movement findFirstByScraperDuplicatedIdAndDateDeletedIsNull( String scraperDuplicatedId )
+  Movement findFirstByScraperDuplicatedId( String scraperDuplicatedId )
 
 }

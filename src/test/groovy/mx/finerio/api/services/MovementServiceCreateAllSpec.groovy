@@ -41,7 +41,7 @@ class MovementServiceCreateAllSpec extends Specification {
       3 * categorizerService.search( _ as String, _ as Boolean ) >>
           [ categoryId: 'categoryId' ]
       3 * categoryRepository.findOne( _ as String ) >> new Category()
-      3 * movementRepository.findFirstByDateAndDescriptionAndAmountAndTypeAndAccountOrderByDateCreatedDesc(
+      3 * movementRepository.findFirstByDateAndDescriptionAndAmountAndTypeAndAccountAndScraperDuplicatedIdIsNullOrderByDateCreatedDesc(
         _ as Date, _ as String, _ as BigDecimal, _ as Movement.Type,
         _ as Account )
       3 * movementRepository.save( _ as Movement ) >> new Movement()
@@ -59,7 +59,7 @@ class MovementServiceCreateAllSpec extends Specification {
       def result = service.createAll( transactionData )
     then:
       1 * accountService.findById( _ as String ) >> new Account()
-      3 * movementRepository.findFirstByDateAndDescriptionAndAmountAndTypeAndAccountOrderByDateCreatedDesc(
+      3 * movementRepository.findFirstByDateAndDescriptionAndAmountAndTypeAndAccountAndScraperDuplicatedIdIsNullOrderByDateCreatedDesc(
         _ as Date, _ as String, _ as BigDecimal, _ as Movement.Type,
         _ as Account ) >> new Movement()
       3 * movementRepository.save( _ as Movement ) >> new Movement()
@@ -78,7 +78,7 @@ class MovementServiceCreateAllSpec extends Specification {
       def result = service.createAll( transactionData )
     then:
       1 * accountService.findById( _ as String ) >> new Account()
-      0 * movementRepository.findFirstByDateAndDescriptionAndAmountAndTypeAndAccountOrderByDateCreatedDesc(
+      0 * movementRepository.findFirstByDateAndDescriptionAndAmountAndTypeAndAccountAndScraperDuplicatedIdIsNullOrderByDateCreatedDesc(
         _ as Date, _ as String, _ as BigDecimal, _ as Movement.Type,
         _ as Account ) >> new Movement()
       0 * movementRepository.save( _ as Movement ) >> new Movement()

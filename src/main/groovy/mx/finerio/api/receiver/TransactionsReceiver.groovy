@@ -124,8 +124,10 @@ class TransactionsReceiver implements InitializingBean {
         	transaction.made_on = it.made_on
         	transaction.description = it.description  
         	transaction.amount = it.amount
-          transaction.extra_data = it.extra_data
-        	transactionList.add( transaction )
+          def tExtraData = new TransactionExtraData() 
+          tExtraData.transaction_Id = it.extra_data?.transaction_Id
+          transaction.extra_data = tExtraData
+          transactionList.add( transaction )
 
         }
 
