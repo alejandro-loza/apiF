@@ -73,4 +73,7 @@ public class Movement{
   @Column(name = 'in_balance', nullable = true)
   Boolean inBalance
 
+  @Column(name = 'scraper_duplicated_id', nullable = true)
+  String scraperDuplicatedId
+
 }
