@@ -47,10 +47,17 @@ class BankConnectionService {
 
     def bankConnection = findByCredentialAndStatus( credential,
         BankConnection.Status.PENDING )
-    bankConnection.endDate = new Date()
-    bankConnection.status = status
-    bankConnectionRepository.save( bankConnection )
-    bankConnection
+
+    if ( bankConnection != null ) {
+
+      bankConnection.endDate = new Date()
+      bankConnection.status = status
+      bankConnectionRepository.save( bankConnection )
+      return bankConnection
+
+    }
+
+    return null
 
   }
 
@@ -83,7 +90,7 @@ class BankConnectionService {
         .findFirstByCredentialAndStatus( credential, status )
 
     if ( !bankConnection ) {
-      throw new BadImplementationException( 'bankConnection.not.found' )
+      return null
     }
 
     bankConnection
