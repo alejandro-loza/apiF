@@ -17,6 +17,6 @@ interface MovementRepository extends JpaRepository<Movement, String>, JpaSpecifi
 
   Page<Movement> findByAccountAndDateDeletedIsNull( Account account, Pageable pageable )
 
-  Movement findFirstByScraperDuplicatedId( String scraperDuplicatedId )
+  List<Movement> findAllByAccountAndCustomDateGreaterThanEqualAndCustomDateLessThanAndDateDeletedIsNull( Account account, Date from, Date to )
 
 }
