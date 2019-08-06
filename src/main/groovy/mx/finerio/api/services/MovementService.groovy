@@ -211,15 +211,9 @@ class MovementService {
     def type = rawAmount < 0 ? Movement.Type.CHARGE : Movement.Type.DEPOSIT
     def description = transaction.description.take( 255 )
     if ( description?.size() == 0 ) { return null }
-    def instance 
-    if( transaction.extra_data?.transaction_Id ){
-      instance = movementRepository.
-        findFirstByScraperDuplicatedId( 
-            transaction.extra_data?.transaction_Id )
-    }
-    instance = instance ?: movementRepository.
-        findFirstByDateAndDescriptionAndAmountAndTypeAndAccountAndScraperDuplicatedIdIsNullOrderByDateCreatedDesc(
-        date, description, amount, type, account )
+    def items = findAllMovementsByAccount( account, date )
+    def instance = getDuplicatedInstance( items, description, amount, type,
+        transaction.extra_data?.transaction_Id )
     def movement = instance ?: new Movement()
     movement.account = account
     movement.date = date
@@ -265,6 +259,43 @@ class MovementService {
     }
 
     dto
+
+  }
+
+  private List findAllMovementsByAccount( Account account, Date date )
+      throws Exception {
+
+    def fromString = date.format( "yyyy-MM-dd" )
+    def from = Date.parse( "yyyy-MM-dd", fromString )
+    def cal = Calendar.instance
+    cal.time = from
+    cal.add( Calendar.DAY_OF_MONTH, 1 )
+    def to = cal.time
+    return movementRepository.findAllByAccountAndCustomDateGreaterThanEqualAndCustomDateLessThanAndDateDeletedIsNull(
+        account, from, to )
+
+  }
+
+  private Movement getDuplicatedInstance( List items, String description,
+      BigDecimal amount, Movement.Type type, String transactionId )
+      throws Exception {
+
+    for ( item in items ) {
+
+      if ( ( item.scraperDuplicatedId == null &&
+          item.description.equals( description ) &&
+          item.amount.equals( amount ) &&
+          item.type.equals( type ) ) ||
+          ( item.scraperDuplicatedId != null &&
+              item.scraperDuplicatedId.equals( transactionId ) ) ) {
+
+        return item
+
+      }
+
+    }
+
+    return null
 
   }
 
