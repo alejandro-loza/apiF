@@ -226,7 +226,10 @@ class MovementService {
     def now = new Date()
     movement.dateCreated = movement.dateCreated ?: now
     movement.lastUpdated = now
-    movement.scraperDuplicatedId = transaction.extra_data?.transaction_Id
+    if( transaction.extra_data?.transaction_Id &&
+        !transaction.extra_data.transaction_Id.equals("") ){
+      movement.scraperDuplicatedId = transaction.extra_data.transaction_Id
+    }
 
     if ( deleted ) {
       movement.dateDeleted = now
