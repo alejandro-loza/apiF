@@ -19,6 +19,8 @@ class RestTemplateService {
   private static final MediaType JSON =
       MediaType.parse( 'application/json; charset=utf-8' )
 
+  def okHttpClient
+
   def post( String url, Map headers, Map data ) throws Exception {
 	
     def client = getClient()
@@ -63,7 +65,11 @@ class RestTemplateService {
 
   private OkHttpClient getClient() throws Exception {
 
-    new OkHttpClient().newBuilder()
+    if ( okHttpClient != null ) {
+      return okHttpClient
+    }
+
+    okHttpClient = new OkHttpClient().newBuilder()
         .connectTimeout( 5, TimeUnit.MINUTES )
         .writeTimeout( 5, TimeUnit.MINUTES )
         .readTimeout( 5, TimeUnit.MINUTES )
@@ -72,6 +78,7 @@ class RestTemplateService {
           true
         }
       }).build()
+    return okHttpClient
 
   }
 
