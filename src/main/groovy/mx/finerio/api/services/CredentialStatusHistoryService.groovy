@@ -61,16 +61,21 @@ class CredentialStatusHistoryService {
     }
  
     credential = credentialService.findAndValidate( credential.id )
+    def instances = credentialStatusHistoryRepository.
+        findAllByCredentialAndDateDeletedIsNull( credential )
 
-    def instance = credentialStatusHistoryRepository.findByCredentialAndDateDeletedIsNull( credential )
-    if ( !instance ) {
+    if ( !instances ) {
       return 
     }
-    instance.lastUpdated = new Date()
-    instance.dateDeleted = new Date()
-    credentialStatusHistoryRepository.save( instance )
+
+    instances.each { instance ->
+
+      instance.lastUpdated = new Date()
+      instance.dateDeleted = new Date()
+      credentialStatusHistoryRepository.save( instance )
+
+    }
 
   }
-
 
 }
