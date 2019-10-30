@@ -290,7 +290,9 @@ class MovementService {
           item.amount.equals( amount ) &&
           item.type.equals( type ) ) ||
           ( item.scraperDuplicatedId != null &&
-              item.scraperDuplicatedId.equals( transactionId ) ) ) {
+            item.scraperDuplicatedId.equals( transactionId )&&
+            item.amount.equals( amount ) &&
+            item.type.equals( type )   ) ) {
 
         return item
 
