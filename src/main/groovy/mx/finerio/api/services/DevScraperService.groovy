@@ -27,9 +27,6 @@ class DevScraperService {
   @Value( '${scraper.credentials.path}' )
   String credentialsPath
 
-  @Value( '${scraper.credentials.encodedCredentials}' )
-  String encodedCredentials
-
   @Autowired
   RestTemplateService restTemplateService
 
@@ -49,7 +46,7 @@ class DevScraperService {
     MediaType mediaType = MediaType.parse("application/x-www-form-urlencoded")
     RequestBody body = RequestBody.create(mediaType, "grant_type=client_credentials&scope=all")
     Request request = new Request.Builder()
-      .url("${url}/${credentialsPath}")
+      .url("${url}/${loginPath}")
       .post(body)
       .addHeader("Content-Type", "application/x-www-form-urlencoded")
       .addHeader("Authorization", "Basic ${loginCredentials}")
@@ -59,7 +56,7 @@ class DevScraperService {
     def responseString = response.body().string()
     def statusCode = response.code()
     if( statusCode != 200 ){ throw new Exception( responseString ) }   
-    def res = new JsonSlurper().parseText( responseString ?: '{}' )  
+    def res = new JsonSlurper().parseText( responseString ?: '{}' )    
     res
   }
 
