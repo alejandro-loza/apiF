@@ -189,7 +189,7 @@ class AccountService {
     } else if ( institution.code == 'AMEX' ) {
       return "XXX-${extraData.card_number_display}"
     } else if ( institution.code == 'BAZ' ) {
-      return extraData.cuenta
+      return extraData?.cuenta
     }
 
     null
