@@ -37,6 +37,9 @@ class Client implements UserDetails {
   @Column(name = 'categorize_transactions', nullable = false)
   boolean categorizeTransactions
 
+  @Column(name = 'use_transactions_table', nullable = false)
+  boolean useTransactionsTable
+
   @Transient
   List authorities
 
