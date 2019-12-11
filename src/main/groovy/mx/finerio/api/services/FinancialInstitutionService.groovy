@@ -19,7 +19,7 @@ class FinancialInstitutionService {
 
   Map findAll() throws Exception {
     [ data: financialInstitutionRepository.findAll().findAll {
-        it.code != 'DINERIO' }, nextCursor: null ]
+        it.code != 'DINERIO' && it.status != 'DELETED' }, nextCursor: null ]
   }
 
   FinancialInstitution findOne( Long id ) throws Exception {
