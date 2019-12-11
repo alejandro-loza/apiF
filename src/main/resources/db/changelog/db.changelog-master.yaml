@@ -46,3 +46,5 @@ databaseChangeLog:
     file: db/changelog/insert_customize_sync_error_message.yaml
 - include:
     file: db/changelog/movement_scraper_duplicated_id.yaml
+- include:
+    file: db/changelog/clients_use_transactions_table.yaml

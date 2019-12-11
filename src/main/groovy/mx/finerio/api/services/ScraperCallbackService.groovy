@@ -27,6 +27,9 @@ class ScraperCallbackService {
   ScraperWebSocketService scraperWebSocketService
 
   @Autowired
+  TransactionService transactionService
+
+  @Autowired
   TransactionCategorizerService transactionCategorizerService
 
   @Autowired
@@ -39,6 +42,7 @@ class ScraperCallbackService {
     def movements = movementService.createAll( transactionDto.data )
     def credential = credentialService.findAndValidate(
         transactionDto?.data?.credential_id as String )
+    validateTransactionsTableUsage( transactionDto, credential )
     callbackService.sendToClient( credential?.customer?.client,
         Callback.Nature.TRANSACTIONS, [ credentialId: credential.id,
         accountId: transactionDto.data.account_id ] )
@@ -115,4 +119,23 @@ class ScraperCallbackService {
 
   }
 
+  private void validateTransactionsTableUsage( TransactionDto transactionDto,
+      Credential credential ) throws Exception {
+
+    if ( !credential?.customer?.client?.useTransactionsTable ) { return }
+    def transactions = transactionService.createAll( transactionDto.data )
+
+    if ( credential?.customer?.client?.categorizeTransactions ) {
+
+      transactions.each { transactionService.categorize( it ) }
+      callbackService.sendToClient( credential?.customer?.client,
+          Callback.Nature.NOTIFY, [ credentialId: credential.id,
+          accountId: transactionDto.data.account_id,
+          stage: 'categorize_transactions' ] )
+
+    }
+
+  }
+
 }
+
