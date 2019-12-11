@@ -11,4 +11,6 @@ interface CallbackRepository extends JpaRepository<Callback, Long>,
   
   Callback findByClientAndNature( Client client, Callback.Nature nature )
 
+  List<Callback> findAllByClient( Client client )
+
 }
