@@ -1,6 +1,6 @@
 databaseChangeLog:
 - changeSet:
-    id: clients_categorize_transactions
+    id: clients_use_transactions_table
     author: alejandro.garcia
     changes:
     - addColumn:
