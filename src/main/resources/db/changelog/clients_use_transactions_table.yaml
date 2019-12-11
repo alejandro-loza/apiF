@@ -1,0 +1,13 @@
+databaseChangeLog:
+- changeSet:
+    id: clients_use_transactions_table
+    author: alejandro.garcia
+    changes:
+    - addColumn:
+        tableName: clients
+        columns:
+        - column:
+            name: use_transactions_table
+            type: BOOLEAN
+            constraints:
+              nullable: false
