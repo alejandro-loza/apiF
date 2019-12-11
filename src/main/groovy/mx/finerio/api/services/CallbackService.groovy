@@ -60,7 +60,10 @@ class CallbackService {
   }
 
   Map findAll() throws Exception {
-    [ data: callbackRepository.findAll(), nextCursor: null ]
+
+    def client = securityService.getCurrent()
+    [ data: callbackRepository.findAllByClient( client ), nextCursor: null ]
+
   }
 
   Callback findOne( Long id ) throws Exception {
