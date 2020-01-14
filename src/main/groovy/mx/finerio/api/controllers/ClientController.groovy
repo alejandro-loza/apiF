@@ -14,7 +14,7 @@ class ClientController {
   @Autowired
   ClientService clientService
 
-  @PostMapping('/client')
+  @PostMapping('/client/create')
   ResponseEntity create( @RequestBody @Valid ClientDto dto ) {
   
     def instance = clientService.create( dto )

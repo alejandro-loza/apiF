@@ -16,7 +16,7 @@ class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
     http
       .authorizeRequests()
       .antMatchers( '/callbacks/**' ).permitAll()
-      .antMatchers( '/client' ).permitAll()
+      .antMatchers( '/client/create' ).permitAll()
   	  .antMatchers( '/password/**' ).permitAll()
       .anyRequest().authenticated()
 

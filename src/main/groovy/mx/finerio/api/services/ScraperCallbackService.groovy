@@ -39,10 +39,9 @@ class ScraperCallbackService {
   List processTransactions( TransactionDto transactionDto ) throws Exception {
 
     validateProcessTransactionsInput( transactionDto )
-    def movements = movementService.createAll( transactionDto.data )
     def credential = credentialService.findAndValidate(
         transactionDto?.data?.credential_id as String )
-    validateTransactionsTableUsage( transactionDto, credential )
+    def movements = validateTransactionsTableUsage( transactionDto, credential )
     callbackService.sendToClient( credential?.customer?.client,
         Callback.Nature.TRANSACTIONS, [ credentialId: credential.id,
         accountId: transactionDto.data.account_id ] )
@@ -51,7 +50,9 @@ class ScraperCallbackService {
   }
 
   @Transactional
-  void processMovements( List movements ) throws Exception {
+  void processMovements( List movements, String credentialId ) throws Exception {
+    def credential = credentialService.findAndValidate( credentialId )
+    if ( !credential?.customer?.client?.useTransactionsTable ) { return } 
     transactionCategorizerService.categorizeAll( movements )
   }
 
@@ -119,10 +120,12 @@ class ScraperCallbackService {
 
   }
 
-  private void validateTransactionsTableUsage( TransactionDto transactionDto,
+  private List validateTransactionsTableUsage( TransactionDto transactionDto,
       Credential credential ) throws Exception {
 
-    if ( !credential?.customer?.client?.useTransactionsTable ) { return }
+    if ( !credential?.customer?.client?.useTransactionsTable ) { 
+      return movementService.createAll( transactionDto.data )
+    }
     def transactions = transactionService.createAll( transactionDto.data )
 
     if ( credential?.customer?.client?.categorizeTransactions ) {
@@ -134,6 +137,7 @@ class ScraperCallbackService {
           stage: 'categorize_transactions' ] )
 
     }
+    return transactions
 
   }
 
