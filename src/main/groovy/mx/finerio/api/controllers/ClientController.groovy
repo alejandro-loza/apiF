@@ -14,7 +14,7 @@ class ClientController {
   @Autowired
   ClientService clientService
 
-  @PostMapping('/client/create')
+  @PostMapping('/client')
   ResponseEntity create( @RequestBody @Valid ClientDto dto ) {
   
     def instance = clientService.create( dto )
@@ -38,7 +38,7 @@ class ClientController {
 
   }
 
-  @PutMapping('/client/delete')
+  @DeleteMapping('/client')
   ResponseEntity deleteClient() {
 
     clientService.deleteClient( )

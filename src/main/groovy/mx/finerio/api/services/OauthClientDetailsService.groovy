@@ -22,7 +22,7 @@ class OauthClientDetailsService {
     }
     def additionalInfo = "{\"name\":\"${client.username}\"}"
     def instance = oauthClientDetailsRepository.findOneByAdditionalInfo( additionalInfo ) 
-    if ( !instance ) {
+    if ( !instance || instance?.dateDeleted ) {
       throw new BadImplementationException(
           'oauthClientDetailsService.deleteInstance.oauthClientDetails.notFound' )
     }
@@ -39,7 +39,7 @@ class OauthClientDetailsService {
     }
     def additionalInfo = "{\"name\":\"${client.username}\"}"
     def instance = oauthClientDetailsRepository.findOneByAdditionalInfo( additionalInfo ) 
-    if ( !instance ) {
+    if ( !instance || instance?.dateDeleted ) {
       throw new BadImplementationException(
           'oauthClientDetailsService.findOne.oauthClientDetails.notFound' )
     }
@@ -54,11 +54,10 @@ class OauthClientDetailsService {
     }
 
     def clientRandom = generateStringRandom()
-    def instance = oauthClientDetailsRepository.findOneByClientId( clientRandom ) 
-
-    while ( instance ) {
+    def instance 
+    while ( {
       instance = oauthClientDetailsRepository.findOneByClientId( clientRandom ) 
-    }
+      instance }() ) continue
  
     instance = new OauthClientDetails()
     instance.clientId = clientRandom
