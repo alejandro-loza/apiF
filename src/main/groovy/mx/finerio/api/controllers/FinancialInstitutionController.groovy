@@ -18,8 +18,9 @@ class FinancialInstitutionController {
   ResponseEntity findAll() {
   
     def response = financialInstitutionService.findAll()
-    response.data = response.data.collect {
+    response = response.data.collect {
         financialInstitutionService.getFields( it ) }
+
     new ResponseEntity( response, HttpStatus.OK )
 
   }

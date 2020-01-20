@@ -19,25 +19,25 @@ class ScraperCallbackServiceProcessMovements {
       'mx.finerio.api.aop.ScraperCallbackServiceProcessMovements' )
 
   @Pointcut(
-    value='execution(void mx.finerio.api.services.ScraperCallbackService.processMovements(..)) && bean(scraperCallbackService) && args(movements)',
-    argNames='movements'
+    value='execution(void mx.finerio.api.services.ScraperCallbackService.processMovements(..)) && bean(scraperCallbackService) && args(movements,credentialId)',
+    argNames='movements,credentialId'
   )
-  public void processMovements( List movements ) {}
+  public void processMovements( List movements, String credentialId ) {}
 
-  @Before('processMovements(movements)')
-  void before( List movements ) {
-    log.info( "<< movements: {}", movements )
+  @Before('processMovements(movements,credentialId)')
+  void before( List movements, String credentialId ) {
+    log.info( "<< movements: {}, credentialId: {}", movements, credentialId )
   }
 
   @AfterReturning(
-    pointcut='processMovements(java.util.List)'
+    pointcut='processMovements(java.util.List,String)'
   )
   void afterReturning() {
     log.info( '>> OK' )
   }
 
   @AfterThrowing(
-    pointcut='processMovements(java.util.List)',
+    pointcut='processMovements(java.util.List,String)',
     throwing='e'
   )
   void afterThrowing( Exception e ) {
