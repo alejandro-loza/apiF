@@ -12,7 +12,7 @@ import org.springframework.security.core.userdetails.UserDetails
 @ToString(includePackage = false, includeNames = true, excludes = ['password'])
 class Client implements UserDetails {
   
-  @Id
+  @Id @GeneratedValue
   @Column(name = 'id', nullable = false, updatable = false)
   String id
 
@@ -42,5 +42,14 @@ class Client implements UserDetails {
 
   @Transient
   List authorities
+
+  @Column(name = 'date_created', nullable = false)
+  Date dateCreated
+
+  @Column(name = 'last_updated', nullable = false)
+  Date lastUpdated
+
+  @Column(name = 'date_deleted', nullable = true)
+  Date dateDeleted
 
 }
