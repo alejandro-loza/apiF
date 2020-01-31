@@ -98,7 +98,10 @@ class TransactionService {
           'transactionService.getFields.transaction.null' )
     }
 
+    def cleanedDescription = cleanerService.clean( transaction.description,
+        !transaction.charge )
     [ id: transaction.id, description: transaction.description,
+        cleanedDescription: cleanedDescription,
         amount: transaction.amount, isCharge: transaction.charge,
         date: transaction.bankDate, categoryId: transaction.category?.id ]
 
