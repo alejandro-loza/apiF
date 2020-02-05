@@ -9,6 +9,6 @@ import mx.finerio.api.domain.Customer
 interface CustomerRepository extends JpaRepository<Customer, Long>,
     JpaSpecificationExecutor {
   
-  Customer findByClientAndName( Client client, String name )
+  Customer findFirstByClientAndNameAndDateDeletedIsNull( Client client, String name )
 
 }

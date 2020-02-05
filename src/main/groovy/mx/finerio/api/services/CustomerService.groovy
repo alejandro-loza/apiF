@@ -37,8 +37,9 @@ class CustomerService {
     }
  
     def client = securityService.getCurrent()
-
-    if ( customerRepository.findByClientAndName( client, dto.name ) ) {
+    if ( customerRepository
+        .findFirstByClientAndNameAndDateDeletedIsNull(
+        client, dto.name ) != null ) {
       throw new BadRequestException( 'customer.create.name.exists' )
     }
  
@@ -74,11 +75,20 @@ class CustomerService {
     def client = securityService.getCurrent()
     def instance = customerRepository.findOne( id )
 
-    if ( !instance || instance.client.id != client.id ) {
+    if ( !instance || instance.client.id != client.id ||
+        instance.dateDeleted != null ) {
       throw new InstanceNotFoundException( 'customer.not.found' )
     }
  
     instance
+
+  }
+
+  void delete( Long id ) throws Exception {
+
+    def instance = findOne( id )
+    instance.dateDeleted = new Date()
+    customerRepository.save( instance )
 
   }
 
