@@ -1,0 +1,13 @@
+databaseChangeLog:
+- changeSet:
+    id: customer_date_deleted
+    author: alejandro.garcia
+    changes:
+    - addColumn:
+        tableName: customers
+        columns:
+        - column:
+            name: date_deleted
+            type: DATETIME
+            constraints:
+              nullable: true

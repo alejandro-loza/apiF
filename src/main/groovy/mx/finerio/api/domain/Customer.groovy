@@ -28,4 +28,7 @@ class Customer {
   @Column(name = 'date_created')
   Date dateCreated
 
+  @Column(name = 'date_deleted', nullable = true)
+  Date dateDeleted
+
 }
