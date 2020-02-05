@@ -37,8 +37,9 @@ class CustomerService {
     }
  
     def client = securityService.getCurrent()
-
-    if ( customerRepository.findByClientAndName( client, dto.name ) ) {
+    if ( customerRepository
+        .findFirstByClientAndNameAndDateDeletedIsNull(
+        client, dto.name ) != null ) {
       throw new BadRequestException( 'customer.create.name.exists' )
     }
  
