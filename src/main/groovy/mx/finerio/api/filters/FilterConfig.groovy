@@ -8,18 +8,6 @@ import org.springframework.context.annotation.Configuration
 class FilterConfig {
 
   @Bean
-  FilterRegistrationBean clientFilterRegistrationBean() {
-
-    def registrationBean = new FilterRegistrationBean()
-    registrationBean.name = 'client'
-    registrationBean.setUrlPatterns( [
-      '/client/*', '/client' ] )
-    registrationBean.filter = getCredentialFilter()
-    registrationBean
-
-  }
-
-  @Bean
   FilterRegistrationBean credentialFilterRegistrationBean() {
 
     def registrationBean = new FilterRegistrationBean()
