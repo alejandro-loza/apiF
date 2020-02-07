@@ -21,7 +21,7 @@ class CategoryServiceFindAll {
       'mx.finerio.api.aop.CategoryServiceFindAll' )
 
   @Pointcut(
-    value='execution(java.util.Map mx.finerio.api.services.CategoryService.findAll()) && bean(categoryService)'
+    value='execution(java.util.List mx.finerio.api.services.CategoryService.findAll()) && bean(categoryService)'
   )
   public void findAll() {}
 
@@ -34,7 +34,7 @@ class CategoryServiceFindAll {
     pointcut='findAll()',
     returning='response'
   )
-  void afterReturning( Map response ) {
+  void afterReturning( List response ) {
     log.info( '>> response: {}', response )
   }
 
