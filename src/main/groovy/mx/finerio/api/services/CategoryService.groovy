@@ -14,9 +14,8 @@ class CategoryService {
   @Autowired
   CategoryRepository categoryRepository
 
-  Map findAll() throws Exception {
-    [ data: categoryRepository.findAllByUserIsNullOrderByIdAsc(),
-        nextCursor: null ]
+  List findAll() throws Exception {
+    categoryRepository.findAllByUserIsNullOrderByIdAsc()
   }
 
   Category findOne( String id ) throws Exception {

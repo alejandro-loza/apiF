@@ -18,8 +18,7 @@ class CategoryController {
   @GetMapping('/categories')
   ResponseEntity findAll() {
   
-    def response = categoryService.findAll()
-    response.data = response.data.collect {
+    def response = categoryService.findAll().collect {
         categoryService.getFields( it ) }
     new ResponseEntity( response, HttpStatus.OK )
 
