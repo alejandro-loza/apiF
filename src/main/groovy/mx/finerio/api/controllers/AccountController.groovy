@@ -1,5 +1,6 @@
 package mx.finerio.api.controllers
 
+import mx.finerio.api.domain.CreditDetails
 import mx.finerio.api.services.AccountService
 import mx.finerio.api.services.CreditDetailsService
 
@@ -36,10 +37,10 @@ class AccountController {
     def instance = creditDetailsService.findByAccountId( id )
 
     if ( !instance ) {
-      instance = [:]
-    } else {
-      instance = creditDetailsService.getFields( instance )
+      instance = new CreditDetails()
     }
+
+    instance = creditDetailsService.getFields( instance )
 
     new ResponseEntity( instance, HttpStatus.OK )
 
