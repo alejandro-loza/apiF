@@ -1,6 +1,7 @@
 package mx.finerio.api.controllers
 
 import mx.finerio.api.services.AccountService
+import mx.finerio.api.services.CreditDetailsService
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Pageable
@@ -16,6 +17,9 @@ class AccountController {
   @Autowired
   AccountService accountService
 
+  @Autowired
+  CreditDetailsService creditDetailsService
+
   @GetMapping('/accounts')
   ResponseEntity findAll( @RequestParam Map<String, String> params ) {
 
@@ -23,6 +27,21 @@ class AccountController {
     response.data = response.data.collect {
         accountService.getFields( it ) }
     new ResponseEntity( response, HttpStatus.OK )
+
+  }
+
+  @GetMapping('/accounts/{id}/details')
+  ResponseEntity findAllDetails( @PathVariable String id ) {
+
+    def instance = creditDetailsService.findByAccountId( id )
+
+    if ( !instance ) {
+      instance = [:]
+    } else {
+      instance = creditDetailsService.getFields( instance )
+    }
+
+    new ResponseEntity( instance, HttpStatus.OK )
 
   }
 
