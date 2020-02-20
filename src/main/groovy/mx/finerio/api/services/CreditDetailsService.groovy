@@ -41,6 +41,25 @@ class CreditDetailsService {
 
   }
 
+  CreditDetails findByAccountId( String accountId ) throws Exception {
+
+    def account = accountService.findOne( accountId )
+    return creditDetailsRepository.
+        findByCreditDetailsIdAccountAndDateDeletedIsNull( account )
+
+  }
+
+  Map getFields( CreditDetails creditDetails ) throws Exception {
+
+    if ( !creditDetails ) {
+      throw new BadImplementationException(
+          'creditDetailsService.getFields.creditDetails.null' )
+    }
+
+    [ creditLimit: creditDetails.limitCredit ]
+
+  }
+
   @Transactional
   private CreditDetails createInstance( CreditDetailsDto creditDetailsDto, Account account ){
 
