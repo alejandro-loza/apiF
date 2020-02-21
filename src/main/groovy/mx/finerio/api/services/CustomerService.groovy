@@ -117,6 +117,8 @@ class CustomerService {
       }
     }
 
+    if( params.word ){ dto.word = params.word }
+
     dto.client = securityService.getCurrent()
     dto
 
