@@ -55,6 +55,9 @@ class CredentialService {
   @Autowired
   SecurityService securityService
 
+  @Autowired
+  AdminQueueService adminQueueService  
+
   Credential create( CredentialDto credentialDto ) throws Exception {
 
     if ( !credentialDto ) {
@@ -76,8 +79,18 @@ class CredentialService {
     def data = [ customer: customer, bank: bank, credentialDto: credentialDto ]
     def instance = createInstance( data )
     requestData( instance.id )
+    sendCredentialToAdmin( instance )
     instance
 
+  }
+
+  void sendCredentialToAdmin( Credential credential ){  
+     
+    def clientId = credential?.customer?.client?.id
+    def data = [ clientId: clientId, customerId: credential?.customer.id, 
+      credentialId:credential?.id,dateEpoch: credential.dateCreated.time ]
+    adminQueueService.queueMessage( data, 'CREATE_CREDENTIAL')   
+      
   }
 
   Map findAll( Map params ) throws Exception {
