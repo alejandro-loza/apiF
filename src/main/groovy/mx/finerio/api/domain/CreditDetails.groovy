@@ -38,7 +38,7 @@ class CreditDetails {
   @Column(name = 'annual_percentage_rate', nullable = true)
   BigDecimal annualPercentageRate
 
-  @Column(name = 'card_number', nullable = false, length = 30)
+  @Column(name = 'card_number', nullable = true, length = 30)
   String cardNumber
 
   @Column(name = 'date_created', nullable = false)

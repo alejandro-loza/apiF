@@ -56,7 +56,8 @@ class CreditDetailsService {
           'creditDetailsService.getFields.creditDetails.null' )
     }
 
-    [ creditLimit: creditDetails.limitCredit ]
+    [ creditLimit: creditDetails.limitCredit,
+        cardNumber: maskCardNumber( creditDetails.cardNumber ) ]
 
   }
 
@@ -114,5 +115,14 @@ class CreditDetailsService {
     flag  
   }
 
+  String maskCardNumber( String rawCardNumber ) throws Exception {
+
+    if ( rawCardNumber == null || rawCardNumber == '' ) {
+      return rawCardNumber
+    }
+
+    return "${rawCardNumber.reverse().take( 4 )}XXXX".reverse()
+
+  }
 
 }
