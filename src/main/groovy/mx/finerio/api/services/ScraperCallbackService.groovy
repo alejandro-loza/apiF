@@ -34,6 +34,9 @@ class ScraperCallbackService {
 
   @Autowired
   CredentialStatusHistoryService credentialStatusHistoryService
+
+  @Autowired
+  AdminQueueService adminQueueService   
   
   @Transactional
   List processTransactions( TransactionDto transactionDto ) throws Exception {
@@ -68,7 +71,7 @@ class ScraperCallbackService {
     def credential = credentialService.updateStatus(
         successCallbackDto?.data?.credential_id, Credential.Status.ACTIVE )
     credentialStatusHistoryService.update( credential )
-
+    sendConnectionToAdmin( credential, true )
     credential
   }
 
@@ -90,10 +93,23 @@ class ScraperCallbackService {
     def credential = credentialService.setFailure(
         failureCallbackDto?.data?.credential_id, strStatusCode )
     credentialStatusHistoryService.update( credential )
+    sendConnectionToAdmin( credential, false )
     closeWebSocketSession( credential )
     callbackService.sendToClient( credential?.customer?.client,
         Callback.Nature.FAILURE, [ credentialId: credential.id,
         message: credential.errorCode, code: strStatusCode ] )
+
+  }
+
+    void sendConnectionToAdmin( Credential credential, Boolean isSuccessful ){  
+     
+    
+      def clientId = credential?.customer?.client?.id
+      String institutionCode = credential?.institution?.code
+      def data = [ clientId: clientId, customerId: credential?.customer.id, 
+      credentialId:credential?.id,institutionCode:institutionCode, 
+      isSuccessful: isSuccessful, date: new Date().time ]
+      adminQueueService.queueMessage( data, 'CREATE_CONNECTION')
 
   }
 

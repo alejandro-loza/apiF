@@ -47,6 +47,9 @@ class MovementService {
   @Autowired
   SecurityService securityService
 
+  @Autowired
+  AccountCredentialRepository accountCredentialRepository
+
   List createAll( TransactionData transactionData ) throws Exception {
 
     if ( !transactionData ) {
@@ -241,10 +244,22 @@ class MovementService {
     }
 
     movementRepository.save( movement )
+    sendMovementToAdmin( movement, account )
 
     null
 
   }
+
+  void sendMovementToAdmin( Movement movement, Account account ){ 
+
+    def accountCredential = accountCredentialRepository.findFirstByAccountId( account.id )      
+    def clientId = accountCredential?.credential?.customer?.client?.id
+    def data = [ clientId: clientId, customerId: accountCredential?.credential?.customer.id, 
+      credentialId:accountCredential?.credential?.id,accountId:account.id, date: movement.dateCreated.time ]
+    adminQueueService.queueMessage( data, 'CREATE_MOVEMENT')   
+      
+  }
+
 
   private MovementListDto getFindAllDto( Map params ) throws Exception {
 

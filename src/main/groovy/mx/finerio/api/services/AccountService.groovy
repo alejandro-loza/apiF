@@ -36,6 +36,9 @@ class AccountService {
   @Autowired
   CreditDetailsService creditDetailsService
 
+  @Autowired
+  AdminQueueService adminQueueService   
+
   private static final Map NATURES = [
     account: 'Cuenta',
     bonus: 'Bono',
@@ -80,8 +83,19 @@ class AccountService {
     if( accountData.credit_card_detail && accountData.is_credit_card ){
       creditDetailsService.create( accountData.credit_card_detail, account )
     }
+    sendAccountToAdmin( account, credential )
     account
 
+  }
+
+  void sendAccountToAdmin( Account account, Credential credential ){  
+     
+    def clientId = credential?.customer?.client?.id
+    def data = [ clientId: clientId, customerId: credential?.customer.id, 
+      credentialId:credential?.id,accountId:account.id, date: account.dateCreated.time ]
+  
+    adminQueueService.queueMessage( data, 'CREATE_ACCOUNT')
+      
   }
 
   Map findAll( Map params ) throws Exception {
