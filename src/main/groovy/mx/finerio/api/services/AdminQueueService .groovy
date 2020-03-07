@@ -46,7 +46,6 @@ class AdminQueueService {
     this.serviceName = serviceName
     this.timeToLive = timeToLive as Integer
     this.isProduction = isProduction 
-    println "this.isProduction ${this.isProduction}"
 
     connection = new ConnectionStringBuilder( serviceUrl, serviceName )
     sendClient = new QueueClient(new ConnectionStringBuilder
