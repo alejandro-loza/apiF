@@ -262,6 +262,14 @@ class CredentialService {
 
   }
 
+  void delete( Long id ) throws Exception {
+
+    def instance = findOne( id )
+    instance.dateDeleted = new Date()
+    credentialRepository.save( instance )
+
+  }
+
   private Credential createInstance( Map data ) throws Exception {
 
     def credentialDto = data.credentialDto
