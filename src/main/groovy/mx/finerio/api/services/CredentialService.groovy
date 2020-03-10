@@ -262,7 +262,7 @@ class CredentialService {
 
   }
 
-  void delete( Long id ) throws Exception {
+  void delete( String id ) throws Exception {
 
     def instance = findOne( id )
     instance.dateDeleted = new Date()
