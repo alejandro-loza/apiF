@@ -77,10 +77,10 @@ class AdminQueueService {
              return "CREATE_CUSTOMER_${data.clientId}_${data.isProduction}"
       break
       case  AdminTopic.CREATE_CREDENTIAL:
-             return "CREATE_CREDENTIAL_${data.customerId}_${data.isProduction}"
+             return "CREATE_CREDENTIAL_OR_ACCOUNT${data.customerId}_${data.isProduction}"
       break
       case  AdminTopic.CREATE_ACCOUNT:
-             return "CREATE_ACCOUNT_${data.credentialId}_${data.isProduction}"
+             return "CREATE_CREDENTIAL_OR_ACCOUNT${data.customerId}_${data.isProduction}"
       break
       case  AdminTopic.CREATE_CONNECTION:
              return "CREATE_CONNECTION_${data.customerId}"

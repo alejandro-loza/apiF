@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional
 
 @Service
 class MovementService {
-	
+  
   @Autowired
   CategoryRepository categoryRepository
   
@@ -47,9 +47,6 @@ class MovementService {
   @Autowired
   SecurityService securityService
 
-  @Autowired
-  AccountCredentialRepository accountCredentialRepository
-
   List createAll( TransactionData transactionData ) throws Exception {
 
     if ( !transactionData ) {
@@ -65,16 +62,16 @@ class MovementService {
   }
   
   Movement generateAndSetCategory(String movementId) {
-	  def movement = movementRepository.findByIdAndDateDeletedIsNull(movementId)
-	  if (!movement) {
-		  return null
-	  }
-	  generateAndSetCategory(movement)
+    def movement = movementRepository.findByIdAndDateDeletedIsNull(movementId)
+    if (!movement) {
+      return null
+    }
+    generateAndSetCategory(movement)
   }
   
    void generateAndSetCategory(Movement movement) {
-	  
-	  def category = null
+    
+    def category = null
           def deposit = movement.type == Movement.Type.DEPOSIT
           def cleanedText = cleanerService.clean( movement.description, deposit )
           movement.customDescription = cleanedText
@@ -84,14 +81,14 @@ class MovementService {
             category = categoryRepository.findOne( result.categoryId )
           }
 
-	  movement.category=category
-	  movement.hasConcepts=false
-	  movementRepository.save( movement )
+    movement.category=category
+    movement.hasConcepts=false
+    movementRepository.save( movement )
   }
 
   void createConcept( Movement movement ) throws Exception {
-	  
-	
+    
+  
 
     def conceptData = [
       description: movement.description,
@@ -244,22 +241,10 @@ class MovementService {
     }
 
     movementRepository.save( movement )
-    sendMovementToAdmin( movement, account )
 
     null
 
   }
-
-  void sendMovementToAdmin( Movement movement, Account account ){ 
-
-    def accountCredential = accountCredentialRepository.findFirstByAccountId( account.id )      
-    def clientId = accountCredential?.credential?.customer?.client?.id
-    def data = [ clientId: clientId, customerId: accountCredential?.credential?.customer.id, 
-      credentialId:accountCredential?.credential?.id,accountId:account.id, date: movement.dateCreated.time ]
-    adminQueueService.queueMessage( data, 'CREATE_MOVEMENT')   
-      
-  }
-
 
   private MovementListDto getFindAllDto( Map params ) throws Exception {
 

@@ -56,7 +56,7 @@ class CredentialService {
   SecurityService securityService
 
   @Autowired
-  AdminQueueService adminQueueService  
+  AdminQueueService adminQueueService
 
   Credential create( CredentialDto credentialDto ) throws Exception {
 
