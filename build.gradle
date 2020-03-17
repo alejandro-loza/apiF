@@ -35,6 +35,9 @@ dependencies {
   compile('org.bouncycastle:bcpkix-jdk15on:1.57')
   compile('com.github.groovy-wslite:groovy-wslite:1.1.2')
 
+  //AWS S3
+  compile 'com.amazonaws:aws-java-sdk-s3:1.11.724'
+
   runtime('mysql:mysql-connector-java')
 
   testCompile('org.springframework.boot:spring-boot-starter-test')
