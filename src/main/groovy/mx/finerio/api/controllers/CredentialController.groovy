@@ -63,7 +63,7 @@ class CredentialController {
       credentialService.update( id, credentialUpdateDto )
     }
 
-    ResponseEntity.accepted().build()
+    new ResponseEntity( HttpStatus.NO_CONTENT )
 
   }
 
