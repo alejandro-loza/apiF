@@ -2,6 +2,7 @@ package mx.finerio.api.services
 
 import mx.finerio.api.domain.Callback
 import mx.finerio.api.domain.Credential
+import mx.finerio.api.domain.Transaction
 import mx.finerio.api.dtos.FailureCallbackDto
 import mx.finerio.api.dtos.SuccessCallbackDto
 import mx.finerio.api.dtos.TransactionDto
@@ -42,9 +43,18 @@ class ScraperCallbackService {
     def credential = credentialService.findAndValidate(
         transactionDto?.data?.credential_id as String )
     def movements = validateTransactionsTableUsage( transactionDto, credential )
+    def data = [:]
+    data.credentialId = credential.id
+    data.accountId = transactionDto.data.account_id
+
+    if ( !movements.isEmpty() && movements[ 0 ] instanceof Transaction ) {
+      data.transactions = movements.collect {
+        transactionService.getFields( it )
+      }
+    }
+
     callbackService.sendToClient( credential?.customer?.client,
-        Callback.Nature.TRANSACTIONS, [ credentialId: credential.id,
-        accountId: transactionDto.data.account_id ] )
+        Callback.Nature.TRANSACTIONS, data )
     movements
 
   }
