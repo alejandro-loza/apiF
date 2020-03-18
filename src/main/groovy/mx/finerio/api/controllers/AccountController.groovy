@@ -41,7 +41,6 @@ class AccountController {
     }
 
     instance = creditDetailsService.getFields( instance )
-
     new ResponseEntity( instance, HttpStatus.OK )
 
   }

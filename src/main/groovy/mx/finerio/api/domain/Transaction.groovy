@@ -27,6 +27,9 @@ public class Transaction {
   @Column(name = 'description', nullable = false, length = 255)
   String description
 
+  @Column(name = 'cleaned_description', nullable = true, length = 255)
+  String cleanedDescription
+
   @Column(name = 'amount', nullable = false)
   BigDecimal amount
 
