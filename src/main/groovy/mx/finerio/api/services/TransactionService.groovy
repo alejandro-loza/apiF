@@ -98,10 +98,8 @@ class TransactionService {
           'transactionService.getFields.transaction.null' )
     }
 
-    def cleanedDescription = cleanerService.clean( transaction.description,
-        !transaction.charge )
     [ id: transaction.id, description: transaction.description,
-        cleanedDescription: cleanedDescription,
+        cleanedDescription: transaction.cleanedDescription,
         amount: transaction.amount, isCharge: transaction.charge,
         date: transaction.bankDate, categoryId: transaction.category?.id ]
 
@@ -114,16 +112,23 @@ class TransactionService {
           'transactionService.categorize.transaction.null' )
     }
 
-    def cleanedText = cleanerService.clean( transaction.description, false )
-    def categorizerResult = categorizerService.search( cleanedText, false )
+    try {
 
-    if ( !categorizerResult?.categoryId ) {
-      return
-    }
+      def cleanedText = cleanerService.clean( transaction.description,
+          !transaction.charge )
+      transaction.cleanedDescription = cleanedText
+      def categorizerResult = categorizerService.search( cleanedText,
+          !transaction.charge )
 
-    def category = categoryService.findOne( categorizerResult.categoryId )
-    transaction.category = category
-    transactionRepository.save( transaction )
+      if ( !categorizerResult?.categoryId ) {
+        return
+      }
+
+      def category = categoryService.findOne( categorizerResult.categoryId )
+      transaction.category = category
+      transactionRepository.save( transaction )
+
+    } catch ( Exception e ) {}
 
   }
 
