@@ -136,10 +136,10 @@ class TransactionService {
   @Transactional
   void deleteAllByAccount( Account account ) throws Exception {
 
-    def transactions = this.findAll( [ accountId: account.id ] )
+    def transactions = this.findAll( [ accountId: account.id ] )?.data
 
     for ( transaction in transactions ) {
-      transaction.dateDeleted = new Date()
+      transaction.dateDeleted = new Timestamp( new Date().time )
       transactionRepository.save( transaction )
     }
 

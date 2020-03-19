@@ -178,7 +178,7 @@ class AccountService {
   @Transactional
   void deleteAllByCredential( Credential credential ) throws Exception {
 
-    def accounts = accountService.findAll( [ credentialId: credential.id ] )
+    def accounts = this.findAll( [ credentialId: credential.id ] )?.data
 
     for ( account in accounts ) {
 
