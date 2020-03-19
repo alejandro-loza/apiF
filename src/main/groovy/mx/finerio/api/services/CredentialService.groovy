@@ -17,6 +17,9 @@ import org.springframework.stereotype.Service
 class CredentialService {
 
   @Autowired
+  AccountService accountService
+
+  @Autowired
   BankConnectionService bankConnectionService
 
   @Autowired
@@ -265,6 +268,7 @@ class CredentialService {
   void delete( String id ) throws Exception {
 
     def instance = findOne( id )
+    accountService.deleteAllByCredential( instance )
     instance.dateDeleted = new Date()
     credentialRepository.save( instance )
 

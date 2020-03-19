@@ -11,6 +11,7 @@ import mx.finerio.api.dtos.AccountListDto
 import org.springframework.data.domain.Pageable
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class AccountService {
@@ -26,6 +27,9 @@ class AccountService {
 
   @Autowired
   SecurityService securityService
+
+  @Autowired
+  TransactionService transactionService
 
   @Autowired
   AccountRepository accountRepository
@@ -168,6 +172,29 @@ class AccountService {
     [ id: account.id, name: account.name, number: account.number,
         balance: account.balance, type: account.nature,
         dateCreated: account.dateCreated ]
+
+  }
+
+  @Transactional
+  void deleteAllByCredential( Credential credential ) throws Exception {
+
+    def accounts = this.findAll( [ credentialId: credential.id ] )?.data
+
+    for ( account in accounts ) {
+
+      transactionService.deleteAllByAccount( account )
+      def accountCredentials = accountCredentialRepository.
+          findAllByAccountAndCredential( account, credential )
+
+      for ( accountCredential in accountCredentials ) {
+        accountCredentialRepository.delete( accountCredential )
+      }
+
+      account.dateDeleted = new Date()
+      account.deleted = true
+      accountRepository.save( account )
+
+    }
 
   }
 
