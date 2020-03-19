@@ -197,7 +197,6 @@ class TransactionService {
   void sendTransactionToAdmin( Transaction transaction ){ 
 
     def accountCredential = accountCredentialRepository.findFirstByAccountId( transaction?.account.id )      
-    println "--------${accountCredential}"
     def clientId = accountCredential?.credential?.customer?.client?.id
     def data = [ clientId: clientId, customerId: accountCredential?.credential?.customer.id, 
       credentialId:accountCredential?.credential?.id,accountId: transaction?.account.id, date: transaction.dateCreated.time ]
