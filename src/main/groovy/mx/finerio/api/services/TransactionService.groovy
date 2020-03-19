@@ -15,6 +15,7 @@ import mx.finerio.api.exceptions.InstanceNotFoundException
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class TransactionService {
@@ -129,6 +130,18 @@ class TransactionService {
       transactionRepository.save( transaction )
 
     } catch ( Exception e ) {}
+
+  }
+
+  @Transactional
+  void deleteAllByAccount( Account account ) throws Exception {
+
+    def transactions = this.findAll( [ accountId: account.id ] )
+
+    for ( transaction in transactions ) {
+      transaction.dateDeleted = new Date()
+      transactionRepository.save( transaction )
+    }
 
   }
 
