@@ -34,7 +34,9 @@ dependencies {
   compile('org.springframework.security.oauth:spring-security-oauth2')
   compile('org.bouncycastle:bcpkix-jdk15on:1.57')
   compile('com.github.groovy-wslite:groovy-wslite:1.1.2')
+  compile 'io.springfox:springfox-swagger2:2.9.2'
 
+  compile group: 'io.springfox', name: 'springfox-swagger-ui', version: '2.9.2'
   runtime('mysql:mysql-connector-java')
 
   testCompile('org.springframework.boot:spring-boot-starter-test')

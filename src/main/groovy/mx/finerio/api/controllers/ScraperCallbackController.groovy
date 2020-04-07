@@ -1,30 +1,14 @@
 package mx.finerio.api.controllers
 
-import javax.servlet.http.HttpServletRequest
-
 import mx.finerio.api.domain.Callback
-import mx.finerio.api.domain.Credential
-import mx.finerio.api.dtos.AccountDto
-import mx.finerio.api.dtos.FailureCallbackDto
-import mx.finerio.api.dtos.TransactionDto
-import mx.finerio.api.dtos.NotifyCallbackDto
-import mx.finerio.api.dtos.SuccessCallbackDto
-import mx.finerio.api.services.AccountService
-import mx.finerio.api.services.AzureQueueService
-import mx.finerio.api.services.CallbackService
-import mx.finerio.api.services.CredentialService
-import mx.finerio.api.services.ScraperCallbackService
 import mx.finerio.api.domain.TransactionMessageType
-
+import mx.finerio.api.dtos.*
+import mx.finerio.api.services.*
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
-import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
-import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.bind.annotation.RequestBody
-import org.springframework.web.bind.annotation.RequestParam
-
+import org.springframework.web.bind.annotation.RestController
 
 @RestController
 class ScraperCallbackController {
