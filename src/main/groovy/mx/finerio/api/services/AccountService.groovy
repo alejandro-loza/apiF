@@ -228,44 +228,31 @@ class AccountService {
 
     def institution = credential.institution
     def user = credential.user
-    def instance 
-    if ( id && institution.code != "HSBC" && 
-        institution.code != "BNMX" && 
-        institution.code != "LIVERPOOL" ) {
-      instance = accountRepository.findFirstByInstitutionAndUserAndIdBankOrderByDateCreatedDesc(
-        institution, user, id )
-    }
-    instance = validateFinder( credential, id, instance )
+    def accountCredentialList =
+        accountCredentialRepository.findAllByCredential( credential )
 
-    if ( !instance ) {
-      instance= accountRepository.findFirstByInstitutionAndUserAndNumberOrderByDateCreatedDesc(
-        institution, user, number )
-    }
-    instance = validateFinder( credential, id, instance )
+    for ( accountCredential in accountCredentialList ) {
 
-    if ( !instance ) {
-      instance = accountRepository.findFirstByInstitutionAndUserAndNumberLikeOrderByDateCreatedDesc(
-        institution, user, getMaskedNumber( institution, number ) )
-    }
-    validateFinder( credential, id, instance )
+      def account = accountCredential.account
+      if ( ( account.dateDeleted && account.deleted ) ||
+          ( account.institution.code != institution.code ||
+          account.user.id != user.id ) ) { continue }
 
-  }
+      if ( id && institution.code != 'HSBC' && institution.code != 'BNMX' &&
+          institution.code != 'LIVERPOOL' &&
+          account.idBank == id ) { return account }
 
-  private Account validateFinder( Credential credential, String id, Account instance){
+      if ( account.number == number ) { return account }
 
-    if ( instance && id ) {
-      if( credential.institution.code != "HSBC" &&
-          credential.institution.code != "BNMX" &&
-          credential.institution.code != "LIVERPOOL" &&
-          instance.idBank && instance.idBank != id ){ instance = null }
+      if ( getMaskedNumber( institution, number ).matches(
+          account.number.replaceAll( /%/, '.*' )
+          .replaceAll( /\*/, '\\\\*' ) ) ) {
+        return account
+      }
+
     }
 
-    if ( instance?.deleted && instance?.dateDeleted && 
-        !accountCredentialRepository.findAllByAccountAndCredential(
-        instance, credential ) ) {
-      instance = null
-    }
-    instance
+    return null
 
   }
 
