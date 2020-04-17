@@ -6,6 +6,7 @@ import mx.finerio.api.domain.Account
 import mx.finerio.api.domain.Transaction
 import mx.finerio.api.domain.TransactionSpecs
 import mx.finerio.api.domain.repository.TransactionRepository
+import mx.finerio.api.dtos.DuplicatedTransactionDto
 import mx.finerio.api.dtos.Transaction as TransactionCreateDto
 import mx.finerio.api.dtos.TransactionListDto
 import mx.finerio.api.dtos.TransactionData
@@ -33,10 +34,10 @@ class TransactionService {
   CleanerService cleanerService  
 
   @Autowired
-  ListService listService
+  DuplicatedTransactionsValidatorService duplicatedTransactionsValidatorService
 
   @Autowired
-  Sha1Service sha1Service
+  ListService listService
 
   @Autowired
   TransactionRepository transactionRepository
@@ -152,32 +153,22 @@ class TransactionService {
         transactionCreateDto.made_on ) ?: new Date()
     def description = transactionCreateDto.description.take( 255 )
     def rawAmount = transactionCreateDto.amount
-    def amount = new BigDecimal( rawAmount ).abs().setScale( 2, BigDecimal.ROUND_HALF_UP )
+    def amount = new BigDecimal( rawAmount ).abs().setScale(
+        2, BigDecimal.ROUND_HALF_UP )
     def charge = rawAmount < 0
-    def hash = getHash( date, description, amount, charge )
-    def instance = transactionRepository.
-        findByAccountAndHashAndDateDeletedIsNull( account, hash )
-    if ( instance ) { return null }
     def transaction = new Transaction()
     transaction.account = account
     transaction.bankDate = new Timestamp( date.time )
     transaction.description = description
     transaction.amount = amount
     transaction.charge = charge
-    transaction.hash = hash
+    transaction.scraperId =
+        transactionCreateDto?.extra_data?.transaction_Id?.take( 255 )
+    if ( isDuplicated( transaction ) ) { return null }
     def now = new Timestamp( new Date().time )
     transaction.dateCreated = now
     transaction.lastUpdated = now
-    transactionRepository.save( transaction )
-
-  }
-
-  private byte[] getHash( Date date, String description, BigDecimal amount,
-      Boolean charge ) throws Exception {
-
-    def input = "||${date.format("yyyyMMddHHmmss")}" +
-        "|${description}|${amount}|${charge}||"
-    sha1Service.encrypt( input.toString() )
+    return transactionRepository.save( transaction )
 
   }
 
@@ -201,6 +192,67 @@ class TransactionService {
     }
 
     dto
+
+  }
+
+  private boolean isDuplicated( Transaction transaction )
+      throws Exception {
+
+    def transactionDto = new DuplicatedTransactionDto(
+      description: transaction.description,
+      amount: transaction.amount,
+      deposit: !transaction.charge,
+      transactionId: transaction.scraperId
+    )
+    def transactionsSameDay = findAllTransactionsByAccountAndDate(
+        transaction.account, transaction.bankDate, 1 )
+    def duplicatedFlag1 = duplicatedTransactionsValidatorService.
+        validateTransactionsFromSameDate( transactionDto,
+        transactionsSameDay )
+    def transactionsDifferentDay = findAllTransactionsByAccountAndDate(
+        transaction.account, transaction.bankDate, 5 )
+    def duplicatedFlag2 = duplicatedTransactionsValidatorService.
+        validateTransactions( transactionDto, transactionsDifferentDay )
+    return duplicatedFlag1 || duplicatedFlag2
+
+  }
+
+  private List<DuplicatedTransactionDto> findAllTransactionsByAccountAndDate(
+      Account account, Date date, int daysBefore ) throws Exception {
+
+    def format = 'yyyy-MM-dd'
+    def calTo = Calendar.instance
+    calTo.time = date
+    calTo.add( Calendar.DAY_OF_MONTH, 1 )
+    def to = Date.parse( format, calTo.time.format( format ) )
+    def calFrom = Calendar.instance
+    calFrom.time = to
+    calFrom.add( Calendar.DAY_OF_MONTH, -daysBefore )
+    def from = Date.parse( format, calFrom.time.format( format ) )
+    def transactions = transactionRepository.
+        findAllByAccountAndBankDateGreaterThanEqualAndBankDateLessThanAndDateDeletedIsNull(
+        account, from, to )
+    return parseTransactions( transactions )
+
+  }
+
+  private List<DuplicatedTransactionDto> parseTransactions(
+      List<Transaction> transactions ) throws Exception {
+
+    def parsedTransactions = []
+
+    for ( transaction in transactions ) {
+
+      def parsedTransaction = new DuplicatedTransactionDto()
+      parsedTransaction.description = transaction.description
+      parsedTransaction.amount = transaction.amount
+      parsedTransaction.deposit = !transaction.charge
+      parsedTransaction.transactionId = transaction.scraperId
+      parsedTransactions << parsedTransaction
+
+    }
+
+    return parsedTransactions
 
   }
 
