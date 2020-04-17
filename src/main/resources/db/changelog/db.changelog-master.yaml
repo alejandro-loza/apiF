@@ -58,3 +58,5 @@ databaseChangeLog:
     file: db/changelog/transactions_scraper_id.yaml
 - include:
     file: db/changelog/transactions_delete_hash.yaml
+- include:
+    file: db/changelog/transactions_duplicated.yaml

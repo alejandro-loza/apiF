@@ -43,6 +43,9 @@ public class Transaction {
   @Column(name = 'scraper_id', nullable = true, length = 255)
   String scraperId
 
+  @Column(name = 'duplicated', nullable = false)
+  Boolean duplicated
+
   @Column(name = 'date_created', nullable = false)
   Timestamp dateCreated
 

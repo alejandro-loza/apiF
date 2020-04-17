@@ -164,7 +164,10 @@ class TransactionService {
     transaction.charge = charge
     transaction.scraperId =
         transactionCreateDto?.extra_data?.transaction_Id?.take( 255 )
-    if ( isDuplicated( transaction ) ) { return null }
+    def transactionDto = getDuplicatedTransactionDto( transaction )
+    if( alreadyExists( transaction, transactionDto ) ) { return null }
+    transaction.duplicated = isDuplicated( transaction, transactionDto ) &&
+        transaction.scraperId == null
     def now = new Timestamp( new Date().time )
     transaction.dateCreated = now
     transaction.lastUpdated = now
@@ -195,25 +198,36 @@ class TransactionService {
 
   }
 
-  private boolean isDuplicated( Transaction transaction )
-      throws Exception {
+  private DuplicatedTransactionDto getDuplicatedTransactionDto(
+      Transaction transaction ) throws Exception {
 
-    def transactionDto = new DuplicatedTransactionDto(
+    return new DuplicatedTransactionDto(
       description: transaction.description,
       amount: transaction.amount,
       deposit: !transaction.charge,
       transactionId: transaction.scraperId
     )
+
+  }
+
+  private boolean alreadyExists( Transaction transaction,
+      DuplicatedTransactionDto transactionDto ) throws Exception {
+
     def transactionsSameDay = findAllTransactionsByAccountAndDate(
         transaction.account, transaction.bankDate, 1 )
-    def duplicatedFlag1 = duplicatedTransactionsValidatorService.
+    return duplicatedTransactionsValidatorService.
         validateTransactionsFromSameDate( transactionDto,
         transactionsSameDay )
+
+  }
+
+  private boolean isDuplicated( Transaction transaction,
+      DuplicatedTransactionDto transactionDto ) throws Exception {
+
     def transactionsDifferentDay = findAllTransactionsByAccountAndDate(
         transaction.account, transaction.bankDate, 5 )
-    def duplicatedFlag2 = duplicatedTransactionsValidatorService.
+    return duplicatedTransactionsValidatorService.
         validateTransactions( transactionDto, transactionsDifferentDay )
-    return duplicatedFlag1 || duplicatedFlag2
 
   }
 
