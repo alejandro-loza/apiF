@@ -103,7 +103,8 @@ class TransactionService {
     [ id: transaction.id, description: transaction.description,
         cleanedDescription: transaction.cleanedDescription,
         amount: transaction.amount, isCharge: transaction.charge,
-        date: transaction.bankDate, categoryId: transaction.category?.id ]
+        date: transaction.bankDate, categoryId: transaction.category?.id,
+        duplicated: transaction.duplicated ]
 
   }
 
