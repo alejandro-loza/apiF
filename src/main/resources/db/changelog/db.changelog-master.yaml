@@ -54,3 +54,9 @@ databaseChangeLog:
     file: db/changelog/callbacks_date_deleted.yaml
 - include:
     file: db/changelog/transactions_cleaned_description.yaml
+- include:
+    file: db/changelog/transactions_scraper_id.yaml
+- include:
+    file: db/changelog/transactions_delete_hash.yaml
+- include:
+    file: db/changelog/transactions_duplicated.yaml

@@ -1,0 +1,14 @@
+databaseChangeLog:
+- changeSet:
+    id: transactions_duplicated
+    author: alejandro.garcia
+    changes:
+    - addColumn:
+        tableName: transactions
+        columns:
+        - column:
+            name: duplicated
+            type: java.sql.Types.BOOLEAN
+            constraints:
+              nullable: false
+            defaultValueBoolean: false

@@ -62,7 +62,7 @@ class ScraperCallbackService {
   @Transactional
   void processMovements( List movements, String credentialId ) throws Exception {
     def credential = credentialService.findAndValidate( credentialId )
-    if ( !credential?.customer?.client?.useTransactionsTable ) { return } 
+    if ( credential?.customer?.client?.useTransactionsTable ) { return }
     transactionCategorizerService.categorizeAll( movements )
   }
 
