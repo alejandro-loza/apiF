@@ -1,0 +1,8 @@
+databaseChangeLog:
+- changeSet:
+    id: transactions_delete_hash
+    author: alejandro.garcia
+    changes:
+    - dropColumn:
+        tableName: transactions
+        columnName: hash

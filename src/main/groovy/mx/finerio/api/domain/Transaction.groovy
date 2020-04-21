@@ -40,8 +40,11 @@ public class Transaction {
   @JoinColumn(name = 'category_id', nullable = true)
   Category category
   
-  @Column(name = 'hash', nullable = false)
-  byte[] hash
+  @Column(name = 'scraper_id', nullable = true, length = 255)
+  String scraperId
+
+  @Column(name = 'duplicated', nullable = false)
+  Boolean duplicated
 
   @Column(name = 'date_created', nullable = false)
   Timestamp dateCreated
