@@ -226,6 +226,8 @@ class TransactionService {
 
     def transactionsDifferentDay = findAllTransactionsByAccountAndDate(
         transaction.account, transaction.bankDate, 5 )
+    transactionsDifferentDay = transactionsDifferentDay.findAll {
+        it.amount == transaction.amount }
     return duplicatedTransactionsValidatorService.
         validateTransactions( transactionDto, transactionsDifferentDay )
 

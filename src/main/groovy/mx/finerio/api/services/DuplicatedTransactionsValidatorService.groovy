@@ -29,6 +29,7 @@ class DuplicatedTransactionsValidatorService {
     for ( transactionToCompare in transactionsToCompare ) {
     
       if ( transactionToCompare.transactionId == null &&
+          transactionDto.transactionId == null &&
           transactionToCompare.description == transactionDto.description &&
           transactionToCompare.deposit == transactionDto.deposit &&
           transactionToCompare.amount == transactionDto.amount ) {
