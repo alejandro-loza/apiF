@@ -9,9 +9,21 @@ import org.springframework.stereotype.Service
 class AccountDetailsService {
 
   @Autowired
+  AccountExtraDataService accountExtraDataService
+
+  @Autowired
   CreditDetailsService creditDetailsService
 
   Map findAllByAccount( String accountId ) throws Exception {
+
+    def map = getCreditDetailsMap( accountId )
+    addAccountExtraData( map, accountId, 'userData_name', 'name' )
+    addAccountExtraData( map, accountId, 'clabe', 'clabe' )
+    return map
+
+  }
+
+  private Map getCreditDetailsMap( String accountId ) throws Exception {
 
     def instance = creditDetailsService.findByAccountId( accountId )
 
@@ -19,8 +31,16 @@ class AccountDetailsService {
       instance = new CreditDetails()
     }
 
-    def map = creditDetailsService.getFields( instance )
-    return map
+    return creditDetailsService.getFields( instance )
+
+  }
+
+  private void addAccountExtraData( Map map, String accountId,
+      String extraDataKey, String key ) throws Exception {
+
+    def dto = accountExtraDataService.findByAccountAndName(
+        accountId, extraDataKey )
+    map."${key}" = dto?.value
 
   }
 

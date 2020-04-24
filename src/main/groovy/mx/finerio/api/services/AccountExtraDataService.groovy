@@ -39,6 +39,21 @@ class AccountExtraDataService {
 
   }
 
+  AccountExtraDataDto findByAccountAndName( String accountId, String name )
+      throws Exception {
+
+    def account = accountService.findById( accountId )
+    def instance = accountExtraDataRepository.findFirstByAccountAndName(
+        account, name )
+    if ( !instance ) { return null }
+    def dto = new AccountExtraDataDto()
+    dto.accountId = accountId
+    dto.name = instance.name
+    dto.value = instance.value
+    return dto
+
+  }
+
   private void create( AccountExtraDataDto dto ) throws Exception {
 
     def account = accountService.findById( dto.accountId )
