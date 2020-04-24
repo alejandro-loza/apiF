@@ -27,7 +27,7 @@ class AccountExtraDataService {
         newDto.extraData = it.value
         newDto.prefix = "${dto.prefix}${it.key}_"
         createAll( newDto )
-      } else {
+      } else if ( it.value != null ) {
         def accountExtraDataDto = new AccountExtraDataDto()
         accountExtraDataDto.accountId = dto.accountId
         accountExtraDataDto.name = "${dto.prefix}${it.key}"
