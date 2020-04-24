@@ -2,7 +2,7 @@ package mx.finerio.api.controllers
 
 import mx.finerio.api.domain.CreditDetails
 import mx.finerio.api.services.AccountService
-import mx.finerio.api.services.CreditDetailsService
+import mx.finerio.api.services.AccountDetailsService
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Pageable
@@ -19,7 +19,7 @@ class AccountController {
   AccountService accountService
 
   @Autowired
-  CreditDetailsService creditDetailsService
+  AccountDetailsService accountDetailsService
 
   @GetMapping('/accounts')
   ResponseEntity findAll( @RequestParam Map<String, String> params ) {
@@ -34,14 +34,8 @@ class AccountController {
   @GetMapping('/accounts/{id}/details')
   ResponseEntity findAllDetails( @PathVariable String id ) {
 
-    def instance = creditDetailsService.findByAccountId( id )
-
-    if ( !instance ) {
-      instance = new CreditDetails()
-    }
-
-    instance = creditDetailsService.getFields( instance )
-    new ResponseEntity( instance, HttpStatus.OK )
+    def accountDetailsMap = accountDetailsService.findAllByAccount( id )
+    new ResponseEntity( accountDetailsMap, HttpStatus.OK )
 
   }
 
