@@ -12,7 +12,7 @@ import org.hibernate.annotations.GenericGenerator
 @ToString(includeNames = true, includePackage = false)
 class AccountExtraData {
 
-  @Id
+  @Id @GeneratedValue
   @Column(name = 'id', nullable = false, updatable = false)
   String id
 
