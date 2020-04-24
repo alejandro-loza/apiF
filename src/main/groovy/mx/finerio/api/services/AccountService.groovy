@@ -7,6 +7,7 @@ import mx.finerio.api.domain.*
 import mx.finerio.api.domain.repository.*
 import mx.finerio.api.dtos.AccountData
 import mx.finerio.api.dtos.AccountListDto
+import mx.finerio.api.dtos.CreateAllAccountExtraDataDto
 
 import org.springframework.data.domain.Pageable
 import org.springframework.beans.factory.annotation.Autowired
@@ -15,6 +16,9 @@ import org.springframework.transaction.annotation.Transactional
 
 @Service
 class AccountService {
+
+  @Autowired
+  AccountExtraDataService accountExtraDataService
 
   @Autowired
   CredentialService credentialService
@@ -84,6 +88,7 @@ class AccountService {
     if( accountData.credit_card_detail && accountData.is_credit_card ){
       creditDetailsService.create( accountData.credit_card_detail, account )
     }
+    createExtraData( account, accountData.extra_data )
     account
 
   }
@@ -316,6 +321,18 @@ class AccountService {
     }
 
     dto
+
+  }
+
+  private void createExtraData( Account account, Map extraData )
+      throws Exception {
+
+    if ( extraData == null || extraData.isEmpty() ) { return }
+    def dto = new CreateAllAccountExtraDataDto()
+    dto.accountId = account.id
+    dto.extraData = extraData
+    dto.prefix = ''
+    accountExtraDataService.createAll( dto )
 
   }
 
