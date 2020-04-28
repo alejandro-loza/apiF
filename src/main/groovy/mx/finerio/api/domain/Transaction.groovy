@@ -46,6 +46,9 @@ public class Transaction {
   @Column(name = 'duplicated', nullable = false)
   Boolean duplicated
 
+  @Column(name = 'balance', nullable = true)
+  BigDecimal balance
+
   @Column(name = 'date_created', nullable = false)
   Timestamp dateCreated
 

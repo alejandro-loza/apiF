@@ -104,7 +104,7 @@ class TransactionService {
         cleanedDescription: transaction.cleanedDescription,
         amount: transaction.amount, isCharge: transaction.charge,
         date: transaction.bankDate, categoryId: transaction.category?.id,
-        duplicated: transaction.duplicated ]
+        duplicated: transaction.duplicated, balance: transaction.balance ]
 
   }
 
@@ -169,6 +169,11 @@ class TransactionService {
     if( alreadyExists( transaction, transactionDto ) ) { return null }
     transaction.duplicated = isDuplicated( transaction, transactionDto ) &&
         transaction.scraperId == null
+    def rawBalance = transactionCreateDto?.extra_data?.balance
+    if ( rawBalance != null ) {
+      transaction.balance = new BigDecimal( rawBalance ).setScale(
+          2, BigDecimal.ROUND_HALF_UP )
+    }
     def now = new Timestamp( new Date().time )
     transaction.dateCreated = now
     transaction.lastUpdated = now

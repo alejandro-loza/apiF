@@ -128,6 +128,7 @@ class TransactionsReceiver implements InitializingBean {
         	transaction.amount = it.amount
           def tExtraData = new TransactionExtraData() 
           tExtraData.transaction_Id = it.extra_data?.transaction_Id
+          tExtraData.balance = it.extra_data?.balance
           transaction.extra_data = tExtraData
           transactionList.add( transaction )
 
