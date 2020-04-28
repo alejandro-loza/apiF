@@ -6,5 +6,6 @@ import groovy.transform.ToString
 class TransactionExtraData {
 
   String transaction_Id
+  String balance
 
 }

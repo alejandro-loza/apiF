@@ -62,3 +62,5 @@ databaseChangeLog:
     file: db/changelog/transactions_duplicated.yaml
 - include:
     file: db/changelog/account_extra_data.yaml
+- include:
+    file: db/changelog/transactions_balance.yaml
