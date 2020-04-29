@@ -34,6 +34,7 @@ dependencies {
   compile('org.springframework.security.oauth:spring-security-oauth2')
   compile('org.bouncycastle:bcpkix-jdk15on:1.57')
   compile('com.github.groovy-wslite:groovy-wslite:1.1.2')
+  compile('com.microsoft.signalr:signalr:1.0.0')
 
   runtime('mysql:mysql-connector-java')
 

@@ -61,6 +61,9 @@ class CredentialService {
 
   @Value( '${sync.user.name}' )
   String syncUsername
+  
+  @Autowired
+  SignalRService signalRService
 
   Credential create( CredentialDto credentialDto ) throws Exception {
 
@@ -202,8 +205,10 @@ class CredentialService {
 
     if ( credential.institution.code == 'BBVA' ) {
       sendToScraperWebSocket( credential )
-    } else {
-      sendToScraper( credential )
+    } else if ( credential.institution.code == 'BAZ' ) {
+      signalRService.sendCredentialToSignalR( credential )
+    }else{
+	    sendToScraper( credential )
     }
 
   }
@@ -259,6 +264,12 @@ class CredentialService {
     }
  
     def credential = findOne( id )
+	
+	if( credential.institution.code == 'BAZ' ) {
+	  signalRService.sendTokenToScrapper( credentialInteractiveDto.token, id )
+		return
+	}
+		
     def data = [ data: [
       stage: 'interactive',
       id: credential.id,
@@ -376,6 +387,22 @@ class CredentialService {
         tokenSent: false,
         destroyPreviousSession: true ) )
 
+  }
+  
+  private void sendCredentialToSignalR( Credential credential )throws Exception {
+	  
+	  def data = [		  
+		  Id: credential.id,
+		  Username: credential.username,
+		  Password: credential.password,
+		  IV: credential.iv,
+		  State: 'Start',
+		  User: [Id: credential.user.id ],
+		  Institution: [Id: credential.institution.id ]		  		  		
+		] 
+		
+		signalRService.sendCredential( data )
+			  
   }
 
   private boolean credentialRecentlyUpdated( Credential credential )
