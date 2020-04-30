@@ -13,6 +13,7 @@ import mx.finerio.api.dtos.ScraperWebSocketSendDto
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class CredentialService {
@@ -125,7 +126,7 @@ class CredentialService {
     instance
 
   }
-
+  @Transactional 
   Credential findAndValidate( String id ) throws Exception {
 
     if ( !id ) {
@@ -206,7 +207,7 @@ class CredentialService {
     if ( credential.institution.code == 'BBVA' ) {
       sendToScraperWebSocket( credential )
     } else if ( credential.institution.code == 'BAZ' ) {
-      signalRService.sendCredentialToSignalR( credential )
+      sendCredentialToSignalR( credential )
     }else{
 	    sendToScraper( credential )
     }
@@ -265,10 +266,10 @@ class CredentialService {
  
     def credential = findOne( id )
 	
-	if( credential.institution.code == 'BAZ' ) {
-	  signalRService.sendTokenToScrapper( credentialInteractiveDto.token, id )
-		return
-	}
+	   if( credential.institution.code == 'BAZ' ) {
+	       signalRService.sendTokenToScrapper( credentialInteractiveDto.token, id )
+		 return
+	   }
 		
     def data = [ data: [
       stage: 'interactive',

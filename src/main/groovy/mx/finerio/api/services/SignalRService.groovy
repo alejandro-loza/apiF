@@ -7,12 +7,20 @@ import org.springframework.stereotype.Service
 import org.springframework.beans.factory.annotation.Value
 import com.microsoft.signalr.HubConnection
 import com.microsoft.signalr.HubConnectionBuilder
+import com.microsoft.signalr.Action1
 import groovy.json.JsonSlurper
 import static java.nio.charset.StandardCharsets.*
 import org.springframework.scheduling.annotation.Async
+import io.reactivex.observers.DisposableCompletableObserver
+import com.google.gson.internal.LinkedTreeMap
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 @Service
 class SignalRService {
+
+	  final static Logger log = LoggerFactory.getLogger(
+      'mx.finerio.api.services.SignalRService' )
 
 	Map connections = [:]
 	
@@ -56,16 +64,20 @@ class SignalRService {
     	}
 	} 
 		
-	private String createConnection( Map credentialData ) {
-		HubConnection connection = HubConnectionBuilder.create( this.url ).build()		
-		def connectionId = connection.getConnectionId()
-		connections.put( connectionId,  [ connection: connection,
-			credentialId: credentialData.Id ] )
-		
-		connection.on( tokenRequiredListener, { message  -> 
-			onTokenRequired( message )
-		}, String.class)
+	private String createConnection( Map credentialData ) {		
+		HubConnection connection = HubConnectionBuilder.create( this.url ).build()
+
+		connection.on( 'token_required', { data  -> 		
+            log.info(" -- Message from signalR service ${data} --")
+			onTokenRequired( data )
+		}, LinkedTreeMap.class)
 	
+		connection.start().blockingGet()
+
+		def connectionId = connection.getConnectionId()
+			connections.put( connectionId,  [ connection: connection,
+			credentialId: credentialData.Id ] )
+
 		connectionId	
 	}
 	  	
@@ -78,19 +90,22 @@ class SignalRService {
 		 restTemplateService.post( finalUrl, headers, body )
 		  		  
 	  }
-	  
-	  private void onTokenRequired( String message ) {
+	   
+	 private void onTokenRequired( LinkedTreeMap data ) {
 		  
-		  Map messageMap = new JsonSlurper().
-						  parseText( new String( message, UTF_8) )
-		  String connectionId = messageMap?.Template?.ConnectionId
+		if ( data.State.equals('Token') ){
+
+		  String connectionId = data.connectionId
 		  String credentialId = connections.get( connectionId ).get( 'credentialId' ) 				  
 						  
 		  Credential credential = credentialService.findAndValidate( credentialId )
-		  callbackService.sendToClient( credential?.customer?.client,
-			  Callback.Nature.NOTIFY, [ credentialId: credential.id,
-		      stage:  messageMap?.State ] )
+		  def client = credential.customer.client
+		  callbackService.sendToClient( client,
+			  Callback.Nature.NOTIFY, [ credentialId: credentialId,
+		      stage: data?.State ] )
+
 		  closeConnection( connectionId )
+		}		
 	  }
 	  	 	  	
 	  private void closeConnection( String connectionId ) {
@@ -107,10 +122,9 @@ class SignalRService {
 	  void sendTokenToScrapper( String token, String credentialId )  {
 		  String connectionId = getConnectionIdFromCredentialId( credentialId )
 		  def finalUrl = "${urlRestScrapper}/${pathReceived}"
-		  def headers = [ connectionId: connectionId,
-			              token: token]
-		  def body = data
-		  restTemplateService.post( finalUrl, headers, body )
+		  def data = [ connectionId: connectionId,
+			              Token: token]		  
+		  restTemplateService.post( finalUrl, [:], data )
 		  removeConnection( connectionId )
 		  
 	  }
