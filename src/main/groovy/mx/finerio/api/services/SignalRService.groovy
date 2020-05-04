@@ -15,29 +15,20 @@ import io.reactivex.observers.DisposableCompletableObserver
 import com.google.gson.internal.LinkedTreeMap
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import javax.annotation.PreDestroy
 
 @Service
 class SignalRService {
 
-	  final static Logger log = LoggerFactory.getLogger(
+	final static Logger log = LoggerFactory.getLogger(
       'mx.finerio.api.services.SignalRService' )
-
-	Map connections = [:]
 	
-	@Value( '${scrapper.signalR.connection.url}' )
-	String url
-	
-	@Value( '${scraper.rest.connection.url}' )
-	String urlRestScrapper
-	
-	@Value( '${scraper.rest.tokenRequired.path}' )
-	String pathRequired
-	
-	@Value( '${scraper.rest.tokenRequired.listener}' )
+	String url		
+	String pathRequired	
 	String tokenRequiredListener
-    
-	@Value( '${scraper.rest.tokenReceived.path}' )
 	String pathReceived
+
+	HubConnection connection
 	
 	@Autowired
 	RestTemplateService restTemplateService
@@ -48,14 +39,70 @@ class SignalRService {
 	@Autowired
 	CredentialService credentialService
 
+
+	@Autowired
+ 	public TransactionsReceiver( 
+ 		@Value('${scrapper.signalR.rest.connection.url}') final String url, 
+    	@Value('${scraper.rest.tokenRequired.path}') final String pathRequired,    	
+    	@Value('${scraper.rest.tokenReceived.path}') final String pathReceived  ){
+    
+ 		this.url = url
+    	this.pathRequired = pathRequired    	
+    	this.pathReceived = pathReceived
+    
+     	this.createConnection()
+ 	}
+
+	private void createConnection( Map credentialData ) {		
+
+		connection = HubConnectionBuilder.create( this.url ).build()
+
+		connection.on( 'token_required', 
+			{ data  -> 		                   
+                this.validateMessage( data )
+			    this.onTokenRequired( data )	         			
+			}, LinkedTreeMap.class)
+
+		connection.on( 'token_received', //Consuming this for not showing errors on logs
+			{ data  -> }, LinkedTreeMap.class)
+
+		connection.start().subscribe(
+			{ 
+				log.info("-- Connection with signalRService Started --") 
+			},
+			{ 
+				e -> log.info("-- Error when connecting with signalRService ${e.message}--")
+		    })
+	}
+
+	private validateMessage( LinkedTreeMap data ){
+  		if( !data.Id ){
+    		throw new BadImplementationException(
+        	'signalRService.validateMessage.data.null' )  			
+  		}
+
+	} 	
+
+	 private void onTokenRequired( LinkedTreeMap data ) {
+		  	
+		  String credentialId = data.Id		  						 
+		  Credential credential = credentialService.findAndValidate( credentialId )		  
+		  callbackService.sendToClient( credential.customer.client,
+			  Callback.Nature.NOTIFY, [ credentialId: credentialId,
+		      stage: 'Token' ] )		 
+	
+	  }	
+    @Async
 	String sendCredential( Map credentialData ) {
 				
-      	validateCredentialData( credentialData )
-		String connectionId = this.createConnection( credentialData )		
-		credentialData.connectionId = connectionId				
-		this.sendCredentialDataToScrapper( credentialData )
-		connectionId			
+  		validateCredentialData( credentialData )
+
+      	def finalUrl = "${url}/${pathRequired}"		 		
+		restTemplateService.post( finalUrl, [:], credentialData )
+
+        'Credentail sent successfully'
 	}
+
 
 	private void validateCredentialData( Map credentialData ){
     	if( !credentialData){
@@ -64,84 +111,29 @@ class SignalRService {
     	}
 	} 
 		
-	private String createConnection( Map credentialData ) {		
-		HubConnection connection = HubConnectionBuilder.create( this.url ).build()
+	  		  
+	@Async
+	void sendTokenToScrapper( String token, String credentialId )  {
+		
+		def finalUrl = "${url}/${pathReceived}"
+		def data = [
+					 Id: credentialId,
+			         Token: token,
+			         State: 'Token'
+					]		  
+		restTemplateService.post( finalUrl, [:], data )				
+	 }
 
-		connection.on( 'token_required', { data  -> 		
-            log.info(" -- Message from signalR service ${data} --")
-			onTokenRequired( data )
-		}, LinkedTreeMap.class)
-	
-		connection.start().blockingGet()
-
-		def connectionId = connection.getConnectionId()
-			connections.put( connectionId,  [ connection: connection,
-			credentialId: credentialData.Id ] )
-
-		connectionId	
-	}
-	  	
-	 @Async
-	 private void sendCredentialDataToScrapper( Map credentialData ) {
-		  
-		 def finalUrl = "${urlRestScrapper}/${pathRequired}"
-		 def headers = [:]
-		 def body = credentialData
-		 restTemplateService.post( finalUrl, headers, body )
-		  		  
+	  @PreDestroy	 	  	
+	  private void closeConnection( ) {		  
+		  connection.stop().subscribe(
+			{ 
+				log.info("-- Connection with signalRService Closed --") 
+			},
+			{ 
+				e -> log.info("-- Error when closing signalRService ${e.message}--")
+		    })
 	  }
-	   
-	 private void onTokenRequired( LinkedTreeMap data ) {
-		  
-		if ( data.State.equals('Token') ){
-
-		  String connectionId = data.connectionId
-		  String credentialId = connections.get( connectionId ).get( 'credentialId' ) 				  
-						  
-		  Credential credential = credentialService.findAndValidate( credentialId )
-		  def client = credential.customer.client
-		  callbackService.sendToClient( client,
-			  Callback.Nature.NOTIFY, [ credentialId: credentialId,
-		      stage: data?.State ] )
-
-		  closeConnection( connectionId )
-		}		
-	  }
-	  	 	  	
-	  private void closeConnection( String connectionId ) {
-		  HubConnection connection = this.connections.
-		  		get( connectionId ).get('connection') 
-		  connection.stop()				 
-	  }
-	  
-	  private void removeConnection( String connectionId ) {
-		  this.connections.remove( connectionId )
-	  }
-	  
-	  @Async
-	  void sendTokenToScrapper( String token, String credentialId )  {
-		  String connectionId = getConnectionIdFromCredentialId( credentialId )
-		  def finalUrl = "${urlRestScrapper}/${pathReceived}"
-		  def data = [ connectionId: connectionId,
-			              Token: token]		  
-		  restTemplateService.post( finalUrl, [:], data )
-		  removeConnection( connectionId )
-		  
-	  }
-	  
-	  private String getConnectionIdFromCredentialId( String credentialId ) {		 
-		  
-		  for ( String connectionId : this.connections.keySet() ){
-			  String internCredentialId = 
-			  	this.connections.get(connectionId).get('credentialId')
-				  if( internCredentialId.equals(credentialId)) {
-					  return connectionId
-				  }
-			  }
-		  	
-      	throw new BadImplementationException(
-        	'signalRService.getConnectionIdFromCredentialId.connectionId.notFound' )
-    			  		 
-	  }
-
 }
+	  
+

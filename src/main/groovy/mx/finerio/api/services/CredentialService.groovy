@@ -398,8 +398,7 @@ class CredentialService {
 		  Password: credential.password,
 		  IV: credential.iv,
 		  State: 'Start',
-		  User: [Id: credential.user.id ],
-		  Institution: [Id: credential.institution.id ]		  		  		
+		  User: [Id: credential.user.id ]		  
 		] 
 		
 		signalRService.sendCredential( data )
