@@ -23,7 +23,6 @@ class AdminService {
     Customer, Credential, Account, Transaction, Boolean
   }
 
-  //@Async
   void sendDataToAdmin( Object data, Object data2 = null ){
 
     Classes clazz = Classes.valueOf( data.getClass().getSimpleName() )
