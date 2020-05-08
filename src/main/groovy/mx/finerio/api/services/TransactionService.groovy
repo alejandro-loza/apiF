@@ -6,7 +6,6 @@ import mx.finerio.api.domain.Account
 import mx.finerio.api.domain.Transaction
 import mx.finerio.api.domain.TransactionSpecs
 import mx.finerio.api.domain.repository.TransactionRepository
-import mx.finerio.api.domain.repository.AccountCredentialRepository
 import mx.finerio.api.dtos.Transaction as TransactionCreateDto
 import mx.finerio.api.dtos.TransactionListDto
 import mx.finerio.api.dtos.TransactionData
@@ -42,10 +41,7 @@ class TransactionService {
   TransactionRepository transactionRepository
 
   @Autowired
-  AdminQueueService adminQueueService  
-
-  @Autowired
-  AccountCredentialRepository accountCredentialRepository
+  AdminService adminService
 
   List createAll( TransactionData transactionData ) throws Exception {
 
@@ -158,7 +154,7 @@ class TransactionService {
     transaction.dateCreated = now
     transaction.lastUpdated = now
     transaction = transactionRepository.save( transaction )
-    sendTransactionToAdmin( transaction )
+    //adminService.sendDataToAdmin( transaction )
     transaction
 
   }
@@ -193,15 +189,4 @@ class TransactionService {
 
     dto
   }
-
-  void sendTransactionToAdmin( Transaction transaction ){ 
-
-    def accountCredential = accountCredentialRepository.findFirstByAccountId( transaction?.account.id )      
-    def clientId = accountCredential?.credential?.customer?.client?.id
-    def data = [ clientId: clientId, customerId: accountCredential?.credential?.customer.id, 
-      credentialId:accountCredential?.credential?.id,accountId: transaction?.account.id, date: transaction.dateCreated.time ]
-    adminQueueService.queueMessage( data, 'CREATE_MOVEMENT')   
-      
-  }
-
 }

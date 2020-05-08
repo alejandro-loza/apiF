@@ -36,7 +36,7 @@ class ScraperCallbackService {
   CredentialStatusHistoryService credentialStatusHistoryService
 
   @Autowired
-  AdminQueueService adminQueueService   
+  AdminService adminService
   
   @Transactional
   List processTransactions( TransactionDto transactionDto ) throws Exception {
@@ -71,7 +71,7 @@ class ScraperCallbackService {
     def credential = credentialService.updateStatus(
         successCallbackDto?.data?.credential_id, Credential.Status.ACTIVE )
     credentialStatusHistoryService.update( credential )
-    sendConnectionToAdmin( credential, true )
+    adminService.sendDataToAdmin( Boolean.valueOf(true), credential )
     credential
   }
 
@@ -93,28 +93,14 @@ class ScraperCallbackService {
     def credential = credentialService.setFailure(
         failureCallbackDto?.data?.credential_id, strStatusCode )
     credentialStatusHistoryService.update( credential )
-    sendConnectionToAdmin( credential, false )
+    adminService.sendDataToAdmin( Boolean.valueOf(false), credential )
     closeWebSocketSession( credential )
     callbackService.sendToClient( credential?.customer?.client,
         Callback.Nature.FAILURE, [ credentialId: credential.id,
         message: credential.errorCode, code: strStatusCode ] )
 
   }
-
-    void sendConnectionToAdmin( Credential credential, Boolean isSuccessful ){  
-     
     
-      def clientId = credential?.customer?.client?.id
-      String institutionCode = credential?.institution?.code
-      def data = [ clientId: clientId, customerId: credential?.customer.id, 
-      credentialId:credential?.id,institutionCode:institutionCode, 
-      isSuccessful: isSuccessful, date: new Date().time ]
-      adminQueueService.queueMessage( data, 'CREATE_CONNECTION')
-
-  }
-
-     
-
   private void validateProcessTransactionsInput(
       TransactionDto transactionDto ) throws Exception {
 

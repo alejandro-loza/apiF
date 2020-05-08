@@ -17,6 +17,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import javax.annotation.PreDestroy
+import mx.finerio.api.exceptions.BadImplementationException
 
 @Service
 class AdminQueueService {
@@ -24,7 +25,6 @@ class AdminQueueService {
     enum AdminTopic {
       CREATE_CUSTOMER, CREATE_ACCOUNT, CREATE_CONNECTION, CREATE_CREDENTIAL, CREATE_MOVEMENT
     }
-
 
   final static Logger log = LoggerFactory.getLogger(
     'mx.finerio.api.services.AdminQueueService' )
@@ -37,7 +37,8 @@ class AdminQueueService {
   Boolean isProduction
 
   @Autowired
-  public AdminQueueService (@Value('${servicebus.azure.admin.stringConnection}') final String serviceUrl, 
+  public AdminQueueService (
+    @Value('${servicebus.azure.admin.stringConnection}') final String serviceUrl, 
     @Value('${servicebus.azure.admin.name}') final String serviceName,
     @Value('${admin.config.isProduction}') final Boolean isProduction,
     @Value('${servicebus.azure.admin.susbscriber.timeToLiveMinutes}') final String timeToLive ){
@@ -48,12 +49,12 @@ class AdminQueueService {
     this.isProduction = isProduction 
 
     connection = new ConnectionStringBuilder( serviceUrl, serviceName )
-    sendClient = new QueueClient(new ConnectionStringBuilder
-        ( serviceUrl, serviceName ), ReceiveMode.PEEKLOCK)
+    sendClient = new QueueClient( connection, ReceiveMode.PEEKLOCK)
 
   }
 
   void queueMessage( Map data, String label  ) throws Exception {
+
     data.isProduction = this.isProduction
     String randomNumber = "-" + ( ( Math.random() * 1000 ) ) as String 
     Message message = new Message( new JsonBuilder( data ).toPrettyString().getBytes( UTF_8) )
@@ -64,38 +65,37 @@ class AdminQueueService {
     message.sessionId = getSessionId( data, label )
  
     sendClient.send( message )
-    log.info( "Sending message to transactions queue >> Id:${message.getMessageId()}, sessionId:${message.getSessionId()}, type:${message.getLabel()}" )
+    log.info( "Sending message to Admin queue >> Id:${message.getMessageId()}, sessionId:${message.getSessionId()}, type:${message.getLabel()}" )
 
   }
 
   String getSessionId( Map data, String adminTopicStr ){
 
-    def adminTopic = adminTopicStr as AdminTopic
-    
-    switch( adminTopic ) {
-      case  AdminTopic.CREATE_CUSTOMER:
+    switch( adminTopicStr ) {
+      case AdminTopic.CREATE_CUSTOMER.toString():
              return "CREATE_CUSTOMER_${data.clientId}_${data.isProduction}"
-      break
-      case  AdminTopic.CREATE_CREDENTIAL:
+      
+      case AdminTopic.CREATE_CREDENTIAL.toString():
              return "CREATE_CREDENTIAL_OR_ACCOUNT${data.customerId}_${data.isProduction}"
-      break
-      case  AdminTopic.CREATE_ACCOUNT:
+      
+      case AdminTopic.CREATE_ACCOUNT.toString():
              return "CREATE_CREDENTIAL_OR_ACCOUNT${data.customerId}_${data.isProduction}"
-      break
-      case  AdminTopic.CREATE_CONNECTION:
+      
+      case AdminTopic.CREATE_CONNECTION.toString():
              return "CREATE_CONNECTION_${data.customerId}"
-      break
-      case  AdminTopic.CREATE_MOVEMENT:
-             return "CREATE_MOVEMENT_${data.accountId}_${data.isProduction}"
-      break
-
+      
+      case AdminTopic.CREATE_MOVEMENT.toString():
+             return "CREATE_MOVEMENT_${data.accountId}_${data.isProduction}"                  
+      default:
+        throw new BadImplementationException('adminQueueService.getSessionId.adminTopicStr.notFound')
     }
+
   }
 
     @PreDestroy
     public void OnDestroy() {
       sendClient.close()
-      log.info('Sender connection to transactions queue closed')
+      log.info('Sender connection to admin queue closed')
     }
 
 }

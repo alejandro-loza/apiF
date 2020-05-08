@@ -12,8 +12,8 @@
   </appender>
 
   <logger name="mx.finerio.api.aop" level="INFO"/>
-  <logger name="org.hibernate" level="OFF"/>
-    <logger name="com.microsoft.azure.servicebus" level="OFF"/>  
+  <!--logger name="org.hibernate" level="OFF"/-->
+  <logger name="com.microsoft.azure.servicebus" level="OFF"/>  
 
   <root level="INFO">
     <appender-ref ref="FILE" />

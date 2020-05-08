@@ -30,9 +30,7 @@ class CustomerService {
   CustomerRepository customerRepository
 
   @Autowired
-  AdminQueueService adminQueueService
-
-
+  AdminService adminService
 
   Customer create( @Valid CustomerDto dto ) throws Exception {
 
@@ -53,17 +51,9 @@ class CustomerService {
     instance.client = client
     instance.dateCreated = new Date()
     customerRepository.save( instance )
-    sendCustomerToAdmin( instance )
+    adminService.sendDataToAdmin( instance )
     instance
 
-  }
-  
-  void sendCustomerToAdmin( Customer customer ){
-     
-    def clientId = customer?.client?.id
-    def data = [ clientId: clientId, customerId: customer.id, date: customer.dateCreated.time ]
-    adminQueueService.queueMessage( data, 'CREATE_CUSTOMER')
-    
   }
 
   Map findAll( Map params ) throws Exception {
