@@ -9,8 +9,9 @@ import mx.finerio.api.domain.Callback
 interface CallbackRepository extends JpaRepository<Callback, Long>,
     JpaSpecificationExecutor {
   
-  Callback findByClientAndNature( Client client, Callback.Nature nature )
+  Callback findFirstByClientAndNatureAndDateDeletedIsNull(
+      Client client, Callback.Nature nature )
 
-  List<Callback> findAllByClient( Client client )
+  List<Callback> findAllByClientAndDateDeletedIsNull( Client client )
 
 }

@@ -1,6 +1,7 @@
 package mx.finerio.api.aop
 
-import mx.finerio.api.domain.Category
+import mx.finerio.api.dtos.CustomerDto
+import mx.finerio.api.domain.Customer
 
 import org.aspectj.lang.annotation.AfterReturning
 import org.aspectj.lang.annotation.AfterThrowing
@@ -15,31 +16,32 @@ import org.springframework.stereotype.Component
 
 @Component
 @Aspect
-class CategoryServiceFindAll {
+class CustomerServiceUpdate {
 
   final static Logger log = LoggerFactory.getLogger(
-      'mx.finerio.api.aop.CategoryServiceFindAll' )
+      'mx.finerio.api.aop.CustomerServiceUpdate' )
 
   @Pointcut(
-    value='execution(java.util.List mx.finerio.api.services.CategoryService.findAll()) && bean(categoryService)'
+    value='execution(mx.finerio.api.domain.Customer mx.finerio.api.services.CustomerService.update(..)) && bean(customerService) && args(id, dto)',
+    argNames='id, dto'
   )
-  public void findAll() {}
+  public void update( Long id, CustomerDto dto ) {}
 
-  @Before('findAll()')
-  void before() {
-    log.info( "<< OK" )
+  @Before('update(id, dto)')
+  void before( Long id, CustomerDto dto ) {
+    log.info( "<< id: {}, customerDto: {}", id, dto )
   }
 
   @AfterReturning(
-    pointcut='findAll()',
+    pointcut='update(Long, mx.finerio.api.dtos.CustomerDto)',
     returning='response'
   )
-  void afterReturning( List response ) {
+  void afterReturning( Customer response ) {
     log.info( '>> response: {}', response )
   }
 
   @AfterThrowing(
-    pointcut='findAll()',
+    pointcut='update(Long, mx.finerio.api.dtos.CustomerDto)',
     throwing='e'
   )
   void afterThrowing( Exception e ) {

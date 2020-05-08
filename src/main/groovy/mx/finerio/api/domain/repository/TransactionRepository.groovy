@@ -9,6 +9,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor
 interface TransactionRepository
     extends JpaRepository<Transaction, Long>, JpaSpecificationExecutor {
 
-  Transaction findByAccountAndHashAndDateDeletedIsNull( Account account, byte[] hash )
+  List<Transaction> findAllByAccountAndBankDateGreaterThanEqualAndBankDateLessThanAndDateDeletedIsNull(
+        Account account, Date from, Date to )
 
 }

@@ -11,10 +11,14 @@ import mx.finerio.api.dtos.*
 import mx.finerio.api.dtos.ScraperWebSocketSendDto
 
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 
 @Service
 class CredentialService {
+
+  @Autowired
+  AccountService accountService
 
   @Autowired
   BankConnectionService bankConnectionService
@@ -54,6 +58,9 @@ class CredentialService {
 
   @Autowired
   SecurityService securityService
+
+  @Value( '${sync.user.name}' )
+  String syncUsername
 
   @Autowired
   AdminService adminService
@@ -107,11 +114,15 @@ class CredentialService {
     def client = securityService.getCurrent()
     def instance = credentialRepository.findOne( id )
 
+    if ( instance && client.username == syncUsername ) {
+      return instance
+    }
+
     if ( !instance || instance?.customer?.client?.id != client.id ||
         instance.dateDeleted ) {
       throw new InstanceNotFoundException( 'credential.not.found' )
     }
- 
+
     instance
 
   }
@@ -263,6 +274,15 @@ class CredentialService {
         message: new JsonBuilder( data ).toString(),
         tokenSent: true,
         destroyPreviousSession: false ) )
+
+  }
+
+  void delete( String id ) throws Exception {
+
+    def instance = findOne( id )
+    accountService.deleteAllByCredential( instance )
+    instance.dateDeleted = new Date()
+    credentialRepository.save( instance )
 
   }
 

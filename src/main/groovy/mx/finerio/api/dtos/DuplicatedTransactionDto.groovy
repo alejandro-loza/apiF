@@ -3,9 +3,11 @@ package mx.finerio.api.dtos
 import groovy.transform.ToString
 
 @ToString(includePackage = false, includeNames = true)
-class TransactionExtraData {
+class DuplicatedTransactionDto {
 
-  String transaction_Id
-  String balance
-
+  String description
+  BigDecimal amount
+  boolean deposit
+  String transactionId
+   
 }

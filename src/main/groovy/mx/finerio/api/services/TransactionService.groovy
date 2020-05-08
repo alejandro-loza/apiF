@@ -6,6 +6,7 @@ import mx.finerio.api.domain.Account
 import mx.finerio.api.domain.Transaction
 import mx.finerio.api.domain.TransactionSpecs
 import mx.finerio.api.domain.repository.TransactionRepository
+import mx.finerio.api.dtos.DuplicatedTransactionDto
 import mx.finerio.api.dtos.Transaction as TransactionCreateDto
 import mx.finerio.api.dtos.TransactionListDto
 import mx.finerio.api.dtos.TransactionData
@@ -15,6 +16,7 @@ import mx.finerio.api.exceptions.InstanceNotFoundException
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class TransactionService {
@@ -32,10 +34,10 @@ class TransactionService {
   CleanerService cleanerService  
 
   @Autowired
-  ListService listService
+  DuplicatedTransactionsValidatorService duplicatedTransactionsValidatorService
 
   @Autowired
-  Sha1Service sha1Service
+  ListService listService
 
   @Autowired
   TransactionRepository transactionRepository
@@ -101,12 +103,11 @@ class TransactionService {
           'transactionService.getFields.transaction.null' )
     }
 
-    def cleanedDescription = cleanerService.clean( transaction.description,
-        !transaction.charge )
     [ id: transaction.id, description: transaction.description,
-        cleanedDescription: cleanedDescription,
+        cleanedDescription: transaction.cleanedDescription,
         amount: transaction.amount, isCharge: transaction.charge,
-        date: transaction.bankDate, categoryId: transaction.category?.id ]
+        date: transaction.bankDate, categoryId: transaction.category?.id,
+        duplicated: transaction.duplicated, balance: transaction.balance ]
 
   }
 
@@ -117,19 +118,38 @@ class TransactionService {
           'transactionService.categorize.transaction.null' )
     }
 
-    def cleanedText = cleanerService.clean( transaction.description, false )
-    def categorizerResult = categorizerService.search( cleanedText, false )
+    try {
 
-    if ( !categorizerResult?.categoryId ) {
-      return
-    }
+      def cleanedText = cleanerService.clean( transaction.description,
+          !transaction.charge )
+      transaction.cleanedDescription = cleanedText
+      def categorizerResult = categorizerService.search( cleanedText,
+          !transaction.charge )
 
-    def category = categoryService.findOne( categorizerResult.categoryId )
-    transaction.category = category
-    transactionRepository.save( transaction )
+      if ( !categorizerResult?.categoryId ) {
+        return
+      }
+
+      def category = categoryService.findOne( categorizerResult.categoryId )
+      transaction.category = category
+      transactionRepository.save( transaction )
+
+    } catch ( Exception e ) {}
 
   }
 
+  @Transactional
+  void deleteAllByAccount( Account account ) throws Exception {
+
+    def transactions = this.findAll( [ accountId: account.id ] )?.data
+
+    for ( transaction in transactions ) {
+      transaction.dateDeleted = new Timestamp( new Date().time )
+      transactionRepository.save( transaction )
+    }
+
+  }
+  @Transactional
   private Transaction create( Account account,
       TransactionCreateDto transactionCreateDto ) throws Exception {
 
@@ -137,35 +157,32 @@ class TransactionService {
         transactionCreateDto.made_on ) ?: new Date()
     def description = transactionCreateDto.description.take( 255 )
     def rawAmount = transactionCreateDto.amount
-    def amount = new BigDecimal( rawAmount ).abs().setScale( 2, BigDecimal.ROUND_HALF_UP )
+    def amount = new BigDecimal( rawAmount ).abs().setScale(
+        2, BigDecimal.ROUND_HALF_UP )
     def charge = rawAmount < 0
-    def hash = getHash( date, description, amount, charge )
-    def instance = transactionRepository.
-        findByAccountAndHashAndDateDeletedIsNull( account, hash )
-    if ( instance ) { return null }
     def transaction = new Transaction()
     transaction.account = account
     transaction.bankDate = new Timestamp( date.time )
     transaction.description = description
     transaction.amount = amount
     transaction.charge = charge
-    transaction.hash = hash
+    transaction.scraperId =
+        transactionCreateDto?.extra_data?.transaction_Id?.take( 255 )
+    def transactionDto = getDuplicatedTransactionDto( transaction )
+    if( alreadyExists( transaction, transactionDto ) ) { return null }
+    transaction.duplicated = isDuplicated( transaction, transactionDto ) &&
+        transaction.scraperId == null
+    def rawBalance = transactionCreateDto?.extra_data?.balance
+    if ( rawBalance != null ) {
+      transaction.balance = new BigDecimal( rawBalance ).setScale(
+          2, BigDecimal.ROUND_HALF_UP )
+    }
     def now = new Timestamp( new Date().time )
     transaction.dateCreated = now
     transaction.lastUpdated = now
-    transaction = transactionRepository.save( transaction )
-    //adminService.sendDataToAdmin( transaction )
+    transactionRepository.save( transaction )
+    adminService.sendDataToAdmin( transaction )
     transaction
-
-  }
-
-  private byte[] getHash( Date date, String description, BigDecimal amount,
-      Boolean charge ) throws Exception {
-
-    def input = "||${date.format("yyyyMMddHHmmss")}" +
-        "|${description}|${amount}|${charge}||"
-    sha1Service.encrypt( input.toString() )
-
   }
 
   private TransactionListDto getFindAllDto( Map params ) throws Exception {
@@ -188,5 +205,81 @@ class TransactionService {
     }
 
     dto
+
   }
+
+  private DuplicatedTransactionDto getDuplicatedTransactionDto(
+      Transaction transaction ) throws Exception {
+
+    return new DuplicatedTransactionDto(
+      description: transaction.description,
+      amount: transaction.amount,
+      deposit: !transaction.charge,
+      transactionId: transaction.scraperId
+    )
+
+  }
+
+  private boolean alreadyExists( Transaction transaction,
+      DuplicatedTransactionDto transactionDto ) throws Exception {
+
+    def transactionsSameDay = findAllTransactionsByAccountAndDate(
+        transaction.account, transaction.bankDate, 1 )
+    return duplicatedTransactionsValidatorService.
+        validateTransactionsFromSameDate( transactionDto,
+        transactionsSameDay )
+
+  }
+
+  private boolean isDuplicated( Transaction transaction,
+      DuplicatedTransactionDto transactionDto ) throws Exception {
+
+    def transactionsDifferentDay = findAllTransactionsByAccountAndDate(
+        transaction.account, transaction.bankDate, 5 )
+    transactionsDifferentDay = transactionsDifferentDay.findAll {
+        it.amount == transaction.amount }
+    return duplicatedTransactionsValidatorService.
+        validateTransactions( transactionDto, transactionsDifferentDay )
+
+  }
+
+  private List<DuplicatedTransactionDto> findAllTransactionsByAccountAndDate(
+      Account account, Date date, int daysBefore ) throws Exception {
+
+    def format = 'yyyy-MM-dd'
+    def calTo = Calendar.instance
+    calTo.time = date
+    calTo.add( Calendar.DAY_OF_MONTH, 1 )
+    def to = Date.parse( format, calTo.time.format( format ) )
+    def calFrom = Calendar.instance
+    calFrom.time = to
+    calFrom.add( Calendar.DAY_OF_MONTH, -daysBefore )
+    def from = Date.parse( format, calFrom.time.format( format ) )
+    def transactions = transactionRepository.
+        findAllByAccountAndBankDateGreaterThanEqualAndBankDateLessThanAndDateDeletedIsNull(
+        account, from, to )
+    return parseTransactions( transactions )
+
+  }
+
+  private List<DuplicatedTransactionDto> parseTransactions(
+      List<Transaction> transactions ) throws Exception {
+
+    def parsedTransactions = []
+
+    for ( transaction in transactions ) {
+
+      def parsedTransaction = new DuplicatedTransactionDto()
+      parsedTransaction.description = transaction.description
+      parsedTransaction.amount = transaction.amount
+      parsedTransaction.deposit = !transaction.charge
+      parsedTransaction.transactionId = transaction.scraperId
+      parsedTransactions << parsedTransaction
+
+    }
+
+    return parsedTransactions
+
+  }
+
 }

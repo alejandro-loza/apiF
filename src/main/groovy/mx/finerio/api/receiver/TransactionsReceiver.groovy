@@ -19,8 +19,10 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import mx.finerio.api.domain.TransactionMessageType
 import javax.annotation.PreDestroy
+import org.springframework.context.annotation.Profile
 
 @Component
+@Profile('prod')
 class TransactionsReceiver implements InitializingBean {
 
 
@@ -126,6 +128,7 @@ class TransactionsReceiver implements InitializingBean {
         	transaction.amount = it.amount
           def tExtraData = new TransactionExtraData() 
           tExtraData.transaction_Id = it.extra_data?.transaction_Id
+          tExtraData.balance = it.extra_data?.balance
           transaction.extra_data = tExtraData
           transactionList.add( transaction )
 

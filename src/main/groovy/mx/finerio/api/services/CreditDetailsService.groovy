@@ -41,6 +41,26 @@ class CreditDetailsService {
 
   }
 
+  CreditDetails findByAccountId( String accountId ) throws Exception {
+
+    def account = accountService.findOne( accountId )
+    return creditDetailsRepository.
+        findByCreditDetailsIdAccountAndDateDeletedIsNull( account )
+
+  }
+
+  Map getFields( CreditDetails creditDetails ) throws Exception {
+
+    if ( !creditDetails ) {
+      throw new BadImplementationException(
+          'creditDetailsService.getFields.creditDetails.null' )
+    }
+
+    [ creditLimit: creditDetails.limitCredit,
+        cardNumber: maskCardNumber( creditDetails.cardNumber ) ]
+
+  }
+
   @Transactional
   private CreditDetails createInstance( CreditDetailsDto creditDetailsDto, Account account ){
 
@@ -95,5 +115,14 @@ class CreditDetailsService {
     flag  
   }
 
+  String maskCardNumber( String rawCardNumber ) throws Exception {
+
+    if ( rawCardNumber == null || rawCardNumber == '' ) {
+      return rawCardNumber
+    }
+
+    return "${rawCardNumber.reverse().take( 4 )}XXXX".reverse()
+
+  }
 
 }

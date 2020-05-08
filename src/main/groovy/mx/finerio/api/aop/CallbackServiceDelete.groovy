@@ -1,6 +1,6 @@
 package mx.finerio.api.aop
 
-import mx.finerio.api.domain.Category
+import mx.finerio.api.domain.Callback
 
 import org.aspectj.lang.annotation.AfterReturning
 import org.aspectj.lang.annotation.AfterThrowing
@@ -15,31 +15,31 @@ import org.springframework.stereotype.Component
 
 @Component
 @Aspect
-class CategoryServiceFindAll {
+class CallbackServiceDelete {
 
   final static Logger log = LoggerFactory.getLogger(
-      'mx.finerio.api.aop.CategoryServiceFindAll' )
+      'mx.finerio.api.aop.CallbackServiceDelete' )
 
   @Pointcut(
-    value='execution(java.util.List mx.finerio.api.services.CategoryService.findAll()) && bean(categoryService)'
+    value='execution(void mx.finerio.api.services.CallbackService.delete(..)) && bean(callbackService) && args(id)',
+    argNames='id'
   )
-  public void findAll() {}
+  public void deleteMethod( Long id ) {}
 
-  @Before('findAll()')
-  void before() {
-    log.info( "<< OK" )
+  @Before('deleteMethod(id)')
+  void before( Long id ) {
+    log.info( "<< callbackDto: {}", id )
   }
 
   @AfterReturning(
-    pointcut='findAll()',
-    returning='response'
+    pointcut='deleteMethod(Long)'
   )
-  void afterReturning( List response ) {
-    log.info( '>> response: {}', response )
+  void afterReturning() {
+    log.info( '>> response: OK' )
   }
 
   @AfterThrowing(
-    pointcut='findAll()',
+    pointcut='deleteMethod(Long)',
     throwing='e'
   )
   void afterThrowing( Exception e ) {

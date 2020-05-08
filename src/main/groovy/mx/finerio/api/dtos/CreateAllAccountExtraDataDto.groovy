@@ -3,9 +3,10 @@ package mx.finerio.api.dtos
 import groovy.transform.ToString
 
 @ToString(includePackage = false, includeNames = true)
-class TransactionExtraData {
+class CreateAllAccountExtraDataDto {
 
-  String transaction_Id
-  String balance
+  String accountId
+  Map extraData
+  String prefix
 
 }

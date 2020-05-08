@@ -40,6 +40,7 @@ class CustomerService {
     }
  
     def client = securityService.getCurrent()
+
     if ( customerRepository
         .findFirstByClientAndNameAndDateDeletedIsNull(
         client, dto.name ) != null ) {
@@ -84,6 +85,33 @@ class CustomerService {
       throw new InstanceNotFoundException( 'customer.not.found' )
     }
  
+    instance
+
+  }
+
+  Customer update( Long id, @Valid CustomerDto dto ) throws Exception {
+
+    if ( id == null ) {
+      throw new BadImplementationException(
+          'customerService.update.id.null' )
+    }
+
+    if ( !dto ) {
+      throw new BadImplementationException(
+          'customerService.update.dto.null' )
+    }
+
+    def instance = findOne( id )
+    def client = securityService.getCurrent()
+
+    if ( customerRepository
+        .findFirstByClientAndNameAndDateDeletedIsNull(
+        client, dto.name ) != null ) {
+      throw new BadRequestException( 'customer.create.name.exists' )
+    }
+
+    instance.name = dto.name
+    customerRepository.save( instance )
     instance
 
   }

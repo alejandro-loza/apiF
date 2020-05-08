@@ -1,6 +1,6 @@
 package mx.finerio.api.aop
 
-import mx.finerio.api.domain.Category
+import mx.finerio.api.domain.CreditDetails
 
 import org.aspectj.lang.annotation.AfterReturning
 import org.aspectj.lang.annotation.AfterThrowing
@@ -15,31 +15,32 @@ import org.springframework.stereotype.Component
 
 @Component
 @Aspect
-class CategoryServiceFindAll {
+class CreditDetailsServiceGetFields {
 
   final static Logger log = LoggerFactory.getLogger(
-      'mx.finerio.api.aop.CategoryServiceFindAll' )
+      'mx.finerio.api.aop.CreditDetailsServiceGetFields' )
 
   @Pointcut(
-    value='execution(java.util.List mx.finerio.api.services.CategoryService.findAll()) && bean(categoryService)'
+    value='execution(java.util.Map mx.finerio.api.services.CreditDetailsService.getFields(..)) && bean(creditDetailsService) && args(creditDetails)',
+    argNames='creditDetails'
   )
-  public void findAll() {}
+  public void getFields( CreditDetails creditDetails ) {}
 
-  @Before('findAll()')
-  void before() {
-    log.info( "<< OK" )
+  @Before('getFields(creditDetails)')
+  void before( CreditDetails creditDetails ) {
+    log.info( "<< creditDetails: {}", creditDetails )
   }
 
   @AfterReturning(
-    pointcut='findAll()',
+    pointcut='getFields(mx.finerio.api.domain.CreditDetails)',
     returning='response'
   )
-  void afterReturning( List response ) {
+  void afterReturning( Map response ) {
     log.info( '>> response: {}', response )
   }
 
   @AfterThrowing(
-    pointcut='findAll()',
+    pointcut='getFields(mx.finerio.api.domain.CreditDetails)',
     throwing='e'
   )
   void afterThrowing( Exception e ) {

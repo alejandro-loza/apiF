@@ -1,7 +1,5 @@
 package mx.finerio.api.aop
 
-import mx.finerio.api.domain.Category
-
 import org.aspectj.lang.annotation.AfterReturning
 import org.aspectj.lang.annotation.AfterThrowing
 import org.aspectj.lang.annotation.Aspect
@@ -15,31 +13,32 @@ import org.springframework.stereotype.Component
 
 @Component
 @Aspect
-class CategoryServiceFindAll {
+class AccountDetailsServiceFindAllByAccount {
 
   final static Logger log = LoggerFactory.getLogger(
-      'mx.finerio.api.aop.CategoryServiceFindAll' )
+      'mx.finerio.api.aop.AccountDetailsServiceFindAllByAccount' )
 
   @Pointcut(
-    value='execution(java.util.List mx.finerio.api.services.CategoryService.findAll()) && bean(categoryService)'
+    value='execution(java.util.Map mx.finerio.api.services.AccountDetailsService.findAllByAccount(..)) && bean(accountDetailsService) && args(id)',
+    argNames='id'
   )
-  public void findAll() {}
+  public void findAllByAccount( String id ) {}
 
-  @Before('findAll()')
-  void before() {
-    log.info( "<< OK" )
+  @Before('findAllByAccount(id)')
+  void before( String id ) {
+    log.info( "<< id: {}", id )
   }
 
   @AfterReturning(
-    pointcut='findAll()',
+    pointcut='findAllByAccount(String)',
     returning='response'
   )
-  void afterReturning( List response ) {
+  void afterReturning( Map response ) {
     log.info( '>> response: {}', response )
   }
 
   @AfterThrowing(
-    pointcut='findAll()',
+    pointcut='findAllByAccount(String)',
     throwing='e'
   )
   void afterThrowing( Exception e ) {

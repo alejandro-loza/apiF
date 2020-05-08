@@ -1,6 +1,5 @@
-package mx.finerio.api.aop
 
-import mx.finerio.api.domain.Category
+package mx.finerio.api.aop
 
 import org.aspectj.lang.annotation.AfterReturning
 import org.aspectj.lang.annotation.AfterThrowing
@@ -15,23 +14,24 @@ import org.springframework.stereotype.Component
 
 @Component
 @Aspect
-class CategoryServiceFindAll {
+class BankFieldServiceFindAllByFinancialInstitution {
 
   final static Logger log = LoggerFactory.getLogger(
-      'mx.finerio.api.aop.CategoryServiceFindAll' )
+      'mx.finerio.api.aop.BankFieldServiceFindAllByFinancialInstitution' )
 
   @Pointcut(
-    value='execution(java.util.List mx.finerio.api.services.CategoryService.findAll()) && bean(categoryService)'
+    value='execution(java.util.List mx.finerio.api.services.BankFieldService.findAllByFinancialInstitution(..)) && bean(bankFieldService) && args(id)',
+    argNames='id'
   )
-  public void findAll() {}
+  public void findAllByFinancialInstitution( Long id ) {}
 
-  @Before('findAll()')
-  void before() {
-    log.info( "<< OK" )
+  @Before('findAllByFinancialInstitution(id)')
+  void before( Long id ) {
+    log.info( "<< id: {}", id )
   }
 
   @AfterReturning(
-    pointcut='findAll()',
+    pointcut='findAllByFinancialInstitution(Long)',
     returning='response'
   )
   void afterReturning( List response ) {
@@ -39,7 +39,7 @@ class CategoryServiceFindAll {
   }
 
   @AfterThrowing(
-    pointcut='findAll()',
+    pointcut='findAllByFinancialInstitution(Long)',
     throwing='e'
   )
   void afterThrowing( Exception e ) {
