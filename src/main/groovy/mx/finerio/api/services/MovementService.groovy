@@ -301,7 +301,6 @@ class MovementService {
     }
 
     return null
-
   }
 
 }
