@@ -30,17 +30,20 @@ class AdminService {
     switch ( clazz) {
       case Classes.Customer:
         Customer customer = (Customer) data 
+        if( !isCustomerForTransactions( customer ) ){ return }
         sendCustomerToAdmin( customer )
       break
 
       case Classes.Credential:
         Credential credential = (Credential) data 
+        if( !isCredentialForTransactions( credential ) ){ return }
         sendCredentialToAdmin( credential )
       break
 
-      case Classes.Account:
+      case Classes.Account:        
+        Credential credential = (Credential) data2
+        if( !isCredentialForTransactions( credential ) ){ return } 
         Account account = (Account) data 
-        Credential credential = (Credential) data2 
         sendAccountToAdmin( account, credential )
       break
 
@@ -49,13 +52,33 @@ class AdminService {
         sendTransactionToAdmin( transaction )
       break
 
-      case Classes.Boolean:
-        Boolean isSuccessful = (Boolean) data 
+      case Classes.Boolean:        
         Credential credential = (Credential) data2 
+        if( !isCredentialForTransactions( credential ) ){ return } 
+        Boolean isSuccessful = (Boolean) data 
         sendConnectionToAdmin( credential, isSuccessful )
       break 
 
     } 
+}
+
+
+private boolean isCredentialForTransactions( Credential credential ){
+
+  if ( credential?.customer?.client?.useTransactionsTable ) { 
+      return true
+  }
+
+  false
+}
+
+private boolean isCustomerForTransactions( Customer customer ){
+
+  if ( customer?.client?.useTransactionsTable ) { 
+      return true
+  }
+
+  false
 }
 
   private void sendCustomerToAdmin( Customer customer ){
