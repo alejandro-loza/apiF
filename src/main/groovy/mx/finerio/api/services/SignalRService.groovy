@@ -89,7 +89,7 @@ class SignalRService {
 		  Credential credential = credentialService.findAndValidate( credentialId )		  
 		  callbackService.sendToClient( credential.customer.client,
 			  Callback.Nature.NOTIFY, [ credentialId: credentialId,
-		      stage: 'Token' ] )		 
+		      stage: 'interactive' ] )		 
 	
 	  }	
     @Async
