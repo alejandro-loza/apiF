@@ -11,5 +11,6 @@ class CustomerListDto extends ListDto {
 
   Long cursor
   Client client
+  String word
 
 }

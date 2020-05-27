@@ -62,6 +62,9 @@ class CredentialService {
   @Value( '${sync.user.name}' )
   String syncUsername
 
+  @Autowired
+  AdminService adminService
+
   Credential create( CredentialDto credentialDto ) throws Exception {
 
     if ( !credentialDto ) {
@@ -83,6 +86,7 @@ class CredentialService {
     def data = [ customer: customer, bank: bank, credentialDto: credentialDto ]
     def instance = createInstance( data )
     requestData( instance.id )
+    adminService.sendDataToAdmin( instance )
     instance
 
   }

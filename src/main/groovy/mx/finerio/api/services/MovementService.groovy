@@ -19,7 +19,7 @@ import org.springframework.transaction.annotation.Transactional
 
 @Service
 class MovementService {
-	
+  
   @Autowired
   CategoryRepository categoryRepository
   
@@ -62,16 +62,16 @@ class MovementService {
   }
   
   Movement generateAndSetCategory(String movementId) {
-	  def movement = movementRepository.findByIdAndDateDeletedIsNull(movementId)
-	  if (!movement) {
-		  return null
-	  }
-	  generateAndSetCategory(movement)
+    def movement = movementRepository.findByIdAndDateDeletedIsNull(movementId)
+    if (!movement) {
+      return null
+    }
+    generateAndSetCategory(movement)
   }
   
    void generateAndSetCategory(Movement movement) {
-	  
-	  def category = null
+    
+    def category = null
           def deposit = movement.type == Movement.Type.DEPOSIT
           def cleanedText = cleanerService.clean( movement.description, deposit )
           movement.customDescription = cleanedText
@@ -81,14 +81,14 @@ class MovementService {
             category = categoryRepository.findOne( result.categoryId )
           }
 
-	  movement.category=category
-	  movement.hasConcepts=false
-	  movementRepository.save( movement )
+    movement.category=category
+    movement.hasConcepts=false
+    movementRepository.save( movement )
   }
 
   void createConcept( Movement movement ) throws Exception {
-	  
-	
+    
+  
 
     def conceptData = [
       description: movement.description,
@@ -301,7 +301,6 @@ class MovementService {
     }
 
     return null
-
   }
 
 }
