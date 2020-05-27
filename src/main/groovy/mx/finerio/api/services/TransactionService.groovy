@@ -42,6 +42,9 @@ class TransactionService {
   @Autowired
   TransactionRepository transactionRepository
 
+  @Autowired
+  AdminService adminService
+
   List createAll( TransactionData transactionData ) throws Exception {
 
     if ( !transactionData ) {
@@ -146,7 +149,7 @@ class TransactionService {
     }
 
   }
-
+  @Transactional
   private Transaction create( Account account,
       TransactionCreateDto transactionCreateDto ) throws Exception {
 
@@ -177,8 +180,9 @@ class TransactionService {
     def now = new Timestamp( new Date().time )
     transaction.dateCreated = now
     transaction.lastUpdated = now
-    return transactionRepository.save( transaction )
-
+    transactionRepository.save( transaction )
+    adminService.sendDataToAdmin( transaction )
+    transaction
   }
 
   private TransactionListDto getFindAllDto( Map params ) throws Exception {

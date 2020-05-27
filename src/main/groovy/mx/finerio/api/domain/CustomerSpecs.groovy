@@ -27,6 +27,10 @@ class CustomerSpecs {
           predicates << builder.ge( root.get( 'id' ), dto.cursor )
         }
 
+        if ( dto.word ) {
+          predicates << builder.like( root.get( 'name' ), "%${dto.word}%" )             
+        }
+
         predicates << builder.isNull( root.get( 'dateDeleted' ) )
         query.orderBy( builder.asc( root.get( 'id' ) ) )
         builder.and( predicates.toArray( new Predicate[ predicates.size() ] ) )

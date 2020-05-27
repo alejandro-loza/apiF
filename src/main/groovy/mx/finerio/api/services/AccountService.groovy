@@ -44,6 +44,9 @@ class AccountService {
   @Autowired
   CreditDetailsService creditDetailsService
 
+  @Autowired
+  AdminService adminService  
+
   private static final Map NATURES = [
     account: 'Cuenta',
     bonus: 'Bono',
@@ -89,6 +92,7 @@ class AccountService {
       creditDetailsService.create( accountData.credit_card_detail, account )
     }
     createExtraData( account, accountData.extra_data )
+    adminService.sendDataToAdmin( account, credential )
     account
 
   }

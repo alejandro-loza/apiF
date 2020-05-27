@@ -29,6 +29,9 @@ class CustomerService {
   @Autowired
   CustomerRepository customerRepository
 
+  @Autowired
+  AdminService adminService
+
   Customer create( @Valid CustomerDto dto ) throws Exception {
 
     if ( !dto ) {
@@ -49,6 +52,7 @@ class CustomerService {
     instance.client = client
     instance.dateCreated = new Date()
     customerRepository.save( instance )
+    adminService.sendDataToAdmin( instance )
     instance
 
   }
@@ -144,6 +148,8 @@ class CustomerService {
         throw new BadRequestException( 'cursor.invalid' )
       }
     }
+
+    if( params.word ){ dto.word = params.word }
 
     dto.client = securityService.getCurrent()
     dto
