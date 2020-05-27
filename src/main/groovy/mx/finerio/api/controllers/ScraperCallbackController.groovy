@@ -52,7 +52,8 @@ class ScraperCallbackController {
         accountDto?.data?.credential_id as String )
     callbackService.sendToClient( credential?.customer?.client,
         Callback.Nature.ACCOUNTS, [ credentialId: credential.id,
-        accountId: account.id ] )
+        accountId: account.id,
+        account: accountService.getFields( account ) ] )
     ResponseEntity.ok( [ id: account.id ] )
 
   }
