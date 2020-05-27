@@ -13,6 +13,7 @@ import mx.finerio.api.dtos.ScraperWebSocketSendDto
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
 class CredentialService {
@@ -61,6 +62,9 @@ class CredentialService {
 
   @Value( '${sync.user.name}' )
   String syncUsername
+  
+  @Autowired
+  SignalRService signalRService
 
   @Autowired
   AdminService adminService
@@ -126,7 +130,7 @@ class CredentialService {
     instance
 
   }
-
+  @Transactional 
   Credential findAndValidate( String id ) throws Exception {
 
     if ( !id ) {
@@ -206,8 +210,10 @@ class CredentialService {
 
     if ( credential.institution.code == 'BBVA' ) {
       sendToScraperWebSocket( credential )
-    } else {
-      sendToScraper( credential )
+    } else if ( credential.institution.code == 'BAZ' ) {
+      sendCredentialToSignalR( credential )
+    }else{
+	    sendToScraper( credential )
     }
 
   }
@@ -263,6 +269,12 @@ class CredentialService {
     }
  
     def credential = findOne( id )
+	
+	   if( credential.institution.code == 'BAZ' ) {
+	       signalRService.sendTokenToScrapper( credentialInteractiveDto.token, id )
+		 return
+	   }
+		
     def data = [ data: [
       stage: 'interactive',
       id: credential.id,
@@ -380,6 +392,21 @@ class CredentialService {
         tokenSent: false,
         destroyPreviousSession: true ) )
 
+  }
+  
+  private void sendCredentialToSignalR( Credential credential )throws Exception {
+	  
+	  def data = [		  
+		  Id: credential.id,
+		  Username: credential.username,
+		  Password: credential.password,
+		  IV: credential.iv,
+		  State: 'Start',
+		  User: [Id: credential.user.id ]		  
+		] 
+		
+		signalRService.sendCredential( data )
+			  
   }
 
   private boolean credentialRecentlyUpdated( Credential credential )
