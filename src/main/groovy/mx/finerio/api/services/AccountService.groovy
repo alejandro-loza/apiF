@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import mx.finerio.api.services.AdminService.EntityType
 
 @Service
 class AccountService {
@@ -92,7 +93,7 @@ class AccountService {
       creditDetailsService.create( accountData.credit_card_detail, account )
     }
     createExtraData( account, accountData.extra_data )
-    adminService.sendDataToAdmin( account, credential )
+    adminService.sendDataToAdmin( EntityType.ACCOUNT, account, credential )
     account
 
   }

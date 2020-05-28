@@ -13,10 +13,10 @@ import mx.finerio.api.dtos.TransactionData
 import mx.finerio.api.exceptions.BadImplementationException
 import mx.finerio.api.exceptions.BadRequestException
 import mx.finerio.api.exceptions.InstanceNotFoundException
-
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import mx.finerio.api.services.AdminService.EntityType
 
 @Service
 class TransactionService {
@@ -181,7 +181,7 @@ class TransactionService {
     transaction.dateCreated = now
     transaction.lastUpdated = now
     transactionRepository.save( transaction )
-    adminService.sendDataToAdmin( transaction )
+    adminService.sendDataToAdmin( EntityType.TRANSACTION, transaction )
     transaction
   }
 

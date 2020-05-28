@@ -19,40 +19,38 @@ class AdminService {
   @Autowired
   AccountCredentialRepository accountCredentialRepository
 
-  enum Classes{
-    Customer, Credential, Account, Transaction, Boolean
+  enum EntityType{
+    CUSTOMER, CREDENTIAL, ACCOUNT, TRANSACTION, CONNECTION
   }
 
-  void sendDataToAdmin( Object data, Object data2 = null ){
-
-    Classes clazz = Classes.valueOf( data.getClass().getSimpleName() )
-
+  void sendDataToAdmin( EntityType clazz, Object data, Object data2 = null ){
+    
     switch ( clazz) {
-      case Classes.Customer:
+      case EntityType.CUSTOMER:
         Customer customer = (Customer) data 
         if( !isCustomerForTransactions( customer ) ){ return }
         sendCustomerToAdmin( customer )
       break
 
-      case Classes.Credential:
+      case EntityType.CREDENTIAL:
         Credential credential = (Credential) data 
         if( !isCredentialForTransactions( credential ) ){ return }
         sendCredentialToAdmin( credential )
       break
 
-      case Classes.Account:        
+      case EntityType.ACCOUNT:        
         Credential credential = (Credential) data2
         if( !isCredentialForTransactions( credential ) ){ return } 
         Account account = (Account) data 
         sendAccountToAdmin( account, credential )
       break
 
-      case Classes.Transaction:
+      case EntityType.TRANSACTION:
         Transaction transaction = (Transaction) data 
         sendTransactionToAdmin( transaction )
       break
 
-      case Classes.Boolean:        
+      case EntityType.CONNECTION:        
         Credential credential = (Credential) data2 
         if( !isCredentialForTransactions( credential ) ){ return } 
         Boolean isSuccessful = (Boolean) data 
