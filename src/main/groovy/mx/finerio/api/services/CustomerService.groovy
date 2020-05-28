@@ -14,6 +14,7 @@ import mx.finerio.api.exceptions.InstanceNotFoundException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
+import mx.finerio.api.services.AdminService.EntityType
 
 @Service
 class CustomerService {
@@ -52,7 +53,7 @@ class CustomerService {
     instance.client = client
     instance.dateCreated = new Date()
     customerRepository.save( instance )
-    adminService.sendDataToAdmin( instance )
+    adminService.sendDataToAdmin( EntityType.CUSTOMER, instance )
     instance
 
   }
