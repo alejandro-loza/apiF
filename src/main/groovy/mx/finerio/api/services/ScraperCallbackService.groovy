@@ -11,6 +11,7 @@ import mx.finerio.api.exceptions.BadImplementationException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import mx.finerio.api.services.AdminService.EntityType
 
 @Service
 class ScraperCallbackService {
@@ -81,7 +82,7 @@ class ScraperCallbackService {
     def credential = credentialService.updateStatus(
         successCallbackDto?.data?.credential_id, Credential.Status.ACTIVE )
     credentialStatusHistoryService.update( credential )
-    adminService.sendDataToAdmin( Boolean.valueOf(true), credential )
+    adminService.sendDataToAdmin( EntityType.CONNECTION, Boolean.valueOf(true), credential )
     credential
   }
 
@@ -103,7 +104,7 @@ class ScraperCallbackService {
     def credential = credentialService.setFailure(
         failureCallbackDto?.data?.credential_id, strStatusCode )
     credentialStatusHistoryService.update( credential )
-    adminService.sendDataToAdmin( Boolean.valueOf(false), credential )
+    adminService.sendDataToAdmin( EntityType.CONNECTION, Boolean.valueOf(false), credential )
     closeWebSocketSession( credential )
     callbackService.sendToClient( credential?.customer?.client,
         Callback.Nature.FAILURE, [ credentialId: credential.id,

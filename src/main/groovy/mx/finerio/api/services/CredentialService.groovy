@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import mx.finerio.api.services.AdminService.EntityType
 
 @Service
 class CredentialService {
@@ -90,7 +91,7 @@ class CredentialService {
     def data = [ customer: customer, bank: bank, credentialDto: credentialDto ]
     def instance = createInstance( data )
     requestData( instance.id )
-    adminService.sendDataToAdmin( instance )
+    adminService.sendDataToAdmin( EntityType.CREDENTIAL, instance )
     instance
 
   }
