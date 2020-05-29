@@ -24,8 +24,6 @@ class SignalRService {
       'mx.finerio.api.services.SignalRService' )
 	
 	String url		
-	String pathRequired	
-	String tokenRequiredListener
 	String pathReceived
 
 	HubConnection connection
@@ -42,12 +40,10 @@ class SignalRService {
 
 	@Autowired
  	public TransactionsReceiver( 
- 		@Value('${scrapper.signalR.rest.connection.url}') final String url, 
-    	@Value('${scraper.rest.tokenRequired.path}') final String pathRequired,    	
+ 		@Value('${scrapper.signalR.rest.connection.url}') final String url,     	
     	@Value('${scraper.rest.tokenReceived.path}') final String pathReceived  ){
     
- 		this.url = url
-    	this.pathRequired = pathRequired    	
+ 		this.url = url   	
     	this.pathReceived = pathReceived
     
      	this.createConnection()
@@ -97,7 +93,7 @@ class SignalRService {
 				
   		validateCredentialData( credentialData )
 
-      	def finalUrl = "${url}/${pathRequired}"		 		
+      	def finalUrl = "${url}/${pathReceived}"		 		
 		restTemplateService.post( finalUrl, [:], credentialData )
 
         'Credentail sent successfully'
