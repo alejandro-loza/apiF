@@ -1,0 +1,13 @@
+databaseChangeLog:
+- changeSet:
+    id: transactions_balance
+    author: alejandro.garcia
+    changes:
+    - addColumn:
+        tableName: transactions
+        columns:
+        - column:
+            name: balance
+            type: java.sql.Types.DECIMAL(19,2)
+            constraints:
+              nullable: true

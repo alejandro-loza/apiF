@@ -2,6 +2,7 @@ package mx.finerio.api.services
 
 import mx.finerio.api.domain.Callback
 import mx.finerio.api.domain.Credential
+import mx.finerio.api.domain.Transaction
 import mx.finerio.api.dtos.FailureCallbackDto
 import mx.finerio.api.dtos.SuccessCallbackDto
 import mx.finerio.api.dtos.TransactionDto
@@ -10,6 +11,7 @@ import mx.finerio.api.exceptions.BadImplementationException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import mx.finerio.api.services.AdminService.EntityType
 
 @Service
 class ScraperCallbackService {
@@ -36,7 +38,7 @@ class ScraperCallbackService {
   CredentialStatusHistoryService credentialStatusHistoryService
 
   @Autowired
-  AdminQueueService adminQueueService   
+  AdminService adminService
   
   @Transactional
   List processTransactions( TransactionDto transactionDto ) throws Exception {
@@ -45,9 +47,18 @@ class ScraperCallbackService {
     def credential = credentialService.findAndValidate(
         transactionDto?.data?.credential_id as String )
     def movements = validateTransactionsTableUsage( transactionDto, credential )
+    def data = [:]
+    data.credentialId = credential.id
+    data.accountId = transactionDto.data.account_id
+
+    if ( !movements.isEmpty() && movements[ 0 ] instanceof Transaction ) {
+      data.transactions = movements.collect {
+        transactionService.getFields( it )
+      }
+    }
+
     callbackService.sendToClient( credential?.customer?.client,
-        Callback.Nature.TRANSACTIONS, [ credentialId: credential.id,
-        accountId: transactionDto.data.account_id ] )
+        Callback.Nature.TRANSACTIONS, data )
     movements
 
   }
@@ -55,7 +66,7 @@ class ScraperCallbackService {
   @Transactional
   void processMovements( List movements, String credentialId ) throws Exception {
     def credential = credentialService.findAndValidate( credentialId )
-    if ( !credential?.customer?.client?.useTransactionsTable ) { return } 
+    if ( credential?.customer?.client?.useTransactionsTable ) { return }
     transactionCategorizerService.categorizeAll( movements )
   }
 
@@ -71,7 +82,7 @@ class ScraperCallbackService {
     def credential = credentialService.updateStatus(
         successCallbackDto?.data?.credential_id, Credential.Status.ACTIVE )
     credentialStatusHistoryService.update( credential )
-    sendConnectionToAdmin( credential, true )
+    adminService.sendDataToAdmin( EntityType.CONNECTION, Boolean.valueOf(true), credential )
     credential
   }
 
@@ -93,28 +104,14 @@ class ScraperCallbackService {
     def credential = credentialService.setFailure(
         failureCallbackDto?.data?.credential_id, strStatusCode )
     credentialStatusHistoryService.update( credential )
-    sendConnectionToAdmin( credential, false )
+    adminService.sendDataToAdmin( EntityType.CONNECTION, Boolean.valueOf(false), credential )
     closeWebSocketSession( credential )
     callbackService.sendToClient( credential?.customer?.client,
         Callback.Nature.FAILURE, [ credentialId: credential.id,
         message: credential.errorCode, code: strStatusCode ] )
 
   }
-
-    void sendConnectionToAdmin( Credential credential, Boolean isSuccessful ){  
-     
     
-      def clientId = credential?.customer?.client?.id
-      String institutionCode = credential?.institution?.code
-      def data = [ clientId: clientId, customerId: credential?.customer.id, 
-      credentialId:credential?.id,institutionCode:institutionCode, 
-      isSuccessful: isSuccessful, date: new Date().time ]
-      adminQueueService.queueMessage( data, 'CREATE_CONNECTION')
-
-  }
-
-     
-
   private void validateProcessTransactionsInput(
       TransactionDto transactionDto ) throws Exception {
 

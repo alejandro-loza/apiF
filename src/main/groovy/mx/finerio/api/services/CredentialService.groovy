@@ -11,10 +11,16 @@ import mx.finerio.api.dtos.*
 import mx.finerio.api.dtos.ScraperWebSocketSendDto
 
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+import mx.finerio.api.services.AdminService.EntityType
 
 @Service
 class CredentialService {
+
+  @Autowired
+  AccountService accountService
 
   @Autowired
   BankConnectionService bankConnectionService
@@ -55,8 +61,14 @@ class CredentialService {
   @Autowired
   SecurityService securityService
 
+  @Value( '${sync.user.name}' )
+  String syncUsername
+  
   @Autowired
-  AdminQueueService adminQueueService
+  SignalRService signalRService
+
+  @Autowired
+  AdminService adminService
 
   Credential create( CredentialDto credentialDto ) throws Exception {
 
@@ -79,18 +91,9 @@ class CredentialService {
     def data = [ customer: customer, bank: bank, credentialDto: credentialDto ]
     def instance = createInstance( data )
     requestData( instance.id )
-    sendCredentialToAdmin( instance )
+    adminService.sendDataToAdmin( EntityType.CREDENTIAL, instance )
     instance
 
-  }
-
-  void sendCredentialToAdmin( Credential credential ){  
-     
-    def clientId = credential?.customer?.client?.id
-    def data = [ clientId: clientId, customerId: credential?.customer.id, 
-      credentialId:credential?.id,dateEpoch: credential.dateCreated.time ]
-    adminQueueService.queueMessage( data, 'CREATE_CREDENTIAL')   
-      
   }
 
   Map findAll( Map params ) throws Exception {
@@ -116,15 +119,19 @@ class CredentialService {
     def client = securityService.getCurrent()
     def instance = credentialRepository.findOne( id )
 
+    if ( instance && client.username == syncUsername ) {
+      return instance
+    }
+
     if ( !instance || instance?.customer?.client?.id != client.id ||
         instance.dateDeleted ) {
       throw new InstanceNotFoundException( 'credential.not.found' )
     }
- 
+
     instance
 
   }
-
+  @Transactional 
   Credential findAndValidate( String id ) throws Exception {
 
     if ( !id ) {
@@ -204,8 +211,10 @@ class CredentialService {
 
     if ( credential.institution.code == 'BBVA' ) {
       sendToScraperWebSocket( credential )
-    } else {
-      sendToScraper( credential )
+    } else if ( credential.institution.code == 'BAZ' ) {
+      sendCredentialToSignalR( credential )
+    }else{
+	    sendToScraper( credential )
     }
 
   }
@@ -261,6 +270,12 @@ class CredentialService {
     }
  
     def credential = findOne( id )
+	
+	   if( credential.institution.code == 'BAZ' ) {
+	       signalRService.sendTokenToScrapper( credentialInteractiveDto.token, id )
+		 return
+	   }
+		
     def data = [ data: [
       stage: 'interactive',
       id: credential.id,
@@ -272,6 +287,15 @@ class CredentialService {
         message: new JsonBuilder( data ).toString(),
         tokenSent: true,
         destroyPreviousSession: false ) )
+
+  }
+
+  void delete( String id ) throws Exception {
+
+    def instance = findOne( id )
+    accountService.deleteAllByCredential( instance )
+    instance.dateDeleted = new Date()
+    credentialRepository.save( instance )
 
   }
 
@@ -369,6 +393,21 @@ class CredentialService {
         tokenSent: false,
         destroyPreviousSession: true ) )
 
+  }
+  
+  private void sendCredentialToSignalR( Credential credential )throws Exception {
+	  
+	  def data = [		  
+		  Id: credential.id,
+		  Username: credential.username,
+		  Password: credential.password,
+		  IV: credential.iv,
+		  State: 'Start',
+		  User: [Id: credential.user.id ]		  
+		] 
+		
+		signalRService.sendCredential( data )
+			  
   }
 
   private boolean credentialRecentlyUpdated( Credential credential )

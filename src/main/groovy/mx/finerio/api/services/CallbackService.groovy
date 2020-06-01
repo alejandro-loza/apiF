@@ -42,7 +42,7 @@ class CallbackService {
  
     def client = securityService.getCurrent()
 
-    if ( callbackRepository.findByClientAndNature(
+    if ( callbackRepository.findFirstByClientAndNatureAndDateDeletedIsNull(
         client, callbackDto.nature ) ) {
       throw new BadRequestException( 'callback.create.exists' )
     }
@@ -62,7 +62,8 @@ class CallbackService {
   Map findAll() throws Exception {
 
     def client = securityService.getCurrent()
-    [ data: callbackRepository.findAllByClient( client ), nextCursor: null ]
+    [ data: callbackRepository.findAllByClientAndDateDeletedIsNull(
+        client ), nextCursor: null ]
 
   }
 
@@ -76,7 +77,8 @@ class CallbackService {
     def client = securityService.getCurrent()
     def instance = callbackRepository.findOne( id )
 
-    if ( !instance || instance.client.id != client.id ) {
+    if ( !instance || instance.client.id != client.id ||
+        instance.dateDeleted != null ) {
       throw new InstanceNotFoundException( 'callback.not.found' )
     }
  
@@ -120,7 +122,8 @@ class CallbackService {
       throws Exception {
 
     validateSendToClientInput( client, nature, data )
-    def callback = callbackRepository.findByClientAndNature( client, nature )
+    def callback = callbackRepository.
+        findFirstByClientAndNatureAndDateDeletedIsNull( client, nature )
 
     if ( !callback ) {
       return
@@ -152,6 +155,14 @@ class CallbackService {
       throw new BadImplementationException(
           'callbackService.sendToClient.data.null' )
     }
+
+  }
+
+  void delete( Long id ) throws Exception {
+
+    def instance = findOne( id )
+    instance.dateDeleted = new Date()
+    callbackRepository.save( instance )
 
   }
 

@@ -14,6 +14,7 @@ import mx.finerio.api.exceptions.InstanceNotFoundException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.PageRequest
 import org.springframework.stereotype.Service
+import mx.finerio.api.services.AdminService.EntityType
 
 @Service
 class CustomerService {
@@ -30,9 +31,7 @@ class CustomerService {
   CustomerRepository customerRepository
 
   @Autowired
-  AdminQueueService adminQueueService
-
-
+  AdminService adminService
 
   Customer create( @Valid CustomerDto dto ) throws Exception {
 
@@ -42,6 +41,7 @@ class CustomerService {
     }
  
     def client = securityService.getCurrent()
+
     if ( customerRepository
         .findFirstByClientAndNameAndDateDeletedIsNull(
         client, dto.name ) != null ) {
@@ -53,17 +53,9 @@ class CustomerService {
     instance.client = client
     instance.dateCreated = new Date()
     customerRepository.save( instance )
-    sendCustomerToAdmin( instance )
+    adminService.sendDataToAdmin( EntityType.CUSTOMER, instance )
     instance
 
-  }
-  
-  void sendCustomerToAdmin( Customer customer ){
-     
-    def clientId = customer?.client?.id
-    def data = [ clientId: clientId, customerId: customer.id, date: customer.dateCreated.time ]
-    adminQueueService.queueMessage( data, 'CREATE_CUSTOMER')
-    
   }
 
   Map findAll( Map params ) throws Exception {
@@ -94,6 +86,33 @@ class CustomerService {
       throw new InstanceNotFoundException( 'customer.not.found' )
     }
  
+    instance
+
+  }
+
+  Customer update( Long id, @Valid CustomerDto dto ) throws Exception {
+
+    if ( id == null ) {
+      throw new BadImplementationException(
+          'customerService.update.id.null' )
+    }
+
+    if ( !dto ) {
+      throw new BadImplementationException(
+          'customerService.update.dto.null' )
+    }
+
+    def instance = findOne( id )
+    def client = securityService.getCurrent()
+
+    if ( customerRepository
+        .findFirstByClientAndNameAndDateDeletedIsNull(
+        client, dto.name ) != null ) {
+      throw new BadRequestException( 'customer.create.name.exists' )
+    }
+
+    instance.name = dto.name
+    customerRepository.save( instance )
     instance
 
   }

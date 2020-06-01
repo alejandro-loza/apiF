@@ -7,13 +7,19 @@ import mx.finerio.api.domain.*
 import mx.finerio.api.domain.repository.*
 import mx.finerio.api.dtos.AccountData
 import mx.finerio.api.dtos.AccountListDto
+import mx.finerio.api.dtos.CreateAllAccountExtraDataDto
 
 import org.springframework.data.domain.Pageable
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
+import mx.finerio.api.services.AdminService.EntityType
 
 @Service
 class AccountService {
+
+  @Autowired
+  AccountExtraDataService accountExtraDataService
 
   @Autowired
   CredentialService credentialService
@@ -28,6 +34,9 @@ class AccountService {
   SecurityService securityService
 
   @Autowired
+  TransactionService transactionService
+
+  @Autowired
   AccountRepository accountRepository
 
   @Autowired
@@ -37,7 +46,7 @@ class AccountService {
   CreditDetailsService creditDetailsService
 
   @Autowired
-  AdminQueueService adminQueueService   
+  AdminService adminService  
 
   private static final Map NATURES = [
     account: 'Cuenta',
@@ -83,19 +92,10 @@ class AccountService {
     if( accountData.credit_card_detail && accountData.is_credit_card ){
       creditDetailsService.create( accountData.credit_card_detail, account )
     }
-    sendAccountToAdmin( account, credential )
+    createExtraData( account, accountData.extra_data )
+    adminService.sendDataToAdmin( EntityType.ACCOUNT, account, credential )
     account
 
-  }
-
-  void sendAccountToAdmin( Account account, Credential credential ){  
-     
-    def clientId = credential?.customer?.client?.id
-    def data = [ clientId: clientId, customerId: credential?.customer.id, 
-      credentialId:credential?.id,accountId:account.id, date: account.dateCreated.time ]
-  
-    adminQueueService.queueMessage( data, 'CREATE_ACCOUNT')
-      
   }
 
   Map findAll( Map params ) throws Exception {
@@ -185,6 +185,29 @@ class AccountService {
 
   }
 
+  @Transactional
+  void deleteAllByCredential( Credential credential ) throws Exception {
+
+    def accounts = this.findAll( [ credentialId: credential.id ] )?.data
+
+    for ( account in accounts ) {
+
+      transactionService.deleteAllByAccount( account )
+      def accountCredentials = accountCredentialRepository.
+          findAllByAccountAndCredential( account, credential )
+
+      for ( accountCredential in accountCredentials ) {
+        accountCredentialRepository.delete( accountCredential )
+      }
+
+      account.dateDeleted = new Date()
+      account.deleted = true
+      accountRepository.save( account )
+
+    }
+
+  }
+
   private String getAccountName( String originalAccountName )
       throws Exception {
     originalAccountName.replace( '&#092;u00f3', '\u00F3' ).trim()
@@ -215,44 +238,31 @@ class AccountService {
 
     def institution = credential.institution
     def user = credential.user
-    def instance 
-    if ( id && institution.code != "HSBC" && 
-        institution.code != "BNMX" && 
-        institution.code != "LIVERPOOL" ) {
-      instance = accountRepository.findFirstByInstitutionAndUserAndIdBankOrderByDateCreatedDesc(
-        institution, user, id )
-    }
-    instance = validateFinder( credential, id, instance )
+    def accountCredentialList =
+        accountCredentialRepository.findAllByCredential( credential )
 
-    if ( !instance ) {
-      instance= accountRepository.findFirstByInstitutionAndUserAndNumberOrderByDateCreatedDesc(
-        institution, user, number )
-    }
-    instance = validateFinder( credential, id, instance )
+    for ( accountCredential in accountCredentialList ) {
 
-    if ( !instance ) {
-      instance = accountRepository.findFirstByInstitutionAndUserAndNumberLikeOrderByDateCreatedDesc(
-        institution, user, getMaskedNumber( institution, number ) )
-    }
-    validateFinder( credential, id, instance )
+      def account = accountCredential.account
+      if ( ( account.dateDeleted && account.deleted ) ||
+          ( account.institution.code != institution.code ||
+          account.user.id != user.id ) ) { continue }
 
-  }
+      if ( id && institution.code != 'HSBC' && institution.code != 'BNMX' &&
+          institution.code != 'LIVERPOOL' &&
+          account.idBank == id ) { return account }
 
-  private Account validateFinder( Credential credential, String id, Account instance){
+      if ( account.number == number ) { return account }
 
-    if ( instance && id ) {
-      if( credential.institution.code != "HSBC" &&
-          credential.institution.code != "BNMX" &&
-          credential.institution.code != "LIVERPOOL" &&
-          instance.idBank && instance.idBank != id ){ instance = null }
+      if ( getMaskedNumber( institution, number ).matches(
+          account.number.replaceAll( /%/, '.*' )
+          .replaceAll( /\*/, '\\\\*' ) ) ) {
+        return account
+      }
+
     }
 
-    if ( instance?.deleted && instance?.dateDeleted && 
-        !accountCredentialRepository.findAllByAccountAndCredential(
-        instance, credential ) ) {
-      instance = null
-    }
-    instance
+    return null
 
   }
 
@@ -316,6 +326,18 @@ class AccountService {
     }
 
     dto
+
+  }
+
+  private void createExtraData( Account account, Map extraData )
+      throws Exception {
+
+    if ( extraData == null || extraData.isEmpty() ) { return }
+    def dto = new CreateAllAccountExtraDataDto()
+    dto.accountId = account.id
+    dto.extraData = extraData
+    dto.prefix = ''
+    accountExtraDataService.createAll( dto )
 
   }
 

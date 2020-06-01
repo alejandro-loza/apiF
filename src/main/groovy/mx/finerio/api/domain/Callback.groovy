@@ -44,4 +44,7 @@ class Callback {
   @Column(name = 'last_updated')
   Date lastUpdated
 
+  @Column(name = 'date_deleted', nullable = true)
+  Date dateDeleted
+
 }
