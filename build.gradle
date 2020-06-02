@@ -36,6 +36,9 @@ dependencies {
   compile('com.github.groovy-wslite:groovy-wslite:1.1.2')
   compile('com.microsoft.signalr:signalr:3.0.0')
 
+  //AWS S3
+  compile 'com.amazonaws:aws-java-sdk-s3:1.11.724'
+
   runtime('mysql:mysql-connector-java')
 
   testCompile('org.springframework.boot:spring-boot-starter-test')

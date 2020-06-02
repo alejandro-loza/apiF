@@ -13,9 +13,13 @@ import org.bouncycastle.openssl.PEMParser
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter
 
 import org.springframework.stereotype.Service
+import org.springframework.beans.factory.annotation.Autowired
 
 @Service
 class RsaCryptService {
+
+  @Autowired
+  AmazonS3Service amazonS3Service
 
   String encrypt( String text ) throws Exception {
 
@@ -40,8 +44,17 @@ class RsaCryptService {
 
     def privateKey = getPrivateKey()
     def cipher = Cipher.getInstance( 'RSA' )
-    cipher.init( Cipher.DECRYPT_MODE, privateKey )
-    new String( cipher.doFinal( cryptedText.decodeBase64() ), 'UTF-8' )
+    String finalResp 
+    try{
+      cipher.init( Cipher.DECRYPT_MODE, privateKey )
+      finalResp = new String( cipher.doFinal( cryptedText.decodeBase64() ), 'UTF-8' )
+    }catch(Exception e){
+      def pathFile = amazonS3Service.getFile()
+      privateKey = getPrivateKey( pathFile )
+      cipher.init( Cipher.DECRYPT_MODE, privateKey )
+      finalResp = new String( cipher.doFinal( cryptedText.decodeBase64() ), 'UTF-8' )
+    }
+    finalResp
   
   }
 
@@ -63,5 +76,17 @@ class RsaCryptService {
     new JcaPEMKeyConverter().getPrivateKey( pemKeyPair.privateKeyInfo )
 
   }
+  
+  private PrivateKey getPrivateKey( String filePath ) throws Exception {
+
+   def privateKeyBytes = new File( filePath ).bytes
+   def pemParser = new PEMParser( new BufferedReader( new InputStreamReader(
+       new ByteArrayInputStream( privateKeyBytes ) ) ) )
+   def privateKI = pemParser.readObject()
+   new JcaPEMKeyConverter().getPrivateKey( privateKI )
+
+ }
+
+
   
 }
