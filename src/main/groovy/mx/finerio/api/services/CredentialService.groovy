@@ -211,8 +211,6 @@ class CredentialService {
 
     if ( credential.institution.code == 'BBVA' ) {
       sendToScraperWebSocket( credential )
-    } else if ( credential.institution.code == 'BAZ' ) {
-      sendCredentialToSignalR( credential )
     }else{
 	    sendToScraper( credential )
     }
@@ -395,20 +393,6 @@ class CredentialService {
 
   }
   
-  private void sendCredentialToSignalR( Credential credential )throws Exception {
-	  
-	  def data = [		  
-		  Id: credential.id,
-		  Username: credential.username,
-		  Password: credential.password,
-		  IV: credential.iv,
-		  State: 'Start',
-		  User: [Id: credential.user.id ]		  
-		] 
-		
-		signalRService.sendCredential( data )
-			  
-  }
 
   private boolean credentialRecentlyUpdated( Credential credential )
       throws Exception {
