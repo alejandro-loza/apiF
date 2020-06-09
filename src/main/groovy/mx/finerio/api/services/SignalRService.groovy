@@ -72,7 +72,7 @@ class SignalRService {
 	}
 
 	private validateMessage( LinkedTreeMap data ){
-  		if( !data.Id ){
+  		if( !data.id ){
     		throw new BadImplementationException(
         	'signalRService.validateMessage.data.null' )  			
   		}
@@ -81,23 +81,13 @@ class SignalRService {
 
 	 private void onTokenRequired( LinkedTreeMap data ) {
 		  	
-		  String credentialId = data.Id		  						 
+		  String credentialId = data.id		  						 
 		  Credential credential = credentialService.findAndValidate( credentialId )		  
 		  callbackService.sendToClient( credential.customer.client,
 			  Callback.Nature.NOTIFY, [ credentialId: credentialId,
 		      stage: 'interactive' ] )		 
 	
 	  }	
-    @Async
-	String sendCredential( Map credentialData ) {
-				
-  		validateCredentialData( credentialData )
-
-      	def finalUrl = "${url}/${pathReceived}"		 		
-		restTemplateService.post( finalUrl, [:], credentialData )
-
-        'Credentail sent successfully'
-	}
 
 
 	private void validateCredentialData( Map credentialData ){
@@ -113,9 +103,8 @@ class SignalRService {
 		
 		def finalUrl = "${url}/${pathReceived}"
 		def data = [
-					 Id: credentialId,
-			         Token: token,
-			         State: 'Token'
+					 id: credentialId,
+			         token: token			         
 					]		  
 		restTemplateService.post( finalUrl, [:], data )				
 	 }
