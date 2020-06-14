@@ -65,6 +65,7 @@ class FinancialInstitutionService {
     }
 
     [ id: financialInstitution.id, name: financialInstitution.name,
+        code: financialInstitution.code,
         status: financialInstitution.status ]
 
   }
