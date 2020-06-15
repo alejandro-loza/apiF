@@ -217,7 +217,7 @@ class AccountService {
       throws Exception {
 
     if ( institution.code == 'SANTANDER' ) {
-      return extraData.number ?: extraData.tarjeta
+      return extraData.number ?: extraData.card_number
     } else if ( institution.code == 'HSBC' || institution.code == 'INVEX' ||
         institution.code == 'BBVA' ) {
       return extraData.number
@@ -226,7 +226,7 @@ class AccountService {
     } else if ( institution.code == 'AMEX' ) {
       return "XXX-${extraData.card_number_display}"
     } else if ( institution.code == 'BAZ' ) {
-      return extraData.cuenta
+      return extraData?.cuenta
     }
 
     null
