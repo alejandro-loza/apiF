@@ -50,6 +50,7 @@ class ScraperCallbackService {
     def data = [:]
     data.credentialId = credential.id
     data.accountId = transactionDto.data.account_id
+    data.transactions = []
 
     if ( !movements.isEmpty() && movements[ 0 ] instanceof Transaction ) {
       data.transactions = movements.collect {
