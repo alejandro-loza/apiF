@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletRequest
 
 import mx.finerio.api.services.MessageService
 import mx.finerio.api.services.RsaCryptService
-
+import mx.finerio.api.exceptions.BadRequestException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 
@@ -52,6 +52,13 @@ class CredentialFilter implements Filter {
 
       def errors = [ errors: [
           messageService.findOne( 'cryptedText.invalid' ) ] ]
+      servletResponse.setStatus( HttpStatus.BAD_REQUEST.value() )
+      servletResponse.getWriter().write( new JsonBuilder( errors ).toString() )
+
+    }catch ( BadRequestException e ) {
+
+       def errors = [ errors: [
+      messageService.findOne( 'rsaCryptService.decrypt.wrongKey' ) ] ]
       servletResponse.setStatus( HttpStatus.BAD_REQUEST.value() )
       servletResponse.getWriter().write( new JsonBuilder( errors ).toString() )
 
