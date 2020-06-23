@@ -23,10 +23,9 @@ class DevSignalRService implements SignalRService{
 	
 	@Override
 	void sendTokenToScrapper( String token, String credentialId )  {
-	  	log.info("Not sendign token to scrapper cause de connection is dummy")	
-			
+                log.info("Not sending token to scrapper because connection is dummy")
 	 }
-				 
+
 }
 	  
 
