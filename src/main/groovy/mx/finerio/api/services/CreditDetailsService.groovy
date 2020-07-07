@@ -56,8 +56,17 @@ class CreditDetailsService {
           'creditDetailsService.getFields.creditDetails.null' )
     }
 
-    [ creditLimit: creditDetails.limitCredit,
-        cardNumber: maskCardNumber( creditDetails.cardNumber ) ]
+    [
+      creditLimit: creditDetails.limitCredit,
+      closingDate: creditDetails.closingDate,
+      lastClosingDate: creditDetails.lastClosingDate,
+      nonInterestPayment: creditDetails.nonInterestPayment,
+      statementBalance: creditDetails.statementBalance,
+      minimumPayment: creditDetails.minimumPayment,
+      dueDate: creditDetails.dueDate,
+      annualPercentageRate: creditDetails.annualPercentageRate,
+      cardNumber: creditDetails.cardNumber
+    ]
 
   }
 
@@ -74,11 +83,7 @@ class CreditDetailsService {
     }
     instance.closingDate = creditDetailsDto.closing_date ? new Date().parse( "yyyy-MM-dd'T'HH:mm:ss",
         creditDetailsDto.closing_date ) : null
-    if( creditDetailsDto.non_interest_payment && creditDetailsDto.non_interest_payment != 0.0 ){
-      instance.nonInterestPayment = creditDetailsDto.non_interest_payment  
-    }else{
-      instance.nonInterestPayment = creditDetailsDto.statement_balance  
-    }
+    instance.nonInterestPayment = creditDetailsDto.non_interest_payment
     instance.statementBalance = creditDetailsDto.statement_balance
     instance.minimumPayment = creditDetailsDto.minimum_payment  
     instance.limitCredit = creditDetailsDto.credit_limit 
@@ -87,13 +92,7 @@ class CreditDetailsService {
     instance.lastClosingDate = creditDetailsDto.last_closing_date ? new Date().parse( "yyyy-MM-dd'T'HH:mm:ss",
         creditDetailsDto.last_closing_date ) : null
     instance.annualPercentageRate = creditDetailsDto.annual_porcentage_rate
-    if( creditDetailsDto.card_number ){
-      def cn = creditDetailsDto.card_number
-      def maskNumber = ( cn.size() == 16 ) ? "XXXX${cn.reverse().take(4).reverse()}" : cn
-      instance.cardNumber = maskNumber
-    }else{
-      instance.cardNumber = creditDetailsDto.card_number
-    }
+    instance.cardNumber = creditDetailsDto.card_number
     instance.lastUpdated = new Date()
     creditDetailsRepository.save( instance )
     instance

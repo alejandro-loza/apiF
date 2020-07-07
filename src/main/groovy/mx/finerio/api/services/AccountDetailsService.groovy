@@ -16,9 +16,14 @@ class AccountDetailsService {
 
   Map findAllByAccount( String accountId ) throws Exception {
 
-    def map = getCreditDetailsMap( accountId )
+    def creditData = getCreditDetailsMap( accountId )
+    def keys = [ 'creditLimit', 'cardNumber' ]
+    def map = creditData.subMap( keys )
     addAccountExtraData( map, accountId, 'userData_name', 'name' )
     addAccountExtraData( map, accountId, 'clabe', 'clabe' )
+    map.user = getUserData( accountId )
+    map.debit = getDebitData( accountId )
+    map.credit = creditData
     return map
 
   }
@@ -41,6 +46,22 @@ class AccountDetailsService {
     def dto = accountExtraDataService.findByAccountAndName(
         accountId, extraDataKey )
     map."${key}" = dto?.value
+
+  }
+
+  private Map getUserData( String accountId ) throws Exception {
+
+    def userData = [:]
+    addAccountExtraData( userData, accountId, 'userData_name', 'name' )
+    return userData
+
+  }
+
+  private Map getDebitData( String accountId ) throws Exception {
+
+    def debitData = [:]
+    addAccountExtraData( debitData, accountId, 'clabe', 'clabe' )
+    return debitData
 
   }
 
