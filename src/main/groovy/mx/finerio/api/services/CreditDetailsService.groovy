@@ -43,7 +43,7 @@ class CreditDetailsService {
 
   CreditDetails findByAccountId( String accountId ) throws Exception {
 
-    def account = accountService.findOne( accountId )
+    def account = accountService.findById( accountId )
     return creditDetailsRepository.
         findByCreditDetailsIdAccountAndDateDeletedIsNull( account )
 
