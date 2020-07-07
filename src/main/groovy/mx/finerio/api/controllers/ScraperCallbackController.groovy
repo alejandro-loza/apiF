@@ -9,6 +9,7 @@ import mx.finerio.api.dtos.FailureCallbackDto
 import mx.finerio.api.dtos.TransactionDto
 import mx.finerio.api.dtos.NotifyCallbackDto
 import mx.finerio.api.dtos.SuccessCallbackDto
+import mx.finerio.api.services.AccountDetailsService
 import mx.finerio.api.services.AccountService
 import mx.finerio.api.services.AzureQueueService
 import mx.finerio.api.services.CallbackService
@@ -28,6 +29,9 @@ import org.springframework.web.bind.annotation.RequestParam
 
 @RestController
 class ScraperCallbackController {
+
+  @Autowired
+  AccountDetailsService accountDetailService
 
   @Autowired
   AccountService accountService
@@ -50,10 +54,12 @@ class ScraperCallbackController {
     def account = accountService.create( accountDto.data )
     def credential = credentialService.findAndValidate(
         accountDto?.data?.credential_id as String )
+    def accountDetails = accountDetailsService.findAllByAccount( account.id )
     callbackService.sendToClient( credential?.customer?.client,
         Callback.Nature.ACCOUNTS, [ credentialId: credential.id,
         accountId: account.id,
-        account: accountService.getFields( account ) ] )
+        account: accountService.getFields( account ),
+        accountDetails: accountDetails ] )
     ResponseEntity.ok( [ id: account.id ] )
 
   }
