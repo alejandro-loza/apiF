@@ -1,0 +1,13 @@
+databaseChangeLog:
+- changeSet:
+    id: credit_details_available_balance
+    author: alejandro.garcia
+    changes:
+    - addColumn:
+        tableName: credit_details
+        columns:
+        - column:
+            name: available_balance
+            type: DECIMAL(19,2)
+            constraints:
+              nullable: true
