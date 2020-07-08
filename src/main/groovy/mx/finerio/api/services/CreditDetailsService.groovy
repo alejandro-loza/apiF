@@ -65,7 +65,8 @@ class CreditDetailsService {
       minimumPayment: creditDetails.minimumPayment,
       dueDate: creditDetails.dueDate,
       annualPercentageRate: creditDetails.annualPercentageRate,
-      cardNumber: creditDetails.cardNumber
+      cardNumber: creditDetails.cardNumber,
+      availableBalance: creditDetails.availableBalance
     ]
 
   }
@@ -93,6 +94,7 @@ class CreditDetailsService {
         creditDetailsDto.last_closing_date ) : null
     instance.annualPercentageRate = creditDetailsDto.annual_porcentage_rate
     instance.cardNumber = creditDetailsDto.card_number
+    instance.availableBalance = creditDetailsDto.available_balance
     instance.lastUpdated = new Date()
     creditDetailsRepository.save( instance )
     instance
@@ -110,6 +112,7 @@ class CreditDetailsService {
     || creditDetailsDto.closing_date
     || creditDetailsDto.annual_porcentage_rate
     || creditDetailsDto.card_number
+    || creditDetailsDto.available_balance
     ){ flag = false }  
     flag  
   }
