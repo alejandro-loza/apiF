@@ -24,6 +24,7 @@ class AccountDetailsService {
     map.user = getUserData( accountId )
     map.debit = getDebitData( accountId )
     map.credit = creditData
+    map.extra = getExtraData( accountId )
     return map
 
   }
@@ -62,6 +63,20 @@ class AccountDetailsService {
     def debitData = [:]
     addAccountExtraData( debitData, accountId, 'clabe', 'clabe' )
     return debitData
+
+  }
+
+  private List getExtraData( String accountId ) throws Exception {
+
+    def extraData = []
+    def dtoList = accountExtraDataService.findAllByAccount( accountId )
+
+    for ( dto in dtoList ) {
+      if ( [ 'userData_name', 'clabe' ].contains( dto.name ) ) { continue }
+      extraData << [ name: dto.name, value: dto.value ]
+    }
+
+    return extraData
 
   }
 

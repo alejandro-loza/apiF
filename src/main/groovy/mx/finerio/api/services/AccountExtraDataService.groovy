@@ -39,6 +39,22 @@ class AccountExtraDataService {
 
   }
 
+  List<AccountExtraDataDto> findAllByAccount( String accountId )
+      throws Exception {
+
+    def account = accountService.findById( accountId )
+    def instanceList = accountExtraDataRepository.findAllByAccount(
+        account )
+    def dtoList = []
+
+    for ( instance in instanceList ) {
+      dtoList << createAccountExtraDataDto( instance )
+    }
+
+    return dtoList
+
+  }
+
   AccountExtraDataDto findByAccountAndName( String accountId, String name )
       throws Exception {
 
@@ -46,11 +62,7 @@ class AccountExtraDataService {
     def instance = accountExtraDataRepository.findFirstByAccountAndName(
         account, name )
     if ( !instance ) { return null }
-    def dto = new AccountExtraDataDto()
-    dto.accountId = accountId
-    dto.name = instance.name
-    dto.value = instance.value
-    return dto
+    return createAccountExtraDataDto( instance )
 
   }
 
@@ -70,6 +82,17 @@ class AccountExtraDataService {
     instance.value = dto.value.take( 100 )
     instance.lastUpdated = new Date()
     accountExtraDataRepository.save( instance )
+
+  }
+
+  private AccountExtraDataDto createAccountExtraDataDto(
+      AccountExtraData accountExtraData ) throws Exception {
+
+    def dto = new AccountExtraDataDto()
+    dto.accountId = accountExtraData.account.id
+    dto.name = accountExtraData.name
+    dto.value = accountExtraData.value
+    return dto
 
   }
 
