@@ -41,6 +41,9 @@ class CreditDetails {
   @Column(name = 'card_number', nullable = true, length = 30)
   String cardNumber
 
+  @Column(name = 'available_balance', nullable = true)
+  BigDecimal availableBalance
+
   @Column(name = 'date_created', nullable = false)
   Date dateCreated
 
