@@ -14,4 +14,7 @@ interface CallbackRepository extends JpaRepository<Callback, Long>,
 
   List<Callback> findAllByClientAndDateDeletedIsNull( Client client )
 
+  List<Callback> findAllByNatureAndDateDeletedIsNull(
+      Callback.Nature nature )
+
 }

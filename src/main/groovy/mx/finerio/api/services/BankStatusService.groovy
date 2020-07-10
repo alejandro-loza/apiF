@@ -1,5 +1,6 @@
 package mx.finerio.api.services
 
+import mx.finerio.api.domain.Callback
 import mx.finerio.api.domain.FinancialInstitution
 import mx.finerio.api.domain.repository.FinancialInstitutionRepository
 import mx.finerio.api.dtos.BankStatusDto
@@ -11,6 +12,9 @@ import org.springframework.transaction.annotation.Transactional
 
 @Service
 class BankStatusService {
+
+  @Autowired
+  CallbackService callbackService
 
   @Autowired
   FinancialInstitutionRepository financialInstitutionRepository
@@ -26,6 +30,7 @@ class BankStatusService {
     def bank = getBank( dto.bankId )
     bank.status = getStatus( dto.status )
     financialInstitutionRepository.save( bank )
+    notifyClients( dto )
 
   }
 
@@ -53,6 +58,22 @@ class BankStatusService {
     }
 
     return status
+
+  }
+
+  private void notifyClients( BankStatusDto dto ) throws Exception {
+
+    if ( !dto.notifyClients ) { return }
+    def callbacks = callbackService.findAllByNature( Callback.Nature.BANKS )
+    def data = [
+      bankId: dto.bankId,
+      status: dto.status
+    ]
+
+    for ( callback in callbacks ) {
+      callbackService.sendToClient( callback.client, Callback.Nature.BANKS,
+          data )
+    }
 
   }
 
