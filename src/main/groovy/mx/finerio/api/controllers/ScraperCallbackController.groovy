@@ -31,7 +31,7 @@ import org.springframework.web.bind.annotation.RequestParam
 class ScraperCallbackController {
 
   @Autowired
-  AccountDetailsService accountDetailService
+  AccountDetailsService accountDetailsService
 
   @Autowired
   AccountService accountService

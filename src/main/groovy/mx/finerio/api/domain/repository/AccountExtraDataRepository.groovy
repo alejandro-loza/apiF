@@ -11,4 +11,7 @@ interface AccountExtraDataRepository
     JpaSpecificationExecutor {
   
   AccountExtraData findFirstByAccountAndName( Account account, String name )
+
+  List<AccountExtraData> findAllByAccount( Account account )
+
 }
