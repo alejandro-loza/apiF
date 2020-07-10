@@ -56,9 +56,17 @@ class ProdSignalRService implements SignalRService {
 		connection = HubConnectionBuilder.create( this.url ).build()
 
 		connection.on( 'token_required', 
-			{ data  -> 		                   
-                this.validateMessage( data )
-			    this.onTokenRequired( data )	         			
+			{ 
+			  data  -> 	
+			    try{				                  
+	                    	this.validateMessage( data )
+				this.onTokenRequired( data )	         			
+			    }catch(BadImplementationException e){
+	                        log.info("Credential id is missing: ${e.message}") 
+			    }
+			     catch(Exception e){
+	                        log.info("Error: ${e.message}") 
+			    }
 			}, LinkedTreeMap.class)
 
 		connection.on( 'token_received', //Consuming this for not showing errors on logs
@@ -75,28 +83,32 @@ class ProdSignalRService implements SignalRService {
 
 	private validateMessage( LinkedTreeMap data ){
   		if( !data.id ){
-    		throw new BadImplementationException(
-        	'signalRService.validateMessage.data.null' )  			
+    	          throw new BadImplementationException(
+        	  'signalRService.validateMessage.data.null' )  			
   		}
 
 	} 	
 
 	 private void onTokenRequired( LinkedTreeMap data ) {
 		  	
-		  String credentialId = data.id		  						 
-		  Credential credential = credentialService.findAndValidate( credentialId )		  
+		  String credentialId = data.id
+		  log.info("onTokenRequiredEvent with credentialId: ${credentialId}") 		  						 
+		  Credential credential = credentialService.findAndValidate( credentialId )
+		  def dataSend = [ credentialId: credentialId, stage: 'interactive' ]		  
+		  if( data.bankToken ) { 
+                    dataSend.put('bankToken', data.bankToken as Integer )
+		  }
 		  callbackService.sendToClient( credential.customer.client,
-			  Callback.Nature.NOTIFY, [ credentialId: credentialId,
-		      stage: 'interactive' ] )		 
+			  Callback.Nature.NOTIFY, dataSend )		 
 	
 	  }	
 
 
 	private void validateCredentialData( Map credentialData ){
-    	if( !credentialData){
+    	 if( !credentialData){
     		throw new BadImplementationException(
         	'signalRService.validateCredentialData.credentialData.null' )
-    	}
+    	 }
 	} 
 		
 	  		  
