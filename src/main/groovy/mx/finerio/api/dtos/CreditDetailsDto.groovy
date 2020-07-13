@@ -26,4 +26,6 @@ class CreditDetailsDto {
 
   BigDecimal statement_balance
 
+  BigDecimal available_balance
+
 }
