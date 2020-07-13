@@ -269,7 +269,7 @@ class CredentialService {
  
     def credential = findOne( id )
 	
-	   if( credential.institution.code == 'BAZ' ) {
+	   if( credential.institution.code == 'BAZ' || credential.institution.code == 'BANORTE' ) {
 	       signalRService.sendTokenToScrapper( credentialInteractiveDto.token, id )
 		 return
 	   }
