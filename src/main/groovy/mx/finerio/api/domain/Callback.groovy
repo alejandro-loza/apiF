@@ -15,7 +15,8 @@ class Callback {
     SUCCESS,
     FAILURE,
     ACCOUNTS,
-    TRANSACTIONS
+    TRANSACTIONS,
+    BANKS
   }
 
   @Id @GeneratedValue

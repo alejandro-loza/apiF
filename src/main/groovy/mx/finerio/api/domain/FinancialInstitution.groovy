@@ -10,6 +10,12 @@ import javax.validation.constraints.*
 @ToString(includeNames = true, includePackage = false)
 class FinancialInstitution {
 
+  enum Status {
+    ACTIVE,
+    INACTIVE,
+    DELETED
+  }
+
   @Id
   @Column(name = 'id', nullable = false, updatable = false)
   Long id
@@ -26,7 +32,8 @@ class FinancialInstitution {
   @Column(name = 'name', nullable = false, length = 255)
   String name
 
+  @Enumerated(EnumType.STRING)
   @Column(name = 'status', nullable = false, length = 255)
-  String status
+  Status status
 
 }

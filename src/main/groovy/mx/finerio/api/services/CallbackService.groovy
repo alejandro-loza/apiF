@@ -67,6 +67,18 @@ class CallbackService {
 
   }
 
+  List<Callback> findAllByNature( Callback.Nature nature )
+      throws Exception {
+
+    if ( nature == null ) {
+      throw new BadImplementationException(
+          'callbackService.findAllByNature.nature.null' )
+    }
+
+    return callbackRepository.findAllByNatureAndDateDeletedIsNull( nature )
+
+  }
+
   Callback findOne( Long id ) throws Exception {
 
     if ( id == null ) {
