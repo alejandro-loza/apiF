@@ -19,7 +19,9 @@ class FinancialInstitutionService {
 
   Map findAll() throws Exception {
     [ data: financialInstitutionRepository.findAll().findAll {
-        it.code != 'DINERIO' && it.status != 'DELETED' && it.status != "INACTIVE" }
+        it.code != 'DINERIO' &&
+        it.status != FinancialInstitution.Status.DELETED &&
+        it.status != FinancialInstitution.Status.INACTIVE }
     , nextCursor: null ]
   }
 
@@ -49,7 +51,8 @@ class FinancialInstitutionService {
 
     def financialInstitution = findOne( id )
 
-    if ( financialInstitution.status != 'ACTIVE' ) {
+    if ( financialInstitution.status !=
+        FinancialInstitution.Status.ACTIVE ) {
       throw new BadRequestException( 'financialInstitution.disabled' )
     }
 
