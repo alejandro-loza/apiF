@@ -1,7 +1,9 @@
 package mx.finerio.api.services
 
+import mx.finerio.api.domain.Callback
 import mx.finerio.api.dtos.FailureCallbackDto
 import mx.finerio.api.exceptions.BadImplementationException
+import mx.finerio.api.services.AdminService.EntityType
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
