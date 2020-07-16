@@ -20,6 +20,9 @@ class ScraperCallbackService {
   CallbackService callbackService
 
   @Autowired
+  CredentialFailureService credentialFailureService
+
+  @Autowired
   CredentialService credentialService
 
   @Autowired
@@ -101,15 +104,10 @@ class ScraperCallbackService {
           'scraperCallbackService.processFailure.failureCallbackDto.null' )
     }
 
-    def strStatusCode=String.valueOf( failureCallbackDto?.data?.status_code )
-    def credential = credentialService.setFailure(
-        failureCallbackDto?.data?.credential_id, strStatusCode )
-    credentialStatusHistoryService.update( credential )
-    adminService.sendDataToAdmin( EntityType.CONNECTION, Boolean.valueOf(false), credential )
+    credentialFailureService.processFailure( failureCallbackDto )
+    def credential = credentialService.findAndValidate(
+        failureCallbackDto?.data?.credential_id as String )
     closeWebSocketSession( credential )
-    callbackService.sendToClient( credential?.customer?.client,
-        Callback.Nature.FAILURE, [ credentialId: credential.id,
-        message: credential.errorCode, code: strStatusCode ] )
 
   }
     

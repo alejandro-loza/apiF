@@ -7,6 +7,8 @@ import javax.websocket.OnMessage
 import javax.websocket.OnOpen
 import javax.websocket.Session
 
+import mx.finerio.api.dtos.FailureCallbackData
+import mx.finerio.api.dtos.FailureCallbackDto
 import mx.finerio.api.dtos.ScraperWebSocketSendDto
 import mx.finerio.api.exceptions.BadImplementationException
 
@@ -28,7 +30,7 @@ class ScraperWebSocketService {
   String timeoutMessage
 
   @Autowired
-  ScraperCallbackService scraperCallbackService
+  CredentialFailureService credentialFailureService
 
   def sessions = [:]
   
@@ -49,6 +51,7 @@ class ScraperWebSocketService {
     }
 
     if ( !sessions[ scraperWebSocketSendDto.id ] ) {
+      processSessionExpired( scraperWebSocketSendDto.id )
       return
     }
 
@@ -95,6 +98,7 @@ class ScraperWebSocketService {
     }.each {
 
       try {
+        processSessionExpired( it.key )
         closeSession( it.key )
       } catch ( Exception e ) {}
 
@@ -107,6 +111,19 @@ class ScraperWebSocketService {
     def container = ContainerProvider.webSocketContainer
     container.connectToServer( ScraperClientEndpointService,
         URI.create( url ) )
+
+  }
+
+  private void processSessionExpired( String credentialId )
+      throws Exception {
+
+    def dto = new FailureCallbackDto()
+    def data = new FailureCallbackData()
+    data.credential_id = credentialId
+    data.error_message = timeoutMessage
+    data.status_code = 401
+    dto.data = data
+    credentialFailureService.processFailure( dto )
 
   }
 
