@@ -32,10 +32,9 @@ class CredentialFailureService {
           'credentialFailureService.processFailure.dto.null' )
     }
 
-    def strStatusCode = String.valueOf(
-        failureCallbackDto?.data?.status_code )
+    def strStatusCode = String.valueOf( dto?.data?.status_code )
     def credential = credentialService.setFailure(
-        failureCallbackDto?.data?.credential_id, strStatusCode )
+        dto?.data?.credential_id, strStatusCode )
     credentialStatusHistoryService.update( credential )
     adminService.sendDataToAdmin( EntityType.CONNECTION,
         Boolean.valueOf( false ), credential )
