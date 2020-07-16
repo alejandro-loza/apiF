@@ -5,6 +5,7 @@ import javax.validation.Valid
 import mx.finerio.api.dtos.CredentialDto
 import mx.finerio.api.dtos.CredentialInteractiveDto
 import mx.finerio.api.dtos.CredentialUpdateDto
+import mx.finerio.api.services.CredentialErrorService
 import mx.finerio.api.services.CredentialService
 
 import org.springframework.beans.factory.annotation.Autowired
@@ -22,6 +23,9 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 class CredentialController {
+
+  @Autowired
+  CredentialErrorService credentialErrorService
 
   @Autowired
   CredentialService credentialService
@@ -81,6 +85,14 @@ class CredentialController {
 
     credentialService.delete( id )
     new ResponseEntity( HttpStatus.NO_CONTENT )
+
+  }
+
+  @GetMapping('/credentials/messages/failure')
+  ResponseEntity findAllErrors() {
+
+    def response = credentialErrorService.findAll()
+    new ResponseEntity( response, HttpStatus.OK )
 
   }
 
