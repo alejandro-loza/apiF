@@ -131,6 +131,7 @@ class CredentialService {
     instance
 
   }
+
   @Transactional 
   Credential findAndValidate( String id ) throws Exception {
 
