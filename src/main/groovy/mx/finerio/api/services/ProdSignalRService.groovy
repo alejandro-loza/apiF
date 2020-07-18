@@ -39,6 +39,8 @@ class ProdSignalRService implements SignalRService {
 	@Autowired
 	CredentialService credentialService
 
+	@Autowired
+	CredentialTokenService credentialTokenService
 
 	@Autowired
  	public TransactionsReceiver( 
@@ -84,7 +86,12 @@ class ProdSignalRService implements SignalRService {
 	private validateMessage( LinkedTreeMap data ){
   		if( !data.id ){
     	          throw new BadImplementationException(
-        	  'signalRService.validateMessage.data.null' )  			
+        	  'signalRService.validateMessage.data.id.null' )  			
+  		}
+
+  		if( !data.clientId ){
+    	          throw new BadImplementationException(
+        	  'signalRService.validateMessage.data.clientId.null' )  			
   		}
 
 	} 	
@@ -98,6 +105,7 @@ class ProdSignalRService implements SignalRService {
 		  if( data.bankToken ) { 
                     dataSend.put('bankToken', data.bankToken as Integer )
 		  }
+		  credentialTokenService.saveUpdateCredentialToken( credentialId, data.clientId )
 		  callbackService.sendToClient( credential.customer.client,
 			  Callback.Nature.NOTIFY, dataSend )		 
 	
@@ -117,9 +125,11 @@ class ProdSignalRService implements SignalRService {
 	void sendTokenToScrapper( String token, String credentialId )  {
 		
 		def finalUrl = "${url}/${pathReceived}"
+		def tokenClientId = credentialTokenService.findTokenClientIdByCredentilId( credentialId )
 		def data = [
 					 id: credentialId,
-			         token: token			         
+			         token: token,
+			         clientId: tokenClientId 			         
 					]		  
 		restTemplateService.post( finalUrl, [:], data )				
 	 }
