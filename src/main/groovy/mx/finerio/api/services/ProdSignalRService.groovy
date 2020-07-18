@@ -103,7 +103,7 @@ class ProdSignalRService implements SignalRService {
 		  Credential credential = credentialService.findAndValidate( credentialId )
 		  def dataSend = [ credentialId: credentialId, stage: 'interactive' ]		  
 		  if( data.bankToken ) { 
-                    dataSend.put('bankToken', data.bankToken as Integer )
+                    dataSend.put('bankToken', data.bankToken )
 		  }
 		  credentialTokenService.saveUpdateCredentialToken( credentialId, data.clientId )
 		  callbackService.sendToClient( credential.customer.client,
