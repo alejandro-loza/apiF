@@ -25,7 +25,7 @@ class CallbackService {
   CallbackService selfReference
 
   @Autowired
-  RestTemplateService restTemplateService
+  CallbackRestService callbackRestService
 
   @Autowired
   SecurityService securityService
@@ -147,7 +147,7 @@ class CallbackService {
 
   @Async
   void sendCallback( String url, Map headers, Map data ) throws Exception {
-    restTemplateService.post( url, headers, data )
+    callbackRestService.post( url, data )
   }
 
   private void validateSendToClientInput( Client client,
