@@ -15,7 +15,7 @@ apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
 
 group = 'mx.finerio'
-version = '0.5.21'
+version = '0.5.22'
 sourceCompatibility = 1.8
 
 repositories {
