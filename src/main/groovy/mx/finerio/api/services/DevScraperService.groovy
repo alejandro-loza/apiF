@@ -11,6 +11,7 @@ import okhttp3.ResponseBody
 import okhttp3.MediaType
 import okhttp3.RequestBody
 import groovy.json.*
+import mx.finerio.api.dtos.*
 
 @Service
 class DevScraperService {
@@ -30,14 +31,30 @@ class DevScraperService {
   @Autowired
   RestTemplateService restTemplateService
 
+  @Autowired
+  CredentialFailureService credentialFailureService
+
   @Async
   Map requestData( Map data ) throws Exception {
 
     def finalUrl = "${url}/${credentialsPath}"
     def headers = [ 'Authorization': "Bearer ${login().access_token}" ]
     def body = [ data: [ data ] ]
-    restTemplateService.post( finalUrl, headers, body )
+    
+    try{
+      restTemplateService.post( finalUrl, headers, body ) 
+    }catch( java.net.SocketTimeoutException | Exception ex ){  
+      credentialFailureService.processFailure( getTimeoutFailureCallbackDto( data.id ) )
+      throw new Exception( ex.message )
+    }
 
+  }
+
+    private getTimeoutFailureCallbackDto( String credentialId ){
+      String errorMessage = 'Hubo un problema de conexión con tu banco. Sincroniza tu cuenta nuevamente en 5 minutos.'
+      Integer statusCode = 504  
+      def data =new FailureCallbackData( credential_id: credentialId, error_message: errorMessage, status_code: statusCode )
+      new FailureCallbackDto( data: data)
   }
 
  private Map login() throws Exception{
