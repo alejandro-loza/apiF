@@ -74,6 +74,12 @@ class ProdSignalRService implements SignalRService {
 		connection.on( 'token_received', //Consuming this for not showing errors on logs
 			{ data  -> }, LinkedTreeMap.class)
 
+        startConnection()
+
+		connection.onClosed({ startConnection() })
+	}
+
+	private void startConnection(){
 		connection.start().subscribe(
 			{ 
 				log.info("-- Connection with signalRService Started --") 
