@@ -68,7 +68,7 @@ tags:
   - name: Credentials
     description: A credential is the representation of your customer online bank data.
   - name: Accounts
-    description: An account is the representation of your custome's bank accounts.
+    description: An account is the representation of your customer's bank accounts.
   - name: Transactions
     description: A transaction is the representation of the financial movements within a
       bank account.
@@ -1505,8 +1505,11 @@ components:
   securitySchemes:
     OAuth2:
       type: oauth2
-      description: This API uses OAuth 2 with the password grant flow. [More info](https://api.example.com/docs/auth)
+      description: This API uses OAuth 2 with the password grant flow.
       flows:
         password:
           tokenUrl: /oauth/token
           refreshUrl: /oauth/token
+          scopes:
+            read: Read operations.
+            write: Write operations
