@@ -50,7 +50,7 @@ info:
 
 
     Are you ready? Let's go!"
-  version: 1.0.0
+  version: 2.0.0
 servers:
 - url: https://api-v2-sandbox.finerio.mx
   description: Sandbox server
