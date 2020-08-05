@@ -1507,7 +1507,7 @@ components:
     BasicAuth:
       type: http
       scheme: basic
-      description: The API uses BASIC Authentication with the client ID as a username and the client secret as a password.
+      description: The API uses BASIC Authentication with the client ID as a username and the client secret as a password. This authentication is used only in the /oauth/token endpoint
     OAuth2:
       type: oauth2
       description: This API uses OAuth 2 with the password grant flow.
