@@ -84,7 +84,8 @@ security:
 paths:
   /oauth/token:
     post:
-      security: []
+      security:
+        - BasicAuth: []
       tags:
         - Access
       summary: Gets access information.
@@ -1503,6 +1504,10 @@ components:
           description: A detailed explanation of the error. If this message is not self-explanatory, please let us know.
           example: Error detail
   securitySchemes:
+    BasicAuth:
+      type: http
+      scheme: basic
+      description: The API uses BASIC Authentication with the client ID as a username and the client secret as a password.
     OAuth2:
       type: oauth2
       description: This API uses OAuth 2 with the password grant flow.
