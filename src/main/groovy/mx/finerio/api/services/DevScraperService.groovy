@@ -37,12 +37,13 @@ class DevScraperService {
   @Async
   Map requestData( Map data ) throws Exception {
 
-    def finalUrl = "${url}/${credentialsPath}"
-    def headers = [ 'Authorization': "Bearer ${login().access_token}" ]
-    def body = [ data: [ data ] ]
-    
     try{
+
+      def finalUrl = "${url}/${credentialsPath}"
+      def headers = [ 'Authorization': "Bearer ${login().access_token}" ]
+      def body = [ data: [ data ] ]
       restTemplateService.post( finalUrl, headers, body ) 
+
     }catch( java.net.SocketTimeoutException | Exception ex ){  
       credentialFailureService.processFailure( getTimeoutFailureCallbackDto( data.id ) )
       throw new Exception( ex.message )
