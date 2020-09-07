@@ -82,7 +82,7 @@ class ScraperWebSocketService {
 
     sessions.findResults {
 
-      if ( nowMillis - it.value.time >= 60000 ) {
+      if ( nowMillis - it.value.time >= 300000 ) {
 
         try {
           it.value.session.basicRemote
