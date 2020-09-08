@@ -967,6 +967,10 @@ components:
             - PASSWORD
           description: The type of the textfield in the HTML web form.
           example: TEXT
+        required:
+          type: boolean
+          description: Indicates if the field should be required.
+          example: true
     Customer:
       properties:
         id:
