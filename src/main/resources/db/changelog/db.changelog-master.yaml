@@ -68,3 +68,5 @@ databaseChangeLog:
     file: db/changelog/credit_details_available_balance.yaml
 - include:
     file: db/changelog/credential_token.yaml    
+- include:
+    file: db/changelog/field_required.yaml
