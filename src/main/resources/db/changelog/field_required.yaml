@@ -1,0 +1,14 @@
+databaseChangeLog:
+- changeSet:
+    id: field_required
+    author: alejandro.garcia
+    changes:
+    - addColumn:
+        tableName: field
+        columns:
+        - column:
+            name: required
+            type: BOOLEAN
+            defaultValueBoolean: true
+            constraints:
+              nullable: false

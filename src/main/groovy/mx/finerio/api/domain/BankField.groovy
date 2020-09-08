@@ -37,4 +37,7 @@ class BankField {
   @Column(name = 'interactive', nullable = false)
   Boolean interactive
 
+  @Column(name = 'required', nullable = false)
+  Boolean required
+
 }

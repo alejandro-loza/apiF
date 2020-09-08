@@ -39,7 +39,8 @@ class BankFieldService {
     }
 
     [ name: bankField.name, friendlyName: bankField.friendlyName,
-        position: bankField.position, type: bankField.type ]
+        position: bankField.position, type: bankField.type,
+        required: bankField.required ]
 
   }
 
