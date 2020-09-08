@@ -74,7 +74,7 @@ class AccountService {
     def credential = credentialService.findAndValidate( accountData.credential_id )
     credential = credentialService.validateUserCredential( credential, accountData.user_id )
     def cleanedName = getAccountName( accountData.name )
-    def number = getNumber( credential.institution, accountData.extra_data )
+    def number = getNumber( credential.institution, accountData )
         ?: cleanedName
     def account = findDuplicated( credential, number,
         accountData.id ) ?: new Account() 
@@ -213,14 +213,17 @@ class AccountService {
     originalAccountName.replace( '&#092;u00f3', '\u00F3' ).trim()
   }
 
-  private String getNumber( FinancialInstitution institution, Map extraData )
-      throws Exception {
+  private String getNumber( FinancialInstitution institution,
+      AccountData accountData ) throws Exception {
+
+    def extraData = accountData.extra_data
 
     if ( institution.code == 'SANTANDER' ) {
       return extraData?.number ?: extraData?.card_number
-    } else if ( institution.code == 'HSBC' || institution.code == 'INVEX' ||
-        institution.code == 'BBVA' ) {
+    } else if ( institution.code == 'HSBC' || institution.code == 'BBVA' ) {
       return extraData?.number
+    } else if ( institution.code == 'INVEX' ) {
+      return accountData.id
     } else if ( institution.code == 'BANORTE' ) {
       return "***${extraData.short_number}"
     } else if ( institution.code == 'AMEX' ) {
