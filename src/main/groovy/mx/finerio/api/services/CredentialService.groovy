@@ -191,6 +191,10 @@ class CredentialService {
 
     }
 
+    if ( credentialUpdateDto.automaticFetching != null ) {
+      instance.automaticFetching = credentialUpdateDto.automaticFetching
+    }
+
     instance.lastUpdated = new Date()
     instance = credentialRepository.save( instance )
     requestData( instance.id )
@@ -256,7 +260,9 @@ class CredentialService {
     }
  
     [ id: credential.id, username: credential.username,
-        status: credential.status, dateCreated: credential.dateCreated ]
+        status: credential.status,
+        automaticFetching: credential.automaticFetching,
+        dateCreated: credential.dateCreated ]
 
   }
 
@@ -316,6 +322,7 @@ class CredentialService {
     instance.lastUpdated = now
     instance.version = 0
     instance.providerId = 3L
+    instance.automaticFetching = credentialDto.automaticFetching
     credentialRepository.save( instance )
 
   }

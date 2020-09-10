@@ -13,8 +13,10 @@ class CredentialUpdateDto {
   @Size(min = 1, max = 10, message = 'credential.securityCode.size')
   String securityCode
 
+  Boolean automaticFetching
+
   boolean isEmpty() {
-    !password && !securityCode
+    !password && !securityCode && automaticFetching == null
   }
 
 }
