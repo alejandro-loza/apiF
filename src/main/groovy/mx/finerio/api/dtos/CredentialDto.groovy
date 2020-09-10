@@ -24,4 +24,6 @@ class CredentialDto {
   @NotNull(message = 'credential.customerId.null')
   Long customerId
 
+  Boolean automaticFetching = true
+
 }

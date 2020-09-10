@@ -74,4 +74,7 @@ class Credential {
   @Column(name = 'status_code', nullable = true, length = 5)
   String statusCode
 
+  @Column(name = 'automatic_fetching', nullable = false)
+  Boolean automaticFetching
+
 }
