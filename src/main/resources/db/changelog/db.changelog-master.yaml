@@ -70,3 +70,5 @@ databaseChangeLog:
     file: db/changelog/credential_token.yaml    
 - include:
     file: db/changelog/field_required.yaml
+- include:
+    file: db/changelog/credential_automatic_fetching.yaml
