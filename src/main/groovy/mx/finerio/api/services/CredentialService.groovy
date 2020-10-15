@@ -70,6 +70,9 @@ class CredentialService {
   @Autowired
   AdminService adminService
 
+  @Autowired
+  CredentialStateService credentialStateService
+
   Credential create( CredentialDto credentialDto ) throws Exception {
 
     if ( !credentialDto ) {
@@ -90,6 +93,11 @@ class CredentialService {
 
     def data = [ customer: customer, bank: bank, credentialDto: credentialDto ]
     def instance = createInstance( data )
+
+    if( credentialDto.state ) {
+      credentialStateService.save( instance.id, credentialDto.state )
+    }
+    
     requestData( instance.id )
     adminService.sendDataToAdmin( EntityType.CREDENTIAL, instance )
     instance

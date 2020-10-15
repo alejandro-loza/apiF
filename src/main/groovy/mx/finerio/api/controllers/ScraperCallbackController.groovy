@@ -25,6 +25,7 @@ import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
+import mx.finerio.api.services.CredentialStateService
 
 
 @RestController
@@ -48,6 +49,9 @@ class ScraperCallbackController {
   @Autowired
   AzureQueueService azureQueueService
 
+  @Autowired
+  CredentialStateService credentialStateService
+
   @PostMapping( '/callbacks/accounts' )
   ResponseEntity accounts( @RequestBody AccountDto accountDto ) {
 
@@ -55,11 +59,16 @@ class ScraperCallbackController {
     def credential = credentialService.findAndValidate(
         accountDto?.data?.credential_id as String )
     def accountDetails = accountDetailsService.findAllByAccount( account.id )
-    callbackService.sendToClient( credential?.customer?.client,
-        Callback.Nature.ACCOUNTS, [ credentialId: credential.id,
+    
+    def data = [ credentialId: credential.id,
         accountId: account.id,
         account: accountService.getFields( account ),
-        accountDetails: accountDetails ] )
+        accountDetails: accountDetails ]
+
+    credentialStateService.addState( credential.id, data )
+    callbackService.sendToClient( credential?.customer?.client,
+        Callback.Nature.ACCOUNTS, data )
+
     ResponseEntity.ok( [ id: account.id ] )
 
   }

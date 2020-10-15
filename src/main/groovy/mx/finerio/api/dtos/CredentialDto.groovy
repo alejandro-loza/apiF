@@ -26,4 +26,6 @@ class CredentialDto {
 
   Boolean automaticFetching = true
 
+  String state
+
 }

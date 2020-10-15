@@ -72,3 +72,5 @@ databaseChangeLog:
     file: db/changelog/field_required.yaml
 - include:
     file: db/changelog/credential_automatic_fetching.yaml
+- include:
+    file: db/changelog/credential_state.yaml        
