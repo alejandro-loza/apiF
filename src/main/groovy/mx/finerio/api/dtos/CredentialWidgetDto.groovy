@@ -4,7 +4,7 @@ import groovy.transform.ToString
 
 import javax.validation.constraints.*
 
-@ToString( includePackage = false, includeNames = true )
+@ToString( includePackage = false, includeNames = true, excludes = [ 'password', 'securityCode' ] )
 class CredentialWidgetDto {
 
   @NotNull(message = 'credential.username.null')
