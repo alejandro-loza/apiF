@@ -3,6 +3,7 @@ package mx.finerio.api.services
 import javax.validation.Valid
 
 import mx.finerio.api.domain.Customer
+import mx.finerio.api.domain.Client
 import mx.finerio.api.domain.CustomerSpecs
 import mx.finerio.api.domain.repository.CustomerRepository
 import mx.finerio.api.dtos.CustomerDto
@@ -33,15 +34,15 @@ class CustomerService {
   @Autowired
   AdminService adminService
 
-  Customer create( @Valid CustomerDto dto ) throws Exception {
+  Customer create( @Valid CustomerDto dto, Client client = null ) throws Exception {
 
     if ( !dto ) {
       throw new BadImplementationException(
           'customerService.create.dto.null' )
     }
- 
-    def client = securityService.getCurrent()
-
+    if( !client ){
+      client = securityService.getCurrent()
+    }
     if ( customerRepository
         .findFirstByClientAndNameAndDateDeletedIsNull(
         client, dto.name ) != null ) {
@@ -71,14 +72,17 @@ class CustomerService {
 
   }
 
-  Customer findOne( Long id ) throws Exception {
+  Customer findOne( Long id, Client client = null ) throws Exception {
 
     if ( id == null ) {
       throw new BadImplementationException(
           'customerService.findOne.id.null' )
     }
- 
-    def client = securityService.getCurrent()
+    
+    if( !client ){
+       client = securityService.getCurrent()
+    }
+
     def instance = customerRepository.findOne( id )
 
     if ( !instance || instance.client.id != client.id ||
