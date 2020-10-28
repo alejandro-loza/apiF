@@ -103,9 +103,12 @@ class ScraperCallbackController {
     queueStartNotify(request)
     def credential = credentialService.findAndValidate(
         request?.data?.credential_id as String )
+    def data = [ credentialId: credential.id,
+        stage: request?.data?.stage  ]
+    credentialStateService.addState( credential.id, data )
     callbackService.sendToClient( credential?.customer?.client,
-        Callback.Nature.NOTIFY, [ credentialId: credential.id,
-        stage: request?.data?.stage  ] )
+        Callback.Nature.NOTIFY, data )
+
   }
 
   private queueStartNotify( NotifyCallbackDto request ){

@@ -30,6 +30,6 @@ class CredentialWidgetDto {
   String state
 
   @NotNull(message = 'credential.widgetId.null')
-  Long widgetId
+  String widgetId
 
 }

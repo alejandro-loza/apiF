@@ -94,6 +94,24 @@ class CustomerService {
 
   }
 
+  Customer findByName( Client client, String name ) throws Exception {
+
+    if ( client == null ) {
+      throw new BadImplementationException(
+          'customerService.findByName.client.null' )
+    }
+
+    if ( name == null ) {
+      throw new BadImplementationException(
+          'customerService.findByName.name.null' )
+    }
+
+    return customerRepository
+        .findFirstByClientAndNameAndDateDeletedIsNull(
+        client, name )
+
+  }
+
   Customer update( Long id, @Valid CustomerDto dto ) throws Exception {
 
     if ( id == null ) {

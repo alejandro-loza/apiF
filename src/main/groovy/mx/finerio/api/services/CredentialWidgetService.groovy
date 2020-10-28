@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service
 import mx.finerio.api.exceptions.BadImplementationException
 import mx.finerio.api.exceptions.BadRequestException
 import mx.finerio.api.domain.Credential
+import mx.finerio.api.domain.Client
 import mx.finerio.api.domain.ClientWidget
 import mx.finerio.api.domain.Customer
 import mx.finerio.api.domain.repository.ClientWidgetRepository
@@ -33,8 +34,7 @@ class CredentialWidgetService {
     		.findByWidgetId( credentialWidgetDto.widgetId )
 
     if( !clientWidget ){
-    	throw new BadRequestException(
-        	'credentialWidgetService.create.widget.null' )
+        throw new BadRequestException( 'widget.id.not.found' )
     }
    
  	Customer customer
@@ -42,10 +42,7 @@ class CredentialWidgetService {
     	customer = customerService
     				.findOne( credentialWidgetDto.customerId, clientWidget.client ) 
     }else if( credentialWidgetDto.customerName ) {
-    	def customerDto = new 
-    		CustomerDto( name: credentialWidgetDto.customerName )
-    	customer = customerService
-    				.create( customerDto, clientWidget.client )
+        customer = findCustomer( clientWidget.client, credentialWidgetDto.customerName )
     }
 
     def credentialDto = this.getCredentialDto( customer.id, credentialWidgetDto )
@@ -78,5 +75,20 @@ class CredentialWidgetService {
     	state: credentialWidgetDto.state)
   }
 
+  private Customer findCustomer( Client client, String name )
+      throws Exception {
+
+    def customer = customerService.findByName( client, name )
+
+    if ( customer ==  null ) {
+
+      def customerDto = new CustomerDto( name: name )
+      customer = customerService.create( customerDto, client )
+
+    }
+
+    return customer
+
+  }
 
 }

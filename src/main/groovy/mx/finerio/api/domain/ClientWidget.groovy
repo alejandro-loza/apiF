@@ -18,8 +18,8 @@ class ClientWidget {
   @JoinColumn(name = 'client_id', nullable = false)
   Client client
 
-  @Column(name = 'widget_id', nullable = false, length = 255)
-  Long widgetId
+  @Column(name = 'widget_id', nullable = false, length = 50)
+  String widgetId
 
   @Column(name = 'date_created', nullable = false)
   Date dateCreated

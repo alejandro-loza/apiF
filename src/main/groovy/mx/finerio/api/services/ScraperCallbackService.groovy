@@ -148,10 +148,12 @@ class ScraperCallbackService {
     if ( credential?.customer?.client?.categorizeTransactions ) {
 
       transactions.each { transactionService.categorize( it ) }
-      callbackService.sendToClient( credential?.customer?.client,
-          Callback.Nature.NOTIFY, [ credentialId: credential.id,
+      def data = [ credentialId: credential.id,
           accountId: transactionDto.data.account_id,
-          stage: 'categorize_transactions' ] )
+          stage: 'categorize_transactions' ]
+      credentialStateService.addState( credential.id, data )
+      callbackService.sendToClient( credential?.customer?.client,
+          Callback.Nature.NOTIFY, data )
 
     }
     return transactions
