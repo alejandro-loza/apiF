@@ -4,8 +4,8 @@ import groovy.transform.ToString
 
 import javax.validation.constraints.*
 
-@ToString(includePackage = false, includeNames = true, excludes = [ 'password', 'securityCode' ] )
-class CredentialDto {
+@ToString( includePackage = false, includeNames = true, excludes = [ 'password', 'securityCode' ] )
+class CredentialWidgetDto {
 
   @NotNull(message = 'credential.username.null')
   @Size(min = 1, max = 50, message = 'credential.username.size')
@@ -20,12 +20,16 @@ class CredentialDto {
 
   @NotNull(message = 'credential.bankId.null')
   Long bankId
-
-  @NotNull(message = 'credential.customerId.null')
+  
   Long customerId
+
+  String customerName
 
   Boolean automaticFetching = true
 
   String state
+
+  @NotNull(message = 'credential.widgetId.null')
+  String widgetId
 
 }
