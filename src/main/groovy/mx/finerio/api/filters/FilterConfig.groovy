@@ -13,7 +13,8 @@ class FilterConfig {
     def registrationBean = new FilterRegistrationBean()
     registrationBean.name = 'credential'
     registrationBean.setUrlPatterns( [
-      '/credentials/*', '/credentials' ] )
+      '/credentials/*', '/credentials',
+      '/j2GVbQs3kkcBEttuPWZihSFZkoWnIDwQt2zsGRmQZoitHzMllB' ] )
     registrationBean.filter = getCredentialFilter()
     registrationBean
 

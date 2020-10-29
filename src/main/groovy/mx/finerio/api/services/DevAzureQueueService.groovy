@@ -2,6 +2,8 @@ package mx.finerio.api.services
 
 import mx.finerio.api.domain.TransactionMessageType
 import mx.finerio.api.dtos.TransactionDto
+import mx.finerio.api.dtos.SuccessCallbackDto
+
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.context.annotation.Profile

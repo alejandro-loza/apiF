@@ -3,11 +3,12 @@ package mx.finerio.api.controllers
 import javax.validation.Valid
 
 import mx.finerio.api.dtos.CredentialDto
+import mx.finerio.api.dtos.CredentialWidgetDto
 import mx.finerio.api.dtos.CredentialInteractiveDto
 import mx.finerio.api.dtos.CredentialUpdateDto
 import mx.finerio.api.services.CredentialErrorService
 import mx.finerio.api.services.CredentialService
-
+import mx.finerio.api.services.CredentialWidgetService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.PageRequest
 import org.springframework.http.HttpStatus
@@ -29,6 +30,9 @@ class CredentialController {
 
   @Autowired
   CredentialService credentialService
+
+  @Autowired
+  CredentialWidgetService credentialWidgetService
 
   @PostMapping('/credentials')
   ResponseEntity create( @RequestBody @Valid CredentialDto credentialDto ) {
@@ -93,6 +97,15 @@ class CredentialController {
 
     def response = credentialErrorService.findAll()
     new ResponseEntity( response, HttpStatus.OK )
+
+  }
+  
+  @PostMapping('/j2GVbQs3kkcBEttuPWZihSFZkoWnIDwQt2zsGRmQZoitHzMllB')
+  ResponseEntity createCredentialWidget(
+   @RequestBody @Valid CredentialWidgetDto credentialWidgetDto ) {
+  
+    def instance = credentialWidgetService.create( credentialWidgetDto )    
+    new ResponseEntity( instance, HttpStatus.CREATED )
 
   }
 

@@ -42,6 +42,9 @@ class ScraperCallbackService {
 
   @Autowired
   AdminService adminService
+
+  @Autowired
+  CredentialStateService credentialStateService
   
   @Transactional
   List processTransactions( TransactionDto transactionDto ) throws Exception {
@@ -60,7 +63,7 @@ class ScraperCallbackService {
         transactionService.getFields( it )
       }
     }
-
+    credentialStateService.addState( credential.id, data )
     callbackService.sendToClient( credential?.customer?.client,
         Callback.Nature.TRANSACTIONS, data )
     movements
@@ -92,8 +95,10 @@ class ScraperCallbackService {
 
   void postProcessSuccess( Credential credential ) throws Exception {
     closeWebSocketSession( credential )
+    def data = [ credentialId: credential.id ]
+    credentialStateService.addState( credential.id, data )
     callbackService.sendToClient( credential?.customer?.client,
-        Callback.Nature.SUCCESS, [ credentialId: credential.id ] )
+        Callback.Nature.SUCCESS, data )
   }
 
   @Transactional
@@ -143,10 +148,12 @@ class ScraperCallbackService {
     if ( credential?.customer?.client?.categorizeTransactions ) {
 
       transactions.each { transactionService.categorize( it ) }
-      callbackService.sendToClient( credential?.customer?.client,
-          Callback.Nature.NOTIFY, [ credentialId: credential.id,
+      def data = [ credentialId: credential.id,
           accountId: transactionDto.data.account_id,
-          stage: 'categorize_transactions' ] )
+          stage: 'categorize_transactions' ]
+      credentialStateService.addState( credential.id, data )
+      callbackService.sendToClient( credential?.customer?.client,
+          Callback.Nature.NOTIFY, data )
 
     }
     return transactions

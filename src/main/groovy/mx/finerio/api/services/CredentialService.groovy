@@ -70,14 +70,19 @@ class CredentialService {
   @Autowired
   AdminService adminService
 
-  Credential create( CredentialDto credentialDto ) throws Exception {
+  @Autowired
+  CredentialStateService credentialStateService
+
+  Credential create( CredentialDto credentialDto, Customer customer = null, Client client = null ) throws Exception {
 
     if ( !credentialDto ) {
       throw new BadImplementationException(
           'credentialService.create.credentialDto.null' )
     }
- 
-    def customer = customerService.findOne( credentialDto.customerId )
+   
+    if( !customer ){
+      customer = customerService.findOne( credentialDto.customerId )
+    }
     def bank = financialInstitutionService.findOneAndValidate(
         credentialDto.bankId )
     def existingInstance = credentialRepository.
@@ -90,7 +95,12 @@ class CredentialService {
 
     def data = [ customer: customer, bank: bank, credentialDto: credentialDto ]
     def instance = createInstance( data )
-    requestData( instance.id )
+
+    if( credentialDto.state ) {
+      credentialStateService.save( instance.id, credentialDto.state )
+    }
+    
+    requestData( instance.id, client )
     adminService.sendDataToAdmin( EntityType.CREDENTIAL, instance )
     instance
 
@@ -109,14 +119,16 @@ class CredentialService {
 
   }
 
-  Credential findOne( String id ) throws Exception {
+  Credential findOne( String id, Client client = null ) throws Exception {
 
     if ( !id ) {
       throw new BadImplementationException(
           'credentialService.findOne.id.null' )
     }
  
-    def client = securityService.getCurrent()
+    if( !client ){
+      client = securityService.getCurrent()
+    }
     def instance = credentialRepository.findOne( id )
 
     if ( instance && client.username == syncUsername ) {
@@ -202,9 +214,9 @@ class CredentialService {
 
   }
 
-  void requestData( String credentialId ) throws Exception {
+  void requestData( String credentialId, Client client = null ) throws Exception {
 
-    def credential = findOne( credentialId )
+    def credential = findOne( credentialId, client )
     if ( credentialRecentlyUpdated( credential ) ) { return }
     credential.status = Credential.Status.VALIDATE
     credential.providerId = 3L
