@@ -2,6 +2,7 @@ package mx.finerio.api.services
 
 import mx.finerio.api.domain.Callback
 import mx.finerio.api.dtos.FailureCallbackDto
+import mx.finerio.api.dtos.WidgetEventsDto
 import mx.finerio.api.exceptions.BadImplementationException
 import mx.finerio.api.services.AdminService.EntityType
 
@@ -27,6 +28,9 @@ class CredentialFailureService {
   @Autowired
   CredentialStateService credentialStateService
 
+  @Autowired
+  WidgetEventsService widgetEventsService
+
   @Transactional
   void processFailure( FailureCallbackDto dto ) throws Exception {
 
@@ -46,6 +50,9 @@ class CredentialFailureService {
     credentialStateService.addState( credential.id, data )
     callbackService.sendToClient( credential?.customer?.client,
         Callback.Nature.FAILURE, data )
+    widgetEventsService.onFailure( new WidgetEventsDto(
+        credentialId: credential.id, message: data.message,
+        code: data.code ) )
 
   }
     

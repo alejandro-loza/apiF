@@ -8,4 +8,7 @@ import mx.finerio.api.domain.*
 interface ClientWidgetRepository extends JpaRepository<ClientWidget, Long>, JpaSpecificationExecutor { 
 
   ClientWidget findByWidgetId( String widgetId )
+
+  ClientWidget findByClient( Client client )
+
 }
