@@ -61,6 +61,9 @@ class CredentialService {
   @Autowired
   SecurityService securityService
 
+  @Autowired
+  WidgetEventsService widgetEventsService
+
   @Value( '${sync.user.name}' )
   String syncUsername
   
@@ -102,6 +105,8 @@ class CredentialService {
     
     requestData( instance.id, client )
     adminService.sendDataToAdmin( EntityType.CREDENTIAL, instance )
+    widgetEventsService.onCredentialCreated( new WidgetEventsDto(
+        credentialId: instance.id ) )
     instance
 
   }
