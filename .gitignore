@@ -30,3 +30,4 @@ log/
 public/
 .DS_Store
 pem/
+firebase/

@@ -6,6 +6,7 @@ import mx.finerio.api.domain.Transaction
 import mx.finerio.api.dtos.FailureCallbackDto
 import mx.finerio.api.dtos.SuccessCallbackDto
 import mx.finerio.api.dtos.TransactionDto
+import mx.finerio.api.dtos.WidgetEventsDto
 import mx.finerio.api.exceptions.BadImplementationException
 
 import org.springframework.beans.factory.annotation.Autowired
@@ -46,6 +47,9 @@ class ScraperCallbackService {
   @Autowired
   CredentialStateService credentialStateService
   
+  @Autowired
+  WidgetEventsService widgetEventsService
+
   @Transactional
   List processTransactions( TransactionDto transactionDto ) throws Exception {
 
@@ -66,6 +70,8 @@ class ScraperCallbackService {
     credentialStateService.addState( credential.id, data )
     callbackService.sendToClient( credential?.customer?.client,
         Callback.Nature.TRANSACTIONS, data )
+    widgetEventsService.onTransactionsCreated( new WidgetEventsDto(
+        credentialId: credential.id, accountId: data.accountId ) )
     movements
 
   }
@@ -99,6 +105,8 @@ class ScraperCallbackService {
     credentialStateService.addState( credential.id, data )
     callbackService.sendToClient( credential?.customer?.client,
         Callback.Nature.SUCCESS, data )
+    widgetEventsService.onSuccess( new WidgetEventsDto(
+        credentialId: credential.id ) )
   }
 
   @Transactional

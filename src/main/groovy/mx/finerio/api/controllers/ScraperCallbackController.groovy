@@ -9,12 +9,14 @@ import mx.finerio.api.dtos.FailureCallbackDto
 import mx.finerio.api.dtos.TransactionDto
 import mx.finerio.api.dtos.NotifyCallbackDto
 import mx.finerio.api.dtos.SuccessCallbackDto
+import mx.finerio.api.dtos.WidgetEventsDto
 import mx.finerio.api.services.AccountDetailsService
 import mx.finerio.api.services.AccountService
 import mx.finerio.api.services.AzureQueueService
 import mx.finerio.api.services.CallbackService
 import mx.finerio.api.services.CredentialService
 import mx.finerio.api.services.ScraperCallbackService
+import mx.finerio.api.services.WidgetEventsService
 import mx.finerio.api.domain.TransactionMessageType
 
 import org.springframework.beans.factory.annotation.Autowired
@@ -50,6 +52,9 @@ class ScraperCallbackController {
   AzureQueueService azureQueueService
 
   @Autowired
+  WidgetEventsService widgetEventsService
+
+  @Autowired
   CredentialStateService credentialStateService
 
   @PostMapping( '/callbacks/accounts' )
@@ -68,7 +73,9 @@ class ScraperCallbackController {
     credentialStateService.addState( credential.id, data )
     callbackService.sendToClient( credential?.customer?.client,
         Callback.Nature.ACCOUNTS, data )
-
+    widgetEventsService.onAccountCreated( new WidgetEventsDto(
+        credentialId: credential.id, accountId: account.id,
+        accountName: account.name ) )
     ResponseEntity.ok( [ id: account.id ] )
 
   }

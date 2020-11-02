@@ -15,7 +15,7 @@ apply plugin: 'eclipse'
 apply plugin: 'org.springframework.boot'
 
 group = 'mx.finerio'
-version = '0.6.0'
+version = '0.7.0'
 sourceCompatibility = 1.8
 
 repositories {
@@ -36,6 +36,7 @@ dependencies {
   compile('com.github.groovy-wslite:groovy-wslite:1.1.2')
   compile('com.microsoft.signalr:signalr:3.0.3')  
   compile 'com.amazonaws:aws-java-sdk-s3:1.11.724'
+  compile 'com.google.firebase:firebase-admin:6.8.1'
 
   runtime('mysql:mysql-connector-java')
 
