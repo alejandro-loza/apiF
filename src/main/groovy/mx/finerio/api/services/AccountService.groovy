@@ -172,6 +172,7 @@ class AccountService {
     
   }
 
+  @Transactional(readOnly = true)
   Map getFields( Account account ) throws Exception {
 
     if ( !account ) {
@@ -181,7 +182,7 @@ class AccountService {
  
     [ id: account.id, name: account.name, number: account.number,
         balance: account.balance, type: account.nature,
-        dateCreated: account.dateCreated ]
+        bankId: account.institution.id, dateCreated: account.dateCreated ]
 
   }
 
