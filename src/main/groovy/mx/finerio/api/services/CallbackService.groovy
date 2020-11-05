@@ -16,6 +16,7 @@ import org.springframework.context.annotation.Lazy
 import org.springframework.data.domain.PageRequest
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
+import groovy.json.JsonOutput
 
 @Service
 class CallbackService {
@@ -32,6 +33,9 @@ class CallbackService {
 
   @Autowired
   CallbackRepository callbackRepository
+
+  @Autowired 
+  RsaCryptService rsaCryptService
 
   Callback create( CallbackDto callbackDto ) throws Exception {
 
@@ -140,14 +144,23 @@ class CallbackService {
     if ( !callback ) {
       return
     }
- 
-    selfReference.sendCallback( callback.url, [:], data )
+    def headers = getHeaders( data )
+    selfReference.sendCallback( callback.url, headers, data )
 
   }
 
   @Async
   void sendCallback( String url, Map headers, Map data ) throws Exception {
-    callbackRestService.post( url, data )
+    callbackRestService.post( url, data, headers )
+  }
+
+  private Map getHeaders( Map data ) throws Exception {
+        
+    def jsonString = JsonOutput.toJson( data )       
+    def jsonBase64 = jsonString.getBytes( 'UTF-8' ).encodeBase64().toString()   
+    def jsonSigned = rsaCryptService.sign( jsonBase64 )
+    [ digest: "SHA-256=$jsonSigned" ]
+
   }
 
   private void validateSendToClientInput( Client client,
