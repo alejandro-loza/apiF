@@ -180,9 +180,14 @@ class AccountService {
           'accountService.getFields.account.null' )
     }
  
+    def accountCredential =
+        accountCredentialRepository.findFirstByAccountId( account.id )
+
     [ id: account.id, name: account.name, number: account.number,
         balance: account.balance, type: account.nature,
-        bankId: account.institution.id, dateCreated: account.dateCreated ]
+        bankId: account.institution.id,
+        customerId: accountCredential?.credential?.customer?.id,
+        dateCreated: account.dateCreated ]
 
   }
 
