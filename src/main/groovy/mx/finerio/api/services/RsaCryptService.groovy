@@ -13,6 +13,8 @@ import org.bouncycastle.openssl.PEMParser
 import org.bouncycastle.openssl.jcajce.JcaPEMKeyConverter
 import org.springframework.stereotype.Service
 import org.springframework.beans.factory.annotation.Autowired
+import static java.nio.charset.StandardCharsets.UTF_8
+
 
 @Service
 class RsaCryptService {
@@ -61,6 +63,17 @@ class RsaCryptService {
     finalResp
   
   }
+
+String sign( String text ) throws Exception {
+    Signature privateSignature = Signature.getInstance("SHA256withRSA")
+    privateSignature.initSign( getPrivateKey() )
+    privateSignature.update( text.getBytes(UTF_8) )
+    byte[] signature = privateSignature.sign()
+
+    return Base64.getEncoder().encodeToString( signature )
+}
+
+
 
   private PublicKey getPublicKey() throws Exception {
   

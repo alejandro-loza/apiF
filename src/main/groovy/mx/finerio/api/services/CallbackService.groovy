@@ -1,5 +1,7 @@
 package mx.finerio.api.services
 
+import com.fasterxml.jackson.databind.ObjectMapper
+
 import javax.validation.Valid
 
 import mx.finerio.api.domain.Callback
@@ -32,6 +34,9 @@ class CallbackService {
 
   @Autowired
   CallbackRepository callbackRepository
+
+  @Autowired 
+  RsaCryptService rsaCryptService
 
   Callback create( CallbackDto callbackDto ) throws Exception {
 
@@ -140,14 +145,24 @@ class CallbackService {
     if ( !callback ) {
       return
     }
- 
-    selfReference.sendCallback( callback.url, [:], data )
+    def headers = getHeaders( callback.url, data )
+    selfReference.sendCallback( callback.url, headers, data )
 
   }
 
   @Async
   void sendCallback( String url, Map headers, Map data ) throws Exception {
-    callbackRestService.post( url, data )
+    callbackRestService.post( url, data, headers )
+  }
+
+  private Map getHeaders( String url, Map data ) throws Exception {
+        
+    def objectMapper = new ObjectMapper()
+    def jsonString = objectMapper.writeValueAsString( data )
+    def finalData = "${url}|${jsonString}"
+    def jsonSigned = rsaCryptService.sign( finalData )
+    [ 'Signature': jsonSigned ]
+
   }
 
   private void validateSendToClientInput( Client client,
