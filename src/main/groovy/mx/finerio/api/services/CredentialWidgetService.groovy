@@ -72,7 +72,8 @@ class CredentialWidgetService {
     	securityCode: credentialWidgetDto.securityCode,
     	bankId: credentialWidgetDto.bankId,
     	customerId: customerId,
-    	state: credentialWidgetDto.state)
+        state: credentialWidgetDto.state,
+        automaticFetching: credentialWidgetDto.automaticFetching)
   }
 
   private Customer findCustomer( Client client, String name )
