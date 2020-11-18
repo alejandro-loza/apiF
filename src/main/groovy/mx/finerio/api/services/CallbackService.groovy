@@ -1,5 +1,7 @@
 package mx.finerio.api.services
 
+import com.fasterxml.jackson.databind.ObjectMapper
+
 import javax.validation.Valid
 
 import mx.finerio.api.domain.Callback
@@ -16,7 +18,6 @@ import org.springframework.context.annotation.Lazy
 import org.springframework.data.domain.PageRequest
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
-import groovy.json.JsonOutput
 
 @Service
 class CallbackService {
@@ -144,7 +145,7 @@ class CallbackService {
     if ( !callback ) {
       return
     }
-    def headers = getHeaders( data )
+    def headers = getHeaders( callback.url, data )
     selfReference.sendCallback( callback.url, headers, data )
 
   }
@@ -154,12 +155,13 @@ class CallbackService {
     callbackRestService.post( url, data, headers )
   }
 
-  private Map getHeaders( Map data ) throws Exception {
+  private Map getHeaders( String url, Map data ) throws Exception {
         
-    def jsonString = JsonOutput.toJson( data )       
-    def jsonBase64 = jsonString.getBytes( 'UTF-8' ).encodeBase64().toString()   
-    def jsonSigned = rsaCryptService.sign( jsonBase64 )
-    [ digest: "SHA-256=$jsonSigned" ]
+    def objectMapper = new ObjectMapper()
+    def jsonString = objectMapper.writeValueAsString( data )
+    def finalData = "${url}|${jsonString}"
+    def jsonSigned = rsaCryptService.sign( finalData )
+    [ 'Signature': jsonSigned ]
 
   }
 
