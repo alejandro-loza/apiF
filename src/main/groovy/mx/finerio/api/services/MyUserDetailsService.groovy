@@ -15,8 +15,15 @@ class MyUserDetailsService implements UserDetailsService {
   @Autowired
   ClientRepository clientRepository
 
+  @Autowired
+  LoginAttemptService loginAttemptService
+
   @Override
   UserDetails loadUserByUsername( String username ) throws UsernameNotFoundException {
+
+    if( loginAttemptService.isBlocked( username ) ){
+      throw new RuntimeException('user.is.blocked')
+    }
 
     def instance = clientRepository.findOneByUsername( username )
 
