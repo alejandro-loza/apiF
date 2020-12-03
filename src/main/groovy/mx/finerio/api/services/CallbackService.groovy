@@ -6,9 +6,11 @@ import javax.validation.Valid
 
 import mx.finerio.api.domain.Callback
 import mx.finerio.api.domain.Client
+import mx.finerio.api.domain.ClientMtls
 import mx.finerio.api.domain.repository.CallbackRepository
 import mx.finerio.api.dtos.CallbackDto
 import mx.finerio.api.dtos.CallbackUpdateDto
+import mx.finerio.api.dtos.MtlsDto
 import mx.finerio.api.exceptions.BadImplementationException
 import mx.finerio.api.exceptions.BadRequestException
 import mx.finerio.api.exceptions.InstanceNotFoundException
@@ -28,6 +30,12 @@ class CallbackService {
 
   @Autowired
   CallbackRestService callbackRestService
+
+  @Autowired
+  ClientMtlsService clientMtlsService
+
+  @Autowired
+  CryptService cryptService
 
   @Autowired
   SecurityService securityService
@@ -145,14 +153,33 @@ class CallbackService {
     if ( !callback ) {
       return
     }
+
     def headers = getHeaders( callback.url, data )
-    selfReference.sendCallback( callback.url, headers, data )
+    def clientMtls = clientMtlsService.findByClient( client )
+
+    if ( clientMtls != null ) {
+      selfReference.sendCallback( callback.url, headers, data, clientMtls )
+    } else {
+      selfReference.sendCallback( callback.url, headers, data )
+    }
 
   }
 
   @Async
   void sendCallback( String url, Map headers, Map data ) throws Exception {
     callbackRestService.post( url, data, headers )
+  }
+
+  @Async
+  void sendCallback( String url, Map headers, Map data,
+      ClientMtls clientMtls ) throws Exception {
+
+    def mtlsDto = new MtlsDto()
+    mtlsDto.filename = clientMtls.filename
+    mtlsDto.secret = cryptService.decrypt( clientMtls.secret,
+        clientMtls.iv )
+    callbackRestService.post( url, data, headers, mtlsDto )
+
   }
 
   private Map getHeaders( String url, Map data ) throws Exception {

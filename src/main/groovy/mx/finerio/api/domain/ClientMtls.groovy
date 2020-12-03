@@ -5,7 +5,7 @@ import javax.persistence.*
 
 @Entity
 @Table(name = 'clients_mtls')
-@ToString( includeNames = true, includePackage = false)
+@ToString(includePackage = false, includeNames = true, includes = ['id', 'filename'])
 class ClientMtls {
  
   @Id @GeneratedValue
