@@ -58,6 +58,7 @@ class ScraperCallbackService {
         transactionDto?.data?.credential_id as String )
     def movements = validateTransactionsTableUsage( transactionDto, credential )
     def data = [:]
+    data.customerId = credential?.customer?.id
     data.credentialId = credential.id
     data.accountId = transactionDto.data.account_id
     data.transactions = []
@@ -101,7 +102,10 @@ class ScraperCallbackService {
 
   void postProcessSuccess( Credential credential ) throws Exception {
     closeWebSocketSession( credential )
-    def data = [ credentialId: credential.id ]
+    def data = [
+      customerId: credential?.customer?.id,
+      credentialId: credential.id
+    ]
     credentialStateService.addState( credential.id, data )
     callbackService.sendToClient( credential?.customer?.client,
         Callback.Nature.SUCCESS, data )
@@ -156,9 +160,12 @@ class ScraperCallbackService {
     if ( credential?.customer?.client?.categorizeTransactions ) {
 
       transactions.each { transactionService.categorize( it ) }
-      def data = [ credentialId: credential.id,
-          accountId: transactionDto.data.account_id,
-          stage: 'categorize_transactions' ]
+      def data = [
+        customerId: credential?.customer?.id,
+        credentialId: credential.id,
+        accountId: transactionDto.data.account_id,
+        stage: 'categorize_transactions'
+      ]
       credentialStateService.addState( credential.id, data )
       callbackService.sendToClient( credential?.customer?.client,
           Callback.Nature.NOTIFY, data )

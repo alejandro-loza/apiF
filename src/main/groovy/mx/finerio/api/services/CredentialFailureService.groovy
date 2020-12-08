@@ -45,8 +45,12 @@ class CredentialFailureService {
     credentialStatusHistoryService.update( credential )
     adminService.sendDataToAdmin( EntityType.CONNECTION,
         Boolean.valueOf( false ), credential )
-    def data = [ credentialId: credential.id,
-        message: credential.errorCode, code: strStatusCode ]
+    def data = [
+      customerId: credential?.customer?.id,
+      credentialId: credential.id,
+      message: credential.errorCode,
+      code: strStatusCode
+    ]
     credentialStateService.addState( credential.id, data )
     callbackService.sendToClient( credential?.customer?.client,
         Callback.Nature.FAILURE, data )
