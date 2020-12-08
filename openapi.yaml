@@ -1425,6 +1425,10 @@ components:
           example: 37b294e8-bde2-44b4-a8fd-a71cb284bc20
     NotifyCallback:
       properties:
+        customerId:
+          type: integer
+          description: The unique ID of the customer.
+          example: 1
         credentialId:
           type: string
           description: The unique ID of the credential.
@@ -1446,6 +1450,10 @@ components:
         - interactive
     AccountsCallback:
       properties:
+        customerId:
+          type: integer
+          description: The unique ID of the customer.
+          example: 1
         credentialId:
           type: string
           description: The unique ID of the credential.
@@ -1456,6 +1464,10 @@ components:
           $ref: '#/components/schemas/AccountDetails'
     TransactionsCallback:
       properties:
+        customerId:
+          type: integer
+          description: The unique ID of the customer.
+          example: 1
         credentialId:
           type: string
           description: The unique ID of the credential.
@@ -1472,12 +1484,20 @@ components:
         $ref: '#/components/schemas/Transaction'
     SuccessCallback:
       properties:
+        customerId:
+          type: integer
+          description: The unique ID of the customer.
+          example: 1
         credentialId:
           type: string
           description: The unique ID of the credential.
           example: 37b294e8-bde2-44b4-a8fd-a71cb284bc20
     FailureCallback:
       properties:
+        customerId:
+          type: integer
+          description: The unique ID of the customer.
+          example: 1
         credentialId:
           type: string
           description: The unique ID of the credential.

@@ -16,6 +16,9 @@ public class AuthenticationFailureListener
 
     public void onApplicationEvent(AuthenticationFailureBadCredentialsEvent e) {
 
+        if( !e.getAuthentication().getDetails() ){
+        	return
+        }
     	def username = e.getAuthentication().getDetails().username
         loginAttemptService.loginFailed( username )
 
