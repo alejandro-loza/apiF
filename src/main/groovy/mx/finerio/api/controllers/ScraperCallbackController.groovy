@@ -65,10 +65,13 @@ class ScraperCallbackController {
         accountDto?.data?.credential_id as String )
     def accountDetails = accountDetailsService.findAllByAccount( account.id )
     
-    def data = [ credentialId: credential.id,
-        accountId: account.id,
-        account: accountService.getFields( account ),
-        accountDetails: accountDetails ]
+    def data = [
+      customerId: credential?.customer?.id,
+      credentialId: credential.id,
+      accountId: account.id,
+      account: accountService.getFields( account ),
+      accountDetails: accountDetails
+    ]
 
     credentialStateService.addState( credential.id, data )
     callbackService.sendToClient( credential?.customer?.client,
@@ -110,8 +113,11 @@ class ScraperCallbackController {
     queueStartNotify(request)
     def credential = credentialService.findAndValidate(
         request?.data?.credential_id as String )
-    def data = [ credentialId: credential.id,
-        stage: request?.data?.stage  ]
+    def data = [
+      customerId: credential?.customer?.id,
+      credentialId: credential.id,
+      stage: request?.data?.stage
+    ]
     credentialStateService.addState( credential.id, data )
     callbackService.sendToClient( credential?.customer?.client,
         Callback.Nature.NOTIFY, data )

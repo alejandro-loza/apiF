@@ -20,7 +20,6 @@ import org.springframework.context.annotation.Lazy
 import org.springframework.data.domain.PageRequest
 import org.springframework.scheduling.annotation.Async
 import org.springframework.stereotype.Service
-import org.springframework.transaction.annotation.Transactional
 
 @Service
 class CallbackService {
@@ -34,9 +33,6 @@ class CallbackService {
 
   @Autowired
   ClientMtlsService clientMtlsService
-
-  @Autowired
-  CredentialService credentialService
 
   @Autowired
   CryptService cryptService
@@ -147,7 +143,6 @@ class CallbackService {
 
   }
 
-  @Transactional
   void sendToClient( Client client, Callback.Nature nature, Map data )
       throws Exception {
 
@@ -157,12 +152,6 @@ class CallbackService {
 
     if ( !callback ) {
       return
-    }
-
-    def customerId = getCustomerId( data.credentialId )
-
-    if ( customerId != null ) {
-      data.customerId = customerId
     }
 
     def headers = getHeaders( callback.url, data )
@@ -228,17 +217,6 @@ class CallbackService {
     def instance = findOne( id )
     instance.dateDeleted = new Date()
     callbackRepository.save( instance )
-
-  }
-
-  private Long getCustomerId( String credentialId ) throws Exception {
-
-    if ( credentialId == null ) {
-      return null
-    }
-
-    def credential = credentialService.findAndValidate( credentialId )
-    return credential?.customer?.id
 
   }
 
