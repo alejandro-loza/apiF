@@ -12,6 +12,7 @@ import mx.finerio.api.domain.Customer
 import mx.finerio.api.domain.repository.ClientWidgetRepository
 import mx.finerio.api.dtos.CustomerDto
 import mx.finerio.api.dtos.CredentialDto
+import mx.finerio.api.dtos.CredentialUpdateDto
 import mx.finerio.api.dtos.CredentialWidgetDto
 
 @Service
@@ -29,26 +30,50 @@ class CredentialWidgetService {
 
   Map create( CredentialWidgetDto credentialWidgetDto ) throws Exception {
 
-  	validate( credentialWidgetDto )
-    ClientWidget clientWidget = clientWidgetRepository
-    		.findByWidgetId( credentialWidgetDto.widgetId )
+    validate( credentialWidgetDto )
+    ClientWidget clientWidget = clientWidgetRepository.findByWidgetId(
+        credentialWidgetDto.widgetId )
 
-    if( !clientWidget ){
+    if( !clientWidget ) {
         throw new BadRequestException( 'widget.id.not.found' )
     }
-   
- 	Customer customer
+
+    if ( credentialWidgetDto.credentialId == null ) {
+      return processCreate( credentialWidgetDto, clientWidget ) 
+    } else {
+      return processUpdate( credentialWidgetDto, clientWidget.client )
+    }
+
+  }
+
+  private Map processCreate( CredentialWidgetDto credentialWidgetDto,
+      ClientWidget clientWidget ) throws Exception {
+
+    Customer customer
     if( credentialWidgetDto.customerId ) {    	
-    	customer = customerService
-    				.findOne( credentialWidgetDto.customerId, clientWidget.client ) 
+    	customer = customerService.findOne(
+            credentialWidgetDto.customerId, clientWidget.client ) 
     }else if( credentialWidgetDto.customerName ) {
         customer = findCustomer( clientWidget.client, credentialWidgetDto.customerName )
     }
 
     def credentialDto = this.getCredentialDto( customer.id, credentialWidgetDto )
     def instance = credentialService.create( credentialDto, customer, clientWidget.client )
-    instance = credentialService.getFields( instance )
-    instance
+    return credentialService.getFields( instance )
+
+  }
+
+  private Map processUpdate( CredentialWidgetDto credentialWidgetDto,
+      Client client ) throws Exception {
+
+    def dto = new CredentialUpdateDto(
+      password: credentialWidgetDto.password,
+      securityCode: credentialWidgetDto.securityCode,
+      client: client
+    )
+    def instance = credentialService.update( credentialWidgetDto.credentialId, dto )
+    return credentialService.getFields( instance )
+
   }
 
   private void validate( CredentialWidgetDto credentialWidgetDto ) throws Exception {

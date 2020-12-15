@@ -191,7 +191,7 @@ class CredentialService {
       ) throws Exception {
 
     validateUpdateInput( id, credentialUpdateDto )
-    def instance = findOne( id )
+    def instance = findOne( id, credentialUpdateDto.client )
     if ( instance.status == Credential.Status.VALIDATE ) { return instance }
     if ( credentialRecentlyUpdated( instance ) ) { return instance }
     financialInstitutionService.findOneAndValidate( instance.institution.id )
@@ -214,7 +214,7 @@ class CredentialService {
 
     instance.lastUpdated = new Date()
     instance = credentialRepository.save( instance )
-    requestData( instance.id )
+    requestData( instance.id, credentialUpdateDto.client )
     instance
 
   }
