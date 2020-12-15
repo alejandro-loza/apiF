@@ -4,6 +4,8 @@ import groovy.transform.ToString
 
 import javax.validation.constraints.*
 
+import mx.finerio.api.domain.Client
+
 @ToString(includePackage = false, includeNames = true, excludes = [ 'password', 'securityCode' ] )
 class CredentialUpdateDto {
 
@@ -14,6 +16,8 @@ class CredentialUpdateDto {
   String securityCode
 
   Boolean automaticFetching
+
+  Client client
 
   boolean isEmpty() {
     !password && !securityCode && automaticFetching == null
