@@ -25,6 +25,8 @@ class CredentialWidgetDto {
 
   String customerName
 
+  String credentialId
+
   Boolean automaticFetching = true
 
   String state
