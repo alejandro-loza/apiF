@@ -20,14 +20,20 @@ class CredentialStateService {
     validateCredentialId( credentialId )
     validateState( state )
 
-    def credentialState = new CredentialState(
-            state: state,
-            credentialId: credentialId,
-            dateCreated: new Date(),
-            lastUpdated: new Date() 
-        )
+    def credentialState = credentailStateRepository.findByCredentialId(
+      credentialId )
+    if ( credentialState == null ) {
+      credentialState = new CredentialState(
+        state: state,
+        credentialId: credentialId,
+        dateCreated: new Date(),
+        lastUpdated: new Date()
+      )
+    } else {
+      credentialState.state = state
+      credentialState.lastUpdated = new Date()
+    }
     
-
     credentailStateRepository.save( credentialState )
   }
 
