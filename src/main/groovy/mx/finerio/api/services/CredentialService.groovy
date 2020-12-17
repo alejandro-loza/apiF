@@ -92,23 +92,26 @@ class CredentialService {
     }
     def bank = financialInstitutionService.findOneAndValidate(
         credentialDto.bankId )
-    def existingInstance = credentialRepository.
+    def instance = credentialRepository.
         findByCustomerAndInstitutionAndUsernameAndDateDeleted(
             customer, bank, credentialDto.username, null )
+    def instanceExists = instance != null
 
-    if ( existingInstance ) {
-      throw new BadRequestException( 'credential.create.exists' )
+    if ( !instanceExists ) {
+      def data = [ customer: customer, bank: bank, credentialDto: credentialDto ]
+      instance = createInstance( data )
     }
 
-    def data = [ customer: customer, bank: bank, credentialDto: credentialDto ]
-    def instance = createInstance( data )
 
     if( credentialDto.state ) {
       credentialStateService.save( instance.id, credentialDto.state )
     }
     
     requestData( instance.id, client )
-    adminService.sendDataToAdmin( EntityType.CREDENTIAL, instance )
+
+    if ( !instanceExists ) {
+      adminService.sendDataToAdmin( EntityType.CREDENTIAL, instance )
+    }
     widgetEventsService.onCredentialCreated( new WidgetEventsDto(
         credentialId: instance.id ) )
     instance

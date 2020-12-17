@@ -21,7 +21,7 @@ class ScraperWebSocketServiceSend {
       'mx.finerio.api.aop.ScraperWebSocketServiceSend' )
 
   @Pointcut(
-    value='execution(void mx.finerio.api.services.ScraperWebSocketService.send(..)) && bean(scraperWebSocketService) && args(scraperWebSocketSendDto)',
+    value='execution(void mx.finerio.api.services.ScraperWebSocketService.send(..)) && args(scraperWebSocketSendDto)',
     argNames='scraperWebSocketSendDto'
   )
   public void send( ScraperWebSocketSendDto scraperWebSocketSendDto ) {}
