@@ -2,6 +2,7 @@ package mx.finerio.api.services
 
 import mx.finerio.api.exceptions.BadImplementationException
 import mx.finerio.api.domain.*
+import mx.finerio.api.dtos.WidgetEventsDto
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.beans.factory.annotation.Value
@@ -41,6 +42,9 @@ class ProdSignalRService implements SignalRService {
 
 	@Autowired
 	CredentialTokenService credentialTokenService
+
+	@Autowired
+	WidgetEventsService widgetEventsService
 
 	@Autowired
  	public TransactionsReceiver( 
@@ -112,6 +116,8 @@ class ProdSignalRService implements SignalRService {
                     dataSend.put('bankToken', data.bankToken )
 		  }
 		  credentialTokenService.saveUpdateCredentialToken( credentialId, data.clientId )
+		  widgetEventsService.onInteractive( new WidgetEventsDto(
+		      credentialId: credential.id, bankToken: data.bankToken ) )
 		  callbackService.sendToClient( credential.customer.client,
 			  Callback.Nature.NOTIFY, dataSend )		 
 	

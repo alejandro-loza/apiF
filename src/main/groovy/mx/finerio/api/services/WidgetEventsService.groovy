@@ -70,6 +70,15 @@ class WidgetEventsService {
 
   }
 
+  @Transactional(readOnly = true)
+  void onInteractive( WidgetEventsDto dto ) throws Exception {
+
+    if ( !widgetExists( dto.credentialId ) ) { return }
+    firebaseService.saveOrUpdate( firebasePath, dto.credentialId,
+        [ status: 'INTERACTIVE', bankToken: dto.bankToken ] )
+
+  }
+
   private Boolean widgetExists( String credentialId ) throws Exception {
 
     def credential = credentialService.findAndValidate( credentialId )
