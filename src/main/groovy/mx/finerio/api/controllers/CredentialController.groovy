@@ -5,6 +5,7 @@ import javax.validation.Valid
 import mx.finerio.api.dtos.CredentialDto
 import mx.finerio.api.dtos.CredentialWidgetDto
 import mx.finerio.api.dtos.CredentialInteractiveDto
+import mx.finerio.api.dtos.CredentialInteractiveWidgetDto
 import mx.finerio.api.dtos.CredentialUpdateDto
 import mx.finerio.api.services.CredentialErrorService
 import mx.finerio.api.services.CredentialService
@@ -80,6 +81,16 @@ class CredentialController {
       @RequestBody @Valid CredentialInteractiveDto credentialInteractiveDto ) {
 
     credentialService.processInteractive( id, credentialInteractiveDto )
+    ResponseEntity.accepted().build()
+
+  }
+
+
+  @PutMapping('/p8U55qGnTMLb7HQzZfCjwcQARtVrrgyt8he9fQKz3KgAFPbAwb')
+  ResponseEntity processInteractiveWidget( 
+      @RequestBody @Valid CredentialInteractiveWidgetDto credentialInteractiveWidgetDto ) {
+
+    credentialService.processInteractiveWidget( credentialInteractiveWidgetDto )
     ResponseEntity.accepted().build()
 
   }
