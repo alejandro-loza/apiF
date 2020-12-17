@@ -42,8 +42,16 @@ class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
   CorsConfigurationSource corsConfigurationSource() {
 
     def source = new UrlBasedCorsConfigurationSource()
-    source.registerCorsConfiguration( '/**',
-        new CorsConfiguration().applyPermitDefaultValues() )
+    def config = new CorsConfiguration()
+    config.setAllowCredentials( true )
+    config.addAllowedOrigin( '*' )
+    config.addAllowedHeader( '*' )
+    config.addAllowedMethod( 'OPTONS' )
+    config.addAllowedMethod( 'GET' )
+    config.addAllowedMethod( 'POST' )
+    config.addAllowedMethod( 'PUT' )
+    config.addAllowedMethod( 'DELETE' )
+    source.registerCorsConfiguration( '/**', config )
     return source
 
   }
