@@ -269,8 +269,7 @@ class CredentialService {
     credentialRepository.save( credential )
     bankConnectionService.update( credential, BankConnection.Status.FAILURE )
     
-  
-
+    credential
   }
 
   Map getFields( Credential credential ) throws Exception {
@@ -322,7 +321,7 @@ class CredentialService {
     }
     
     def credential
-    if(client) {
+    if( client ) {
      credential = findOne( id, client )
     }else{ 
       credential = findOne( id ) 
