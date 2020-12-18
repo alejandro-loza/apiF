@@ -11,6 +11,7 @@ import okhttp3.ResponseBody
 import okhttp3.MediaType
 import okhttp3.RequestBody
 import groovy.json.*
+import mx.finerio.api.domain.Credential
 import mx.finerio.api.dtos.*
 
 @Service
@@ -33,6 +34,22 @@ class DevScraperService {
 
   @Autowired
   CredentialFailureService credentialFailureService
+
+  Map requestData( Credential credential ) throws Exception {
+
+    def data = [
+      id: credential.id,
+      username: credential.username,
+      password: credential.password,
+      iv: credential.iv,
+      user: [ id: credential.user.id ],
+      institution: [ id: credential.institution.id ],
+      securityCode: credential.securityCode
+    ]
+
+    requestData( data )
+
+  }
 
   @Async
   Map requestData( Map data ) throws Exception {

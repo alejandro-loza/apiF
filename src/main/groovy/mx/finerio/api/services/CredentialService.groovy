@@ -75,7 +75,11 @@ class CredentialService {
 
   @Autowired
   CredentialStateService credentialStateService
+  
+  @Autowired
+  ClientWidgetRepository clientWidgetRepository
 
+  
   Credential create( CredentialDto credentialDto, Customer customer = null, Client client = null ) throws Exception {
 
     if ( !credentialDto ) {
@@ -269,7 +273,6 @@ class CredentialService {
     bankConnectionService.update( credential, BankConnection.Status.FAILURE )
     
     credential
-
   }
 
   Map getFields( Credential credential ) throws Exception {
@@ -285,18 +288,56 @@ class CredentialService {
         dateCreated: credential.dateCreated ]
 
   }
+  @Transactional
+  void processInteractiveWidget(
+      CredentialInteractiveWidgetDto credentialInteractiveWidgetDto ) throws Exception {
 
+    if ( !credentialInteractiveWidgetDto ) {
+      throw new BadRequestException(
+        'credentialService.processInteractiveWidget.credentialInteractiveWidgetDto.null' )
+      }
+
+    ClientWidget clientWidget = clientWidgetRepository
+                  .findByWidgetId( credentialInteractiveWidgetDto.widgetId )
+
+     if( !clientWidget ){
+      throw new BadRequestException(
+          'credentialService.processInteractiveWidget.credentialInteractiveWidgetDto.widgetId.notFound' )
+    }
+
+    def client = clientWidget.client 
+    def credentialId = credentialInteractiveWidgetDto.id
+
+    def credential = findOne( credentialId, client )
+
+   processInteractive( credentialId, 
+      new CredentialInteractiveDto( token: credentialInteractiveWidgetDto.token ), client )
+
+  }
+  
   void processInteractive( String id,
-      CredentialInteractiveDto credentialInteractiveDto ) throws Exception {
+      CredentialInteractiveDto credentialInteractiveDto, Client client = null ) throws Exception {
 
     if ( !credentialInteractiveDto ) {
-      throw new BadImplementationException(
+      throw new BadRequestException(
           'credentialService.processInteractive.credentialInteractiveDto.null' )
     }
- 
-    def credential = findOne( id )
+    
+    def credential
+    if( client ) {
+     credential = findOne( id, client )
+    }else{ 
+      credential = findOne( id ) 
+    }
+     
+    def institutionCode = credential.institution.code
+
+     if( ![ 'BAZ','BBVA','BANORTE' ].contains( institutionCode ) ) {
+      throw new BadRequestException(
+          'credentialService.processInteractive.institutionCode.wrong' )
+    }
 	
-	   if( credential.institution.code == 'BAZ' || credential.institution.code == 'BANORTE' ) {
+	   if( institutionCode == 'BAZ' || institutionCode == 'BANORTE' ) {
 	       signalRService.sendTokenToScrapper( credentialInteractiveDto.token, id )
 		 return
 	   }
@@ -312,6 +353,8 @@ class CredentialService {
         message: new JsonBuilder( data ).toString(),
         tokenSent: true,
         destroyPreviousSession: false ) )
+    widgetEventsService.onCredentialCreated( new WidgetEventsDto(
+        credentialId: credential.id ) )
 
   }
 

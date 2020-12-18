@@ -1,5 +1,7 @@
 package mx.finerio.api.aop
 
+import mx.finerio.api.domain.Credential
+
 import org.aspectj.lang.annotation.AfterReturning
 import org.aspectj.lang.annotation.AfterThrowing
 import org.aspectj.lang.annotation.Aspect
@@ -42,6 +44,33 @@ class ScraperServiceRequestData {
     throwing='e'
   )
   void afterThrowing( Exception e ) {
+    log.info( "XX ${e.class.simpleName} - ${e.message}" )
+  }
+
+  @Pointcut(
+    value='execution(java.util.Map mx.finerio.api.services.DevScraperService.requestData(..)) && bean(devScraperService) && args(credential)',
+    argNames='credential'
+  )
+  public void requestData2( Credential credential ) {}
+
+  @Before('requestData2(credential)')
+  void before2( Credential credential ) {
+    log.info( "<< credential: {}", credential )
+  }
+
+  @AfterReturning(
+    pointcut='requestData2(mx.finerio.api.domain.Credential)',
+    returning='response'
+  )
+  void afterReturning2( Map response ) {
+    log.info( '>> response: {}', response )
+  }
+
+  @AfterThrowing(
+    pointcut='requestData2(mx.finerio.api.domain.Credential)',
+    throwing='e'
+  )
+  void afterThrowing2( Exception e ) {
     log.info( "XX ${e.class.simpleName} - ${e.message}" )
   }
 

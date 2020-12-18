@@ -10,6 +10,7 @@ class WidgetEventsDto {
   String accountName
   String message
   String code
+  String bankToken
 
 }
 

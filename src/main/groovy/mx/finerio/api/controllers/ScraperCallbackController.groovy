@@ -119,6 +119,12 @@ class ScraperCallbackController {
       stage: request?.data?.stage
     ]
     credentialStateService.addState( credential.id, data )
+
+    if ( data.stage == 'interactive' ) {
+      widgetEventsService.onInteractive( new WidgetEventsDto(
+          credentialId: credential.id ) )
+    }
+
     callbackService.sendToClient( credential?.customer?.client,
         Callback.Nature.NOTIFY, data )
 
