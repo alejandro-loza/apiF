@@ -353,6 +353,8 @@ class CredentialService {
         message: new JsonBuilder( data ).toString(),
         tokenSent: true,
         destroyPreviousSession: false ) )
+    widgetEventsService.onCredentialCreated( new WidgetEventsDto(
+        credentialId: credential.id ) )
 
   }
 
