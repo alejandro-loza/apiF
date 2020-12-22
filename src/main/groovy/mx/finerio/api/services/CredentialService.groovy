@@ -221,7 +221,11 @@ class CredentialService {
 
     instance.lastUpdated = new Date()
     instance = credentialRepository.save( instance )
-    requestData( instance.id, credentialUpdateDto.client )
+
+    if ( credentialUpdateDto.automaticFetching != false ) {
+      requestData( instance.id, credentialUpdateDto.client )
+    }
+
     instance
 
   }
