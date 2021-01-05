@@ -1145,6 +1145,10 @@ components:
           example: 123.45
         type:
           $ref: '#/components/schemas/AccountType'
+        currency:
+          type: string
+          description: The currency of the account.
+          example: 'MXN'
         bankId:
           type: integer
           description: The ID of the bank related to this account.
