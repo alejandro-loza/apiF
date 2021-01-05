@@ -185,7 +185,7 @@ class AccountService {
 
     [ id: account.id, name: account.name, number: account.number,
         balance: account.balance, type: account.nature,
-        bankId: account.institution.id,
+        currency: 'MXN', bankId: account.institution.id,
         customerId: accountCredential?.credential?.customer?.id,
         dateCreated: account.dateCreated ]
 
