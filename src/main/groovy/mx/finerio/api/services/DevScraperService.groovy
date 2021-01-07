@@ -19,8 +19,13 @@ class DevScraperService {
 
   private static final int MAX_MILLISECONDS_TO_REFRESH = 5000
 
+  @Value( '${scraper.url}' )
   String url
+
+  @Value( '${scraper.login.path}' )
   String loginPath
+
+  @Value( '${scraper.login.credentials}' )
   String loginCredentials
 
   @Value( '${scraper.credentials.path}' )
@@ -35,19 +40,6 @@ class DevScraperService {
   String accessToken
   Integer expiresIn
   Long lastTokenFetchingTime
-
-  DevScraperService(
-      @Value( '${scraper.url}' ) String url,
-      @Value( '${scraper.login.path}' ) String loginPath,
-      @Value( '${scraper.login.credentials}' ) String loginCredentials
-  ) {
-
-    this.url = url
-    this.loginPath = loginPath
-    this.loginCredentials = loginCredentials
-    login()
-
-  }
 
   Map requestData( Credential credential ) throws Exception {
 
@@ -67,6 +59,8 @@ class DevScraperService {
 
   @Async
   Map requestData( Map data ) throws Exception {
+
+    if ( this.accessToken == null ) { login() }
 
     try{
 
@@ -115,8 +109,8 @@ class DevScraperService {
   private String getCurrentAccessToken() {
 
     def now = new Date().time
-    def tokenLimitTime = this.lastTokenFetchingTime + ( expiresIn * 1000 ) -
-        MAX_MILLISECONDS_TO_REFRESH
+    def tokenLimitTime = this.lastTokenFetchingTime +
+        ( this.expiresIn * 1000 ) - MAX_MILLISECONDS_TO_REFRESH
 
     if ( tokenLimitTime < now ) {
       login()
