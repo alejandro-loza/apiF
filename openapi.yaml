@@ -1327,6 +1327,10 @@ components:
           type: number
           description: The balance of the account of the transaction.
           example: 123.45
+        currency:
+          type: string
+          description: The currency of the transaction.
+          example: 'MXN'
     TransactionList:
       properties:
         data:
