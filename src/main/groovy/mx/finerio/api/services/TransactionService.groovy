@@ -107,7 +107,8 @@ class TransactionService {
         cleanedDescription: transaction.cleanedDescription,
         amount: transaction.amount, isCharge: transaction.charge,
         date: transaction.bankDate, categoryId: transaction.category?.id,
-        duplicated: transaction.duplicated, balance: transaction.balance ]
+        duplicated: transaction.duplicated, balance: transaction.balance,
+        currency: 'MXN' ]
 
   }
 
