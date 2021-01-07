@@ -17,6 +17,8 @@ import mx.finerio.api.dtos.*
 @Service
 class DevScraperService {
 
+  private static final int MAX_MILLISECONDS_TO_REFRESH = 5000
+
   @Value( '${scraper.url}' )
   String url
 
@@ -34,6 +36,10 @@ class DevScraperService {
 
   @Autowired
   CredentialFailureService credentialFailureService
+
+  String accessToken
+  Integer expiresIn
+  Long lastTokenFetchingTime
 
   Map requestData( Credential credential ) throws Exception {
 
@@ -54,10 +60,12 @@ class DevScraperService {
   @Async
   Map requestData( Map data ) throws Exception {
 
+    if ( this.accessToken == null ) { login() }
+
     try{
 
       def finalUrl = "${url}/${credentialsPath}"
-      def headers = [ 'Authorization': "Bearer ${login().access_token}" ]
+      def headers = [ 'Authorization': "Bearer ${getCurrentAccessToken()}" ]
       def body = [ data: [ data ] ]
       restTemplateService.post( finalUrl, headers, body ) 
 
@@ -75,7 +83,7 @@ class DevScraperService {
       new FailureCallbackDto( data: data)
   }
 
- private Map login() throws Exception{
+ private void login() throws Exception{
     
     OkHttpClient client = new OkHttpClient()
     MediaType mediaType = MediaType.parse("application/x-www-form-urlencoded")
@@ -91,8 +99,25 @@ class DevScraperService {
     def responseString = response.body().string()
     def statusCode = response.code()
     if( statusCode != 200 ){ throw new Exception( responseString ) }   
-    def res = new JsonSlurper().parseText( responseString ?: '{}' )    
-    res
+    def res = new JsonSlurper().parseText( responseString ?: '{}' )
+    this.accessToken = res.access_token as String
+    this.expiresIn = res.expires_in as Integer
+    this.lastTokenFetchingTime = new Date().time
+
+  }
+
+  private String getCurrentAccessToken() {
+
+    def now = new Date().time
+    def tokenLimitTime = this.lastTokenFetchingTime +
+        ( this.expiresIn * 1000 ) - MAX_MILLISECONDS_TO_REFRESH
+
+    if ( tokenLimitTime < now ) {
+      login()
+    }
+
+    return this.accessToken
+
   }
 
 }
