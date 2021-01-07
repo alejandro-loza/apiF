@@ -17,13 +17,10 @@ import mx.finerio.api.dtos.*
 @Service
 class DevScraperService {
 
-  @Value( '${scraper.url}' )
+  private static final int MAX_MILLISECONDS_TO_REFRESH = 5000
+
   String url
-
-  @Value( '${scraper.login.path}' )
   String loginPath
-
-  @Value( '${scraper.login.credentials}' )
   String loginCredentials
 
   @Value( '${scraper.credentials.path}' )
@@ -34,6 +31,23 @@ class DevScraperService {
 
   @Autowired
   CredentialFailureService credentialFailureService
+
+  String accessToken
+  Integer expiresIn
+  Long lastTokenFetchingTime
+
+  DevScraperService(
+      @Value( '${scraper.url}' ) String url,
+      @Value( '${scraper.login.path}' ) String loginPath,
+      @Value( '${scraper.login.credentials}' ) String loginCredentials
+  ) {
+
+    this.url = url
+    this.loginPath = loginPath
+    this.loginCredentials = loginCredentials
+    login()
+
+  }
 
   Map requestData( Credential credential ) throws Exception {
 
@@ -57,7 +71,7 @@ class DevScraperService {
     try{
 
       def finalUrl = "${url}/${credentialsPath}"
-      def headers = [ 'Authorization': "Bearer ${login().access_token}" ]
+      def headers = [ 'Authorization': "Bearer ${getCurrentAccessToken()}" ]
       def body = [ data: [ data ] ]
       restTemplateService.post( finalUrl, headers, body ) 
 
@@ -75,7 +89,7 @@ class DevScraperService {
       new FailureCallbackDto( data: data)
   }
 
- private Map login() throws Exception{
+ private void login() throws Exception{
     
     OkHttpClient client = new OkHttpClient()
     MediaType mediaType = MediaType.parse("application/x-www-form-urlencoded")
@@ -91,8 +105,25 @@ class DevScraperService {
     def responseString = response.body().string()
     def statusCode = response.code()
     if( statusCode != 200 ){ throw new Exception( responseString ) }   
-    def res = new JsonSlurper().parseText( responseString ?: '{}' )    
-    res
+    def res = new JsonSlurper().parseText( responseString ?: '{}' )
+    this.accessToken = res.access_token as String
+    this.expiresIn = res.expires_in as Integer
+    this.lastTokenFetchingTime = new Date().time
+
+  }
+
+  private String getCurrentAccessToken() {
+
+    def now = new Date().time
+    def tokenLimitTime = this.lastTokenFetchingTime + ( expiresIn * 1000 ) -
+        MAX_MILLISECONDS_TO_REFRESH
+
+    if ( tokenLimitTime < now ) {
+      login()
+    }
+
+    return this.accessToken
+
   }
 
 }
