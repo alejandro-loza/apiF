@@ -199,8 +199,6 @@ class CredentialService {
 
     validateUpdateInput( id, credentialUpdateDto )
     def instance = findOne( id, credentialUpdateDto.client )
-    if ( instance.status == Credential.Status.VALIDATE ) { return instance }
-    if ( credentialRecentlyUpdated( instance ) ) { return instance }
     financialInstitutionService.findOneAndValidate( instance.institution.id )
 
     if ( credentialUpdateDto.securityCode ) {
@@ -222,7 +220,9 @@ class CredentialService {
     instance.lastUpdated = new Date()
     instance = credentialRepository.save( instance )
 
-    if ( credentialUpdateDto.automaticFetching != false ) {
+    if ( credentialUpdateDto.automaticFetching != false &&
+        ( instance.status != Credential.Status.VALIDATE ) &&
+        ( !credentialRecentlyUpdated( instance ) ) ) {
       requestData( instance.id, credentialUpdateDto.client )
     }
 
