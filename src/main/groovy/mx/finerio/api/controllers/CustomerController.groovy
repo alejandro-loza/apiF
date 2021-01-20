@@ -4,6 +4,7 @@ import javax.validation.Valid
 
 import mx.finerio.api.dtos.CustomerDto
 import mx.finerio.api.dtos.CustomerListDto
+import mx.finerio.api.services.CustomerDeleteService
 import mx.finerio.api.services.CustomerService
 
 import org.springframework.beans.factory.annotation.Autowired
@@ -21,6 +22,9 @@ import org.springframework.web.bind.annotation.RestController
 
 @RestController
 class CustomerController {
+
+  @Autowired
+  CustomerDeleteService customerDeleteService
 
   @Autowired
   CustomerService customerService
@@ -66,7 +70,7 @@ class CustomerController {
   @DeleteMapping('/customers/{id}')
   ResponseEntity delete( @PathVariable Long id ) {
 
-    customerService.delete( id )
+    customerDeleteService.delete( id )
     new ResponseEntity( HttpStatus.NO_CONTENT )
 
   }
