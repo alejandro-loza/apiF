@@ -15,13 +15,13 @@ import org.springframework.stereotype.Component
 
 @Component
 @Aspect
-class CustomerServiceDelete {
+class CustomerDeleteServiceDelete {
 
   final static Logger log = LoggerFactory.getLogger(
-      'mx.finerio.api.aop.CustomerServiceDelete' )
+      'mx.finerio.api.aop.CustomerDeleteServiceDelete' )
 
   @Pointcut(
-    value='execution(void mx.finerio.api.services.CustomerService.delete(..)) && bean(customerService) && args(id)',
+    value='execution(void mx.finerio.api.services.CustomerDeleteService.delete(..)) && bean(customerDeleteService) && args(id)',
     argNames='id'
   )
   public void deleteMethod( Long id ) {}
