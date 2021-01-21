@@ -35,7 +35,7 @@ class CredentialService {
   CustomerService customerService
 
   @Autowired
-  DevScraperService scraperService
+  ScraperService scraperService
 
   @Autowired
   CredentialRepository credentialRepository

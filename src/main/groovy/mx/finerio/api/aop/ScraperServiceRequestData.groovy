@@ -21,7 +21,7 @@ class ScraperServiceRequestData {
       'mx.finerio.api.aop.ScraperServiceRequestData' )
 
   @Pointcut(
-    value='execution(java.util.Map mx.finerio.api.services.DevScraperService.requestData(..)) && bean(devScraperService) && args(params)',
+    value='execution(java.util.Map mx.finerio.api.services.ScraperService.requestData(..)) && args(params)',
     argNames='params'
   )
   public void requestData( Map params ) {}
@@ -48,7 +48,7 @@ class ScraperServiceRequestData {
   }
 
   @Pointcut(
-    value='execution(java.util.Map mx.finerio.api.services.DevScraperService.requestData(..)) && bean(devScraperService) && args(credential)',
+    value='execution(java.util.Map mx.finerio.api.services.ScraperService.requestData(..)) && args(credential)',
     argNames='credential'
   )
   public void requestData2( Credential credential ) {}
