@@ -20,7 +20,7 @@ class DevScraperWebSocketService implements ScraperWebSocketService {
   CredentialService credentialService
 
   @Autowired
-  DevScraperService scraperService
+  ScraperService scraperService
 
   @Autowired
   WidgetEventsService widgetEventsService
