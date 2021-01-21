@@ -230,9 +230,11 @@ class AccountService {
       return extraData?.number
     } else if ( institution.code == 'INVEX' ) {
       return accountData.id
-    } else if ( institution.code == 'BANORTE' ) {
+    } else if ( institution.code == 'BANORTE' &&
+        extraData?.short_number != null ) {
       return "***${extraData.short_number}"
-    } else if ( institution.code == 'AMEX' ) {
+    } else if ( institution.code == 'AMEX' &&
+        extraData?.account_token != null ) {
       return "XXX-${extraData.account_token}"
     } else if ( institution.code == 'BAZ' ) {
       return extraData?.cuenta

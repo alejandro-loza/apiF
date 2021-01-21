@@ -25,11 +25,13 @@ class DevScraperService extends ScraperApiService {
   @Async
   Map requestData( Map data ) throws Exception {
 
-    if ( data.institution.id == 12 ) {
+    def institutionId = data.institution.id
+
+    if ( institutionId == 12 || institutionId == 14 ) {
 
       def credentialId = data.id
       def credential = credentialService.findAndValidate( credentialId )
-      def bankToken = getBankToken()
+      def bankToken = institutionId == 12 ? getBankToken() : null
       def dataSend = [ credentialId: credentialId, stage: 'interactive',
           bankToken: bankToken ]
       Thread.sleep( 3000 )

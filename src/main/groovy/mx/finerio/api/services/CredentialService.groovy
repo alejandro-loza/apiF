@@ -336,27 +336,29 @@ class CredentialService {
      
     def institutionCode = credential.institution.code
 
-     if( ![ 'BAZ','BBVA','BANORTE' ].contains( institutionCode ) ) {
+    if( ![ 'BAZ','BBVA','BANORTE' ].contains( institutionCode ) ) {
       throw new BadRequestException(
-          'credentialService.processInteractive.institutionCode.wrong' )
+        'credentialService.processInteractive.institutionCode.wrong' )
     }
-	
-	   if( institutionCode == 'BAZ' || institutionCode == 'BANORTE' ) {
-	       signalRService.sendTokenToScrapper( credentialInteractiveDto.token, id )
-		 return
-	   }
+
+    if( institutionCode == 'BAZ' || institutionCode == 'BANORTE' ) {
+      signalRService.sendTokenToScrapper( credentialInteractiveDto.token, id )
+    } else {
 		
-    def data = [ data: [
-      stage: 'interactive',
-      id: credential.id,
-      user_id: credential.user.id,
-      otp: credentialInteractiveDto.token
-    ] ]
-    scraperWebSocketService.send( new ScraperWebSocketSendDto(
+      def data = [ data: [
+        stage: 'interactive',
+        id: credential.id,
+        user_id: credential.user.id,
+        otp: credentialInteractiveDto.token
+      ] ]
+      scraperWebSocketService.send( new ScraperWebSocketSendDto(
         id: credential.id,
         message: new JsonBuilder( data ).toString(),
         tokenSent: true,
         destroyPreviousSession: false ) )
+
+    }
+
     widgetEventsService.onCredentialCreated( new WidgetEventsDto(
         credentialId: credential.id ) )
 
