@@ -11,21 +11,38 @@ import org.springframework.beans.factory.annotation.Autowired
 @Profile('dev')
 class DevSignalRService implements SignalRService{
 
-	final static Logger log = LoggerFactory.getLogger(
+  final static Logger log = LoggerFactory.getLogger(
       'mx.finerio.api.services.DevSignalRService' )
-		
-	@Autowired
- 	public TransactionsReceiver(){
- 		log.info("Dummy Connection to signalr set.") 	
- 	}
+    
+  @Autowired
+  CredentialService credentialService
 
+  @Autowired
+  ScraperService scraperService
 
-	
-	@Override
-	void sendTokenToScrapper( String token, String credentialId )  {
-                log.info("Not sending token to scrapper because connection is dummy")
-	 }
+  @Autowired
+  public TransactionsReceiver(){
+    log.info("Dummy Connection to signalr set.")   
+  }
+  
+  @Override
+  void sendTokenToScrapper( String token, String credentialId )  {
+
+    def credential = credentialService.findAndValidate( credentialId )
+    def data = [
+      id: credentialId,
+      username: credential.username,
+      password: credential.password,
+      iv: credential.iv,
+      user: [ id: credential.user.id ],
+      institution: [ id: 1 ],
+      securityCode: credential.securityCode
+    ]
+
+    scraperService.requestData( data )
+
+  }
 
 }
-	  
+    
 
