@@ -14,23 +14,23 @@ import wslite.rest.RESTClient
 @Service
 class ScraperV2ClientService {
 
-  @Value( '${scraper.catalog.errors.login.url}' )
+  @Value( '${scraper.v2.login.url}' )
   String loginUrl
 
-  @Value( '${scraper.catalog.errors.login.path}' )
+  @Value( '${scraper.v2.login.path}' )
   String loginPath
 
-  @Value( '${scraper.catalog.errors.login.clientId}' )
+  @Value( '${scraper.v2.login.clientId}' )
   String loginClientId
 
-  @Value( '${scraper.catalog.errors.login.clientSecret}' )
+  @Value( '${scraper.v2.login.clientSecret}' )
   String loginClientSecret
 
-  @Value( '${scraper.catalog.errors.url}' )
-  String errorsUrl
+  @Value( '${scraper.v2.url}' )
+  String scraperV2Url
 
-  @Value( '${scraper.catalog.errors.path}' )
-  String errorsPath
+  @Value( '${scraper.v2.path}' )
+  String scraperV2Path
 
   private String getAccessToken() throws Exception {
 
@@ -49,9 +49,9 @@ class ScraperV2ClientService {
 
   List getErrors() throws Exception {
     def accessToken = getAccessToken()
-    def client = new RESTClient( errorsUrl )
+    def client = new RESTClient( scraperV2Url )
     def headers = [ 'Authorization': "Bearer ${accessToken}" ]
-    def response = client.get( path: errorsPath, headers: headers )
+    def response = client.get( path: scraperV2Path, headers: headers )
     def jsonMap = new JsonSlurper().parseText( new String( response.data ) )
     return jsonMap.data
 
