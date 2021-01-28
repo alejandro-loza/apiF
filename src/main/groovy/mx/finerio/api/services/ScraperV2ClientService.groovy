@@ -10,6 +10,7 @@ import org.springframework.stereotype.Service
 
 import wslite.http.auth.HTTPBasicAuthorization
 import wslite.rest.RESTClient
+import java.time.ZonedDateTime
 
 @Service
 class ScraperV2ClientService {
@@ -32,8 +33,17 @@ class ScraperV2ClientService {
   @Value( '${scraper.v2.path}' )
   String scraperV2Path
 
+
+  String token 
+  ZonedDateTime tokenTime = ZonedDateTime.now().minusMinutes( 60 )
+  Integer tokenMinutesDuration = 60
+
   private String getAccessToken() throws Exception {
 
+    def minusOneHour = ZonedDateTime.now().minusMinutes( tokenMinutesDuration )            
+    if( minusOneHour.isBefore( tokenTime ) ) 
+    { return this.token }
+        
     def client = new RESTClient( loginUrl )
     client.authorization = new HTTPBasicAuthorization( loginClientId,
         loginClientSecret )
@@ -43,17 +53,20 @@ class ScraperV2ClientService {
     }
 
     def jsonMap = new JsonSlurper().parseText( new String( response.data ) )
-    return jsonMap.access_token
+    
+    this.token = jsonMap.access_token
+    this.tokenTime = ZonedDateTime.now()      
+    this.token
 
   }
 
   List getErrors() throws Exception {
-    def accessToken = getAccessToken()
+    
     def client = new RESTClient( scraperV2Url )
-    def headers = [ 'Authorization': "Bearer ${accessToken}" ]
+    def headers = [ 'Authorization': "Bearer ${getAccessToken()}" ]
     def response = client.get( path: scraperV2Path, headers: headers )
     def jsonMap = new JsonSlurper().parseText( new String( response.data ) )
-    return jsonMap.data
+    jsonMap.data
 
   }
 
