@@ -30,9 +30,11 @@ class ScraperV2ClientService {
   @Value( '${scraper.v2.url}' )
   String scraperV2Url
 
-  @Value( '${scraper.v2.path}' )
-  String scraperV2Path
+  @Value( '${scraper.v2.errors.path}' )
+  String scraperV2ErrorsPath
 
+  @Value( '${scraper.v2.publicKey.path}' )
+  String scraperV2PublicKeyPath
 
   String token 
   ZonedDateTime tokenTime = ZonedDateTime.now().minusMinutes( 60 )
@@ -43,7 +45,7 @@ class ScraperV2ClientService {
     def minusOneHour = ZonedDateTime.now().minusMinutes( tokenMinutesDuration )            
     if( minusOneHour.isBefore( tokenTime ) ) 
     { return this.token }
-        
+
     def client = new RESTClient( loginUrl )
     client.authorization = new HTTPBasicAuthorization( loginClientId,
         loginClientSecret )
@@ -64,11 +66,20 @@ class ScraperV2ClientService {
     
     def client = new RESTClient( scraperV2Url )
     def headers = [ 'Authorization': "Bearer ${getAccessToken()}" ]
-    def response = client.get( path: scraperV2Path, headers: headers )
+    def response = client.get( path: scraperV2ErrorsPath, headers: headers )
     def jsonMap = new JsonSlurper().parseText( new String( response.data ) )
     jsonMap.data
 
   }
+
+  Map getPublicKey() throws Exception {
+    
+    def client = new RESTClient( scraperV2Url )
+    def headers = [ 'Authorization': "Bearer ${getAccessToken()}" ]
+    def response = client.get( path: scraperV2PublicKeyPath, headers: headers )
+    new JsonSlurper().parseText( new String( response.data ) )
+
+  }  
 
 
 

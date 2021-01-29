@@ -28,7 +28,7 @@ class CredentialErrorService {
       dto.data = this.cache
     } else {
       
-      def errors = scraperV2ClientService.getErrors()
+      def errors = scraperV2ClientService.getErrors()      
       def errorsParsed = createDtoList( errors )
       dto.data = errorsParsed
       this.cache = errorsParsed
