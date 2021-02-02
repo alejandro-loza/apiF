@@ -79,6 +79,9 @@ class CredentialService {
   @Autowired
   ClientWidgetRepository clientWidgetRepository
 
+  @Autowired
+  ScraperV2Service scraperV2Service
+
   
   Credential create( CredentialDto credentialDto, Customer customer = null, Client client = null ) throws Exception {
 
@@ -243,12 +246,14 @@ class CredentialService {
     credentialStatusHistoryService.create( credential )
 
     if ( credential.institution.code == 'BBVA' ) {
-      sendToScraperWebSocket( credential )
+      //sendToScraperWebSocket( credential )
+      sendToScraperV2( credential )
     }else{
 	    sendToScraper( credential )
     }
 
   }
+
 
   Credential updateStatus( String credentialId, Credential.Status status )
       throws Exception {
@@ -469,6 +474,18 @@ class CredentialService {
         destroyPreviousSession: true ) )
 
   }
+
+  private void sendToScraperV2(  Credential credential  ) {
+ 
+   def dto = new CreateCredentialDto( bankCode: credential.institution.code,  
+   username: credential.username,
+   password: credential.password,
+   credentialId: credential.id 
+  )
+
+  scraperV2Service.createCredential( dto ) 
+
+ }
   
 
   private boolean credentialRecentlyUpdated( Credential credential )
