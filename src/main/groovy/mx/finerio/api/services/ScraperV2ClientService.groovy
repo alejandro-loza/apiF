@@ -36,6 +36,9 @@ class ScraperV2ClientService {
   @Value( '${scraper.v2.publicKey.path}' )
   String scraperV2PublicKeyPath
 
+  @Value( '${scraper.v2.credential.path}' )
+  String scraperV2CredentialPath
+
   String token 
   ZonedDateTime tokenTime = ZonedDateTime.now().minusMinutes( 60 )
   Integer tokenMinutesDuration = 60
@@ -79,6 +82,17 @@ class ScraperV2ClientService {
     def response = client.get( path: scraperV2PublicKeyPath, headers: headers )
     new JsonSlurper().parseText( new String( response.data ) )
 
+  }  
+
+  String createCredential( Map data ) throws Exception {
+    
+    def client = new RESTClient( scraperV2Url )
+    def headers = [ 'Authorization': "Bearer ${getAccessToken()}" ]
+        def response = client.post( path: scraperV2CredentialPath ) {
+      json data
+    }
+   
+    response.statusMessage    
   }  
 
 
