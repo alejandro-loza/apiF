@@ -11,9 +11,10 @@ import org.springframework.stereotype.Service
 import wslite.http.auth.HTTPBasicAuthorization
 import wslite.rest.RESTClient
 import java.time.ZonedDateTime
+import org.springframework.beans.factory.InitializingBean
 
 @Service
-class ScraperV2ClientService {
+class ScraperV2ClientService  implements InitializingBean {
 
   @Value( '${scraper.v2.login.url}' )
   String loginUrl
@@ -39,21 +40,26 @@ class ScraperV2ClientService {
   @Value( '${scraper.v2.credential.path}' )
   String scraperV2CredentialPath
 
+  @Value( '${scraper.v2.interactive.path}' )
+  String scraperV2InteractivePath
+
   String token 
   ZonedDateTime tokenTime = ZonedDateTime.now().minusMinutes( 60 )
   Integer tokenMinutesDuration = 60
+
+  def loginClient
+  def scraperClient
 
   private String getAccessToken() throws Exception {
 
     def minusOneHour = ZonedDateTime.now().minusMinutes( tokenMinutesDuration )            
     if( minusOneHour.isBefore( tokenTime ) ) 
     { return this.token }
-
-    def client = new RESTClient( loginUrl )
-    client.authorization = new HTTPBasicAuthorization( loginClientId,
+    
+    loginClient.authorization = new HTTPBasicAuthorization( loginClientId,
         loginClientSecret )
 
-    def response = client.post( path: loginPath ) {
+    def response = loginClient.post( path: loginPath ) {
       urlenc grant_type: 'client_credentials'
     }
 
@@ -66,35 +72,48 @@ class ScraperV2ClientService {
   }
 
   List getErrors() throws Exception {
-    
-    def client = new RESTClient( scraperV2Url )
-    def headers = [ 'Authorization': "Bearer ${getAccessToken()}" ]
-    def response = client.get( path: scraperV2ErrorsPath, headers: headers )
+        
+    def response = scraperClient.get( path: scraperV2ErrorsPath,
+      headers: [ 'Authorization': "Bearer ${getAccessToken()}" ] )
     def jsonMap = new JsonSlurper().parseText( new String( response.data ) )
     jsonMap.data
 
   }
 
   Map getPublicKey() throws Exception {
-    
-    def client = new RESTClient( scraperV2Url )
-    def headers = [ 'Authorization': "Bearer ${getAccessToken()}" ]
-    def response = client.get( path: scraperV2PublicKeyPath, headers: headers )
+            
+    def response = scraperClient.get( path: scraperV2PublicKeyPath,
+     headers: [ 'Authorization': "Bearer ${getAccessToken()}" ] )
     new JsonSlurper().parseText( new String( response.data ) )
 
   }  
 
   String createCredential( Map data ) throws Exception {
-    
-    def client = new RESTClient( scraperV2Url )
-    def headers = [ 'Authorization': "Bearer ${getAccessToken()}" ]
-        def response = client.post( path: scraperV2CredentialPath ) {
+            
+      def response = scraperClient.post( path: scraperV2CredentialPath,
+        headers: [ 'Authorization': "Bearer ${getAccessToken()}" ] ) {
       json data
     }
    
     response.statusMessage    
   }  
 
+  String sendInteractive( Map data ) throws Exception {
+        
+    def headers = [ 'Authorization': "Bearer ${getAccessToken()}" ]
+        def response = scraperClient.post( path: scraperV2InteractivePath,
+        headers: [ 'Authorization': "Bearer ${getAccessToken()}" ]  ) {
+      json data
+    }
+   
+    response.statusMessage    
+  }
+
+    @Override
+    public void afterPropertiesSet() throws Exception {
+      loginClient = new RESTClient( loginUrl )
+      scraperClient = new RESTClient( scraperV2Url )
+    } 
 
 
 }
