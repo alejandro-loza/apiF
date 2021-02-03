@@ -99,21 +99,20 @@ class ScraperV2ClientService  implements InitializingBean {
   }  
 
   String sendInteractive( Map data ) throws Exception {
-        
-    def headers = [ 'Authorization': "Bearer ${getAccessToken()}" ]
-        def response = scraperClient.post( path: scraperV2InteractivePath,
-        headers: [ 'Authorization': "Bearer ${getAccessToken()}" ]  ) {
+            
+    def response = scraperClient.post( path: scraperV2InteractivePath,
+      headers: [ 'Authorization': "Bearer ${getAccessToken()}" ]  ) {
       json data
     }
    
     response.statusMessage    
   }
 
-    @Override
-    public void afterPropertiesSet() throws Exception {
+  @Override
+  public void afterPropertiesSet() throws Exception {
       loginClient = new RESTClient( loginUrl )
       scraperClient = new RESTClient( scraperV2Url )
-    } 
+  } 
 
 
 }
