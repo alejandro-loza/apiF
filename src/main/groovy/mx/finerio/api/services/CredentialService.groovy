@@ -248,15 +248,14 @@ class CredentialService {
     bankConnectionService.create( credential )
     credentialStatusHistoryService.create( credential )
 
-    if ( credential.institution.code == 'BBVA' ) {
-      //sendToScraperWebSocket( credential )
+    if ( credential.institution.code == 'BBVA'
+       || credential.institution.code == 'BANREGIO') {      
       sendToScraperV2( credential )
     }else{
 	    sendToScraper( credential )
     }
 
   }
-
 
   Credential updateStatus( String credentialId, Credential.Status status )
       throws Exception {
@@ -349,12 +348,8 @@ class CredentialService {
         'credentialService.processInteractive.institutionCode.wrong' )
     }
 
-    if( institutionCode == 'BAZ' || institutionCode == 'BANORTE' ) {
-      signalRService.sendTokenToScrapper( credentialInteractiveDto.token, id )
-    } else if(institutionCode == 'BBVA') {		
-      scraperV2TokenService.send( credentialInteractiveDto.token, id, institutionCode )
-    }
-
+    scraperV2TokenService.send( credentialInteractiveDto.token, id, institutionCode )
+    
     widgetEventsService.onCredentialCreated( new WidgetEventsDto(
         credentialId: credential.id ) )
 
