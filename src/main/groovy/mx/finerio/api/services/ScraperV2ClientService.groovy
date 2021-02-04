@@ -12,6 +12,9 @@ import wslite.http.auth.HTTPBasicAuthorization
 import wslite.rest.RESTClient
 import java.time.ZonedDateTime
 import org.springframework.beans.factory.InitializingBean
+import mx.finerio.api.exceptions.BadImplementationException
+import org.slf4j.Logger
+import org.slf4j.LoggerFactory
 
 @Service
 class ScraperV2ClientService  implements InitializingBean {
@@ -50,6 +53,9 @@ class ScraperV2ClientService  implements InitializingBean {
   def loginClient
   def scraperClient
 
+  final static Logger log = LoggerFactory.getLogger(
+    'mx.finerio.api.services.ScraperV2ClientService' )
+
   private String getAccessToken() throws Exception {
 
     def minusOneHour = ZonedDateTime.now().minusMinutes( tokenMinutesDuration )            
@@ -59,8 +65,18 @@ class ScraperV2ClientService  implements InitializingBean {
     loginClient.authorization = new HTTPBasicAuthorization( loginClientId,
         loginClientSecret )
 
-    def response = loginClient.post( path: loginPath ) {
-      urlenc grant_type: 'client_credentials'
+    def response 
+
+    try{
+
+      response = loginClient.post( path: loginPath ) {
+        urlenc grant_type: 'client_credentials'
+      }
+
+    }catch( wslite.rest.RESTClientException e ){
+      log.info( "XX ${e.class.simpleName} - ${e.message}" )
+      throw new BadImplementationException(
+       'scraperV2ClientService.getAccessToken.error.onCall')
     }
 
     def jsonMap = new JsonSlurper().parseText( new String( response.data ) )
@@ -72,41 +88,118 @@ class ScraperV2ClientService  implements InitializingBean {
   }
 
   List getErrors() throws Exception {
-        
-    def response = scraperClient.get( path: scraperV2ErrorsPath,
-      headers: [ 'Authorization': "Bearer ${getAccessToken()}" ] )
+    
+    def response   
+    
+    try{ 
+
+      response = scraperClient.get( path: scraperV2ErrorsPath,
+        headers: [ 'Authorization': "Bearer ${getAccessToken()}" ] )
+    
+    }catch( wslite.rest.RESTClientException e ){
+      log.info( "XX ${e.class.simpleName} - ${e.message}" )
+      throw new BadImplementationException(
+       'scraperV2ClientService.getErrors.error.onCall')
+    }
+
     def jsonMap = new JsonSlurper().parseText( new String( response.data ) )
     jsonMap.data
 
   }
 
   Map getPublicKey() throws Exception {
-            
-    def response = scraperClient.get( path: scraperV2PublicKeyPath,
-     headers: [ 'Authorization': "Bearer ${getAccessToken()}" ] )
+    
+    def response
+
+    try{       
+
+      response = scraperClient.get( path: scraperV2PublicKeyPath,
+        headers: [ 'Authorization': "Bearer ${getAccessToken()}" ] )
+
+    }catch( wslite.rest.RESTClientException e ){
+      log.info( "XX ${e.class.simpleName} - ${e.message}" )
+      throw new BadImplementationException(
+       'scraperV2ClientService.getPublicKey.error.onCall')
+    }
+    
     new JsonSlurper().parseText( new String( response.data ) )
 
   }  
 
   String createCredential( Map data ) throws Exception {
-            
-      def response = scraperClient.post( path: scraperV2CredentialPath,
+
+    validateInputCreateCredential( data )
+      
+    def response
+      
+    try{ 
+
+      response = scraperClient.post( path: scraperV2CredentialPath,
         headers: [ 'Authorization': "Bearer ${getAccessToken()}" ] ) {
-      json data
+          json data
+        }
+
+    }catch( wslite.rest.RESTClientException e ){
+      log.info( "XX ${e.class.simpleName} - ${e.message}" )
+      throw new BadImplementationException(
+          'scraperV2ClientService.createCredential.error.onCall')
     }
-   
+
     response.statusMessage    
+  }
+
+  private void validateInputCreateCredential( Map data ){
+    
+    if( !data.containsKey('institution') ){
+     throw new BadImplementationException(
+        'scraperV2ClientService.validateInputCreateCredential.institution.null')
+    }
+
+    if( !data.containsKey('data') ){
+     throw new BadImplementationException(
+        'scraperV2ClientService.validateInputCreateCredential.data.null')
+    }
+
+    if( !data.containsKey('state') ){
+     throw new BadImplementationException(
+        'scraperV2ClientService.validateInputCreateCredential.state.null')
+    }
+
   }  
 
   String sendInteractive( Map data ) throws Exception {
             
-    def response = scraperClient.post( path: scraperV2InteractivePath,
-      headers: [ 'Authorization': "Bearer ${getAccessToken()}" ]  ) {
-      json data
+    def response
+
+    try{
+
+      response = scraperClient.post( path: scraperV2InteractivePath,
+        headers: [ 'Authorization': "Bearer ${getAccessToken()}" ]  ) {
+          json data
+        }
+
+    }catch( wslite.rest.RESTClientException e ){
+      log.info( "XX ${e.class.simpleName} - ${e.message}" )
+      throw new BadImplementationException(
+          'scraperV2ClientService.sendInteractive.error.onCall')
     }
    
     response.statusMessage    
   }
+
+    private void validateInputSendInteractive( Map data ){
+    
+    if( !data.containsKey('state') ){
+     throw new BadImplementationException(
+        'scraperV2ClientService.validateInputSendInteractive.state.null')
+    }
+
+    if( !data.containsKey('source') ){
+     throw new BadImplementationException(
+        'scraperV2ClientService.validateInputSendInteractive.source.null')
+    }
+    
+  } 
 
   @Override
   public void afterPropertiesSet() throws Exception {
