@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service
 import wslite.http.auth.HTTPBasicAuthorization
 import wslite.rest.RESTClient
 import java.time.ZonedDateTime
+import mx.finerio.api.exceptions.BadImplementationException
 
 @Service
 class CallbackGatewayClientService {
@@ -21,12 +22,16 @@ class CallbackGatewayClientService {
   @Value( '${callback.gateway.registerCredential.path}' )
   String registerCredentialPath
  
-  //TODO handle when services return error
   String registerCredential( Map data ) throws Exception {
     
-    def client = new RESTClient( callbackGatewayUrl )            
-    def response = client.post( path: registerCredentialPath ) {
-      json data
+    def client = new RESTClient( callbackGatewayUrl )
+    try{            
+      def response = client.post( path: registerCredentialPath ) {
+        json data
+      }
+    }catch( wslite.rest.RESTClientException ex ){
+      throw new BadImplementationException(
+       'callbackGatewayClientService.registerCredential.error.registeringCredential')
     }
    
     response.statusMessage
