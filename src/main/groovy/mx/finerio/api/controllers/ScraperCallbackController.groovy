@@ -4,6 +4,7 @@ import javax.servlet.http.HttpServletRequest
 
 import mx.finerio.api.domain.Callback
 import mx.finerio.api.domain.Credential
+import mx.finerio.api.domain.Client
 import mx.finerio.api.dtos.AccountDto
 import mx.finerio.api.dtos.FailureCallbackDto
 import mx.finerio.api.dtos.TransactionDto
@@ -19,7 +20,6 @@ import mx.finerio.api.services.CredentialService
 import mx.finerio.api.services.ScraperCallbackService
 import mx.finerio.api.services.WidgetEventsService
 import mx.finerio.api.domain.TransactionMessageType
-
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 import mx.finerio.api.services.CredentialStateService
+import mx.finerio.api.services.ScraperV2TokenService
 import com.fasterxml.jackson.databind.ObjectMapper
 
 
@@ -141,8 +142,10 @@ class ScraperCallbackController {
     def objectMapper = new ObjectMapper()
     def scraperTokenDto = objectMapper.readValue(
           scraperTokenDtoString, ScraperV2TokenDto )
+    Credential credential = credentialService.findAndValidate( scraperTokenDto.state )
+    Client client = credential.customer.client
 
-    scraperV2TokenService.processOnInteractive( scraperTokenDto )
+    scraperV2TokenService.processOnInteractive( scraperTokenDto, client )
               
     ResponseEntity.ok().build()
   }
