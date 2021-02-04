@@ -40,7 +40,7 @@ class ScraperV2Service {
 		String endDate = now.toString()		
 	    String startDate = now.minusMonths( 2 ).toString()
 							    
-		def finalData = [ institution: createCredentialDto.bankCode,
+		def finalData = [ institution: createCredentialDto.bankCode.toLowerCase(),
 			data: jsonEncrypted,
 			state: state,
 			start_date: startDate,

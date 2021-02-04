@@ -27,13 +27,15 @@ class ScraperV2TokenService {
 	void send( String token, String credentialId, String bankCode ) {
 
 		validateSend( token, credentialId, bankCode )
+   
+        bankCode = bankCode.toLowerCase()
 						
 		def data = [ field_name: 'otp',
 		             value: token, 
 		             content_type: 'text/plain' ]
 
 		def finalData = [
-			institution: bank.code,
+			institution: bankCode,
 			state: credentialId,
 			data: data] 
 								
