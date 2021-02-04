@@ -51,7 +51,7 @@ class ScraperV2TokenService {
 		}
 
 		widgetEventsService.onInteractive( new WidgetEventsDto(
-		      credentialId: credential.id, bankToken: data.bankToken ) )	
+		      credentialId: credentialId, bankToken: token ) )	
 
 		callbackService.sendToClient( client, Callback.Nature.NOTIFY, dataSend )		 	
 	}

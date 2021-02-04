@@ -27,7 +27,7 @@ class ScraperV2ServiceCreateCredential{
 
   @Before('createCredential(createCredentialDto)')
   void before(CreateCredentialDto createCredentialDto) {
-    log.info( "<< createCredentialDto: {}", createCredentialDto )
+    log.info( "<< createCredentialDto: *****" )
   }
 
   @AfterReturning(

@@ -16,7 +16,7 @@ import org.springframework.stereotype.Component
 class ScraperV2ClientServiceCreateCredential{
 
   final static Logger log = LoggerFactory.getLogger(
-      'mx.finerio.api.aop.CallbackGatewayClientServiceCreateCredential' )
+      'mx.finerio.api.aop.ScraperV2ClientServiceCreateCredential' )
 
   @Pointcut(
     value='execution(java.lang.String mx.finerio.api.services.ScraperV2ClientService.createCredential(..)) && bean(scraperV2ClientService) && args(data)',

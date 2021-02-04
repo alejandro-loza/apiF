@@ -6,6 +6,7 @@ import mx.finerio.api.dtos.CreateCredentialDto
 import java.time.LocalDate
 import org.springframework.beans.factory.annotation.Autowired
 import mx.finerio.api.exceptions.BadImplementationException
+import groovy.json.JsonOutput
 
 @Service
 class ScraperV2Service {
