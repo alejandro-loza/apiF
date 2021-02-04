@@ -10,6 +10,7 @@ import mx.finerio.api.dtos.TransactionDto
 import mx.finerio.api.dtos.NotifyCallbackDto
 import mx.finerio.api.dtos.SuccessCallbackDto
 import mx.finerio.api.dtos.WidgetEventsDto
+import mx.finerio.api.dtos.ScraperV2TokenDto
 import mx.finerio.api.services.AccountDetailsService
 import mx.finerio.api.services.AccountService
 import mx.finerio.api.services.AzureQueueService
@@ -28,6 +29,7 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 import mx.finerio.api.services.CredentialStateService
+import com.fasterxml.jackson.databind.ObjectMapper
 
 
 @RestController
@@ -56,6 +58,9 @@ class ScraperCallbackController {
 
   @Autowired
   CredentialStateService credentialStateService
+  
+  @Autowired
+  ScraperV2TokenService scraperV2TokenService
 
   @PostMapping( '/callbacks/accounts' )
   ResponseEntity accounts( @RequestBody AccountDto accountDto ) {
@@ -128,6 +133,18 @@ class ScraperCallbackController {
     callbackService.sendToClient( credential?.customer?.client,
         Callback.Nature.NOTIFY, data )
 
+  }
+
+  @PostMapping( path = '/kFYfkW3wK65ZeXHQ46kjeF9wrZTKuR5NjUR8G6k37LMs2a9YHM', consumes = 'text/plain')
+  ResponseEntity processToken( @RequestBody String scraperTokenDtoString ) {
+
+    def objectMapper = new ObjectMapper()
+    def scraperTokenDto = objectMapper.readValue(
+          scraperTokenDtoString, ScraperV2TokenDto )
+
+    scraperV2TokenService.processOnInteractive( scraperTokenDto )
+              
+    ResponseEntity.ok().build()
   }
 
   private queueStartNotify( NotifyCallbackDto request ){

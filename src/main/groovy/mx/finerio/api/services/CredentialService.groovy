@@ -81,6 +81,9 @@ class CredentialService {
 
   @Autowired
   ScraperV2Service scraperV2Service
+  
+  @Autowired
+  ScraperV2TokenService scraperV2TokenService
 
   
   Credential create( CredentialDto credentialDto, Customer customer = null, Client client = null ) throws Exception {
@@ -348,20 +351,8 @@ class CredentialService {
 
     if( institutionCode == 'BAZ' || institutionCode == 'BANORTE' ) {
       signalRService.sendTokenToScrapper( credentialInteractiveDto.token, id )
-    } else {
-		
-      def data = [ data: [
-        stage: 'interactive',
-        id: credential.id,
-        user_id: credential.user.id,
-        otp: credentialInteractiveDto.token
-      ] ]
-      scraperWebSocketService.send( new ScraperWebSocketSendDto(
-        id: credential.id,
-        message: new JsonBuilder( data ).toString(),
-        tokenSent: true,
-        destroyPreviousSession: false ) )
-
+    } else if(institutionCode == 'BBVA') {		
+      scraperV2TokenService.send( credentialInteractiveDto.token, id, institutionCode )
     }
 
     widgetEventsService.onCredentialCreated( new WidgetEventsDto(
