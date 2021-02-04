@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service
 import mx.finerio.api.dtos.CreateCredentialDto
 import java.time.LocalDate
 import org.springframework.beans.factory.annotation.Autowired
+import mx.finerio.api.exceptions.BadImplementationException
 
 @Service
 class ScraperV2Service {
@@ -22,6 +23,8 @@ class ScraperV2Service {
 	String source
 
 	void createCredential( CreateCredentialDto createCredentialDto ) throws Exception {
+
+		validateCreateCredetial( createCredentialDto )
              			
 		def jsonMap = [:]
 		jsonMap.username = createCredentialDto.username
@@ -47,6 +50,15 @@ class ScraperV2Service {
 		         	
 		 scraperV2ClientService.createCredential( finalData )									
 		
+	}
+
+	private void validateCreateCredetial( CreateCredentialDto createCredentialDto ){
+
+		if ( createCredentialDto == null ) {
+			 throw new BadImplementationException(
+			  'scraperV2Service.validateCreateCredetial.createCredentialDto.null' )
+		    }
+
 	}
 
 }

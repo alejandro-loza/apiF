@@ -1,6 +1,5 @@
 package mx.finerio.api.services
 
-
 import org.springframework.stereotype.Service
 import org.springframework.beans.factory.annotation.Autowired
 import mx.finerio.api.dtos.ScraperV2TokenDto
@@ -8,7 +7,8 @@ import mx.finerio.api.domain.Callback
 
 import mx.finerio.api.domain.Credential
 import mx.finerio.api.domain.Client
-
+import mx.finerio.api.exceptions.BadImplementationException
+import mx.finerio.api.dtos.WidgetEventsDto
 
 
 @Service
@@ -20,10 +20,13 @@ class ScraperV2TokenService {
     @Autowired
     CallbackService callbackService
 
-     @Autowired
-  CredentialService credentialService
+    @Autowired
+	WidgetEventsService widgetEventsService
+
       	
 	void send( String token, String credentialId, String bankCode ) {
+
+		validateSend( token, credentialId, bankCode )
 						
 		def data = [ field_name: 'otp',
 		             value: token, 
@@ -36,7 +39,7 @@ class ScraperV2TokenService {
 								
 		scraperV2ClientService.sendInteractive( finalData )		
 	}
-    //TODO check if it is necesary to add widget functionality
+    
 	void processOnInteractive( ScraperV2TokenDto scraperV2TokenDto, Client client ) {
 
 		validateInteractive( scraperV2TokenDto )		  	
@@ -45,24 +48,46 @@ class ScraperV2TokenService {
 		def token = scraperV2TokenDto?.data?.value		
 		if( token ) {		
 			dataSend.put('bankToken', token )
-		}		  		  
-		callbackService.sendToClient( client, Callback.Nature.NOTIFY, dataSend )		 
-	
+		}
+
+		widgetEventsService.onInteractive( new WidgetEventsDto(
+		      credentialId: credential.id, bankToken: data.bankToken ) )	
+
+		callbackService.sendToClient( client, Callback.Nature.NOTIFY, dataSend )		 	
 	}
 
  
  	private validateInteractive( ScraperV2TokenDto scraperV2TokenDto ) {
 		
 		if ( scraperV2TokenDto == null ) {
-			throw new IllegalArgumentException(
+			throw new BadImplementationException(
 			 'scraperV2TokenService.validateInteractive.scraperV2TokenDto.null' )
 		}
 		   		    
 		if ( scraperV2TokenDto.state == null ) {
-			   throw new IllegalArgumentException(
+			   throw new BadImplementationException(
 				   'scraperV2TokenService.validateInteractive.scraperV2TokenDto.state.null' )
 		}
 	}
-	 	
+	
+
+	private validateSend( String token, String credentialId, String bankCode ) {
+		
+		if ( token == null ) {
+			throw new BadImplementationException(
+			 'scraperV2TokenService.validateSend.token.null' )
+		}
+
+		if ( credentialId == null ) {
+			throw new BadImplementationException(
+			 'scraperV2TokenService.validateSend.credentialId.null' )
+		}
+
+		if ( bankCode == null ) {
+			throw new BadImplementationException(
+			 'scraperV2TokenService.validateSend.bankCode.null' )
+		}
+
+	} 	
 
 }
