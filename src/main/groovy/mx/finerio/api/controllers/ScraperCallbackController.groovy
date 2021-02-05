@@ -133,11 +133,14 @@ class ScraperCallbackController {
   @PostMapping( '/callbacks/failure' )
   ResponseEntity failure(
       @RequestBody FailureCallbackDto failureCallbackDto ) {
-    scraperCallbackService.processFailure( failureCallbackDto )
-    ResponseEntity.ok().build()
-
+    processFailure( failureCallbackDto )
   }
 
+  @PostMapping( '/lRyxTx5STdiH9fvSg00GYllSreQoEinP0KcH75pO8wk7BFPFuD' )
+  ResponseEntity failure2(
+      @RequestBody FailureCallbackDto failureCallbackDto ) {
+    processFailure( failureCallbackDto )
+  }
   private ResponseEntity processFailure( FailureCallbackDto failureCallbackDto ){
     scraperCallbackService.processFailure( failureCallbackDto )
     ResponseEntity.ok().build()
