@@ -65,7 +65,15 @@ class ScraperCallbackController {
 
   @PostMapping( '/callbacks/accounts' )
   ResponseEntity accounts( @RequestBody AccountDto accountDto ) {
+    processAccounts( accountDto )    
+  }
+  
+  @PostMapping( '/kTSZhDQdAgU9SHlPldja5enR7IHMZgT7YzU30A4qHPonmz2vCb' )
+  ResponseEntity accounts2( @RequestBody AccountDto accountDto ) {
+    processAccounts( accountDto )    
+  }
 
+  private ResponseEntity processAccounts( AccountDto accountDto ){
     def account = accountService.create( accountDto.data )
     def credential = credentialService.findAndValidate(
         accountDto?.data?.credential_id as String )
@@ -85,25 +93,41 @@ class ScraperCallbackController {
     widgetEventsService.onAccountCreated( new WidgetEventsDto(
         credentialId: credential.id, accountId: account.id,
         accountName: account.name ) )
-    ResponseEntity.ok( [ id: account.id ] )
-
+    ResponseEntity.ok( [ id: account.id ] )  
   }
 
   @PostMapping( '/callbacks/transactions' )
   ResponseEntity transactions( @RequestBody TransactionDto transactionDto ) {
+    processTransactions( transactionDto )
+  }
+
+  @PostMapping( '/8jyY41afTYFyOlyEjzZvqsqxnMEvIinHrJtkztpifVGR62kds9' )
+  ResponseEntity transactions2( @RequestBody TransactionDto transactionDto ) {
+    processTransactions( transactionDto )
+  }
+
+  private ResponseEntity processTransactions( TransactionDto transactionDto ){
     azureQueueService.queueTransactions( transactionDto, TransactionMessageType.CONTENT )
     ResponseEntity.ok().build()
-
   }
 
   @PostMapping( '/callbacks/success' )
   ResponseEntity success(
       @RequestBody SuccessCallbackDto successCallbackDto ) {
-     TransactionDto transactionDto = 
-      TransactionDto.getInstanceFromCredentialId( successCallbackDto.data?.credential_id )
+    processSuccess(successCallbackDto)
+  }
+
+  @PostMapping( '/0M4iZuRoR5RYBZ3bVb8KFeP2epHHtVJjvDpkV5xC0epr3irOhp' )
+  ResponseEntity success2(
+      @RequestBody SuccessCallbackDto successCallbackDto ) {
+    processSuccess(successCallbackDto)
+  }
+
+  private ResponseEntity processSuccess( SuccessCallbackDto successCallbackDto ){
+    TransactionDto transactionDto = 
+    TransactionDto.getInstanceFromCredentialId( successCallbackDto.data?.credential_id )
       azureQueueService.queueTransactions( transactionDto, TransactionMessageType.END )
     ResponseEntity.ok().build()
-
   }
 
   @PostMapping( '/callbacks/failure' )
@@ -113,6 +137,11 @@ class ScraperCallbackController {
     ResponseEntity.ok().build()
 
   }
+
+  private ResponseEntity processFailure( FailureCallbackDto failureCallbackDto ){
+    scraperCallbackService.processFailure( failureCallbackDto )
+    ResponseEntity.ok().build()
+  } 
 
   @PostMapping( '/callbacks/notify' )
   ResponseEntity notify( @RequestBody NotifyCallbackDto request ) {
