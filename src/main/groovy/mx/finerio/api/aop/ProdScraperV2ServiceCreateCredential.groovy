@@ -14,13 +14,13 @@ import mx.finerio.api.dtos.CreateCredentialDto
 
 @Component
 @Aspect
-class ScraperV2ServiceCreateCredential{
+class ProdScraperV2ServiceCreateCredential{
 
   final static Logger log = LoggerFactory.getLogger(
-      'mx.finerio.api.aop.ScraperV2ServiceCreateCredential' )
+      'mx.finerio.api.aop.ProdScraperV2ServiceCreateCredential' )
 
   @Pointcut(
-    value='execution(void mx.finerio.api.services.ScraperV2Service.createCredential(..)) && bean(scraperV2Service) && args(createCredentialDto)',
+    value='execution(void mx.finerio.api.services.ProdScraperV2Service.createCredential(..)) && bean(prodScraperV2Service) && args(createCredentialDto)',
     argNames='createCredentialDto'
   )
   public void createCredential( CreateCredentialDto createCredentialDto ) {}
