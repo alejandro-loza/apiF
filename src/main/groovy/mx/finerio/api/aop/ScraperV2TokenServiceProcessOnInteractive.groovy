@@ -17,13 +17,13 @@ import mx.finerio.api.domain.Client
 
 @Component
 @Aspect
-class ProdScraperV2TokenServiceProcessOnInteractive {
+class ScraperV2TokenServiceProcessOnInteractive {
 
   final static Logger log = LoggerFactory.getLogger(
-      'mx.finerio.api.aop.ProdScraperV2TokenServiceProcessOnInteractive' )
+      'mx.finerio.api.aop.ScraperV2TokenServiceProcessOnInteractive' )
 
   @Pointcut(
-    value='execution(void mx.finerio.api.services.ProdScraperV2TokenService.processOnInteractive(..)) && bean(prodScraperV2TokenService) && args(scraperV2TokenDto,client)',
+    value='execution(void mx.finerio.api.services.ScraperV2TokenService.processOnInteractive(..)) && args(scraperV2TokenDto,client)',
     argNames='scraperV2TokenDto,client'
   )
   public void processOnInteractive( ScraperV2TokenDto scraperV2TokenDto, Client client ) {}

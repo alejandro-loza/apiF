@@ -14,13 +14,13 @@ import mx.finerio.api.dtos.CreateCredentialDto
 
 @Component
 @Aspect
-class ProdScraperV2TokenServiceSend{
+class ScraperV2TokenServiceSend{
 
   final static Logger log = LoggerFactory.getLogger(
-      'mx.finerio.api.aop.ProdScraperV2TokenServiceSend' )
+      'mx.finerio.api.aop.ScraperV2TokenServiceSend' )
 
   @Pointcut(
-    value='execution(void mx.finerio.api.services.ProdScraperV2TokenService.send(..)) && bean(prodScraperV2TokenService) && args(token,credentialId,bankCode)',
+    value='execution(void mx.finerio.api.services.ScraperV2TokenService.send(..)) && args(token,credentialId,bankCode)',
     argNames='token,credentialId,bankCode'
   )
   public void send( String token, String credentialId, String bankCode ) {}

@@ -18,15 +18,34 @@ class DevScraperV2TokenService implements ScraperV2TokenService {
 	@Autowired
     CallbackService callbackService
 
+  @Autowired
+  CredentialService credentialService
+
+  @Autowired
+  ScraperService scraperService
+
     @Autowired
 	WidgetEventsService widgetEventsService
 
 	final static Logger log = LoggerFactory.getLogger(
       'mx.finerio.api.services.DevScraperV2TokenService' )
 	     
-	void send( String token, String credentialId, String bankCode ) throws Exception {
-	  log.info("Not sending token cause do not existe a scraper v2 mock implementation")   
-	}
+  @Override
+  void send( String token, String credentialId, String bankCode ) throws Exception {
+
+    def credential = credentialService.findAndValidate( credentialId )
+    def data = [
+      id: credential.id,
+      username: credential.username,
+      password: credential.password,
+      iv: credential.iv,
+      user: [ id: credential.user.id ],
+      institution: [ id: 2 ],
+      securityCode: credential.securityCode
+    ]
+    scraperService.requestData( data )
+
+  }
     
 	void processOnInteractive( ScraperV2TokenDto scraperV2TokenDto, Client client ) throws Exception  {
 	
