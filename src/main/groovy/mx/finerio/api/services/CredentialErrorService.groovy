@@ -10,27 +10,13 @@ import org.springframework.stereotype.Service
 
 import wslite.http.auth.HTTPBasicAuthorization
 import wslite.rest.RESTClient
+import org.springframework.beans.factory.annotation.Autowired
 
 @Service
 class CredentialErrorService {
-
-  @Value( '${scraper.catalog.errors.login.url}' )
-  String loginUrl
-
-  @Value( '${scraper.catalog.errors.login.path}' )
-  String loginPath
-
-  @Value( '${scraper.catalog.errors.login.clientId}' )
-  String loginClientId
-
-  @Value( '${scraper.catalog.errors.login.clientSecret}' )
-  String loginClientSecret
-
-  @Value( '${scraper.catalog.errors.url}' )
-  String errorsUrl
-
-  @Value( '${scraper.catalog.errors.path}' )
-  String errorsPath
+  
+  @Autowired
+  ScraperV2ClientService scraperV2ClientService
 
   private List<CredentialErrorDto> cache = null
 
@@ -41,9 +27,8 @@ class CredentialErrorService {
     if ( this.cache != null ) {
       dto.data = this.cache
     } else {
-
-      def accessToken = getAccessToken()
-      def errors = getErrors( accessToken )
+      
+      def errors = scraperV2ClientService.getErrors()      
       def errorsParsed = createDtoList( errors )
       dto.data = errorsParsed
       this.cache = errorsParsed
@@ -53,32 +38,7 @@ class CredentialErrorService {
     return dto
 
   }
-
-  private String getAccessToken() throws Exception {
-
-    def client = new RESTClient( loginUrl )
-    client.authorization = new HTTPBasicAuthorization( loginClientId,
-        loginClientSecret )
-
-    def response = client.post( path: loginPath ) {
-      urlenc grant_type: 'client_credentials'
-    }
-
-    def jsonMap = new JsonSlurper().parseText( new String( response.data ) )
-    return jsonMap.access_token
-
-  }
-
-  private List getErrors( String accessToken ) throws Exception {
-
-    def client = new RESTClient( errorsUrl )
-    def headers = [ 'Authorization': "Bearer ${accessToken}" ]
-    def response = client.get( path: errorsPath, headers: headers )
-    def jsonMap = new JsonSlurper().parseText( new String( response.data ) )
-    return jsonMap.data
-
-  }
-
+  
   private List<CredentialErrorDto> createDtoList( List jsonArray )
       throws Exception {
 

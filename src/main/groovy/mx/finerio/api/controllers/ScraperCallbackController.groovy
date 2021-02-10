@@ -4,12 +4,14 @@ import javax.servlet.http.HttpServletRequest
 
 import mx.finerio.api.domain.Callback
 import mx.finerio.api.domain.Credential
+import mx.finerio.api.domain.Client
 import mx.finerio.api.dtos.AccountDto
 import mx.finerio.api.dtos.FailureCallbackDto
 import mx.finerio.api.dtos.TransactionDto
 import mx.finerio.api.dtos.NotifyCallbackDto
 import mx.finerio.api.dtos.SuccessCallbackDto
 import mx.finerio.api.dtos.WidgetEventsDto
+import mx.finerio.api.dtos.ScraperV2TokenDto
 import mx.finerio.api.services.AccountDetailsService
 import mx.finerio.api.services.AccountService
 import mx.finerio.api.services.AzureQueueService
@@ -18,7 +20,6 @@ import mx.finerio.api.services.CredentialService
 import mx.finerio.api.services.ScraperCallbackService
 import mx.finerio.api.services.WidgetEventsService
 import mx.finerio.api.domain.TransactionMessageType
-
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.GetMapping
@@ -28,6 +29,8 @@ import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestParam
 import mx.finerio.api.services.CredentialStateService
+import mx.finerio.api.services.ScraperV2TokenService
+import com.fasterxml.jackson.databind.ObjectMapper
 
 
 @RestController
@@ -56,10 +59,21 @@ class ScraperCallbackController {
 
   @Autowired
   CredentialStateService credentialStateService
+  
+  @Autowired
+  ScraperV2TokenService scraperV2TokenService
 
   @PostMapping( '/callbacks/accounts' )
   ResponseEntity accounts( @RequestBody AccountDto accountDto ) {
+    processAccounts( accountDto )    
+  }
+  
+  @PostMapping( '/kTSZhDQdAgU9SHlPldja5enR7IHMZgT7YzU30A4qHPonmz2vCb' )
+  ResponseEntity accounts2( @RequestBody AccountDto accountDto ) {
+    processAccounts( accountDto )    
+  }
 
+  private ResponseEntity processAccounts( AccountDto accountDto ){
     def account = accountService.create( accountDto.data )
     def credential = credentialService.findAndValidate(
         accountDto?.data?.credential_id as String )
@@ -79,34 +93,58 @@ class ScraperCallbackController {
     widgetEventsService.onAccountCreated( new WidgetEventsDto(
         credentialId: credential.id, accountId: account.id,
         accountName: account.name ) )
-    ResponseEntity.ok( [ id: account.id ] )
-
+    ResponseEntity.ok( [ id: account.id ] )  
   }
 
   @PostMapping( '/callbacks/transactions' )
   ResponseEntity transactions( @RequestBody TransactionDto transactionDto ) {
+    processTransactions( transactionDto )
+  }
+
+  @PostMapping( '/8jyY41afTYFyOlyEjzZvqsqxnMEvIinHrJtkztpifVGR62kds9' )
+  ResponseEntity transactions2( @RequestBody TransactionDto transactionDto ) {
+    processTransactions( transactionDto )
+  }
+
+  private ResponseEntity processTransactions( TransactionDto transactionDto ){
     azureQueueService.queueTransactions( transactionDto, TransactionMessageType.CONTENT )
     ResponseEntity.ok().build()
-
   }
 
   @PostMapping( '/callbacks/success' )
   ResponseEntity success(
       @RequestBody SuccessCallbackDto successCallbackDto ) {
-     TransactionDto transactionDto = 
-      TransactionDto.getInstanceFromCredentialId( successCallbackDto.data?.credential_id )
+    processSuccess(successCallbackDto)
+  }
+
+  @PostMapping( '/0M4iZuRoR5RYBZ3bVb8KFeP2epHHtVJjvDpkV5xC0epr3irOhp' )
+  ResponseEntity success2(
+      @RequestBody SuccessCallbackDto successCallbackDto ) {
+    processSuccess(successCallbackDto)
+  }
+
+  private ResponseEntity processSuccess( SuccessCallbackDto successCallbackDto ){
+    TransactionDto transactionDto = 
+    TransactionDto.getInstanceFromCredentialId( successCallbackDto.data?.credential_id )
       azureQueueService.queueTransactions( transactionDto, TransactionMessageType.END )
     ResponseEntity.ok().build()
-
   }
 
   @PostMapping( '/callbacks/failure' )
   ResponseEntity failure(
       @RequestBody FailureCallbackDto failureCallbackDto ) {
+    processFailure( failureCallbackDto )
+  }
+
+  @PostMapping( '/lRyxTx5STdiH9fvSg00GYllSreQoEinP0KcH75pO8wk7BFPFuD' )
+  ResponseEntity failure2(
+      @RequestBody FailureCallbackDto failureCallbackDto ) {
+    processFailure( failureCallbackDto )
+  }
+  private ResponseEntity processFailure( FailureCallbackDto failureCallbackDto ){
     scraperCallbackService.processFailure( failureCallbackDto )
     ResponseEntity.ok().build()
-
-  }
+  } 
 
   @PostMapping( '/callbacks/notify' )
   ResponseEntity notify( @RequestBody NotifyCallbackDto request ) {
@@ -128,6 +166,20 @@ class ScraperCallbackController {
     callbackService.sendToClient( credential?.customer?.client,
         Callback.Nature.NOTIFY, data )
 
+  }
+
+  @PostMapping( path = '/kFYfkW3wK65ZeXHQ46kjeF9wrZTKuR5NjUR8G6k37LMs2a9YHM', consumes = 'text/plain')
+  ResponseEntity processToken( @RequestBody String scraperTokenDtoString ) {
+
+    def objectMapper = new ObjectMapper()
+    def scraperTokenDto = objectMapper.readValue(
+          scraperTokenDtoString, ScraperV2TokenDto )
+    Credential credential = credentialService.findAndValidate( scraperTokenDto.state )
+    Client client = credential.customer.client
+
+    scraperV2TokenService.processOnInteractive( scraperTokenDto, client )
+              
+    ResponseEntity.ok().build()
   }
 
   private queueStartNotify( NotifyCallbackDto request ){
