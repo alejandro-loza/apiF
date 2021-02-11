@@ -85,6 +85,12 @@ class CredentialService {
   @Autowired
   ScraperV2TokenService scraperV2TokenService
 
+  @Autowired
+  CallbackGatewayClientService callbackGatewayClientService
+
+  @Value('${gateway.source}')
+  String source
+
   
   Credential create( CredentialDto credentialDto, Customer customer = null, Client client = null ) throws Exception {
 
@@ -438,8 +444,14 @@ class CredentialService {
       institution: [ id: credential.institution.id ],
       securityCode: credential.securityCode
     ]
-    scraperService.requestData( data )
 
+    def institutionCode = credential.institution.code
+    if( [ 'BAZ','BANORTE' ].contains( institutionCode ) ) {
+      callbackGatewayClientService
+        .registerCredential( [ credentialId: credential.id ,source: source ] )
+    }
+
+    scraperService.requestData( data )
   }
 
   private void sendToScraperWebSocket( Credential credential )
