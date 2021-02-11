@@ -79,6 +79,12 @@ class CredentialService {
   @Autowired
   ClientWidgetRepository clientWidgetRepository
 
+  @Autowired
+  ScraperV2Service scraperV2Service
+  
+  @Autowired
+  ScraperV2TokenService scraperV2TokenService
+
   
   Credential create( CredentialDto credentialDto, Customer customer = null, Client client = null ) throws Exception {
 
@@ -242,8 +248,9 @@ class CredentialService {
     bankConnectionService.create( credential )
     credentialStatusHistoryService.create( credential )
 
-    if ( credential.institution.code == 'BBVA' ) {
-      sendToScraperWebSocket( credential )
+    if ( credential.institution.code == 'BBVA'
+       || credential.institution.code == 'BANREGIO') {      
+      sendToScraperV2( credential )
     }else{
 	    sendToScraper( credential )
     }
@@ -341,24 +348,8 @@ class CredentialService {
         'credentialService.processInteractive.institutionCode.wrong' )
     }
 
-    if( institutionCode == 'BAZ' || institutionCode == 'BANORTE' ) {
-      signalRService.sendTokenToScrapper( credentialInteractiveDto.token, id )
-    } else {
-		
-      def data = [ data: [
-        stage: 'interactive',
-        id: credential.id,
-        user_id: credential.user.id,
-        otp: credentialInteractiveDto.token
-      ] ]
-      scraperWebSocketService.send( new ScraperWebSocketSendDto(
-        id: credential.id,
-        message: new JsonBuilder( data ).toString(),
-        tokenSent: true,
-        destroyPreviousSession: false ) )
-
-    }
-
+    scraperV2TokenService.send( credentialInteractiveDto.token, id, institutionCode )
+    
     widgetEventsService.onCredentialCreated( new WidgetEventsDto(
         credentialId: credential.id ) )
 
@@ -469,6 +460,18 @@ class CredentialService {
         destroyPreviousSession: true ) )
 
   }
+
+  private void sendToScraperV2(  Credential credential  ) {
+ 
+   def dto = new CreateCredentialDto( bankCode: credential.institution.code,  
+   username: credential.username,
+   password: credential.password,
+   credentialId: credential.id 
+  )
+
+  scraperV2Service.createCredential( dto ) 
+
+ }
   
 
   private boolean credentialRecentlyUpdated( Credential credential )
