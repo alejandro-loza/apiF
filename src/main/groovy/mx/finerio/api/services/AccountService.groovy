@@ -72,7 +72,9 @@ class AccountService {
     }
 
     def credential = credentialService.findAndValidate( accountData.credential_id )
-    credential = credentialService.validateUserCredential( credential, accountData.user_id )
+    if ( ![ 'BBVA', 'BANREGIO' ].contains( credential.institution.code ) ) {
+      credential = credentialService.validateUserCredential( credential, accountData.user_id )
+    }
     def cleanedName = getAccountName( accountData.name )
     def number = getNumber( credential.institution, accountData )
         ?: cleanedName
