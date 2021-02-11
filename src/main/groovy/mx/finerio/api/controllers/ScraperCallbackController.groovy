@@ -182,6 +182,17 @@ class ScraperCallbackController {
     ResponseEntity.ok().build()
   }
 
+  @PostMapping( path = '/kFYfkW3wK65ZeXHQ46kjeF9wrZTKuR5NjUR8G6k37LMs2a9YHM')
+  ResponseEntity processToken( @RequestBody ScraperV2TokenDto scraperTokenDto ) {
+
+    Credential credential = credentialService.findAndValidate( scraperTokenDto.state )
+    Client client = credential.customer.client
+
+    scraperV2TokenService.processOnInteractive( scraperTokenDto, client )
+
+    ResponseEntity.ok().build()
+  }
+
   private queueStartNotify( NotifyCallbackDto request ){
     if( request && request?.data?.credential_id 
         && request?.data?.stage?.equals("fetch_transactions") ){
