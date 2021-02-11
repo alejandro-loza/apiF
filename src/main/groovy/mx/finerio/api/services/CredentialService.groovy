@@ -254,11 +254,10 @@ class CredentialService {
     bankConnectionService.create( credential )
     credentialStatusHistoryService.create( credential )
 
-    if ( credential.institution.code == 'BBVA'
-       || credential.institution.code == 'BANREGIO') {      
-      sendToScraperV2( credential )
+    if ( credential.institution.code == 'BBVA' ) {
+      sendToScraperWebSocket( credential )
     }else{
-	    sendToScraper( credential )
+      sendToScraper( credential )
     }
 
   }
