@@ -428,7 +428,7 @@ class CredentialService {
   }
 
   private void sendToScraper( Credential credential ) throws Exception {
-
+ 
     def data = [
       id: credential.id,
       username: credential.username,
@@ -462,10 +462,13 @@ class CredentialService {
   }
 
   private void sendToScraperV2(  Credential credential  ) {
+
+    def plainPassword = cryptService.decrypt( credential.password,
+        credential.iv )
  
    def dto = new CreateCredentialDto( bankCode: credential.institution.code,  
    username: credential.username,
-   password: credential.password,
+   password: plainPassword,
    credentialId: credential.id 
   )
 
