@@ -85,6 +85,12 @@ class CredentialService {
   @Autowired
   ScraperV2TokenService scraperV2TokenService
 
+  @Autowired
+  CallbackGatewayClientService callbackGatewayClientService
+
+  @Value('${gateway.source}')
+  String source
+
   
   Credential create( CredentialDto credentialDto, Customer customer = null, Client client = null ) throws Exception {
 
@@ -248,11 +254,10 @@ class CredentialService {
     bankConnectionService.create( credential )
     credentialStatusHistoryService.create( credential )
 
-    if ( credential.institution.code == 'BBVA'
-       || credential.institution.code == 'BANREGIO') {      
-      sendToScraperV2( credential )
+    if ( credential.institution.code == 'BBVA' ) {
+      sendToScraperWebSocket( credential )
     }else{
-	    sendToScraper( credential )
+      sendToScraper( credential )
     }
 
   }
@@ -438,8 +443,14 @@ class CredentialService {
       institution: [ id: credential.institution.id ],
       securityCode: credential.securityCode
     ]
-    scraperService.requestData( data )
 
+    def institutionCode = credential.institution.code
+    if( [ 'BAZ','BANORTE' ].contains( institutionCode ) ) {
+      callbackGatewayClientService
+        .registerCredential( [ credentialId: credential.id ,source: source ] )
+    }
+
+    scraperService.requestData( data )
   }
 
   private void sendToScraperWebSocket( Credential credential )
