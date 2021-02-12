@@ -353,9 +353,7 @@ class CredentialService {
         'credentialService.processInteractive.institutionCode.wrong' )
     }
 
-    if ( institutionCode == 'BAZ' ) {
-      signalRService.sendTokenToScrapper( credentialInteractiveDto.token, id )
-    } else if ( institutionCode == 'BANORTE' ) {
+    if ( institutionCode == 'BANORTE' || institutionCode == 'BAZ' ) {
       scraperV2TokenService.send( credentialInteractiveDto.token, id, institutionCode )
     } else {
 
