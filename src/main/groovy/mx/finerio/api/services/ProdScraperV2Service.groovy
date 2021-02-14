@@ -65,4 +65,19 @@ class ProdScraperV2Service implements ScraperV2Service {
 
 	}
 
+
+	@Override
+	void createCredentialLegacyPayload( Map data ) throws Exception {	
+		//TODO validate input data
+
+        def credentialId = data.id    			
+		def finalData = [ data: [ data ] ]
+
+		callbackGatewayClientService
+			.registerCredential( [ credentialId: credentialId ,source: source ] )
+		         	
+		 scraperV2ClientService.createCredential( finalData )									
+		
+	}
+
 }
