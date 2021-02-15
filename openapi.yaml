@@ -1169,10 +1169,18 @@ components:
       type: string
       description: The type of the account.
       enum:
-        - Crédito
         - Débito
-        - Inversión
+        - Crédito
         - Cheques
+        - Inversión
+        - Préstamo
+        - Hipoteca
+        - Ahorros
+        - Seguro
+        - Bono
+        - Monedero electrónico
+        - Tarjeta
+        - Cuenta
     AccountList:
       properties:
         data:
