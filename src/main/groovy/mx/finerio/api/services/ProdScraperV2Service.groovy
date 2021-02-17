@@ -24,6 +24,9 @@ class ProdScraperV2Service implements ScraperV2Service {
 
     @Value('${gateway.source}')
 	String source
+
+	@Value('${scraperv2.rangeDates.monthsAgo}') 
+    int monthsAgo
     
     @Override
 	void createCredential( CreateCredentialDto createCredentialDto ) throws Exception {
@@ -41,7 +44,7 @@ class ProdScraperV2Service implements ScraperV2Service {
 		
 		LocalDate now = LocalDate.now()		
 		String endDate = now.toString()		
-	    String startDate = now.minusMonths( 2 ).toString()
+	    String startDate = now.minusMonths( monthsAgo ).toString()
 							    
 		def finalData = [ institution: createCredentialDto.bankCode.toLowerCase(),
 			data: jsonEncrypted,
@@ -68,15 +71,14 @@ class ProdScraperV2Service implements ScraperV2Service {
 
 	@Override
 	void createCredentialLegacyPayload( Map data ) throws Exception {	
-		//TODO validate input data
-
+	
         def credentialId = data.id    			
 		def finalData = [ data: [ data ] ]
 
 		callbackGatewayClientService
 			.registerCredential( [ credentialId: credentialId ,source: source ] )
 		         	
-		 scraperV2ClientService.createCredential( finalData )									
+		 scraperV2ClientService.createCredentialLegacy( finalData )									
 		
 	}
 

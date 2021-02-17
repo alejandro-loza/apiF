@@ -563,7 +563,7 @@ class CredentialService {
       password: credential.password,
       iv: credential.iv,
       user: [ id: credential.user.id ],
-      institution: [ id: credential.institution.id ],
+      institution: [ id: "${credential.institution.id}" ],
       securityCode: credential.securityCode,
       startDate: rangeDates.startDate,
       endDate: rangeDates.endDate,
