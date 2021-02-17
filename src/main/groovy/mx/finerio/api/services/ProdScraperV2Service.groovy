@@ -74,10 +74,7 @@ class ProdScraperV2Service implements ScraperV2Service {
 	
         def credentialId = data.id    			
 		def finalData = [ data: [ data ] ]
-
-		callbackGatewayClientService
-			.registerCredential( [ credentialId: credentialId ,source: source ] )
-		         	
+			        
 		 scraperV2ClientService.createCredentialLegacy( finalData )									
 		
 	}
