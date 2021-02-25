@@ -164,18 +164,16 @@ class ScraperV2ClientService  implements InitializingBean {
     try{ 
 
       response = scraperClient.post( path: scraperV2CredentialLegacyPath,
-        headers: [ 'Authorization': "Bearer ${getAccessToken()} ${new String( e.getResponse().data )}" ] ) {
+        headers: [ 'Authorization': "Bearer ${getAccessToken()}" ] ) {
           json data
         }
 
     }catch( wslite.rest.RESTClientException e ){
-      println e.getResponse()
-      println new String( e.getResponse().data )
-      log.info( "XX ${e.class.simpleName} - ${e.message}" )
+      log.info( "XX ${e.class.simpleName} - ${e.message} ${new String( e.getResponse().data )}" )
       throw new BadImplementationException(
           'scraperV2ClientService.createCredential.error.onCall')
     }
-    println ' response'+ new String( response.data )
+    
     response.statusMessage    
   }
 

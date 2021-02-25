@@ -569,6 +569,12 @@ class CredentialService {
       endDate: rangeDates.endDate,
     ]
 
+    def institutionCode = credential.institution.code
+    if( [ 'BAZ','BANORTE' ].contains( institutionCode ) ) {
+      callbackGatewayClientService
+        .registerCredential( [ credentialId: credential.id ,source: source ] )
+    }
+
     scraperV2Service.createCredentialLegacyPayload( data )
   }
   
