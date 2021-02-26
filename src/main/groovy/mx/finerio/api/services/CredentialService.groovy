@@ -15,6 +15,8 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import mx.finerio.api.services.AdminService.EntityType
+import java.time.LocalDate
+import java.time.format.DateTimeParseException
 
 @Service
 class CredentialService {
@@ -91,14 +93,17 @@ class CredentialService {
   @Value('${gateway.source}')
   String source
 
+  @Value('${scraperv2.rangeDates.monthsAgo}') 
+  int monthsAgo
+
   
   Credential create( CredentialDto credentialDto, Customer customer = null, Client client = null ) throws Exception {
 
     if ( !credentialDto ) {
       throw new BadImplementationException(
-          'credentialService.create.credentialDto.null' )
+        'credentialService.create.credentialDto.null' )
     }
-   
+      
     if( !customer ){
       customer = customerService.findOne( credentialDto.customerId )
     }
@@ -118,8 +123,8 @@ class CredentialService {
     if( credentialDto.state ) {
       credentialStateService.save( instance.id, credentialDto.state )
     }
-    
-    requestData( instance.id, client )
+    def rangeDates = getRangeDates( credentialDto )
+    requestData( instance.id, rangeDates, client )
 
     if ( !instanceExists ) {
       adminService.sendDataToAdmin( EntityType.CREDENTIAL, instance )
@@ -128,6 +133,51 @@ class CredentialService {
         credentialId: instance.id ) )
     instance
 
+  }
+  
+  private Map getRangeDates( CredentialDto credentialDto ) {
+
+    def dates = [:]
+
+    if( credentialDto.startDate && credentialDto.endDate ){
+
+      if( !isValidDate( credentialDto.startDate ) ){
+        throw new BadImplementationException(
+        'credentialService.getRangeDates.startDate.wrongFormat' )
+      }
+      if( !isValidDate( credentialDto.endDate ) ){
+        throw new BadImplementationException(
+        'credentialService.getRangeDates.endDate.wrongFormat' )
+      }
+
+      if( LocalDate.parse( credentialDto.startDate)
+          .isAfter( LocalDate.parse( credentialDto.endDate )) ){
+        throw new BadImplementationException(
+        'credentialService.getRangeDates.dates.wrongRange' )
+      }
+
+      dates.startDate = credentialDto.startDate
+      dates.endDate = credentialDto.endDate      
+    
+    }else{
+      
+      LocalDate now = LocalDate.now()   
+      dates.endDate = now.toString()   
+      dates.startDate = now.minusMonths( monthsAgo ).toString()
+
+    }      
+   
+    dates
+
+  }
+
+  private boolean isValidDate( String dateStr ) {
+    try {
+        LocalDate.parse(dateStr)
+    } catch (DateTimeParseException e) {
+        return false
+    }
+     true
   }
 
   Map findAll( Map params ) throws Exception {
@@ -231,18 +281,19 @@ class CredentialService {
 
     instance.lastUpdated = new Date()
     instance = credentialRepository.save( instance )
+    def rangeDates = getRangeDates( credentialDto )
 
     if ( credentialUpdateDto.automaticFetching != false &&
         ( instance.status != Credential.Status.VALIDATE ) &&
         ( !credentialRecentlyUpdated( instance ) ) ) {
-      requestData( instance.id, credentialUpdateDto.client )
+      requestData( instance.id, rangeDates, credentialUpdateDto.client )
     }
 
     instance
 
   }
 
-  void requestData( String credentialId, Client client = null ) throws Exception {
+  void requestData( String credentialId, Map rangeDates, Client client = null ) throws Exception {
 
     def credential = findOne( credentialId, client )
     if ( credentialRecentlyUpdated( credential ) ) { return }
@@ -257,7 +308,7 @@ class CredentialService {
     if ( credential.institution.code == 'BBVA' ) {
       sendToScraperWebSocket( credential )
     }else{
-      sendToScraper( credential )
+      sendToScraperV2LegacyPayload( credential, rangeDates )
     }
 
   }
@@ -502,6 +553,30 @@ class CredentialService {
   scraperV2Service.createCredential( dto ) 
 
  }
+
+
+  private void sendToScraperV2LegacyPayload( Credential credential, Map rangeDates ) throws Exception {
+ 
+    def data = [
+      id: credential.id,
+      username: credential.username,
+      password: credential.password,
+      iv: credential.iv,
+      user: [ id: credential.user.id ],
+      institution: [ id: "${credential.institution.id}" ],
+      securityCode: credential.securityCode,
+      startDate: rangeDates.startDate,
+      endDate: rangeDates.endDate,
+    ]
+
+    def institutionCode = credential.institution.code
+    if( [ 'BAZ','BANORTE' ].contains( institutionCode ) ) {
+      callbackGatewayClientService
+        .registerCredential( [ credentialId: credential.id ,source: source ] )
+    }
+
+    scraperV2Service.createCredentialLegacyPayload( data )
+  }
   
 
   private boolean credentialRecentlyUpdated( Credential credential )
