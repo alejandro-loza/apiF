@@ -63,6 +63,12 @@ class DevScraperV2Service implements ScraperV2Service {
 
   }
 
+  @Override
+  void createCredentialLegacyPayload( Map data ) throws Exception { 
+    scraperService.requestData( data )                    
+  }
+
+
 
 
 }

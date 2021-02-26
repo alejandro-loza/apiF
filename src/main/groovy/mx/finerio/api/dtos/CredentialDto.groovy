@@ -28,4 +28,7 @@ class CredentialDto {
 
   String state
 
+  String startDate
+  String endDate
+
 }
