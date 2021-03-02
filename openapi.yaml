@@ -1064,6 +1064,14 @@ components:
           type: boolean
           description: Indicates if the credential should be fetched automatically by Finerio Connect.
           example: true
+        startDate:
+          type: string
+          description: The start date of the information to be fetched. If it is not provided, the API will fetch 3 months of information with the current date as the end date.
+          example: '2021-01-01'
+        endDate:
+          type: string
+          description: The end date of the information to be fetched. If it is not provided, the API will fetch 3 months of information with the current date as the end date.
+          example: '2021-01-01'
       required:
         - username
         - password
