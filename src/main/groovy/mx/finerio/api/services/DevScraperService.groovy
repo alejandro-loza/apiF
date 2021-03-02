@@ -25,7 +25,7 @@ class DevScraperService extends ScraperApiService {
   @Async
   Map requestData( Map data ) throws Exception {
 
-    def institutionId = data.institution.id
+    def institutionId = data.institution.id as Integer
 
     if ( institutionId == 12 || institutionId == 14 ) {
 

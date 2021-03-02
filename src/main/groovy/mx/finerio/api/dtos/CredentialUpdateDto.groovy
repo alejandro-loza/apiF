@@ -7,7 +7,7 @@ import javax.validation.constraints.*
 import mx.finerio.api.domain.Client
 
 @ToString(includePackage = false, includeNames = true, excludes = [ 'password', 'securityCode' ] )
-class CredentialUpdateDto {
+class CredentialUpdateDto extends CredentialRangeDto {
 
   @Size(min = 1, max = 50, message = 'credential.password.size')
   String password

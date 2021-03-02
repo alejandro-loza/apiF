@@ -1,6 +1,7 @@
 package mx.finerio.api.services
 
 import groovy.json.JsonSlurper
+import groovy.json.JsonOutput
 
 import mx.finerio.api.dtos.ApiListDto
 import mx.finerio.api.dtos.CredentialErrorDto
@@ -42,6 +43,9 @@ class ScraperV2ClientService  implements InitializingBean {
 
   @Value( '${scraper.v2.credential.path}' )
   String scraperV2CredentialPath
+
+  @Value( '${scraper.v2.credential.legacy.path}' )
+  String scraperV2CredentialLegacyPath
 
   @Value( '${scraper.v2.interactive.path}' )
   String scraperV2InteractivePath
@@ -125,6 +129,7 @@ class ScraperV2ClientService  implements InitializingBean {
     new JsonSlurper().parseText( new String( response.data ) )
 
   }  
+  
 
   String createCredential( Map data ) throws Exception {
 
@@ -140,13 +145,38 @@ class ScraperV2ClientService  implements InitializingBean {
         }
 
     }catch( wslite.rest.RESTClientException e ){
-      log.info( "XX ${e.class.simpleName} - ${e.message}" )
+      log.info( "XX ${e.class.simpleName} - ${e.message} ${new String( e.getResponse().data )}" )
       throw new BadImplementationException(
           'scraperV2ClientService.createCredential.error.onCall')
     }
 
     response.statusMessage    
   }
+
+
+
+   String createCredentialLegacy( Map data) throws Exception {
+
+    validateInputCreateCredentialLegacy( data )
+    
+    def response
+      
+    try{ 
+
+      response = scraperClient.post( path: scraperV2CredentialLegacyPath,
+        headers: [ 'Authorization': "Bearer ${getAccessToken()}" ] ) {
+          json data
+        }
+
+    }catch( wslite.rest.RESTClientException e ){
+      log.info( "XX ${e.class.simpleName} - ${e.message} ${new String( e.getResponse().data )}" )
+      throw new BadImplementationException(
+          'scraperV2ClientService.createCredential.error.onCall')
+    }
+    
+    response.statusMessage    
+  }
+
 
   private void validateInputCreateCredential( Map data ){
     
@@ -166,6 +196,17 @@ class ScraperV2ClientService  implements InitializingBean {
     }
 
   }  
+
+
+   private void validateInputCreateCredentialLegacy( Map data ){
+    
+    if( !data.containsKey('data') ){
+     throw new BadImplementationException(
+        'scraperV2ClientService.validateInputCreateCredential.data.null')
+    }
+
+  } 
+
 
   String sendInteractive( Map data ) throws Exception {
             
