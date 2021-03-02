@@ -78,8 +78,8 @@ class AccountService {
     def cleanedName = getAccountName( accountData.name )
     def number = getNumber( credential.institution, accountData )
         ?: cleanedName
-    def account = findDuplicated( credential, number,
-        accountData.id ) ?: new Account() 
+    def account = findDuplicated( credential, accountData.id ) ?:
+        new Account()
     account.idBank = accountData.id
     account.name = cleanedName
     account.institution = credential.institution
@@ -246,8 +246,8 @@ class AccountService {
 
   }
 
-  private Account findDuplicated( Credential credential, String number,
-      String id ) throws Exception {
+  private Account findDuplicated( Credential credential, String id )
+      throws Exception {
 
     def institution = credential.institution
     def user = credential.user
@@ -261,44 +261,11 @@ class AccountService {
           ( account.institution.code != institution.code ||
           account.user.id != user.id ) ) { continue }
 
-      if ( id && institution.code != 'HSBC' && institution.code != 'BNMX' &&
-          institution.code != 'LIVERPOOL' &&
-          account.idBank == id ) { return account }
-
-      if ( account.number == number ) { return account }
-
-      if ( getMaskedNumber( institution, number ).matches(
-          account.number.replaceAll( /%/, '.*' )
-          .replaceAll( /\*/, '\\\\*' ) ) ) {
-        return account
-      }
+      if ( account.idBank == id ) { return account }
 
     }
 
     return null
-
-  }
-
-  private String getMaskedNumber( FinancialInstitution institution,
-      String number ) throws Exception {
-
-    if ( institution.code == 'SANTANDER' ) {
-
-      if ( number.size() == 11 ) {
-        return "${number[ 0..1 ]}%${number[ 7..10 ]}"
-      } else if ( number.size() == 16 ) {
-        return "${number[ 0..3 ]}%${number[ 12..15 ]}"
-      }
-
-    } else if ( institution.code == 'HSBC' && number.size() >= 8 ) {
-      def size = number.size()
-      return "${number[ 0..3 ]}%${ number[ (size - 4)..(size - 1) ]}"
-    } else if ( institution.code == 'BBVA' && number.size() >= 5 ) {
-      def size = number.size()
-      return "%${number[ (size - 4)..(size - 1) ]}"
-    }
-
-    number
 
   }
 
