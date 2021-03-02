@@ -135,29 +135,29 @@ class CredentialService {
 
   }
   
-  private Map getRangeDates( CredentialDto credentialDto ) {
+  private Map getRangeDates( CredentialRangeDto credentialRangeDto ) {
 
     def dates = [:]
 
-    if( credentialDto.startDate && credentialDto.endDate ){
+    if( credentialRangeDto.startDate && credentialRangeDto.endDate ){
 
-      if( !isValidDate( credentialDto.startDate ) ){
+      if( !isValidDate( credentialRangeDto.startDate ) ){
         throw new BadImplementationException(
         'credentialService.getRangeDates.startDate.wrongFormat' )
       }
-      if( !isValidDate( credentialDto.endDate ) ){
+      if( !isValidDate( credentialRangeDto.endDate ) ){
         throw new BadImplementationException(
         'credentialService.getRangeDates.endDate.wrongFormat' )
       }
 
-      if( LocalDate.parse( credentialDto.startDate)
-          .isAfter( LocalDate.parse( credentialDto.endDate )) ){
+      if( LocalDate.parse( credentialRangeDto.startDate)
+          .isAfter( LocalDate.parse( credentialRangeDto.endDate )) ){
         throw new BadImplementationException(
         'credentialService.getRangeDates.dates.wrongRange' )
       }
 
-      dates.startDate = credentialDto.startDate
-      dates.endDate = credentialDto.endDate      
+      dates.startDate = credentialRangeDto.startDate
+      dates.endDate = credentialRangeDto.endDate      
     
     }else{
       
@@ -281,7 +281,7 @@ class CredentialService {
 
     instance.lastUpdated = new Date()
     instance = credentialRepository.save( instance )
-    def rangeDates = getRangeDates( credentialDto )
+    def rangeDates = getRangeDates( credentialUpdateDto )
 
     if ( credentialUpdateDto.automaticFetching != false &&
         ( instance.status != Credential.Status.VALIDATE ) &&
@@ -293,7 +293,7 @@ class CredentialService {
 
   }
 
-  void requestData( String credentialId, Map rangeDates, Client client = null ) throws Exception {
+  void requestData( String credentialId, Map rangeDates = null, Client client = null ) throws Exception {
 
     def credential = findOne( credentialId, client )
     if ( credentialRecentlyUpdated( credential ) ) { return }
@@ -308,6 +308,9 @@ class CredentialService {
     if ( credential.institution.code == 'BBVA' ) {
       sendToScraperWebSocket( credential )
     }else{
+      if( !rangeDates ) {
+        rangeDates = getRangeDates( new CredentialRangeDto() )
+      }
       sendToScraperV2LegacyPayload( credential, rangeDates )
     }
 
