@@ -72,6 +72,8 @@ tags:
   - name: Transactions
     description: A transaction is the representation of the financial movements within a
       bank account.
+  - name: Insights
+    description: Insights and datapoints about your customer's financial information.
   - name: Callbacks
     description: A callback is the URL of your server where we send you several information about your customer's online bank.
   - name: Categories
@@ -661,6 +663,39 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Errors'
+  /summary:
+    get:
+      tags:
+      - Insights
+      summary: Fetches a summary of the financial information of a customer.
+      description: Given a valid customer ID, fetches a summary of the financial information of a customer. It contains expenses, incomes and balances.
+      parameters:
+      - in: query
+        name: customerId
+        schema:
+          type: integer
+        required: true
+        description: The ID of the customer to fetch the summary.
+        example: 123
+      responses:
+        '200':
+          description: The summary of a customer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Summary'
+        '400':
+          description: Whoops! Something went wrong with your request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '404':
+          description: Whoops! You requested something that doesn't exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
   /clients/callbacks:
     post:
       tags:
@@ -967,10 +1002,6 @@ components:
             - PASSWORD
           description: The type of the textfield in the HTML web form.
           example: TEXT
-        required:
-          type: boolean
-          description: Indicates if the field should be required.
-          example: true
     Customer:
       properties:
         id:
@@ -1064,14 +1095,6 @@ components:
           type: boolean
           description: Indicates if the credential should be fetched automatically by Finerio Connect.
           example: true
-        startDate:
-          type: string
-          description: The start date of the information to be fetched. If it is not provided, the API will fetch 3 months of information with the current date as the end date.
-          example: '2021-01-01'
-        endDate:
-          type: string
-          description: The end date of the information to be fetched. If it is not provided, the API will fetch 3 months of information with the current date as the end date.
-          example: '2021-01-01'
       required:
         - username
         - password
@@ -1550,6 +1573,86 @@ components:
       enum:
         - ACTIVE
         - INACTIVE
+    Summary:
+      description: A representation of the summary of the financial information of a customer.
+      properties:
+        incomes:
+          description: The incomes of a customer, grouped by month by default.
+          type: array
+          items:
+            $ref: '#/components/schemas/SummaryByMonth'
+        expenses:
+          description: The expenses of a customer, grouped by month by default
+          type: array
+          items:
+            $ref: '#/components/schemas/SummaryByMonth'
+        balances:
+          description: The balance of the financial information of a customer, grouped by month by default.
+          type: array
+          items:
+            $ref: '#/components/schemas/SummaryBalance'
+    SummaryByMonth:
+      description: Financial information grouped by month by default.
+      properties:
+        date:
+          description: The year and month of the information
+          type: integer
+          example: 15912423261854
+        amount:
+          description: The amount of the month.
+          type: number
+          example: 123.45
+        categories:
+          description: The financial information grouped by categories
+          type: array
+          items:
+            $ref: '#/components/schemas/SummaryByCategory'
+    SummaryByCategory:
+      description: Financial information grouped by category
+      properties:
+        categoryId:
+          type: string
+          description: The ID of the category.
+          example: 37b294e8-bde2-44b4-a8fd-a71cb284bc20
+        amount:
+          description: The amount of the category.
+          type: number
+          example: 123.45
+        subcategories:
+          description: The financial information grouped by subcategories
+          type: array
+          items:
+            $ref: '#/components/schemas/SummaryBySubcategory'
+    SummaryBySubcategory:
+      description: Financial information grouped by subcategory
+      properties:
+        categoryId:
+          type: string
+          description: The ID of the subcategory.
+          example: 37b294e8-bde2-44b4-a8fd-a71cb284bc20
+        amount:
+          description: The amount of the subcategory.
+          type: number
+          example: 123.45
+        transactions:
+          type: array
+          items:
+            $ref: '#/components/schemas/Transaction'
+    SummaryBalance:
+      description: The balance of the financial information of a customer, grouped by month
+      properties:
+        date:
+          description: The year and month of the information
+          type: integer
+          example: 15912423261854
+        incomes:
+          description: The incomes of the month.
+          type: number
+          example: 123.45
+        expenses:
+          description: The expenses of the month.
+          type: number
+          example: 123.45
     Errors:
       properties:
         errors:
