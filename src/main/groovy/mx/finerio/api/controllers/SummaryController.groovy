@@ -16,11 +16,10 @@ class SummaryController {
   SummaryService summaryService
 
   @GetMapping('/summary')
-  ResponseEntity findAll( @RequestParam Map<String, String> params ) {
+  ResponseEntity findAll( @RequestParam Long customerId ) {
   
-    def customerId = 198763
-    summaryService.getSummaryByCustomer( customerId )
-    new ResponseEntity( HttpStatus.OK )
+    def summaryDto = summaryService.getSummaryByCustomer( customerId )
+    new ResponseEntity( summaryDto, HttpStatus.OK )
 
   }
 
