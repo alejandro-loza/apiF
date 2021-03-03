@@ -163,6 +163,13 @@ class ScraperCallbackController {
           credentialId: credential.id ) )
     }
 
+    def institutionCode = credential.institution.code
+    if( [ 'BAZ','BANORTE' ].contains( institutionCode ) 
+      && data.stage == 'interactive') 
+      { 
+        return ResponseEntity.ok().build()
+      }
+
     callbackService.sendToClient( credential?.customer?.client,
         Callback.Nature.NOTIFY, data )
 

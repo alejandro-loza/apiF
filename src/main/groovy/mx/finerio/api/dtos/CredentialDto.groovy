@@ -5,7 +5,7 @@ import groovy.transform.ToString
 import javax.validation.constraints.*
 
 @ToString(includePackage = false, includeNames = true, excludes = [ 'password', 'securityCode' ] )
-class CredentialDto {
+class CredentialDto extends CredentialRangeDto {
 
   @NotNull(message = 'credential.username.null')
   @Size(min = 1, max = 50, message = 'credential.username.size')
