@@ -1,8 +1,9 @@
 package mx.finerio.api.controllers
 
 import mx.finerio.api.domain.CreditDetails
-import mx.finerio.api.services.AccountService
+import mx.finerio.api.services.AccountBalanceService
 import mx.finerio.api.services.AccountDetailsService
+import mx.finerio.api.services.AccountService
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.domain.Pageable
@@ -14,6 +15,9 @@ import org.springframework.web.bind.annotation.*
 
 @RestController
 class AccountController {
+
+  @Autowired
+  AccountBalanceService accountBalanceService
 
   @Autowired
   AccountService accountService
@@ -36,6 +40,14 @@ class AccountController {
 
     def accountDetailsMap = accountDetailsService.findAllByAccount( id )
     new ResponseEntity( accountDetailsMap, HttpStatus.OK )
+
+  }
+
+  @GetMapping('/accounts/{id}/balance')
+  ResponseEntity getBalance( @PathVariable String id ) {
+
+    def balance = accountBalanceService.getBalanceByAccount( id )
+    new ResponseEntity( balance, HttpStatus.OK )
 
   }
 
