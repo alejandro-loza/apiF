@@ -696,6 +696,39 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Errors'
+  /analysis:
+    get:
+      tags:
+      - Insights
+      summary: Fetches an analysis of the financial information of a customer.
+      description: Given a valid customer ID, fetches an analysis of the financial information of a customer.
+      parameters:
+      - in: query
+        name: customerId
+        schema:
+          type: integer
+        required: true
+        description: The ID of the customer to fetch the analysis.
+        example: 123
+      responses:
+        '200':
+          description: The analysis of a customer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Analysis'
+        '400':
+          description: Whoops! Something went wrong with your request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '404':
+          description: Whoops! You requested something that doesn't exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
   /clients/callbacks:
     post:
       tags:
@@ -1651,6 +1684,85 @@ components:
           example: 123.45
         expenses:
           description: The expenses of the month.
+          type: number
+          example: 123.45
+    Analysis:
+      description: A representation of the analysis of the financial information of a customer.
+      properties:
+        data:
+          description: The analysis of a customer, grouped by month by default.
+          type: array
+          items:
+            $ref: '#/components/schemas/AnalysisByMonth'
+    AnalysisByMonth:
+      description: Financial information grouped by month by default.
+      properties:
+        date:
+          description: The year and month of the information
+          type: integer
+          example: 15912423261854
+        categories:
+          description: The financial information grouped by categories
+          type: array
+          items:
+            $ref: '#/components/schemas/AnalysisByCategory'
+    AnalysisByCategory:
+      description: Financial information grouped by category
+      properties:
+        categoryId:
+          type: string
+          description: The ID of the category.
+          example: 37b294e8-bde2-44b4-a8fd-a71cb284bc20
+        amount:
+          description: The amount of the category.
+          type: number
+          example: 123.45
+        subcategories:
+          description: The financial information grouped by subcategories
+          type: array
+          items:
+            $ref: '#/components/schemas/AnalysisBySubcategory'
+    AnalysisBySubcategory:
+      description: Financial information grouped by subcategory
+      properties:
+        categoryId:
+          type: string
+          description: The ID of the subcategory.
+          example: 37b294e8-bde2-44b4-a8fd-a71cb284bc20
+        average:
+          description: The average of the subcategory.
+          type: number
+          example: 123.45
+        quantity:
+          description: The quantity of the subcategory.
+          type: number
+          example: 123
+        amount:
+          description: The amount of the subcategory.
+          type: number
+          example: 123.45
+        transactions:
+          description: The transactions grouped by date
+          type: array
+          items:
+            $ref: '#/components/schemas/AnalysisByTransaction'
+    AnalysisByTransaction:
+      description: The transactions grouped by description
+      properties:
+        description:
+          description: The description of the transaction
+          type: string
+          example: 'UBER EATS'
+        average:
+          description: The average of the transaction.
+          type: number
+          example: 123.45
+        quantity:
+          description: The quantity of the transaction.
+          type: number
+          example: 123
+        amount:
+          description: The amount of the transaction.
           type: number
           example: 123.45
     Errors:
