@@ -619,6 +619,38 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Errors'
+  /accounts/{id}/balance:
+    get:
+      tags:
+        - Accounts
+      summary: Get the balance of an account
+      description: With an account ID, you can obtain the balance of an account.
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
+          description: The ID of the account.
+      responses:
+        '200':
+          description: Everything was OK. You successfully obtained the balance of an account.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountBalance'
+        '400':
+          description: Whoops! Something went wrong with your request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '404':
+          description: Whoops! You requested something that doesn't exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
   /transactions:
     get:
       tags:
@@ -1363,6 +1395,35 @@ components:
           type: string
           description: The value of the property.
           example: myExtraValue
+    AccountBalance:
+      description: The balance of an account
+      properties:
+        lastBalance:
+          description: The last balance of the account.
+          type: number
+          example: 123.45
+        average:
+          description: The average of the balance of the account.
+          type: number
+          example: 123.45
+        history:
+          description: The history of the balance.
+          type: array
+          items:
+            $ref: '#/components/schemas/BalanceRow'
+    BalanceRow:
+      description: An item of the balance history of an account.
+      properties:
+        transaction:
+          $ref: '#/components/schemas/Transaction'
+        amountBeforeTransaction:
+          description: The amount of the balance before the transaction was executed.
+          type: number
+          example: 123.45
+        amountAfterTransaction:
+          description: The amount of the balance after the transaction was executed.
+          type: number
+          example: 123.45
     Transaction:
       properties:
         id:
