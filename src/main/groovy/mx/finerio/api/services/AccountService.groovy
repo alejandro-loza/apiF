@@ -206,9 +206,7 @@ class AccountService {
     try {
       return findById( id )
     } catch( InstanceNotFoundException e ) {
-
       return findByIdBankAndCredentialId( id, credentialId )
-
     }
 
   }
