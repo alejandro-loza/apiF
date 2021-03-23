@@ -52,8 +52,20 @@ class TransactionService {
           'transactionService.createAll.transactionData.null' )
     }
 
-    def account = accountService.findById( transactionData.account_id )
+    def account
 
+    try {
+
+      account = accountService
+        .findById( transactionData.account_id )
+
+    }catch( InstanceNotFoundException ex ){
+
+      account = accountService
+        .findByIdBankAndCredentialId( transactionData.account_id, transactionData.credential_id )
+
+    }
+      
     transactionData.transactions.findResults { transaction ->
       create( account, transaction )
     }
