@@ -305,12 +305,14 @@ class CredentialService {
     bankConnectionService.create( credential )
     credentialStatusHistoryService.create( credential )
 
-    if ( credential.institution.code == 'BBVA' ) {
-      sendToScraperWebSocket( credential )
+    if( !rangeDates ) {
+      rangeDates = getRangeDates( new CredentialRangeDto() )
+    }
+
+    if ( credential.institution.code == 'BBVA' 
+      || credential.institution.code == 'BANREGIO' ) {
+      sendToScraperV2( credential, rangeDates )
     }else{
-      if( !rangeDates ) {
-        rangeDates = getRangeDates( new CredentialRangeDto() )
-      }
       sendToScraperV2LegacyPayload( credential, rangeDates )
     }
 
@@ -542,7 +544,7 @@ class CredentialService {
 
   }
 
-  private void sendToScraperV2(  Credential credential  ) {
+  private void sendToScraperV2(  Credential credential, Map rangeDates  ) {
 
     def plainPassword = cryptService.decrypt( credential.password,
         credential.iv )
@@ -550,7 +552,9 @@ class CredentialService {
    def dto = new CreateCredentialDto( bankCode: credential.institution.code,  
    username: credential.username,
    password: plainPassword,
-   credentialId: credential.id 
+   credentialId: credential.id,
+   startDate: rangeDates.startDate,
+   endDate: rangeDates.endDate 
   )
 
   scraperV2Service.createCredential( dto ) 

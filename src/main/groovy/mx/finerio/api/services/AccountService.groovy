@@ -171,6 +171,28 @@ class AccountService {
     }
 
     account
+
+  }
+
+
+  Account findByIdBankAndCredentialId( String idBank,  String credentialId ) throws Exception {
+
+    if ( !idBank ) {
+      throw new BadImplementationException(
+          'accountService.findByIdBank.idBank.null' )
+    }
+
+    Credential credential = credentialService.findAndValidate( credentialId )
+    List<AccountCredential> accountCredentials = 
+      accountCredentialRepository.findAllByCredential( credential )
+    
+    def account = accountCredentials.find { it.account.idBank == idBank }.account
+
+    if ( !account ) {
+      throw new InstanceNotFoundException( 'account.not.found' )
+    }
+
+    account
     
   }
 
