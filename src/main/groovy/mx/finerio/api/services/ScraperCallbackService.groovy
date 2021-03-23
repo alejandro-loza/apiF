@@ -18,6 +18,9 @@ import mx.finerio.api.services.AdminService.EntityType
 class ScraperCallbackService {
 
   @Autowired
+  AccountService accountService
+
+  @Autowired
   CallbackService callbackService
 
   @Autowired
@@ -60,7 +63,9 @@ class ScraperCallbackService {
     def data = [:]
     data.customerId = credential?.customer?.id
     data.credentialId = credential.id
-    data.accountId = transactionDto.data.account_id
+    def account = accountService.findByIdAndCredentialId(
+        transactionDto.data.account_id, credential.id )
+    data.accountId = account.id
     data.transactions = []
 
     if ( !movements.isEmpty() && movements[ 0 ] instanceof Transaction ) {
