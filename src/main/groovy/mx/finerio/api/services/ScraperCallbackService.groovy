@@ -160,6 +160,8 @@ class ScraperCallbackService {
     if ( !credential?.customer?.client?.useTransactionsTable ) { 
       return movementService.createAll( transactionDto.data )
     }
+    def account = accountService.findByIdAndCredentialId(
+        transactionDto.data.account_id, credential.id )
     def transactions = transactionService.createAll( transactionDto.data )
 
     if ( credential?.customer?.client?.categorizeTransactions ) {
@@ -168,7 +170,7 @@ class ScraperCallbackService {
       def data = [
         customerId: credential?.customer?.id,
         credentialId: credential.id,
-        accountId: transactionDto.data.account_id,
+        accountId: account.id,
         stage: 'categorize_transactions'
       ]
       credentialStateService.addState( credential.id, data )
