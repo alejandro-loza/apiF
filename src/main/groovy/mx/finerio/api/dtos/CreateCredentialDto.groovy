@@ -9,5 +9,7 @@ class CreateCredentialDto {
   String username
   String password
   String credentialId
+  String endDate
+  String startDate
   
 }
