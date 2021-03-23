@@ -198,6 +198,19 @@ class AccountService {
     
   }
 
+  Account findByIdAndCredentialId( String id, String credentialId )
+      throws Exception {
+
+    def account
+
+    try {
+      return findById( id )
+    } catch( InstanceNotFoundException e ) {
+      return findByIdBankAndCredentialId( id, credentialId )
+    }
+
+  }
+
   @Transactional(readOnly = true)
   Map getFields( Account account ) throws Exception {
 
