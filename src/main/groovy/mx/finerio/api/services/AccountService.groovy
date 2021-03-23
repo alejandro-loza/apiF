@@ -1,5 +1,7 @@
 package mx.finerio.api.services
 
+import java.security.MessageDigest
+
 import mx.finerio.api.exceptions.BadImplementationException
 import mx.finerio.api.exceptions.BadRequestException
 import mx.finerio.api.exceptions.InstanceNotFoundException
@@ -283,7 +285,11 @@ class AccountService {
           ( account.institution.code != institution.code ||
           account.user.id != user.id ) ) { continue }
 
-      if ( account.idBank == id ) { return account }
+      if ( account.idBank == id ||
+          hashAccountId( account.idBank ) == id ) {
+        account.idBank = id
+        return account
+      }
 
     }
 
@@ -340,6 +346,14 @@ class AccountService {
     dto.extraData = extraData
     dto.prefix = ''
     accountExtraDataService.createAll( dto )
+
+  }
+
+  private String hashAccountId( String text ) throws Exception {
+
+    if ( text == null ) { return null }
+    def digest = MessageDigest.getInstance( 'SHA-256' )
+    return digest.digest( text.bytes ).encodeBase64().toString()
 
   }
 

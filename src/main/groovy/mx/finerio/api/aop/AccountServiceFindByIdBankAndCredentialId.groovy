@@ -21,7 +21,7 @@ class AccountServiceFindByIdBankAndCredentialId {
       'mx.finerio.api.aop.AccountServiceFindByIdBankAndCredentialId' )
 
   @Pointcut(
-    value='execution(mx.finerio.api.domain.Account mx.finerio.api.services.AccountService.findByIdBankAndCredentialIdAndCredentialId(..)) && bean(accountService) && args(idBank,credentialId)',
+    value='execution(mx.finerio.api.domain.Account mx.finerio.api.services.AccountService.findByIdBankAndCredentialId(..)) && bean(accountService) && args(idBank,credentialId)',
     argNames='idBank,credentialId'
   )
   public void findByIdBankAndCredentialId( String idBank, String credentialId ) {}
