@@ -40,6 +40,15 @@ class Client implements UserDetails {
   @Column(name = 'use_transactions_table', nullable = false)
   boolean useTransactionsTable
 
+  @Column(name = 'email')
+  String email
+
+  @Column(name = 'name')
+  String name
+
+  @Column(name = 'company')
+  String company
+
   @Transient
   List authorities
 
