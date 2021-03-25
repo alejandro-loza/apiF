@@ -7,6 +7,8 @@ import groovy.transform.ToString
 
 import org.springframework.security.core.userdetails.UserDetails
 
+import java.sql.Date
+
 @Entity
 @Table(name = 'clients')
 @ToString(includePackage = false, includeNames = true, includes = ['id', 'username'])
@@ -48,6 +50,9 @@ class Client implements UserDetails {
 
   @Column(name = 'company')
   String company
+
+  @Column(name = 'date_deleted')
+  Date dateDeleted
 
   @Transient
   List authorities

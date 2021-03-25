@@ -10,7 +10,6 @@ interface ClientRepository extends JpaRepository<Client, Long>, JpaSpecification
   
   Client findOneByUsername( String username )
 
-  @Query(value = "select * from clients where enabled = 1 and date_deleted is null and email is not null", nativeQuery = true)
-  Client notificationEmail()
+  List<Client> findAllByEnabledTrueAndDateDeletedIsNullAndEmailIsNotNull();
 
 }

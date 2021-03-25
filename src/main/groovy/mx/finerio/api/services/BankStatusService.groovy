@@ -89,7 +89,8 @@ class BankStatusService {
   }
 
   private void notifyClientsByEmail(FinancialInstitution bank ) throws Exception {
-    def clients = clientRepository.notificationEmail()
+    def clients = clientRepository
+            .findAllByEnabledTrueAndDateDeletedIsNullAndEmailIsNotNull()
     for ( client in clients ) {
       emailRestService.send(client.email, notificationTemplate,
               ['name' : client.name, 'company' : client.company,
