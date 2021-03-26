@@ -93,8 +93,8 @@ class BankStatusService {
             .findAllByEnabledTrueAndDateDeletedIsNullAndEmailIsNotNull()
     for ( client in clients ) {
       emailRestService.send(client.email, notificationTemplate,
-              ['name' : client.name, 'company' : client.company,
-               'bankName': bank.name, 'bankStatus': bank.status])
+              ['name' : "${client.name}", 'company' : "${client.company}",
+               'bankName': "${bank.name}", 'bankStatus': "${bank.status}"])
     }
   }
 
