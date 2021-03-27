@@ -14,6 +14,10 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import mx.finerio.api.services.AdminService.EntityType
 
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
+
 @Service
 class ScraperCallbackService {
 
@@ -156,23 +160,47 @@ class ScraperCallbackService {
       return movementService.createAll( transactionDto.data )
     }
     def transactions = transactionService.createAll( transactionDto.data )
-
-    if ( credential?.customer?.client?.categorizeTransactions ) {
-
-      transactions.each { transactionService.categorize( it ) }
-      def data = [
-        customerId: credential?.customer?.id,
-        credentialId: credential.id,
-        accountId: transactionDto.data.account_id,
-        stage: 'categorize_transactions'
-      ]
-      credentialStateService.addState( credential.id, data )
-      callbackService.sendToClient( credential?.customer?.client,
-          Callback.Nature.NOTIFY, data )
-
-    }
+    categorizeParallelTransaction(credential, transactions, transactionDto)
     return transactions
 
+  }
+
+  private void categorizeParallelTransaction(Credential credential, List transactions, TransactionDto transactionDto) {
+    if (credential?.customer?.client?.categorizeTransactions) {
+      ExecutorService executorService = Executors.newCachedThreadPool()
+
+      transactions.each { Transaction transaction ->
+        CategorizeTransactionThread thread = new CategorizeTransactionThread()
+        thread.transactionService = transactionService
+        thread.transaction = transaction
+        executorService.execute( thread )
+        executorService.shutdown()
+        executorService.awaitTermination( 10, TimeUnit.MINUTES )
+        Thread.sleep( 1000 )
+      }
+
+      def data = [
+              customerId  : credential?.customer?.id,
+              credentialId: credential.id,
+              accountId   : transactionDto.data.account_id,
+              stage       : 'categorize_transactions'
+      ]
+      credentialStateService.addState(credential.id, data)
+      callbackService.sendToClient(credential?.customer?.client,
+              Callback.Nature.NOTIFY, data)
+
+    }
+  }
+
+}
+
+class CategorizeTransactionThread implements Runnable {
+
+  TransactionService transactionService
+  Transaction transaction
+
+  void run() {
+    transactionService.categorize(transaction)
   }
 
 }
