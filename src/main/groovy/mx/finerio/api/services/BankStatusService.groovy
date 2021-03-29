@@ -2,11 +2,16 @@ package mx.finerio.api.services
 
 import mx.finerio.api.domain.Callback
 import mx.finerio.api.domain.FinancialInstitution
+import mx.finerio.api.domain.repository.ClientRepository
 import mx.finerio.api.domain.repository.FinancialInstitutionRepository
 import mx.finerio.api.dtos.BankStatusDto
+import mx.finerio.api.dtos.email.EmailFromDto
+import mx.finerio.api.dtos.email.EmailSendDto
+import mx.finerio.api.dtos.email.EmailTemplateDto
 import mx.finerio.api.exceptions.BadRequestException
 
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 
@@ -19,18 +24,37 @@ class BankStatusService {
   @Autowired
   FinancialInstitutionRepository financialInstitutionRepository
 
+  @Autowired
+  ClientRepository clientRepository
+
+  @Autowired
+  EmailRestService emailRestService
+
+  @Value('${mail.service.template.notification.bank.status}')
+  String notificationTemplate
+
+  @Value('${bankStatus.from.email}')
+  String fromEmail
+
+  @Value('${bankStatus.from.name}')
+  String fromName
+
   @Transactional
   void changeStatus( BankStatusDto dto ) throws Exception {
 
     if ( dto == null ) {
       throw new IllegalArgumentException(
-          'bankStatusService.changeBankStatus.dto.null' )
+              'bankStatusService.changeBankStatus.dto.null' )
     }
 
     def bank = getBank( dto.bankId )
     bank.status = getStatus( dto.status )
     financialInstitutionRepository.save( bank )
-    notifyClients( dto )
+
+    if ( dto.notifyClients ) {
+      notifyClientsByCallBack( dto )
+      notifyClientsByEmail( bank )
+    }
 
   }
 
@@ -47,7 +71,7 @@ class BankStatusService {
   }
 
   private FinancialInstitution.Status getStatus( String statusString )
-      throws Exception {
+          throws Exception {
 
     def status = null
 
@@ -61,18 +85,42 @@ class BankStatusService {
 
   }
 
-  private void notifyClients( BankStatusDto dto ) throws Exception {
-
-    if ( !dto.notifyClients ) { return }
+  private void notifyClientsByCallBack( BankStatusDto dto ) throws Exception {
     def callbacks = callbackService.findAllByNature( Callback.Nature.BANKS )
     def data = [
-      bankId: dto.bankId,
-      status: dto.status
+            bankId: dto.bankId,
+            status: dto.status
     ]
-
     for ( callback in callbacks ) {
       callbackService.sendToClient( callback.client, Callback.Nature.BANKS,
-          data )
+              data )
+    }
+  }
+
+  private void notifyClientsByEmail(FinancialInstitution bank )
+      throws Exception {
+
+    def clients = clientRepository
+        .findAllByEnabledTrueAndDateDeletedIsNullAndEmailIsNotNull()
+
+    for ( client in clients ) {
+
+      def params =
+          ['name' : "${client.name}", 'company' : "${client.company}",
+          'bankName': "${bank.name}", 'bankStatus': "${bank.status}"]
+      def dto = new EmailSendDto(
+        from:  new EmailFromDto(
+          email: fromEmail,
+          name: fromName
+        ),
+        to: [ client.email ],
+        template: new EmailTemplateDto(
+          name: notificationTemplate,
+          params: params
+        )
+      )
+      emailRestService.send( dto )
+
     }
 
   }
