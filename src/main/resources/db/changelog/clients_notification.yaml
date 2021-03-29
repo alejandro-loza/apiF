@@ -1,0 +1,29 @@
+databaseChangeLog:
+- changeSet:
+    id: clients_notification
+    author: jorge.lugo
+    changes:
+    - addColumn:
+        tableName: clients
+        columns:
+        - column:
+            name: email
+            type: java.sql.Types.VARCHAR(100)
+            constraints:
+              nullable: true
+    - addColumn:
+        tableName: clients
+        columns:
+        - column:
+            name: name
+            type: java.sql.Types.VARCHAR(50)
+            constraints:
+              nullable: true
+    - addColumn:
+        tableName: clients
+        columns:
+        - column:
+            name: company
+            type: java.sql.Types.VARCHAR(50)
+            constraints:
+              nullable: true
