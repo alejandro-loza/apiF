@@ -8,7 +8,7 @@ import mx.finerio.api.dtos.SuccessCallbackDto
 import mx.finerio.api.dtos.TransactionDto
 import mx.finerio.api.dtos.WidgetEventsDto
 import mx.finerio.api.exceptions.BadImplementationException
-
+import mx.finerio.api.threads.CategorizeTransactionThread
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -160,25 +160,8 @@ class ScraperCallbackService {
       return movementService.createAll( transactionDto.data )
     }
     def transactions = transactionService.createAll( transactionDto.data )
-    categorizeParallelTransaction(credential, transactions, transactionDto)
-    return transactions
-
-  }
-
-  private void categorizeParallelTransaction(Credential credential, List transactions, TransactionDto transactionDto) {
     if (credential?.customer?.client?.categorizeTransactions) {
-      ExecutorService executorService = Executors.newCachedThreadPool()
-
-      transactions.each { Transaction transaction ->
-        CategorizeTransactionThread thread = new CategorizeTransactionThread()
-        thread.transactionService = transactionService
-        thread.transaction = transaction
-        executorService.execute( thread )
-        executorService.shutdown()
-        executorService.awaitTermination( 10, TimeUnit.MINUTES )
-        Thread.sleep( 1000 )
-      }
-
+      parallelCategorize(transactions)
       def data = [
               customerId  : credential?.customer?.id,
               credentialId: credential.id,
@@ -190,18 +173,23 @@ class ScraperCallbackService {
               Callback.Nature.NOTIFY, data)
 
     }
+    return transactions
+
+  }
+
+  private void parallelCategorize(List transactions) {
+    ExecutorService executorService = Executors.newCachedThreadPool()
+    transactions.each { Transaction transaction ->
+      CategorizeTransactionThread thread = new CategorizeTransactionThread()
+      thread.transactionService = transactionService
+      thread.transaction = transaction
+      executorService.execute(thread)
+      executorService.shutdown()
+      executorService.awaitTermination(10, TimeUnit.MINUTES)
+      Thread.sleep(300)
+    }
   }
 
 }
 
-class CategorizeTransactionThread implements Runnable {
-
-  TransactionService transactionService
-  Transaction transaction
-
-  void run() {
-    transactionService.categorize(transaction)
-  }
-
-}
 
