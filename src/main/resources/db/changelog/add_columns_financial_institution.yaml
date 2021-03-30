@@ -21,15 +21,15 @@ databaseChangeLog:
     - sql:
         sql: update financial_institution set institution_type = "PERSONAL"        
 
-#- changeSet:
- #   id: financial_institution_country_fk
-  #  author: jose.vargas
-   # changes:
-    #- addForeignKeyConstraint:
-     #   baseColumnNames: country_id
-      #  baseTableName: financial_institution
-       # constraintName: fk_financial_institution_country
-        #deferrable: false
-        #initiallyDeferred: false
-        #referencedColumnNames: id
-        #referencedTableName: country              
+- changeSet:
+    id: financial_institution_country_fk
+    author: jose.vargas
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: country_id
+        baseTableName: financial_institution
+        constraintName: fk_financial_institution_country
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: id
+        referencedTableName: country              
