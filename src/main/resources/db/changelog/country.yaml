@@ -1,0 +1,48 @@
+databaseChangeLog:
+- changeSet:
+    id: country
+    author: jose.vargas
+    changes:
+    - createTable:
+        tableName: country
+        columns:
+        - column:
+            name: id
+            type: java.sql.Types.VARCHAR(255)        
+            constraints:
+              primaryKey: true
+              nullable: false
+        - column:
+            name: code
+            type: java.sql.Types.VARCHAR(10)
+            constraints:
+              nullable: false
+        - column:
+            name: name
+            type: java.sql.Types.VARCHAR(200)
+            constraints:
+              nullable: false
+        - column:
+            name: image_url
+            type: java.sql.Types.VARCHAR(255)
+            constraints:
+              nullable: true
+        - column:
+            name: date_created
+            type: DATETIME
+            constraints:
+              nullable: false
+        - column:
+            name: last_updated
+            type: DATETIME
+            constraints:
+              nullable: false
+        - column:
+            name: date_deleted
+            type: DATETIME
+            constraints:
+              nullable: true                   
+    - sql:
+        sql: insert into country(id,code,name,image_url,date_created,last_updated) values("2abe9160-6451-44fd-8330-f0f3a25fd3d4","MX","Mexico","Dummy url", now(),now() )
+
+       

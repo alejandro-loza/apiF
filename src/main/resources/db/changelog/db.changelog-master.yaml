@@ -78,3 +78,12 @@ databaseChangeLog:
     file: db/changelog/clients_widget.yaml
 - include:
     file: db/changelog/clients_mtls.yaml
+- include:
+    file: db/changelog/country.yaml
+- include:
+    file: db/changelog/add_columns_financial_institution.yaml
+
+
+
+
+    

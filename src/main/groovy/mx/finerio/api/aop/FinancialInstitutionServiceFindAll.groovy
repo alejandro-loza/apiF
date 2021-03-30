@@ -21,17 +21,18 @@ class FinancialInstitutionServiceFindAll {
       'mx.finerio.api.aop.FinancialInstitutionServiceFindAll' )
 
   @Pointcut(
-    value='execution(java.util.Map mx.finerio.api.services.FinancialInstitutionService.findAll()) && bean(financialInstitutionService)'
+    value='execution(java.util.Map mx.finerio.api.services.FinancialInstitutionService.findAll(..)) && bean(financialInstitutionService) && args(params)',
+    argNames='params'
   )
-  public void findAll() {}
+  public void findAll( Map params ) {}
 
-  @Before('findAll()')
-  void before() {
-    log.info( "<< OK" )
+  @Before('findAll(params)')
+  void before( Map params ) {
+    log.info( "<< params: {}", params )
   }
 
   @AfterReturning(
-    pointcut='findAll()',
+    pointcut='findAll(java.util.Map)',
     returning='response'
   )
   void afterReturning( Map response ) {
@@ -39,7 +40,7 @@ class FinancialInstitutionServiceFindAll {
   }
 
   @AfterThrowing(
-    pointcut='findAll()',
+    pointcut='findAll(java.util.Map)',
     throwing='e'
   )
   void afterThrowing( Exception e ) {

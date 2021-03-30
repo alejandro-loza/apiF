@@ -16,6 +16,11 @@ class FinancialInstitution {
     DELETED
   }
 
+   enum InstitutionType {
+    PERSONAL,
+    BUSINESS
+  }
+
   @Id
   @Column(name = 'id', nullable = false, updatable = false)
   Long id
@@ -35,5 +40,13 @@ class FinancialInstitution {
   @Enumerated(EnumType.STRING)
   @Column(name = 'status', nullable = false, length = 255)
   Status status
+
+  @Enumerated(EnumType.STRING)
+  @Column(name = 'institution_type', nullable = false, length = 255)
+  InstitutionType institutionType
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = 'country_id', nullable = true)
+  Country country
 
 }
