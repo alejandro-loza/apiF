@@ -161,7 +161,7 @@ class ScraperCallbackService {
     }
     def transactions = transactionService.createAll( transactionDto.data )
     if (credential?.customer?.client?.categorizeTransactions) {
-      parallelCategorize([new Transaction(), new Transaction() ])
+      parallelCategorize(transactions)
       def data = [
               customerId  : credential?.customer?.id,
               credentialId: credential.id,
