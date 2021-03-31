@@ -161,7 +161,7 @@ class ScraperCallbackService {
     }
     def transactions = transactionService.createAll( transactionDto.data )
     if (credential?.customer?.client?.categorizeTransactions) {
-      parallelCategorize(transactions)
+      parallelCategorize([new Transaction(), new Transaction() ])
       def data = [
               customerId  : credential?.customer?.id,
               credentialId: credential.id,
@@ -184,10 +184,9 @@ class ScraperCallbackService {
       thread.transactionService = transactionService
       thread.transaction = transaction
       executorService.execute(thread)
-      executorService.shutdown()
-      executorService.awaitTermination(10, TimeUnit.MINUTES)
-      Thread.sleep(300)
     }
+    executorService.shutdown()
+    executorService.awaitTermination(10, TimeUnit.MINUTES)
   }
 
 }
