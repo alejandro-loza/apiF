@@ -1,0 +1,13 @@
+databaseChangeLog:
+- changeSet:
+    id: clients_user_agent
+    author: alejandro.garcia
+    changes:
+    - addColumn:
+        tableName: clients
+        columns:
+        - column:
+            name: user_agent
+            type: java.sql.Types.VARCHAR(50)
+            constraints:
+              nullable: true
