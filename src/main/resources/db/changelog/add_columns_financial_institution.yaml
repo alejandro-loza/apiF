@@ -15,12 +15,17 @@ databaseChangeLog:
             name: institution_type
             type: java.sql.Types.VARCHAR(255)
             constraints:
-              nullable: false            
+              nullable: false
+        - column:
+            name: internal_code
+            type: java.sql.Types.VARCHAR(255)
+            constraints:
+              nullable: false
     - sql:
         sql: update financial_institution set country_id = "2abe9160-6451-44fd-8330-f0f3a25fd3d4"
     - sql:
         sql: update financial_institution set institution_type = "PERSONAL"        
-
+        
 - changeSet:
     id: financial_institution_country_fk
     author: jose.vargas

@@ -31,6 +31,9 @@ class FinancialInstitution {
   @Column(name = 'code', nullable = false, length = 255)
   String code
 
+  @Column(name = 'internal_code', nullable = false, length = 255)
+  String internalCode
+
   @Column(name = 'description', nullable = true, length = 255)
   String description
 
