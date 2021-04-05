@@ -51,6 +51,9 @@ class Client implements UserDetails {
   @Column(name = 'company')
   String company
 
+  @Column(name = 'user_agent', nullable = true)
+  String userAgent
+
   @Column(name = 'date_deleted')
   Date dateDeleted
 
