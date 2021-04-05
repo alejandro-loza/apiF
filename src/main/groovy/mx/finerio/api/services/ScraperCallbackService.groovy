@@ -21,6 +21,7 @@ import java.util.concurrent.TimeUnit
 @Service
 class ScraperCallbackService {
 
+  public static final int parrallelCategorizeThreads = 5
   @Autowired
   CallbackService callbackService
 
@@ -178,7 +179,7 @@ class ScraperCallbackService {
   }
 
   private void parallelCategorize(List transactions) {
-    ExecutorService executorService = Executors.newCachedThreadPool()
+    ExecutorService executorService = Executors.newFixedThreadPool(parrallelCategorizeThreads)
     transactions.each { Transaction transaction ->
       CategorizeTransactionThread thread = new CategorizeTransactionThread()
       thread.transactionService = transactionService
