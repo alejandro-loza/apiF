@@ -28,9 +28,9 @@ class CredentialStatusHistoryServiceUpdateSpec extends Specification {
       def result = service.update( credential )
     then:
       1 * credentialService.findAndValidate( _ as String ) >> getCredential("1")
-      1 * credentialStatusHistoryRepository.findByCredentialAndDateDeletedIsNull(
-          _ as Credential ) >> getCredentialStatus(1) 
-      1 * credentialStatusHistoryRepository.save( _ as CredentialStatusHistory ) 
+      1 * credentialStatusHistoryRepository.findAllByCredentialAndDateDeletedIsNull(
+          _ as Credential ) >> getCredentialList("1")
+      1 * credentialStatusHistoryRepository.save( _ as Credential )
     where:
       credential = getCredential("1")
 
@@ -54,11 +54,20 @@ class CredentialStatusHistoryServiceUpdateSpec extends Specification {
       def result = service.update( credential )
     then:
       1 * credentialService.findAndValidate( _ as String ) >> getCredential("1")
-      1 * credentialStatusHistoryRepository.findByCredentialAndDateDeletedIsNull(
+      1 * credentialStatusHistoryRepository.findAllByCredentialAndDateDeletedIsNull(
           _ as Credential ) >> null
     where:
       credential = getCredential("1")
 
+  }
+
+  List<Credential> getCredentialList( String id ){
+    List<Credential> credList = new ArrayList<>()
+    credList.add(new Credential(
+            id: id,
+            status: Credential.Status.ACTIVE
+    ))
+    return credList
   }
 
   Credential getCredential( String id ){

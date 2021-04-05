@@ -9,6 +9,7 @@ import mx.finerio.api.domain.User
 import mx.finerio.api.dtos.CredentialInteractiveDto
 import mx.finerio.api.dtos.ScraperWebSocketSendDto
 import mx.finerio.api.exceptions.BadImplementationException
+import mx.finerio.api.exceptions.BadRequestException
 import mx.finerio.api.exceptions.InstanceNotFoundException
 
 import spock.lang.Specification
@@ -20,12 +21,14 @@ class CredentialServiceProcessInteractiveSpec extends Specification {
   def scraperWebSocketService = Mock( ScraperWebSocketService )
   def securityService = Mock( SecurityService )
   def credentialRepository = Mock( CredentialRepository )
+  def widgetEventsService = Mock( WidgetEventsService )
 
   def setup() {
 
     service.scraperWebSocketService = scraperWebSocketService
     service.securityService = securityService
     service.credentialRepository = credentialRepository
+    service.widgetEventsService = widgetEventsService
 
   }
 
@@ -38,7 +41,7 @@ class CredentialServiceProcessInteractiveSpec extends Specification {
       1 * credentialRepository.findOne( _ as String ) >>
           new Credential( customer: new Customer(
           client: client ),
-          institution: new FinancialInstitution(),
+          institution: new FinancialInstitution(code: 'BBVA'),
           user: new User() )
       1 * scraperWebSocketService.send( _ as ScraperWebSocketSendDto )
     where:
@@ -95,7 +98,7 @@ class CredentialServiceProcessInteractiveSpec extends Specification {
     when:
       service.processInteractive( id, credentialInteractiveDto )
     then:
-      BadImplementationException e = thrown()
+      BadRequestException e = thrown()
       e.message == 'credentialService.processInteractive.credentialInteractiveDto.null'
     where:
       id = UUID.randomUUID().toString()
