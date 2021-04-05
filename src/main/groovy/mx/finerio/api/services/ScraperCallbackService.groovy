@@ -10,6 +10,7 @@ import mx.finerio.api.dtos.WidgetEventsDto
 import mx.finerio.api.exceptions.BadImplementationException
 import mx.finerio.api.threads.CategorizeTransactionThread
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import mx.finerio.api.services.AdminService.EntityType
@@ -21,7 +22,9 @@ import java.util.concurrent.TimeUnit
 @Service
 class ScraperCallbackService {
 
-  public static final int parrallelCategorizeThreads = 5
+  @Value('${categorizer.parallel.threads}')
+  int parallelCategorizeThreads
+
   @Autowired
   CallbackService callbackService
 
@@ -179,7 +182,7 @@ class ScraperCallbackService {
   }
 
   private void parallelCategorize(List transactions) {
-    ExecutorService executorService = Executors.newFixedThreadPool(parrallelCategorizeThreads)
+    ExecutorService executorService = Executors.newFixedThreadPool(parallelCategorizeThreads)
     transactions.each { Transaction transaction ->
       CategorizeTransactionThread thread = new CategorizeTransactionThread()
       thread.transactionService = transactionService
