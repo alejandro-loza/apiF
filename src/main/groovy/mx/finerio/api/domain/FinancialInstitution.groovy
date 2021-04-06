@@ -21,6 +21,11 @@ class FinancialInstitution {
     BUSINESS
   }
 
+  enum Provider {
+    SCRAPER_V1,
+    SCRAPER_V2
+  }
+
   @Id
   @Column(name = 'id', nullable = false, updatable = false)
   Long id
@@ -51,5 +56,9 @@ class FinancialInstitution {
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = 'country_id', nullable = true)
   Country country
+
+  @Enumerated(EnumType.STRING)
+  @Column(name = 'provider', nullable = false, length = 10)
+  Provider provider
 
 }
