@@ -6,6 +6,7 @@ import mx.finerio.api.exceptions.BadImplementationException
 import mx.finerio.api.exceptions.BadRequestException
 import mx.finerio.api.exceptions.InstanceNotFoundException
 import mx.finerio.api.domain.*
+import mx.finerio.api.domain.FinancialInstitution.Provider
 import mx.finerio.api.domain.repository.*
 import mx.finerio.api.dtos.AccountData
 import mx.finerio.api.dtos.AccountListDto
@@ -74,8 +75,9 @@ class AccountService {
     }
 
     def credential = credentialService.findAndValidate( accountData.credential_id )
-    if ( ![ 'BBVA', 'BANREGIO' ].contains( credential.institution.code ) ) {
-      credential = credentialService.validateUserCredential( credential, accountData.user_id )
+    if ( credential.institution.provider == Provider.SCRAPER_V1 ) {
+      credential = credentialService.validateUserCredential(
+          credential, accountData.user_id )
     }
     def cleanedName = getAccountName( accountData.name )
     def number = getNumber( credential.institution, accountData )

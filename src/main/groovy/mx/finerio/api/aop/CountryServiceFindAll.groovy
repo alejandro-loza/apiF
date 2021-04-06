@@ -1,6 +1,6 @@
 package mx.finerio.api.aop
 
-import mx.finerio.api.domain.FinancialInstitution
+import mx.finerio.api.domain.Country
 
 import org.aspectj.lang.annotation.AfterReturning
 import org.aspectj.lang.annotation.AfterThrowing
@@ -15,24 +15,23 @@ import org.springframework.stereotype.Component
 
 @Component
 @Aspect
-class FinancialInstitutionServiceFindAll {
+class CountryServiceFindAll {
 
   final static Logger log = LoggerFactory.getLogger(
-      'mx.finerio.api.aop.FinancialInstitutionServiceFindAll' )
+      'mx.finerio.api.aop.CountryServiceFindAll' )
 
   @Pointcut(
-    value='execution(java.util.Map mx.finerio.api.services.FinancialInstitutionService.findAll(..)) && bean(financialInstitutionService) && args(params)',
-    argNames='params'
+    value='execution(java.util.Map mx.finerio.api.services.CountryService.findAll()) && bean(countryService)'
   )
-  public void findAll( Map params ) {}
+  public void findAll() {}
 
-  @Before('findAll(params)')
-  void before( Map params ) {
-    log.info( "<< params: {}", params )
+  @Before('findAll()')
+  void before() {
+    log.info( "<< OK" )
   }
 
   @AfterReturning(
-    pointcut='findAll(java.util.Map)',
+    pointcut='findAll()',
     returning='response'
   )
   void afterReturning( Map response ) {
@@ -40,7 +39,7 @@ class FinancialInstitutionServiceFindAll {
   }
 
   @AfterThrowing(
-    pointcut='findAll(java.util.Map)',
+    pointcut='findAll()',
     throwing='e'
   )
   void afterThrowing( Exception e ) {

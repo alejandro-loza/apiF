@@ -82,3 +82,9 @@ databaseChangeLog:
     file: db/changelog/clients_notification.yaml
 - include:
     file: db/changelog/clients_user_agent.yaml
+- include:
+    file: db/changelog/country.yaml
+- include:
+    file: db/changelog/add_columns_financial_institution.yaml
+- include:
+    file: db/changelog/financial_institution_add_provider.yaml
