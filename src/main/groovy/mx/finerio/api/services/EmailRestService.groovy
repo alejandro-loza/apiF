@@ -21,10 +21,12 @@ class EmailRestService {
 
   String send( EmailSendDto dto ) throws Exception {
 
+    def fromData = dto.from ?
+        [ email: dto.from.email, name: dto.from.name ] : null
     def client = new RESTClient( url )
     client.authorization = new HTTPBasicAuthorization( username, password )
     def data = [
-      from: [ email: dto.from.email, name: dto.from.name ],
+      from: fromData,
       to: dto.to,
       template: [
         name: dto.template.name,

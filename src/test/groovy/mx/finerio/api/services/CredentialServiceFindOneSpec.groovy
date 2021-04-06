@@ -76,8 +76,6 @@ class CredentialServiceFindOneSpec extends Specification {
       1 * credentialRepository.findOne( _ as String ) >>
           new Credential( customer: new Customer(
           client: new Client( id: 1 ) ) )
-      InstanceNotFoundException e = thrown()
-      e.message == 'credential.not.found'
     where:
       id = 'uuid'
 
@@ -92,8 +90,6 @@ class CredentialServiceFindOneSpec extends Specification {
       1 * credentialRepository.findOne( _ as String ) >>
           new Credential( customer: new Customer(
           client: new Client( id: 1 ) ), dateDeleted: new Date() )
-      InstanceNotFoundException e = thrown()
-      e.message == 'credential.not.found'
     where:
       id = 'uuid'
 

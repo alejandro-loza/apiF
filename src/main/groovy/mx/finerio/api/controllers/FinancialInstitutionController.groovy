@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestParam
 
 @RestController
 class FinancialInstitutionController {
@@ -29,9 +30,9 @@ class FinancialInstitutionController {
   FinancialInstitutionService financialInstitutionService
 
   @GetMapping('/banks')
-  ResponseEntity findAll() {
+  ResponseEntity findAll( @RequestParam Map<String, String> params ) {
   
-    def response = financialInstitutionService.findAll()
+    def response = financialInstitutionService.findAll(params)
     response = response.data.collect {
         financialInstitutionService.getFields( it ) }
     new ResponseEntity( response, HttpStatus.OK )
