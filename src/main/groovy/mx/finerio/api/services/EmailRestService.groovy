@@ -1,5 +1,7 @@
 package mx.finerio.api.services;
 
+import mx.finerio.api.dtos.email.EmailSendDto
+
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service;
 import wslite.rest.RESTClient;
@@ -17,11 +19,20 @@ class EmailRestService {
   @Value('${finerio.email.api.password}')
   String password
 
-  String send( String email, String template, Map params ) throws Exception {
+  String send( EmailSendDto dto ) throws Exception {
 
+    def fromData = dto.from ?
+        [ email: dto.from.email, name: dto.from.name ] : null
     def client = new RESTClient( url )
     client.authorization = new HTTPBasicAuthorization( username, password )
-    def data = [ to: [ email ], template:[ name: template, params: params ] ]
+    def data = [
+      from: fromData,
+      to: dto.to,
+      template: [
+        name: dto.template.name,
+        params: dto.template.params
+      ]
+    ]
 
     try {
 

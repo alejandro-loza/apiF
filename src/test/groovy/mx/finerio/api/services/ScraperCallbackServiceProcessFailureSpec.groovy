@@ -19,6 +19,7 @@ class ScraperCallbackServiceProcessFailureSpec extends Specification {
   def credentialService = Mock( CredentialService )
   def scraperWebSocketService = Mock( ScraperWebSocketService )
   def credentialStatusHistoryService = Mock( CredentialStatusHistoryService )
+  def credentialFailureService = Mock( CredentialFailureService )
 
   def setup() {
 
@@ -26,6 +27,7 @@ class ScraperCallbackServiceProcessFailureSpec extends Specification {
     service.credentialService = credentialService
     service.scraperWebSocketService = scraperWebSocketService
     service.credentialStatusHistoryService = credentialStatusHistoryService
+    service.credentialFailureService = credentialFailureService
 
   }
 
@@ -34,13 +36,10 @@ class ScraperCallbackServiceProcessFailureSpec extends Specification {
     when:
       service.processFailure( failureCallbackDto )
     then:
-      1 * credentialService.setFailure( _ as String, _ as String ) >>
-          new Credential( id: 'id', customer: new Customer(
-          client: new Client() ),
-          institution: new FinancialInstitution( code: 'BBVA' ) )
-      1 * credentialStatusHistoryService.update( _ as Credential )    
-      1 * callbackService.sendToClient( _ as Client, _ as Callback.Nature,
-          _ as Map )
+      1 * credentialService.findAndValidate(_ as String) >> new Credential( id: 'id',
+              customer: new Customer(
+              client: new Client() ),
+              institution: new FinancialInstitution( code: 'BBVA' ))
       1 * scraperWebSocketService.closeSession( _ as String )
     where:
       failureCallbackDto = getFailureCallbackDto()

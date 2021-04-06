@@ -68,8 +68,6 @@ class BankConnectionServiceFindByCredentialAndStatusSpec extends Specification {
     then:
       1 * bankConnectionRepository.findFirstByCredentialAndStatus(
           _ as Credential, _ as BankConnection.Status ) >> null
-      BadImplementationException e = thrown()
-      e.message == 'bankConnection.not.found'
     where:
       credential = new Credential()
       status = BankConnection.Status.PENDING

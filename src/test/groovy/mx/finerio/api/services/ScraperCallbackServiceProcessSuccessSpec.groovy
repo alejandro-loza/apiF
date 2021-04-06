@@ -19,6 +19,7 @@ class ScraperCallbackServiceProcessSuccessSpec extends Specification {
   def credentialService = Mock( CredentialService )
   def scraperWebSocketService = Mock( ScraperWebSocketService )
   def credentialStatusHistoryService = Mock( CredentialStatusHistoryService )
+  def adminService = Mock( AdminService )
 
   def setup() {
 
@@ -26,7 +27,7 @@ class ScraperCallbackServiceProcessSuccessSpec extends Specification {
     service.credentialService = credentialService
     service.scraperWebSocketService = scraperWebSocketService
     service.credentialStatusHistoryService = credentialStatusHistoryService
-
+    service.adminService = adminService
   }
 
   def "everything was OK"() {

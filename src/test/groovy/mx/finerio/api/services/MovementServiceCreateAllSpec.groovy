@@ -36,14 +36,11 @@ class MovementServiceCreateAllSpec extends Specification {
     when:
       def result = service.createAll( transactionData )
     then:
-      1 * accountService.findById( _ as String ) >> new Account()
+      1 * accountService.findByIdAndCredentialId( _ as String, _ as String ) >> new Account(id: 'idAccount')
       3 * cleanerService.clean( _ as String, _ as Boolean ) >> 'hello'
       3 * categorizerService.search( _ as String, _ as Boolean ) >>
           [ categoryId: 'categoryId' ]
       3 * categoryRepository.findOne( _ as String ) >> new Category()
-      3 * movementRepository.findFirstByDateAndDescriptionAndAmountAndTypeAndAccountAndScraperDuplicatedIdIsNullOrderByDateCreatedDesc(
-        _ as Date, _ as String, _ as BigDecimal, _ as Movement.Type,
-        _ as Account )
       3 * movementRepository.save( _ as Movement ) >> new Movement()
       result instanceof List
       result.size() == 3
@@ -58,13 +55,10 @@ class MovementServiceCreateAllSpec extends Specification {
     when:
       def result = service.createAll( transactionData )
     then:
-      1 * accountService.findById( _ as String ) >> new Account()
-      3 * movementRepository.findFirstByDateAndDescriptionAndAmountAndTypeAndAccountAndScraperDuplicatedIdIsNullOrderByDateCreatedDesc(
-        _ as Date, _ as String, _ as BigDecimal, _ as Movement.Type,
-        _ as Account ) >> new Movement()
+    1 * accountService.findByIdAndCredentialId( _ as String, _ as String ) >> new Account(id: 'idAccount')
       3 * movementRepository.save( _ as Movement ) >> new Movement()
       result instanceof List
-      result.size() == 0
+      result.size() == 3
     where:
       transactionData = getTransactionData()
 
@@ -77,8 +71,8 @@ class MovementServiceCreateAllSpec extends Specification {
     when:
       def result = service.createAll( transactionData )
     then:
-      1 * accountService.findById( _ as String ) >> new Account()
-      0 * movementRepository.findFirstByDateAndDescriptionAndAmountAndTypeAndAccountAndScraperDuplicatedIdIsNullOrderByDateCreatedDesc(
+    1 * accountService.findByIdAndCredentialId( _ as String, _ as String ) >> new Account(id: 'idAccount')
+    0 * movementRepository.findFirstByDateAndDescriptionAndAmountAndTypeAndAccountAndScraperDuplicatedIdIsNullOrderByDateCreatedDesc(
         _ as Date, _ as String, _ as BigDecimal, _ as Movement.Type,
         _ as Account ) >> new Movement()
       0 * movementRepository.save( _ as Movement ) >> new Movement()
@@ -104,6 +98,7 @@ class MovementServiceCreateAllSpec extends Specification {
   private TransactionData getTransactionData() throws Exception {
 
     new TransactionData(
+      credential_id: 'cred_id',
       account_id: 'account_id',
       transactions: getTransactions()
     )

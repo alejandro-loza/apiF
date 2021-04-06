@@ -24,6 +24,7 @@ class CredentialServiceUpdateSpec extends Specification {
   def securityService = Mock( SecurityService )
   def scraperService = Mock( DevScraperService )
   def credentialRepository = Mock( CredentialRepository )
+  def scraperV2Service = Mock( ScraperV2Service )
 
   def setup() {
 
@@ -34,6 +35,7 @@ class CredentialServiceUpdateSpec extends Specification {
     service.securityService = securityService
     service.scraperService = scraperService
     service.credentialRepository = credentialRepository
+    service.scraperV2Service = scraperV2Service
 
   }
 
@@ -54,7 +56,6 @@ class CredentialServiceUpdateSpec extends Specification {
           new Credential( id: 'id' )
       1 * bankConnectionService.create( _ as Credential )
       1 * credentialStatusHistoryService.create( _ as Credential )
-      1 * scraperService.requestData( _ as Map )
       result instanceof Credential
     where:
       id = 'uuid'
@@ -69,6 +70,12 @@ class CredentialServiceUpdateSpec extends Specification {
       def result = service.update( id, credentialUpdateDto )
     then:
       1 * securityService.getCurrent() >> client
+      1 * credentialRepository.save( _ as Credential ) >>
+            new Credential( id: 'id', customer: new Customer( client: client ),
+                    user: new User(), institution: new FinancialInstitution( id: 1L ),
+                    status: Credential.Status.ACTIVE )
+      1 * cryptService.encrypt( _ as String ) >>
+            [ message: 'message', iv: 'iv' ]
       1 * credentialRepository.findOne( _ as String ) >>
           new Credential( customer: new Customer( client: client ),
           user: new User(), institution: new FinancialInstitution( id: 1L ) )
@@ -88,6 +95,12 @@ class CredentialServiceUpdateSpec extends Specification {
       def result = service.update( id, credentialUpdateDto )
     then:
       1 * securityService.getCurrent() >> client
+      1 * cryptService.encrypt( _ as String ) >>
+            [ message: 'message', iv: 'iv' ]
+      1 * credentialRepository.save( _ as Credential ) >>
+            new Credential( id: 'id', customer: new Customer( client: client ),
+                    user: new User(), institution: new FinancialInstitution( id: 1L ),
+                    status: Credential.Status.VALIDATE )
       1 * credentialRepository.findOne( _ as String ) >>
           new Credential( customer: new Customer( client: client ),
           user: new User(), institution: new FinancialInstitution( id: 1L ),

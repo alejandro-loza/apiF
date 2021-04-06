@@ -1,5 +1,6 @@
 package mx.finerio.api.services
 
+import mx.finerio.api.domain.Account
 import mx.finerio.api.domain.Callback
 import mx.finerio.api.domain.Client
 import mx.finerio.api.domain.Credential
@@ -19,12 +20,18 @@ class ScraperCallbackServiceProcessTransactionsSpec extends Specification {
   def callbackService = Mock( CallbackService )
   def credentialService = Mock( CredentialService )
   def movementService = Mock( MovementService )
+  def accountService = Mock( AccountService )
+  def credentialStateService = Mock( CredentialStateService )
+  def widgetEventsService = Mock( WidgetEventsService )
 
   def setup() {
 
     service.callbackService = callbackService
     service.credentialService = credentialService
     service.movementService = movementService
+    service.accountService = accountService
+    service.credentialStateService = credentialStateService
+    service.widgetEventsService = widgetEventsService
 
   }
 
@@ -33,6 +40,8 @@ class ScraperCallbackServiceProcessTransactionsSpec extends Specification {
     when:
       service.processTransactions( transactionDto )
     then:
+      1 * accountService.findByIdAndCredentialId(
+              _ as String, _ as String ) >> new Account(id: "1")
       1 * movementService.createAll( _ as TransactionData ) >>
           [ new Movement(), new Movement() ]
       1 * credentialService.findAndValidate( _ as String ) >>
@@ -50,6 +59,8 @@ class ScraperCallbackServiceProcessTransactionsSpec extends Specification {
     when:
       service.processTransactions( transactionDto )
     then:
+      1 * accountService.findByIdAndCredentialId(
+            _ as String, _ as String ) >> new Account(id: "1")
       1 * movementService.createAll( _ as TransactionData ) >>
           [ new Movement(), new Movement() ]
       1 * credentialService.findAndValidate( _ as String ) >>
@@ -67,6 +78,8 @@ class ScraperCallbackServiceProcessTransactionsSpec extends Specification {
     when:
       service.processTransactions( transactionDto )
     then:
+      1 * accountService.findByIdAndCredentialId(
+            _ as String, _ as String ) >> new Account(id: "1")
       1 * movementService.createAll( _ as TransactionData ) >> []
       1 * credentialService.findAndValidate( _ as String ) >>
           new Credential( id: 'id', customer: new Customer(
@@ -93,8 +106,8 @@ class ScraperCallbackServiceProcessTransactionsSpec extends Specification {
 
   private TransactionDto getTransactionDto() throws Exception {
 
-    new TransactionDto(
-      data: new TransactionData( credential_id: 'id' )
+    return new TransactionDto(
+      data: new TransactionData( credential_id: 'id', account_id: 'account_id' )
     )
 
   }
