@@ -23,8 +23,8 @@ class FinancialIntitutionSpecs {
           predicates << builder.equal( root.get( 'country' ), dto.country )
         }
 
-        if ( dto.institutionType ) {
-          predicates << builder.equal( root.get( 'institutionType' ), dto.institutionType )
+        if ( dto.type ) {
+          predicates << builder.equal( root.get( 'institutionType' ), dto.type )
         }
            
         predicates << builder.notEqual( root.get( 'status' ), FinancialInstitution.Status.DELETED )

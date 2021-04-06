@@ -13,7 +13,8 @@ class CountryService {
   CountryRepository CountryRepository
 
   Map findAll() throws Exception {
-    [ data: CountryRepository.findAll().findAll { it.dateDeleted == null } ]
+    [ data: CountryRepository.findAll().findAll { it.dateDeleted == null },
+         nextCursor: null ]
   }
 
 
@@ -24,8 +25,7 @@ class CountryService {
           'countryService.getFields.country.null' )
     }
 
-   def data = [ id: country.id, 
-      code: country.code,
+   def data = [ code: country.code,
       name: country.name,
       imageUrl: country.imageUrl ]
   }

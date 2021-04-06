@@ -17,7 +17,7 @@ class CountryController {
   ResponseEntity findAll() {
   
     def response = countryService.findAll()
-    response = response.data.collect {
+    response.data = response.data.collect {
       countryService.getFields( it ) }
     new ResponseEntity( response, HttpStatus.OK )
 

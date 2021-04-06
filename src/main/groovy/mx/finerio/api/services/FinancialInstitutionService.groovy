@@ -1,6 +1,6 @@
 package mx.finerio.api.services
 
-  import mx.finerio.api.domain.FinancialInstitution
+import mx.finerio.api.domain.FinancialInstitution
 import mx.finerio.api.domain.repository.FinancialInstitutionRepository
 import mx.finerio.api.domain.repository.CountryRepository
 import mx.finerio.api.exceptions.BadImplementationException
@@ -39,7 +39,7 @@ class FinancialInstitutionService {
  
     def dto = getFindAllDto( params )
     def spec = FinancialIntitutionSpecs.findAll( dto )
-    listService.findAll( dto, financialInstitutionRepository, spec )    
+    return listService.findAll( dto, financialInstitutionRepository, spec )
     
   }
 
@@ -96,17 +96,18 @@ class FinancialInstitutionService {
     def dto = new FinancialInstitutionListDto()
     listService.validateFindAllDto( dto, params )
 
-    if( params.institutionType ) {     
+    if( params.type ) {
       try{
-         dto.institutionType =
-          FinancialInstitution.InstitutionType.valueOf( params.institutionType.trim().toUpperCase() )
+         dto.type =
+          FinancialInstitution.InstitutionType.valueOf(
+              params.type.trim().toUpperCase() )
       }catch( IllegalArgumentException ex ){
-          throw new 
-          BadImplementationException('financialInstitutionService.getFindAllDto.institutionType.notFound' ) 
+        throw new BadRequestException(
+            'financialInstitution.type.not.found' )
       }       
       
     }else{
-      dto.institutionType = defaultInstitutionType
+      dto.type = defaultInstitutionType
     }
 
 
@@ -119,8 +120,7 @@ class FinancialInstitutionService {
       if( country ) {
         dto.country = country   
       } else {
-        throw new BadImplementationException(
-          'financialInstitutionService.getFindAllDto.country.notFound' )  
+          throw new BadRequestException( 'country.not.found' )
       }
       
     }else{

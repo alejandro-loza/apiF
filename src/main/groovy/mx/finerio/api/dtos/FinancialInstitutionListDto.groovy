@@ -11,6 +11,6 @@ import mx.finerio.api.domain.FinancialInstitution
 @ToString(includePackage = false, includeNames = true)
 class FinancialInstitutionListDto extends ListDto { 
   Country country
-  FinancialInstitution.InstitutionType institutionType
+  FinancialInstitution.InstitutionType type
 
 }
