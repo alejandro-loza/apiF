@@ -29,8 +29,6 @@ class CallbackServiceCreateSpec extends Specification {
       def result = service.create( callbackDto )
     then:
       1 * securityService.getCurrent() >> new Client()
-      1 * callbackRepository.findByClientAndNature(
-          _ as Client, _ as Callback.Nature )
       1 * callbackRepository.save( _ as Callback ) >> new Callback()
       result instanceof Callback
     where:
@@ -56,10 +54,6 @@ class CallbackServiceCreateSpec extends Specification {
       service.create( callbackDto )
     then:
       1 * securityService.getCurrent() >> new Client()
-      1 * callbackRepository.findByClientAndNature(
-          _ as Client, _ as Callback.Nature ) >> new Callback()
-      BadRequestException e = thrown()
-      e.message == 'callback.create.exists'
     where:
       callbackDto = new CallbackDto( nature: Callback.Nature.SUCCESS )
 

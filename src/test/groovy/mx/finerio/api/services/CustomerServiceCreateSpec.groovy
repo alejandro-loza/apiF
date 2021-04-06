@@ -14,11 +14,13 @@ class CustomerServiceCreateSpec extends Specification {
 
   def securityService = Mock( SecurityService )
   def customerRepository = Mock( CustomerRepository )
+  def adminService = Mock( AdminService )
 
   def setup() {
 
     service.securityService = securityService
     service.customerRepository = customerRepository
+    service.adminService = adminService
 
   }
 

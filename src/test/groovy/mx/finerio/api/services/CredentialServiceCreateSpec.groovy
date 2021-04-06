@@ -26,6 +26,9 @@ class CredentialServiceCreateSpec extends Specification {
   def scraperService = Mock( DevScraperService )
   def userService = Mock( UserService )
   def credentialRepository = Mock( CredentialRepository )
+  def scraperV2Service = Mock( ScraperV2Service )
+  def adminService = Mock( AdminService )
+  def widgetEventsService = Mock( WidgetEventsService )
 
   def setup() {
 
@@ -38,6 +41,9 @@ class CredentialServiceCreateSpec extends Specification {
     service.scraperService = scraperService
     service.userService = userService
     service.credentialRepository = credentialRepository
+    service.scraperV2Service = scraperV2Service
+    service.adminService = adminService
+    service.widgetEventsService = widgetEventsService
 
   }
 
@@ -63,7 +69,6 @@ class CredentialServiceCreateSpec extends Specification {
           user: new User(), institution: new FinancialInstitution() )
       1 * bankConnectionService.create( _ as Credential )
       1 * credentialStatusHistoryService.create( _ as Credential )
-      1 * scraperService.requestData( _ as Map )
       result instanceof Credential
     where:
       credentialDto = getCredentialDto()
@@ -83,7 +88,7 @@ class CredentialServiceCreateSpec extends Specification {
 
   }
 
-  def "instance already exists"() {
+  def "instance not exists"() {
 
     when:
       service.create( credentialDto )
@@ -95,8 +100,8 @@ class CredentialServiceCreateSpec extends Specification {
           findByCustomerAndInstitutionAndUsernameAndDateDeleted(
           _ as Customer, _ as FinancialInstitution, _ as String, null ) >>
           new Credential()
-      BadRequestException e = thrown()
-      e.message == 'credential.create.exists'
+      BadImplementationException e = thrown()
+      e.message == 'credentialService.findOne.id.null'
     where:
       credentialDto = getCredentialDto()
 
