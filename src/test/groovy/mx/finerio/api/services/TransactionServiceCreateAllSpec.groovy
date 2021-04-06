@@ -14,14 +14,16 @@ class TransactionServiceCreateAllSpec extends Specification {
   def service = new TransactionService()
 
   def accountService = Mock( AccountService )
-  def sha1Service = Mock( Sha1Service )
   def transactionRepository = Mock( TransactionRepository )
+  def duplicatedTransactionsValidatorService = Mock( DuplicatedTransactionsValidatorService )
+  def adminService = Mock( AdminService )
 
   def setup() {
 
     service.accountService = accountService
-    service.sha1Service = sha1Service
     service.transactionRepository = transactionRepository
+    service.duplicatedTransactionsValidatorService = duplicatedTransactionsValidatorService
+    service.adminService = adminService
 
   }
 
@@ -30,11 +32,6 @@ class TransactionServiceCreateAllSpec extends Specification {
     when:
       def result = service.createAll( transactionData )
     then:
-      1 * accountService.findById( _ as String ) >> new Account()
-      3 * sha1Service.encrypt( _ as String ) >> 'hash'.bytes
-      3 * transactionRepository.
-          findByAccountAndHashAndDateDeletedIsNull(
-          _ as Account, _ as byte[] ) >> null
       3 * transactionRepository.save( _ as Transaction ) >> new Transaction()
       result instanceof List
       result.size() == 3
@@ -49,14 +46,9 @@ class TransactionServiceCreateAllSpec extends Specification {
     when:
       def result = service.createAll( transactionData )
     then:
-      1 * accountService.findById( _ as String ) >> new Account()
-      3 * sha1Service.encrypt( _ as String ) >> 'hash'.bytes
-      3 * transactionRepository.
-          findByAccountAndHashAndDateDeletedIsNull(
-          _ as Account, _ as byte[] ) >> new Transaction()
-      0 * transactionRepository.save( _ as Transaction )
+      3 * transactionRepository.save( _ as Transaction )
       result instanceof List
-      result.size() == 0
+      result.size() == 3
     where:
       transactionData = getTransactionData()
 
