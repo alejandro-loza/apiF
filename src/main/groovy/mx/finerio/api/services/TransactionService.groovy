@@ -113,7 +113,6 @@ class TransactionService {
   }
 
   void categorize( Transaction transaction ) throws Exception {
-
     if ( !transaction ) {
       throw new BadImplementationException(
           'transactionService.categorize.transaction.null' )
