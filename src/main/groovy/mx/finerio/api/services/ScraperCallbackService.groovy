@@ -8,14 +8,22 @@ import mx.finerio.api.dtos.SuccessCallbackDto
 import mx.finerio.api.dtos.TransactionDto
 import mx.finerio.api.dtos.WidgetEventsDto
 import mx.finerio.api.exceptions.BadImplementationException
-
+import mx.finerio.api.threads.CategorizeTransactionThread
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import mx.finerio.api.services.AdminService.EntityType
 
+import java.util.concurrent.ExecutorService
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
+
 @Service
 class ScraperCallbackService {
+
+  @Value('${categorizer.parallel.threads}')
+  int parallelCategorizeThreads
 
   @Autowired
   AccountService accountService
@@ -163,22 +171,49 @@ class ScraperCallbackService {
     def account = accountService.findByIdAndCredentialId(
         transactionDto.data.account_id, credential.id )
     def transactions = transactionService.createAll( transactionDto.data )
-
-    if ( credential?.customer?.client?.categorizeTransactions ) {
-
-      transactions.each { transactionService.categorize( it ) }
+    if (credential?.customer?.client?.categorizeTransactions) {
+      parallelCategorize(transactions)
       def data = [
         customerId: credential?.customer?.id,
         credentialId: credential.id,
         accountId: account.id,
         stage: 'categorize_transactions'
       ]
-      credentialStateService.addState( credential.id, data )
-      callbackService.sendToClient( credential?.customer?.client,
-          Callback.Nature.NOTIFY, data )
+      credentialStateService.addState(credential.id, data)
+      callbackService.sendToClient(credential?.customer?.client,
+              Callback.Nature.NOTIFY, data)
 
     }
     return transactions
+
+  }
+
+  private void parallelCategorize( List transactions ) throws Exception {
+
+    for ( int i = 0; i < transactions.size();
+        i += parallelCategorizeThreads ) {
+
+      def executorService = Executors.newFixedThreadPool(
+          parallelCategorizeThreads )
+      def maxLimit = i + parallelCategorizeThreads
+
+      if ( maxLimit >= transactions.size() ) {
+        maxLimit = transactions.size() - 1
+      }
+
+      def batch = transactions[ i..maxLimit ]
+
+      for ( transaction in batch ) {
+        def thread = new CategorizeTransactionThread()
+        thread.transactionService = transactionService
+        thread.transaction = transaction
+        executorService.execute( thread )
+      }
+
+      executorService.shutdown()
+      executorService.awaitTermination( 10, TimeUnit.MINUTES )
+
+    }
 
   }
 
