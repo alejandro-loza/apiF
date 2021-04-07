@@ -7,6 +7,7 @@ import mx.finerio.api.exceptions.BadRequestException
 import mx.finerio.api.exceptions.InstanceNotFoundException
 import mx.finerio.api.domain.repository.*
 import mx.finerio.api.domain.*
+import mx.finerio.api.domain.FinancialInstitution.Provider
 import mx.finerio.api.dtos.*
 import mx.finerio.api.dtos.ScraperWebSocketSendDto
 
@@ -305,12 +306,13 @@ class CredentialService {
     bankConnectionService.create( credential )
     credentialStatusHistoryService.create( credential )
 
-    if ( credential.institution.code == 'BBVA' ) {
-      sendToScraperWebSocket( credential )
-    }else{
-      if( !rangeDates ) {
-        rangeDates = getRangeDates( new CredentialRangeDto() )
-      }
+    if( !rangeDates ) {
+      rangeDates = getRangeDates( new CredentialRangeDto() )
+    }
+
+    if ( credential.institution.provider == Provider.SCRAPER_V2 ) {
+      sendToScraperV2( credential, rangeDates )
+    }else if ( credential.institution.provider == Provider.SCRAPER_V1 ) {
       sendToScraperV2LegacyPayload( credential, rangeDates )
     }
 
@@ -542,7 +544,7 @@ class CredentialService {
 
   }
 
-  private void sendToScraperV2(  Credential credential  ) {
+  private void sendToScraperV2(  Credential credential, Map rangeDates  ) {
 
     def plainPassword = cryptService.decrypt( credential.password,
         credential.iv )
@@ -550,7 +552,9 @@ class CredentialService {
    def dto = new CreateCredentialDto( bankCode: credential.institution.code,  
    username: credential.username,
    password: plainPassword,
-   credentialId: credential.id 
+   credentialId: credential.id,
+   startDate: rangeDates.startDate,
+   endDate: rangeDates.endDate 
   )
 
   scraperV2Service.createCredential( dto ) 

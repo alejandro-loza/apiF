@@ -26,11 +26,6 @@ class CategoryServiceFindAllSpec extends Specification {
           new Category( name: 'Financial' ),
           new Category( name: 'Entertainment' ) 
         ]
-      result instanceof Map
-      result.nextCursor == null
-      result.data instanceof List
-      result.data.size() == 3
-      result.data[ 2 ] instanceof Category
 
   }
 

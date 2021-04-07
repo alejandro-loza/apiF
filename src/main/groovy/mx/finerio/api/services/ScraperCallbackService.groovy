@@ -26,6 +26,9 @@ class ScraperCallbackService {
   int parallelCategorizeThreads
 
   @Autowired
+  AccountService accountService
+
+  @Autowired
   CallbackService callbackService
 
   @Autowired
@@ -68,7 +71,9 @@ class ScraperCallbackService {
     def data = [:]
     data.customerId = credential?.customer?.id
     data.credentialId = credential.id
-    data.accountId = transactionDto.data.account_id
+    def account = accountService.findByIdAndCredentialId(
+        transactionDto.data.account_id, credential.id )
+    data.accountId = account.id
     data.transactions = []
 
     if ( !movements.isEmpty() && movements[ 0 ] instanceof Transaction ) {
@@ -163,14 +168,16 @@ class ScraperCallbackService {
     if ( !credential?.customer?.client?.useTransactionsTable ) { 
       return movementService.createAll( transactionDto.data )
     }
+    def account = accountService.findByIdAndCredentialId(
+        transactionDto.data.account_id, credential.id )
     def transactions = transactionService.createAll( transactionDto.data )
     if (credential?.customer?.client?.categorizeTransactions) {
       parallelCategorize(transactions)
       def data = [
-              customerId  : credential?.customer?.id,
-              credentialId: credential.id,
-              accountId   : transactionDto.data.account_id,
-              stage       : 'categorize_transactions'
+        customerId: credential?.customer?.id,
+        credentialId: credential.id,
+        accountId: account.id,
+        stage: 'categorize_transactions'
       ]
       credentialStateService.addState(credential.id, data)
       callbackService.sendToClient(credential?.customer?.client,
@@ -181,18 +188,34 @@ class ScraperCallbackService {
 
   }
 
-  private void parallelCategorize(List transactions) {
-    ExecutorService executorService = Executors.newFixedThreadPool(parallelCategorizeThreads)
-    transactions.each { Transaction transaction ->
-      CategorizeTransactionThread thread = new CategorizeTransactionThread()
-      thread.transactionService = transactionService
-      thread.transaction = transaction
-      executorService.execute(thread)
+  private void parallelCategorize( List transactions ) throws Exception {
+
+    for ( int i = 0; i < transactions.size();
+        i += parallelCategorizeThreads ) {
+
+      def executorService = Executors.newFixedThreadPool(
+          parallelCategorizeThreads )
+      def maxLimit = i + parallelCategorizeThreads
+
+      if ( maxLimit >= transactions.size() ) {
+        maxLimit = transactions.size() - 1
+      }
+
+      def batch = transactions[ i..maxLimit ]
+
+      for ( transaction in batch ) {
+        def thread = new CategorizeTransactionThread()
+        thread.transactionService = transactionService
+        thread.transaction = transaction
+        executorService.execute( thread )
+      }
+
+      executorService.shutdown()
+      executorService.awaitTermination( 10, TimeUnit.MINUTES )
+
     }
-    executorService.shutdown()
-    executorService.awaitTermination(10, TimeUnit.MINUTES)
+
   }
 
 }
-
 

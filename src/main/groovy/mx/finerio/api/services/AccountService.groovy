@@ -1,9 +1,12 @@
 package mx.finerio.api.services
 
+import java.security.MessageDigest
+
 import mx.finerio.api.exceptions.BadImplementationException
 import mx.finerio.api.exceptions.BadRequestException
 import mx.finerio.api.exceptions.InstanceNotFoundException
 import mx.finerio.api.domain.*
+import mx.finerio.api.domain.FinancialInstitution.Provider
 import mx.finerio.api.domain.repository.*
 import mx.finerio.api.dtos.AccountData
 import mx.finerio.api.dtos.AccountListDto
@@ -72,8 +75,9 @@ class AccountService {
     }
 
     def credential = credentialService.findAndValidate( accountData.credential_id )
-    if ( ![ 'BBVA', 'BANREGIO' ].contains( credential.institution.code ) ) {
-      credential = credentialService.validateUserCredential( credential, accountData.user_id )
+    if ( credential.institution.provider == Provider.SCRAPER_V1 ) {
+      credential = credentialService.validateUserCredential(
+          credential, accountData.user_id )
     }
     def cleanedName = getAccountName( accountData.name )
     def number = getNumber( credential.institution, accountData )
@@ -171,7 +175,42 @@ class AccountService {
     }
 
     account
+
+  }
+
+
+  Account findByIdBankAndCredentialId( String idBank,  String credentialId ) throws Exception {
+
+    if ( !idBank ) {
+      throw new BadImplementationException(
+          'accountService.findByIdBank.idBank.null' )
+    }
+
+    Credential credential = credentialService.findAndValidate( credentialId )
+    List<AccountCredential> accountCredentials = 
+      accountCredentialRepository.findAllByCredential( credential )
     
+    def account = accountCredentials.find { it.account.idBank == idBank }.account
+
+    if ( !account ) {
+      throw new InstanceNotFoundException( 'account.not.found' )
+    }
+
+    account
+    
+  }
+
+  Account findByIdAndCredentialId( String id, String credentialId )
+      throws Exception {
+
+    def account
+
+    try {
+      return findById( id )
+    } catch( InstanceNotFoundException e ) {
+      return findByIdBankAndCredentialId( id, credentialId )
+    }
+
   }
 
   @Transactional(readOnly = true)
@@ -261,7 +300,11 @@ class AccountService {
           ( account.institution.code != institution.code ||
           account.user.id != user.id ) ) { continue }
 
-      if ( account.idBank == id ) { return account }
+      if ( account.idBank == id ||
+          hashAccountId( account.idBank ) == id ) {
+        account.idBank = id
+        return account
+      }
 
     }
 
@@ -318,6 +361,14 @@ class AccountService {
     dto.extraData = extraData
     dto.prefix = ''
     accountExtraDataService.createAll( dto )
+
+  }
+
+  private String hashAccountId( String text ) throws Exception {
+
+    if ( text == null ) { return null }
+    def digest = MessageDigest.getInstance( 'SHA-256' )
+    return digest.digest( text.bytes ).encodeBase64().toString()
 
   }
 

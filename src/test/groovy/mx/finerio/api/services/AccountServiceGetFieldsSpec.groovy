@@ -1,6 +1,10 @@
 package mx.finerio.api.services
 
 import mx.finerio.api.domain.Account
+import mx.finerio.api.domain.AccountCredential
+import mx.finerio.api.domain.Credential
+import mx.finerio.api.domain.FinancialInstitution
+import mx.finerio.api.domain.repository.AccountCredentialRepository
 import mx.finerio.api.exceptions.BadImplementationException
 
 import spock.lang.Specification
@@ -8,12 +12,23 @@ import spock.lang.Specification
 class AccountServiceGetFieldsSpec extends Specification {
 
   def service = new AccountService()
+  def accountCredentialRepository = Mock( AccountCredentialRepository )
+
+  def setup() {
+    service.accountCredentialRepository = accountCredentialRepository;
+  }
 
   def "invoking method successfully"() {
 
     when:
       def result = service.getFields( account )
     then:
+      accountCredentialRepository.findFirstByAccountId(_ as String) >> new AccountCredential(id: 1L,
+              account: account,
+              credential: credential,
+              version: 1L,
+              lastUpdated: new Date(),
+              dateCreated: new Date())
       result instanceof Map
       result.id != null
       result.name != null
@@ -23,6 +38,7 @@ class AccountServiceGetFieldsSpec extends Specification {
       result.dateCreated != null
     where:
       account = getAccount()
+      credential = new Credential()
 
   }
 
@@ -46,7 +62,17 @@ class AccountServiceGetFieldsSpec extends Specification {
       number: 'number',
       balance: 1.00,
       nature: 'nature',
-      dateCreated: new Date()
+      dateCreated: new Date(),
+      institution: getFinancialInstitution()
+    )
+
+  }
+
+  private FinancialInstitution getFinancialInstitution() throws Exception {
+
+    new FinancialInstitution(
+            id: 1L,
+            name: 'name'
     )
 
   }

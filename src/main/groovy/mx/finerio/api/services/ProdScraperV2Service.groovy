@@ -25,8 +25,6 @@ class ProdScraperV2Service implements ScraperV2Service {
     @Value('${gateway.source}')
 	String source
 
-	@Value('${scraperv2.rangeDates.monthsAgo}') 
-    int monthsAgo
     
     @Override
 	void createCredential( CreateCredentialDto createCredentialDto ) throws Exception {
@@ -41,21 +39,17 @@ class ProdScraperV2Service implements ScraperV2Service {
 		def jsonString = JsonOutput.toJson( jsonMap )				
 		def jsonBase64 = jsonString.getBytes( 'UTF-8' ).encodeBase64().toString()		
 		def jsonEncrypted = rsaCryptScraperV2Service.encrypt( jsonBase64 )
-		
-		LocalDate now = LocalDate.now()		
-		String endDate = now.toString()		
-	    String startDate = now.minusMonths( monthsAgo ).toString()
 							    
 		def finalData = [ institution: createCredentialDto.bankCode.toLowerCase(),
 			data: jsonEncrypted,
 			state: state,
-			start_date: startDate,
-			end_date: endDate ]
+			start_date: createCredentialDto.startDate,
+			end_date: createCredentialDto.endDate ]
 
 		callbackGatewayClientService
 			.registerCredential( [ credentialId: state ,source: source ] )
 		         	
-		 scraperV2ClientService.createCredential( finalData )									
+		scraperV2ClientService.createCredential( finalData )									
 		
 	}
 

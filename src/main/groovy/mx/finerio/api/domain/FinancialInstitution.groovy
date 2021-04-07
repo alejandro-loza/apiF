@@ -16,6 +16,16 @@ class FinancialInstitution {
     DELETED
   }
 
+   enum InstitutionType {
+    PERSONAL,
+    BUSINESS
+  }
+
+  enum Provider {
+    SCRAPER_V1,
+    SCRAPER_V2
+  }
+
   @Id
   @Column(name = 'id', nullable = false, updatable = false)
   Long id
@@ -26,6 +36,9 @@ class FinancialInstitution {
   @Column(name = 'code', nullable = false, length = 255)
   String code
 
+  @Column(name = 'internal_code', nullable = false, length = 255)
+  String internalCode
+
   @Column(name = 'description', nullable = true, length = 255)
   String description
 
@@ -35,5 +48,17 @@ class FinancialInstitution {
   @Enumerated(EnumType.STRING)
   @Column(name = 'status', nullable = false, length = 255)
   Status status
+
+  @Enumerated(EnumType.STRING)
+  @Column(name = 'institution_type', nullable = false, length = 255)
+  InstitutionType institutionType
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = 'country_id', nullable = true)
+  Country country
+
+  @Enumerated(EnumType.STRING)
+  @Column(name = 'provider', nullable = false, length = 10)
+  Provider provider
 
 }

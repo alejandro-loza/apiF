@@ -4,6 +4,7 @@ import mx.finerio.api.domain.Account
 import mx.finerio.api.domain.AccountCredential
 import mx.finerio.api.domain.Credential
 import mx.finerio.api.domain.FinancialInstitution
+import mx.finerio.api.domain.FinancialInstitution.Provider
 import mx.finerio.api.domain.User
 import mx.finerio.api.domain.repository.AccountCredentialRepository
 import mx.finerio.api.domain.repository.AccountRepository
@@ -19,13 +20,14 @@ class AccountServiceCreateSpec extends Specification {
   def credentialService = Mock( CredentialService )
   def accountCredentialRepository = Mock( AccountCredentialRepository )
   def accountRepository = Mock( AccountRepository )
+  def adminService = Mock( AdminService )
 
   def setup() {
 
     service.credentialService = credentialService
     service.accountCredentialRepository = accountCredentialRepository
     service.accountRepository = accountRepository
-
+    service.adminService = adminService;
   }
 
   def "invoking method successfully"() {
@@ -37,10 +39,6 @@ class AccountServiceCreateSpec extends Specification {
           new Credential( institution: institution, user: user )
       1 * credentialService.validateUserCredential( _ as Credential, _ as String ) >>
           new Credential( institution: institution, user: user )
-      1 * accountRepository.findFirstByInstitutionAndUserAndNumberOrderByDateCreatedDesc(
-          _ as FinancialInstitution, _ as User, _ as String )
-      1 * accountRepository.findFirstByInstitutionAndUserAndNumberLikeOrderByDateCreatedDesc(
-          _ as FinancialInstitution, _ as User, _ as String )
       1 * accountRepository.save( _ as Account )
       1 * accountCredentialRepository.findAllByAccountAndCredential(
           _ as Account, _ as Credential )
@@ -49,7 +47,7 @@ class AccountServiceCreateSpec extends Specification {
       result.nature == 'Cuenta'
     where:
       accountData = getAccountData()
-      institution = new FinancialInstitution( code: 'CODE' )
+      institution = getFinancialInstitution()
       user = new User()
 
   }
@@ -63,11 +61,6 @@ class AccountServiceCreateSpec extends Specification {
           new Credential( institution: institution, user: user )
       1 * credentialService.validateUserCredential( _ as Credential, _ as String ) >>
           new Credential( institution: institution, user: user )
-      1 * accountRepository.findFirstByInstitutionAndUserAndNumberOrderByDateCreatedDesc(
-          _ as FinancialInstitution, _ as User, _ as String ) >>
-          new Account()
-      0 * accountRepository.findFirstByInstitutionAndUserAndNumberLikeOrderByDateCreatedDesc(
-          _ as FinancialInstitution, _ as User, _ as String )
       1 * accountRepository.save( _ as Account )
       1 * accountCredentialRepository.findAllByAccountAndCredential(
           _ as Account, _ as Credential )
@@ -75,7 +68,7 @@ class AccountServiceCreateSpec extends Specification {
       result instanceof Account
     where:
       accountData = getAccountData()
-      institution = new FinancialInstitution( code: 'CODE' )
+      institution = getFinancialInstitution()
       user = new User()
 
   }
@@ -89,11 +82,6 @@ class AccountServiceCreateSpec extends Specification {
           new Credential( institution: institution, user: user )
       1 * credentialService.validateUserCredential( _ as Credential, _ as String ) >>
           new Credential( institution: institution, user: user )
-      1 * accountRepository.findFirstByInstitutionAndUserAndNumberOrderByDateCreatedDesc(
-          _ as FinancialInstitution, _ as User, _ as String )
-      1 * accountRepository.findFirstByInstitutionAndUserAndNumberLikeOrderByDateCreatedDesc(
-          _ as FinancialInstitution, _ as User, _ as String ) >>
-          new Account()
       1 * accountRepository.save( _ as Account )
       1 * accountCredentialRepository.findAllByAccountAndCredential(
           _ as Account, _ as Credential )
@@ -101,7 +89,7 @@ class AccountServiceCreateSpec extends Specification {
       result instanceof Account
     where:
       accountData = getAccountData()
-      institution = new FinancialInstitution( code: 'CODE' )
+      institution = getFinancialInstitution()
       user = new User()
 
   }
@@ -115,10 +103,6 @@ class AccountServiceCreateSpec extends Specification {
           new Credential( institution: institution, user: user )
       1 * credentialService.validateUserCredential( _ as Credential, _ as String ) >>
           new Credential( institution: institution, user: user )
-      1 * accountRepository.findFirstByInstitutionAndUserAndNumberOrderByDateCreatedDesc(
-          _ as FinancialInstitution, _ as User, _ as String )
-      1 * accountRepository.findFirstByInstitutionAndUserAndNumberLikeOrderByDateCreatedDesc(
-          _ as FinancialInstitution, _ as User, _ as String )
       1 * accountRepository.save( _ as Account )
       1 * accountCredentialRepository.findAllByAccountAndCredential(
           _ as Account, _ as Credential ) >> [ new AccountCredential() ]
@@ -126,7 +110,7 @@ class AccountServiceCreateSpec extends Specification {
       result instanceof Account
     where:
       accountData = getAccountData()
-      institution = new FinancialInstitution( code: 'CODE' )
+      institution = getFinancialInstitution()
       user = new User()
 
   }
@@ -142,10 +126,6 @@ class AccountServiceCreateSpec extends Specification {
           new Credential( institution: institution, user: user )
       1 * credentialService.validateUserCredential( _ as Credential, _ as String ) >>
           new Credential( institution: institution, user: user )
-      1 * accountRepository.findFirstByInstitutionAndUserAndNumberOrderByDateCreatedDesc(
-          _ as FinancialInstitution, _ as User, _ as String )
-      1 * accountRepository.findFirstByInstitutionAndUserAndNumberLikeOrderByDateCreatedDesc(
-          _ as FinancialInstitution, _ as User, _ as String )
       1 * accountRepository.save( _ as Account )
       1 * accountCredentialRepository.findAllByAccountAndCredential(
           _ as Account, _ as Credential )
@@ -155,7 +135,7 @@ class AccountServiceCreateSpec extends Specification {
     where:
       accountData = getAccountData()
       myNature = 'something'
-      institution = new FinancialInstitution( code: 'CODE' )
+      institution = getFinancialInstitution()
       user = new User()
 
   }
@@ -179,6 +159,15 @@ class AccountServiceCreateSpec extends Specification {
       credential_id: 'credential_id',
       name: 'name',
       nature: 'account'
+    )
+
+  }
+
+  private FinancialInstitution getFinancialInstitution() throws Exception {
+
+    return new FinancialInstitution(
+      code: 'CODE',
+      provider: Provider.SCRAPER_V1
     )
 
   }

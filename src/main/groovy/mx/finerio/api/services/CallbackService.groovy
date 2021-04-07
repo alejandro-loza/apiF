@@ -154,7 +154,7 @@ class CallbackService {
       return
     }
 
-    def headers = getHeaders( callback.url, data )
+    def headers = getHeaders( callback.url, data, client )
     def clientMtls = clientMtlsService.findByClient( client )
 
     if ( clientMtls != null ) {
@@ -182,13 +182,32 @@ class CallbackService {
 
   }
 
-  private Map getHeaders( String url, Map data ) throws Exception {
-        
+  private Map getHeaders( String url, Map data, Client client )
+      throws Exception {
+
+    def signatureHeader = getSignatureHeader( url, data )
+    def clientHeaders = getClientHeaders( client )
+    return ( signatureHeader + clientHeaders )
+
+  }
+
+  private Map getSignatureHeader( String url, Map data ) throws Exception {
+
     def objectMapper = new ObjectMapper()
     def jsonString = objectMapper.writeValueAsString( data )
     def finalData = "${url}|${jsonString}"
     def jsonSigned = rsaCryptService.sign( finalData )
-    [ 'Signature': jsonSigned ]
+    return [ 'Signature': jsonSigned ]
+
+  }
+
+  private Map getClientHeaders( Client client ) throws Exception {
+
+    def headers = [:]
+    if ( client.userAgent != null ) {
+      headers[ 'User-Agent' ] = client.userAgent
+    }
+    return headers
 
   }
 

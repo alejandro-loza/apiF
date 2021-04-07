@@ -1,0 +1,14 @@
+databaseChangeLog:
+- changeSet:
+    id: financial_institution_add_provider
+    author: alejandro.garcia
+    changes:
+    - addColumn:
+        tableName: financial_institution
+        columns:
+        - column:
+            name: provider
+            type: java.sql.Types.VARCHAR(10)
+            constraints:
+              nullable: false
+            defaultValue: 'SCRAPER_V1'

@@ -2,6 +2,8 @@ package mx.finerio.api.aop;
 
 import java.util.Map
 
+import mx.finerio.api.dtos.email.EmailSendDto
+
 import org.aspectj.lang.annotation.AfterReturning
 import org.aspectj.lang.annotation.AfterThrowing
 import org.aspectj.lang.annotation.Aspect
@@ -19,18 +21,18 @@ class EmailRestServiceSend {
       'mx.finerio.api.aop.EmailRestServiceSend' )
 
   @Pointcut(
-    value='execution(String mx.finerio.api.services.EmailRestService.send(..)) && bean(emailRestService) && args(email, template, params)',
-    argNames='email, template, params'
+    value='execution(String mx.finerio.api.services.EmailRestService.send(..)) && bean(emailRestService) && args(dto)',
+    argNames='dto'
   )
-  public void send( String email, String template, Map params ) {}
+  public void send( EmailSendDto dto ) {}
 
-  @Before('send(email, template, params)')
-  void before( String email, String template, Map params ) {
-    log.info( "<< email: {}, template: {}, params: {}", email, template, params )
+  @Before('send(dto)')
+  void before( EmailSendDto dto ) {
+    log.info( "<< dto: {}", dto )
   }
 
   @AfterReturning(
-    pointcut='send(String, String, java.util.Map)',
+    pointcut='send(mx.finerio.api.dtos.email.EmailSendDto)',
     returning='result'
   )
   void afterReturning( String result ) {
@@ -38,7 +40,7 @@ class EmailRestServiceSend {
   }
 
   @AfterThrowing(
-    pointcut='send(String, String, java.util.Map)',
+    pointcut='send(mx.finerio.api.dtos.email.EmailSendDto)',
     throwing='e'
   )
   void afterThrowing( Exception e ) {

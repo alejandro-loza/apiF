@@ -54,7 +54,8 @@ class MovementService {
           'movementService.createAll.transactionData.null' )
     }
 
-    def account = accountService.findById( transactionData.account_id )
+    def account = accountService.findByIdAndCredentialId(
+        transactionData.account_id, transactionData.credential_id )
     transactionData.transactions.findResults { transaction ->
       create( account, transaction, account.deleted )
     }
