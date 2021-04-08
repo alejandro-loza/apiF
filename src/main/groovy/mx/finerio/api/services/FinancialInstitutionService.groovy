@@ -51,7 +51,9 @@ class FinancialInstitutionService {
     def financialInstitution = findOne( id )
 
     if ( financialInstitution.status !=
-        FinancialInstitution.Status.ACTIVE ) {
+            FinancialInstitution.Status.ACTIVE
+            && financialInstitution.status !=
+            FinancialInstitution.Status.PARTIALLY_ACTIVE ) {
       throw new BadRequestException( 'financialInstitution.disabled' )
     }
 

@@ -13,7 +13,8 @@ class FinancialInstitution {
   enum Status {
     ACTIVE,
     INACTIVE,
-    DELETED
+    DELETED,
+    PARTIALLY_ACTIVE
   }
 
   @Id

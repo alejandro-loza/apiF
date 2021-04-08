@@ -1,14 +1,13 @@
 package mx.finerio.api.services
 
 import groovy.json.JsonBuilder
-
+import mx.finerio.api.domain.FinancialInstitution.Status
 import mx.finerio.api.exceptions.BadImplementationException
 import mx.finerio.api.exceptions.BadRequestException
 import mx.finerio.api.exceptions.InstanceNotFoundException
 import mx.finerio.api.domain.repository.*
 import mx.finerio.api.domain.*
 import mx.finerio.api.dtos.*
-import mx.finerio.api.dtos.ScraperWebSocketSendDto
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -294,7 +293,6 @@ class CredentialService {
   }
 
   void requestData( String credentialId, Map rangeDates = null, Client client = null ) throws Exception {
-
     def credential = findOne( credentialId, client )
     if ( credentialRecentlyUpdated( credential ) ) { return }
     credential.status = Credential.Status.VALIDATE
@@ -302,6 +300,12 @@ class CredentialService {
     credential.errorCode = null
     credential.lastUpdated = new Date()
     credentialRepository.save( credential )
+    if ( credential.institution.status == FinancialInstitution.Status.PARTIALLY_ACTIVE ) {
+      scraperCallbackService.processSuccess(
+              SuccessCallbackDto.getInstanceFromCredentialId( credential.id ) )
+      scraperCallbackService.postProcessSuccess( credential )
+      return
+    }
     bankConnectionService.create( credential )
     credentialStatusHistoryService.create( credential )
 
