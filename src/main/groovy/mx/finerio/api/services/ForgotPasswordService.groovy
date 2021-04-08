@@ -12,6 +12,8 @@ import mx.finerio.api.domain.repository.PasswordChangeRequestRepository
 import mx.finerio.api.domain.repository.UserRepository
 import mx.finerio.api.dtos.ErrorDto
 import mx.finerio.api.dtos.NewPasswordDto
+import mx.finerio.api.dtos.email.EmailSendDto
+import mx.finerio.api.dtos.email.EmailTemplateDto
 import mx.finerio.api.exceptions.BadImplementationException
 
 @Service
@@ -120,7 +122,14 @@ class ForgotPasswordService {
 		pcr.user=user
 		pcr.valid=true;
 		passwordChangeRequestRepository.save(pcr)
-		emailRestService.send(user.username, templateName, ['uniquelink':"${frontEndURL}/${pcr.token}"])
+		def dto = new EmailSendDto(
+			to: [ user.username ],
+			template: new EmailTemplateDto(
+				name: templateName,
+				params: [ 'uniquelink':"${frontEndURL}/${pcr.token}" ]
+			)
+		)
+		emailRestService.send( dto )
 	}
 	
 	private PasswordChangeRequest getPasswordChangeRequestAnValidateToken(String token ) {
