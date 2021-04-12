@@ -60,6 +60,8 @@ tags:
   - name: Access
     description: Here you start! You need to login first in order to use the API. After
       that, you need to refresh your access token every time it expires.
+  - name: Countries
+    description: Available countries.
   - name: Banks
     description: Banks are the financial institutions where your customers keep their
       money.
@@ -126,12 +128,41 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LoginResponse'
+  /countries:
+    get:
+      tags:
+      - Countries
+      summary: Fetches a list of countries.
+      description: Fetches a list of available countries where Finerio Connect has banks implemented.
+      responses:
+        '200':
+          description: A List of countries.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Countries'
+        '500':
+          description: Something in the server was wrong.
   /banks:
     get:
       tags:
         - Banks
       summary: Get a list of banks
       description: Get all the banks and financial institutions with which Finerio can connect and fetch information.
+      parameters:
+        - in: query
+          name: country
+          required: false
+          schema:
+            type: string
+          description: "The code of the country. By default is 'MX'."
+          example: 'MX'
+        - in: query
+          name: type
+          required: false
+          schema:
+            $ref: '#/components/schemas/BankType'
+          description: "The type of bank. By default is 'personal'."
       responses:
         '200':
           description: Everything was OK. You successfully obtained the list of banks.
@@ -141,6 +172,12 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Bank'
+        '400':
+          description: Whoops! Something went wrong with your request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
   /banks/{id}/fields:
     get:
       tags:
@@ -1065,6 +1102,30 @@ components:
         scope:
           type: string
           example: read write
+    Country:
+      description: A representation of a country.
+      properties:
+        code:
+          description: The code of the country.
+          type: string
+          example: 'MX'
+        name:
+          description: The name of the country.
+          type: string
+          example: 'México'
+        imageUrl:
+          description: The URL of the image of the country
+          type: string
+          example: 'https://cdn.finerio.mx/widget/MX.png'
+    Countries:
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Country'
+        nextCursor:
+          type: string
+          example:  null
     Bank:
       properties:
         id:
@@ -1107,6 +1168,11 @@ components:
             - PASSWORD
           description: The type of the textfield in the HTML web form.
           example: TEXT
+    BankType:
+      type: string
+      enum:
+        - personal
+        - business
     Customer:
       properties:
         id:
