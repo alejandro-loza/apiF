@@ -761,6 +761,46 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Errors'
+  /diagnosis:
+    get:
+      tags:
+      - Insights
+      summary: Fetches a diagnosis of the financial information of a customer.
+      description: Given a valid customer ID, fetches a diagnosis of the financial information of a customer.
+      parameters:
+      - in: query
+        name: customerId
+        schema:
+          type: integer
+        required: true
+        description: The ID of the customer to fetch the diagnosis.
+        example: 123
+      - in: query
+        name: averageIncome
+        schema:
+          type: number
+        required: false
+        description: A custom average income of the customer. By default is calculated.
+        example: 123.45
+      responses:
+        '200':
+          description: The diagnosis of a customer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Diagnosis'
+        '400':
+          description: Whoops! Something went wrong with your request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '404':
+          description: Whoops! You requested something that doesn't exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
   /clients/callbacks:
     post:
       tags:
@@ -1826,6 +1866,80 @@ components:
           description: The amount of the transaction.
           type: number
           example: 123.45
+    Diagnosis:
+      description: A representation of the diagnosis of the financial information of a customer.
+      properties:
+        averageIncome:
+          description: The average income of a customer.
+          type: number
+          example: 123.45
+        categories:
+          description: The expenses of a customer, grouped by month by default
+          type: array
+          items:
+            $ref: '#/components/schemas/DiagnosisByMonth'
+    DiagnosisByMonth:
+      description: Diagnosis grouped by month by default.
+      properties:
+        date:
+          description: The year and month of the information
+          type: integer
+          example: 15912423261854
+        items:
+          description: The diagnosis grouped by categories
+          type: array
+          items:
+            $ref: '#/components/schemas/DiagnosisByCategory'
+    DiagnosisByCategory:
+      description: Diagnosis grouped by category
+      properties:
+        categoryId:
+          type: string
+          description: The ID of the category.
+          example: 37b294e8-bde2-44b4-a8fd-a71cb284bc20
+        spent:
+          description: The amount spent by category.
+          type: number
+          example: 123.45
+        average:
+          description: The average of the category.
+          type: number
+          example: 123.45
+        others:
+          description: The amount of others in the category.
+          type: number
+          example: 123.45
+        suggested:
+          description: The suggested amount of the category.
+          type: number
+          example: 123.45
+        subcategories:
+          description: The diagnosis grouped by subcategories
+          type: array
+          items:
+            $ref: '#/components/schemas/DiagnosisBySubcategory'
+    DiagnosisBySubcategory:
+      description: Financial information grouped by subcategory
+      properties:
+        categoryId:
+          type: string
+          description: The ID of the subcategory.
+          example: 37b294e8-bde2-44b4-a8fd-a71cb284bc20
+        amount:
+          description: The amount of the subcategory.
+          type: number
+          example: 123.45
+        advices:
+          type: array
+          items:
+            $ref: '#/components/schemas/Advice'
+    Advice:
+      description: A financial advice by category
+      properties:
+        description:
+          description: The description of the advice.
+          type: string
+          example: Spend less money in this category
     Errors:
       properties:
         errors:
