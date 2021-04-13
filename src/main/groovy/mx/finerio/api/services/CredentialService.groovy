@@ -97,6 +97,9 @@ class CredentialService {
   @Value('${scraperv2.rangeDates.monthsAgo}') 
   int monthsAgo
 
+  @Autowired
+  SatwsService satwsService
+
   
   Credential create( CredentialDto credentialDto, Customer customer = null, Client client = null ) throws Exception {
 
@@ -310,11 +313,25 @@ class CredentialService {
       rangeDates = getRangeDates( new CredentialRangeDto() )
     }
 
-    if ( credential.institution.provider == Provider.SCRAPER_V2 ) {
-      sendToScraperV2( credential, rangeDates )
-    }else if ( credential.institution.provider == Provider.SCRAPER_V1 ) {
-      sendToScraperV2LegacyPayload( credential, rangeDates )
+    def provider = credential.institution.provider
+
+    switch( provider ) {
+      case Provider.SCRAPER_V2:
+        sendToScraperV2( credential, rangeDates )
+      break
+      case Provider.SCRAPER_V1:
+        sendToScraperV2LegacyPayload( credential, rangeDates )
+      break
+      case Provider.SATWS:      
+        sendToSatws( credential )
+      break
+      default:
+        throw new BadImplementationException(
+            'credentialService.requestData.wrong.provider' )
+
     }
+
+    
 
   }
 
@@ -583,6 +600,21 @@ class CredentialService {
     }
 
     scraperV2Service.createCredentialLegacyPayload( data )
+  }
+
+
+  private void sendToSatws( Credential credential ) throws Exception {
+
+    def plainPassword = cryptService.decrypt( credential.password,
+        credential.iv )
+ 
+
+     def data = [      
+      rfc: credential.username,
+      password: plainPassword
+    ]
+    satwsService.createCredential( data )
+        
   }
   
 

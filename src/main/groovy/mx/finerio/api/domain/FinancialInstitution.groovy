@@ -23,7 +23,8 @@ class FinancialInstitution {
 
   enum Provider {
     SCRAPER_V1,
-    SCRAPER_V2
+    SCRAPER_V2,
+    SATWS
   }
 
   @Id
