@@ -1266,6 +1266,14 @@ components:
           type: boolean
           description: Indicates if the credential should be fetched automatically by Finerio Connect.
           example: true
+        startDate:
+          type: string
+          description: The start date of the financial information, in yyyy-MM-dd format. By default is three months before the current date.
+          example: '2021-12-01'
+        endDate:
+          type: string
+          description: The end date of the financial information, in yyyy-MM-dd format. By default is the current date.
+          example: '2021-12-01'
       required:
         - username
         - password
@@ -1295,6 +1303,14 @@ components:
           type: boolean
           description: Indicates if the credential should be fetched automatically by Finerio Connect.
           example: true
+        startDate:
+          type: string
+          description: The start date of the financial information, in yyyy-MM-dd format. By default is three months before the current date.
+          example: '2021-12-01'
+        endDate:
+          type: string
+          description: The end date of the financial information, in yyyy-MM-dd format. By default is the current date.
+          example: '2021-12-01'
     CredentialTokenBody:
       properties:
         token:
