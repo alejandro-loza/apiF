@@ -18,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional
 import mx.finerio.api.services.AdminService.EntityType
 import java.time.LocalDate
 import java.time.format.DateTimeParseException
+import mx.finerio.api.dtos.CreateCredentialSatwsDto
 
 @Service
 class CredentialService {
@@ -606,14 +607,13 @@ class CredentialService {
   private void sendToSatws( Credential credential ) throws Exception {
 
     def plainPassword = cryptService.decrypt( credential.password,
-        credential.iv )
- 
+        credential.iv ) 
 
-     def data = [      
+     def dto = new CreateCredentialSatwsDto(     
       rfc: credential.username,
       password: plainPassword
-    ]
-    satwsService.createCredential( data )
+    )
+    satwsService.createCredential( dto )
         
   }
   

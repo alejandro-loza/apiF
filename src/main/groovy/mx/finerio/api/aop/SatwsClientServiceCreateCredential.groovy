@@ -10,6 +10,8 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 
 import org.springframework.stereotype.Component
+import mx.finerio.api.dtos.CreateCredentialSatwsDto
+
 
 @Component
 @Aspect
@@ -19,18 +21,18 @@ class SatwsClientServiceCreateCredential{
       'mx.finerio.api.aop.SatwsClientServiceCreateCredential' )
 
   @Pointcut(
-    value='execution(java.lang.String mx.finerio.api.services.SatwsClientService.createCredential(..)) && bean(satwsClientService) && args(data)',
-    argNames='data'
+    value='execution(java.lang.String mx.finerio.api.services.SatwsClientService.createCredential(..)) && bean(satwsClientService) && args(dto)',
+    argNames='dto'
   )
-  public void createCredential( Map data ) {}
+  public void createCredential( CreateCredentialSatwsDto dto ) {}
 
-  @Before('createCredential(data)')
-  void before(Map data) {
-    log.info( "<< data: {}", data )
+  @Before('createCredential(dto)')
+  void before(CreateCredentialSatwsDto dto) {
+    log.info( '<< dto: {}', dto )
   }
 
   @AfterReturning(
-    pointcut='createCredential(java.util.Map)',
+    pointcut='createCredential(mx.finerio.api.dtos.CreateCredentialSatwsDto)',
     returning='response'
   )
   void afterReturning( String response ) {
@@ -38,7 +40,7 @@ class SatwsClientServiceCreateCredential{
   }
 
   @AfterThrowing(
-    pointcut='createCredential(java.util.Map)',
+    pointcut='createCredential(mx.finerio.api.dtos.CreateCredentialSatwsDto)',
     throwing='e'
   )
   void afterThrowing( Exception e ) {

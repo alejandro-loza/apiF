@@ -4,7 +4,7 @@ import groovy.json.JsonSlurper
 import groovy.json.JsonOutput
 
 import mx.finerio.api.dtos.ApiListDto
-import mx.finerio.api.dtos.CredentialErrorDto
+import mx.finerio.api.dtos.CreateCredentialSatwsDto
 
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
@@ -16,6 +16,8 @@ import org.springframework.beans.factory.InitializingBean
 import mx.finerio.api.exceptions.BadImplementationException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
+import groovy.json.JsonSlurper
+import static java.nio.charset.StandardCharsets.*
 
 @Service
 class SatwsClientService  implements InitializingBean {
@@ -35,9 +37,13 @@ class SatwsClientService  implements InitializingBean {
     'mx.finerio.api.services.SatwsClientService' )
 
   
-   String createCredential( Map data) throws Exception {
+   String createCredential( CreateCredentialSatwsDto dto ) throws Exception {
 
-    validateInputCreateCredential( data )
+    validateInputCreateCredential( dto )
+
+    def data =  [ 'type': dto.type,
+                  'rfc': dto.rfc ,
+                  'password': dto.password  ]
     
     def response
       
@@ -49,29 +55,35 @@ class SatwsClientService  implements InitializingBean {
         }
 
     }catch( wslite.rest.RESTClientException e ){
+
       log.info( "XX ${e.class.simpleName} - ${e.message} ${new String( e.getResponse().data )}" )
-      throw new BadImplementationException(
+
+      if( e.response.statusCode == 400 ){
+        def bodyResponse = new JsonSlurper().parseText( new String( e.response.data, UTF_8) )
+          throw new BadImplementationException( bodyResponse['hydra:description'] )
+      }else{
+        throw new BadImplementationException(
           'satwsClientService.createCredential.error.onCall')
+      }
+
     }
-    
-    println response.statusMessage
+
     response.statusMessage
   }
 
-//TODO validate valid RFC.
-  private void validateInputCreateCredential( Map data ) throws Exception {
+  private void validateInputCreateCredential( CreateCredentialSatwsDto data ) throws Exception {
     
-    if( !data.containsKey('type') ){
+    if( !data.type ){
      throw new BadImplementationException(
         'satwsClientService.validateInputCreateCredential.type.null')
     }
 
-    if( !data.containsKey('rfc') ){
+    if( !data.rfc ){
      throw new BadImplementationException(
         'satwsClientService.validateInputCreateCredential.rfc.null')
     }
 
-    if( !data.containsKey('password') ){
+    if( !data.password ){
      throw new BadImplementationException(
         'satwsClientService.validateInputCreateCredential.password.null')
     }

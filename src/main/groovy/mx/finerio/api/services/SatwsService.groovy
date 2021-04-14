@@ -5,6 +5,7 @@ import org.springframework.stereotype.Service
 import org.springframework.beans.factory.InitializingBean
 import mx.finerio.api.exceptions.BadImplementationException
 import org.springframework.beans.factory.annotation.Autowired
+import mx.finerio.api.dtos.CreateCredentialSatwsDto
 
 @Service
 class SatwsService {
@@ -14,10 +15,10 @@ class SatwsService {
   @Autowired
   SatwsClientService satwsClientService
 
-  String createCredential( Map data ) throws Exception {
+  String createCredential( CreateCredentialSatwsDto dto ) throws Exception {
         
-    data.type = DEFAULT_TYPE      
-    satwsClientService.createCredential( data )
+    dto.type = DEFAULT_TYPE      
+    satwsClientService.createCredential( dto )
 
   }
 }
