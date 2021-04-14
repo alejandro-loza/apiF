@@ -68,7 +68,8 @@ class SatwsClientService  implements InitializingBean {
 
     }
 
-    response.statusMessage
+    def bodyResponse = new JsonSlurper().parseText( new String( response.data, UTF_8) )
+    bodyResponse['id']  
   }
 
   private void validateInputCreateCredential( CreateCredentialSatwsDto data ) throws Exception {

@@ -613,7 +613,9 @@ class CredentialService {
       rfc: credential.username,
       password: plainPassword
     )
-    satwsService.createCredential( dto )
+    def credentialId = satwsService.createCredential( dto )
+    credential.scrapperCredentialId = credentialId
+    credentialRepository.save( credential )
         
   }
   
