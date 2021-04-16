@@ -39,9 +39,6 @@ class SatwsClientService  implements InitializingBean {
 
   def satwsClient
 
-  /*final static Map FILE_TYPES = 
-      [ xml: 'text/xml', pdf: 'application/pdf', json: 'application/json' ]*/
-
   final static Logger log = LoggerFactory.getLogger(
     'mx.finerio.api.services.SatwsClientService' )
 
