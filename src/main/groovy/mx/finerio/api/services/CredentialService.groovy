@@ -240,6 +240,28 @@ class CredentialService {
     credential
 
   }
+  
+  Credential findByCustomerAndFinancialIntitution( Customer customer, FinancialInstitution financialInstitution ) throws Exception {
+
+   if ( !customer ) {
+      throw new BadImplementationException(
+          'credentialService.findByCustomerAndFinancialIntitution.customer.null' )
+   }
+
+   if ( !financialInstitution ) {
+      throw new BadImplementationException(
+          'credentialService.findByCustomerAndFinancialIntitution.financialInstitution.null' )
+   }
+
+    def credential = credentialRepository
+      .findByCustomerAndInstitutionAndDateDeletedIsNull( customer, financialInstitution )
+
+    if ( !credential ) {
+      throw new InstanceNotFoundException( 'credential.not.found' )
+    }
+    credential
+  }
+
 
   Credential validateUserCredential( Credential credential, String userId ) throws Exception {
   

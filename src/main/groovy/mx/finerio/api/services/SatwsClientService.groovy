@@ -28,10 +28,19 @@ class SatwsClientService  implements InitializingBean {
   @Value( '${satws.credential.path}' )
   String credentialPath
 
+  @Value( '${satws.invoices.path}' )
+  String invoicesPath
+
+  @Value( '${satws.invoice.path}' )
+  String invoicePath
+
   @Value( '${satws.apikey.path}' )
   String satwsApikey
 
   def satwsClient
+
+  /*final static Map FILE_TYPES = 
+      [ xml: 'text/xml', pdf: 'application/pdf', json: 'application/json' ]*/
 
   final static Logger log = LoggerFactory.getLogger(
     'mx.finerio.api.services.SatwsClientService' )
@@ -71,6 +80,56 @@ class SatwsClientService  implements InitializingBean {
     def bodyResponse = new JsonSlurper().parseText( new String( response.data, UTF_8) )
     bodyResponse['id']  
   }
+
+  
+  Map getInvoicesByParams( String rfc, Map params ) throws Exception {
+    //TODO validate input data
+    def response
+    def updatedPath = invoicesPath.replace( '{rfc}', rfc )​​​​​
+      
+    try{ 
+
+      response = satwsClient.get( path: updatedPath, 
+        query: params,
+        headers: [ 'X-API-Key': satwsApikey ] ) {
+          json data
+        }
+
+    }catch( wslite.rest.RESTClientException e ){
+
+      log.info( "XX ${e.class.simpleName} - ${e.message} ${new String( e.getResponse().data )}" )    
+        throw new BadImplementationException(
+          'satwsClientService.getInvoicesByParams.error.onCall')      
+    }
+
+    new JsonSlurper().parseText( new String( response.data, UTF_8) )
+    
+  }
+
+  String getInvoice( String invoiceId, String accept ) throws Exception {
+    //TODO validate input data
+    def response
+    def updatedPath = invoicePath.replace( '{invoiceId}', invoiceId )​​​​​
+    def headers = [ 'X-API-Key': satwsApikey, 'Accept': accept ]    
+      
+    try{ 
+
+      response = satwsClient.get( path: updatedPath, 
+        query: params,
+        headers: [ 'X-API-Key': satwsApikey ] ) {
+          json data
+        }
+
+    }catch( wslite.rest.RESTClientException e ){
+
+      log.info( "XX ${e.class.simpleName} - ${e.message} ${new String( e.getResponse().data )}" )    
+        throw new BadImplementationException(
+          'satwsClientService.getInvoicesByParams.error.onCall')      
+    }
+
+    new String( response.data, UTF_8)    
+  }
+
 
   private void validateInputCreateCredential( CreateCredentialSatwsDto data ) throws Exception {
     

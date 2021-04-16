@@ -32,11 +32,8 @@ class ResourceServerConfiguration extends ResourceServerConfigurerAdapter {
       .antMatchers( '/8jyY41afTYFyOlyEjzZvqsqxnMEvIinHrJtkztpifVGR62kds9' ).permitAll()
       .antMatchers( '/0M4iZuRoR5RYBZ3bVb8KFeP2epHHtVJjvDpkV5xC0epr3irOhp' ).permitAll()
       .antMatchers( '/lRyxTx5STdiH9fvSg00GYllSreQoEinP0KcH75pO8wk7BFPFuD' ).permitAll()
-      .anyRequest().authenticated()
-
-
-      
-	  
+      .antMatchers( '/FM73Eptuzq24683NNg37GeCHHme4KdaUa2d46S89FCp9MCTnfw' ).permitAll()    
+      .anyRequest().authenticated()            
   }
 
   @Override

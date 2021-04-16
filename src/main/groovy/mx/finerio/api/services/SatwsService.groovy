@@ -24,6 +24,15 @@ class SatwsService {
   @Autowired
   CredentialFailureService credentialFailureService
 
+  @Autowired
+  CredentialService credentialService
+
+  @Autowired
+  CustomerService customerService
+
+  @Autowired
+  FinancialInstitutionService financialInstitutionService
+
 
   String createCredential( CreateCredentialSatwsDto dto ) throws Exception {
         
@@ -32,7 +41,7 @@ class SatwsService {
 
   }
 
-   void processEvent( SatwsEventDto dto ) throws Exception {
+  void processEvent( SatwsEventDto dto ) throws Exception {
         def type = dto.type
 
         switch( type ) {
@@ -43,7 +52,7 @@ class SatwsService {
 
   }
 
-   private void processFailure( SatwsEventDto dto ) throws Exception {
+  private void processFailure( SatwsEventDto dto ) throws Exception {
 
    	def failureDto = new FailureCallbackDto( 
    		data: new FailureCallbackData(
@@ -53,5 +62,25 @@ class SatwsService {
     
     credentialFailureService.processFailure( failureDto )    
 
+  }
+
+
+  Map getInvoicesByParams( Map params ) throws Exception {
+     //TODO validate input
+
+     def financialInstitution = financialInstitutionService.findOneByCode('code')
+     def customer = customerService.findOne('customerId')
+     def credential = credentialService.findByCustomerAndFinancialIntitution( customer, financialInstitution )
+
+     def rfc = credential.username
+
+     //Todo remove customer from params
+     satwsClientService.getInvoicesByParams( rfc, params )
+  }
+
+
+  String getInvoice( String invoiceId, String accept ) throws Exception {
+    //TODO validate input 
+   satwsClientService.getInvoice( invoiceId, accept )
   }
 }
