@@ -17,6 +17,7 @@ class SatwsService {
   final static String DEFAULT_TYPE = "ciec"
   final static String WRONG_CREDENTIAL_CODE = "401"
   final static String WRONG_CREDENTIAL_MESSAGE = "Tu usuario o contraseña son incorrectos"
+  final static String SATWS_CODE = "SATWS"
    
   @Autowired
   SatwsClientService satwsClientService
@@ -68,13 +69,12 @@ class SatwsService {
   Map getInvoicesByParams( Map params ) throws Exception {
      //TODO validate input
 
-     def financialInstitution = financialInstitutionService.findOneByCode('code')
-     def customer = customerService.findOne('customerId')
+     def financialInstitution = financialInstitutionService.findOneByCode( SATWS_CODE )
+     def customer = customerService.findOne( params.customerId as Long )
      def credential = credentialService.findByCustomerAndFinancialIntitution( customer, financialInstitution )
+     def rfc = credential.username    
 
-     def rfc = credential.username
-
-     //Todo remove customer from params
+     params.customerId = null
      satwsClientService.getInvoicesByParams( rfc, params )
   }
 

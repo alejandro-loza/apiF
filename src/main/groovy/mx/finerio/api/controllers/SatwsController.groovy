@@ -6,6 +6,7 @@ import mx.finerio.api.dtos.SatwsEventDto
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.web.bind.annotation.*
 import mx.finerio.api.services.SatwsService
+import org.springframework.http.HttpStatus
 
 @RestController
 class SatwsController {
@@ -15,7 +16,7 @@ class SatwsController {
 
   @GetMapping( '/invoices' )
   ResponseEntity getInvoices( @RequestParam Map<String, String> params  ) {
-    def response = satwsService.getInvoicesByParams( satwsEventDto )    
+    def response = satwsService.getInvoicesByParams( params )    
     new ResponseEntity( response, HttpStatus.OK )
   }
   

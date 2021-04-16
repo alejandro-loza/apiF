@@ -85,15 +85,16 @@ class SatwsClientService  implements InitializingBean {
   Map getInvoicesByParams( String rfc, Map params ) throws Exception {
     //TODO validate input data
     def response
-    def updatedPath = invoicesPath.replace( '{rfc}', rfc )​​​​​
+    println invoicesPath
+    println rfc
+    String updatedPath = invoicesPath.replace( '{rfc}', rfc )
       
     try{ 
 
-      response = satwsClient.get( path: updatedPath, 
+      response = satwsClient.get( 
+        path: updatedPath, 
         query: params,
-        headers: [ 'X-API-Key': satwsApikey ] ) {
-          json data
-        }
+        headers: [ 'X-API-Key': satwsApikey ] ) 
 
     }catch( wslite.rest.RESTClientException e ){
 
@@ -109,7 +110,7 @@ class SatwsClientService  implements InitializingBean {
   String getInvoice( String invoiceId, String accept ) throws Exception {
     //TODO validate input data
     def response
-    def updatedPath = invoicePath.replace( '{invoiceId}', invoiceId )​​​​​
+    def updatedPath = invoicePath.replace( '{invoiceId}', invoiceId )
     def headers = [ 'X-API-Key': satwsApikey, 'Accept': accept ]    
       
     try{ 
