@@ -85,8 +85,6 @@ class SatwsClientService  implements InitializingBean {
   Map getInvoicesByParams( String rfc, Map params ) throws Exception {
     //TODO validate input data
     def response
-    println invoicesPath
-    println rfc
     String updatedPath = invoicesPath.replace( '{rfc}', rfc )
       
     try{ 
@@ -104,22 +102,20 @@ class SatwsClientService  implements InitializingBean {
     }
 
     new JsonSlurper().parseText( new String( response.data, UTF_8) )
-    
+
   }
 
   String getInvoice( String invoiceId, String accept ) throws Exception {
-    //TODO validate input data
+
+    //TODO validate input data    
     def response
     def updatedPath = invoicePath.replace( '{invoiceId}', invoiceId )
     def headers = [ 'X-API-Key': satwsApikey, 'Accept': accept ]    
       
     try{ 
 
-      response = satwsClient.get( path: updatedPath, 
-        query: params,
-        headers: [ 'X-API-Key': satwsApikey ] ) {
-          json data
-        }
+      response = satwsClient.get( path: updatedPath,         
+        headers: headers ) 
 
     }catch( wslite.rest.RESTClientException e ){
 
@@ -128,7 +124,7 @@ class SatwsClientService  implements InitializingBean {
           'satwsClientService.getInvoicesByParams.error.onCall')      
     }
 
-    new String( response.data, UTF_8)    
+    new String( response.data, UTF_8)        
   }
 
 
