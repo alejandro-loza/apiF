@@ -7,6 +7,7 @@ import mx.finerio.api.exceptions.BadRequestException
 import mx.finerio.api.exceptions.InstanceNotFoundException
 import mx.finerio.api.domain.repository.*
 import mx.finerio.api.domain.*
+import mx.finerio.api.domain.FinancialInstitution.Provider
 import mx.finerio.api.dtos.*
 
 import org.springframework.beans.factory.annotation.Autowired
@@ -313,10 +314,9 @@ class CredentialService {
       rangeDates = getRangeDates( new CredentialRangeDto() )
     }
 
-    if ( credential.institution.code == 'BBVA' 
-      || credential.institution.code == 'BANREGIO' ) {
+    if ( credential.institution.provider == Provider.SCRAPER_V2 ) {
       sendToScraperV2( credential, rangeDates )
-    }else{
+    }else if ( credential.institution.provider == Provider.SCRAPER_V1 ) {
       sendToScraperV2LegacyPayload( credential, rangeDates )
     }
 

@@ -4,6 +4,7 @@ import mx.finerio.api.domain.Account
 import mx.finerio.api.domain.AccountCredential
 import mx.finerio.api.domain.Credential
 import mx.finerio.api.domain.FinancialInstitution
+import mx.finerio.api.domain.FinancialInstitution.Provider
 import mx.finerio.api.domain.User
 import mx.finerio.api.domain.repository.AccountCredentialRepository
 import mx.finerio.api.domain.repository.AccountRepository
@@ -46,7 +47,7 @@ class AccountServiceCreateSpec extends Specification {
       result.nature == 'Cuenta'
     where:
       accountData = getAccountData()
-      institution = new FinancialInstitution( code: 'CODE' )
+      institution = getFinancialInstitution()
       user = new User()
 
   }
@@ -67,7 +68,7 @@ class AccountServiceCreateSpec extends Specification {
       result instanceof Account
     where:
       accountData = getAccountData()
-      institution = new FinancialInstitution( code: 'CODE' )
+      institution = getFinancialInstitution()
       user = new User()
 
   }
@@ -88,7 +89,7 @@ class AccountServiceCreateSpec extends Specification {
       result instanceof Account
     where:
       accountData = getAccountData()
-      institution = new FinancialInstitution( code: 'CODE' )
+      institution = getFinancialInstitution()
       user = new User()
 
   }
@@ -109,7 +110,7 @@ class AccountServiceCreateSpec extends Specification {
       result instanceof Account
     where:
       accountData = getAccountData()
-      institution = new FinancialInstitution( code: 'CODE' )
+      institution = getFinancialInstitution()
       user = new User()
 
   }
@@ -134,7 +135,7 @@ class AccountServiceCreateSpec extends Specification {
     where:
       accountData = getAccountData()
       myNature = 'something'
-      institution = new FinancialInstitution( code: 'CODE' )
+      institution = getFinancialInstitution()
       user = new User()
 
   }
@@ -158,6 +159,15 @@ class AccountServiceCreateSpec extends Specification {
       credential_id: 'credential_id',
       name: 'name',
       nature: 'account'
+    )
+
+  }
+
+  private FinancialInstitution getFinancialInstitution() throws Exception {
+
+    return new FinancialInstitution(
+      code: 'CODE',
+      provider: Provider.SCRAPER_V1
     )
 
   }
