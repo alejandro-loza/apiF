@@ -63,6 +63,26 @@ class CredentialServiceRequestDataSpec extends Specification {
 
   }
 
+  def "invoking method successfully with status PARTIALLY_ACTIVE"() {
+
+    when:
+    service.requestData( credentialId )
+    then:
+    1 * securityService.getCurrent() >> client
+    1 * credentialRepository.findOne( _ as String ) >>
+            new Credential( id: credentialId, customer: new Customer(
+                    client: client ),
+                    institution: new FinancialInstitution(status: FinancialInstitution.Status.PARTIALLY_ACTIVE),
+                    user: new User() )
+    1 * credentialRepository.save( _ as Credential )
+    1 * scraperCallbackService.processSuccess(_ as SuccessCallbackDto)
+    1 * scraperCallbackService.postProcessSuccess( _ as Credential )
+    where:
+    credentialId = UUID.randomUUID().toString()
+    client = new Client( id: 1 )
+
+  }
+
   def "invoking method successfully (credential updated an hour ago)"() {
 
     when:
