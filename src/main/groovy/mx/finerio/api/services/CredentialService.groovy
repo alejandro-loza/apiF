@@ -413,7 +413,7 @@ class CredentialService {
         'credentialService.processInteractive.institutionCode.wrong' )
     }
 
-    if ( institutionCode == 'BANORTE' || institutionCode == 'BAZ' ) {
+    if ( credential.institution.provider == Provider.SCRAPER_V2 ) {
       scraperV2TokenService.send( credentialInteractiveDto.token, id, institutionCode )
     } else {
 
@@ -520,8 +520,7 @@ class CredentialService {
       securityCode: credential.securityCode
     ]
 
-    def institutionCode = credential.institution.code
-    if( [ 'BAZ','BANORTE' ].contains( institutionCode ) ) {
+    if ( credential.institution.provider == Provider.SCRAPER_V2 ) {
       callbackGatewayClientService
         .registerCredential( [ credentialId: credential.id ,source: source ] )
     }
@@ -580,8 +579,7 @@ class CredentialService {
       endDate: rangeDates.endDate,
     ]
 
-    def institutionCode = credential.institution.code
-    if( [ 'BAZ','BANORTE' ].contains( institutionCode ) ) {
+    if ( credential.institution.provider == Provider.SCRAPER_V2 ) {
       callbackGatewayClientService
         .registerCredential( [ credentialId: credential.id ,source: source ] )
     }
