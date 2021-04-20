@@ -5,7 +5,6 @@ import javax.servlet.http.HttpServletRequest
 import mx.finerio.api.domain.Callback
 import mx.finerio.api.domain.Credential
 import mx.finerio.api.domain.Client
-import mx.finerio.api.domain.FinancialInstitution.Provider
 import mx.finerio.api.dtos.AccountDto
 import mx.finerio.api.dtos.FailureCallbackDto
 import mx.finerio.api.dtos.TransactionDto
@@ -165,7 +164,7 @@ class ScraperCallbackController {
     }
 
     def institutionCode = credential.institution.code
-    if ( credential.institution.provider == Provider.SCRAPER_V2
+    if( [ 'BAZ','BANORTE' ].contains( institutionCode )
       && data.stage == 'interactive') 
       { 
         return ResponseEntity.ok().build()
