@@ -80,7 +80,12 @@ class SatwsClientService  implements InitializingBean {
 
   
   Map getInvoicesByParams( String rfc, Map params ) throws Exception {
-    //TODO validate input data
+    
+     if ( !rfc ) {
+      throw new BadImplementationException(
+        'SatwsClientService.getInvoicesByParams.rfc.null' )
+    }  
+
     def response
     String updatedPath = invoicesPath.replace( '{rfc}', rfc )
       
@@ -104,7 +109,7 @@ class SatwsClientService  implements InitializingBean {
 
   String getInvoice( String invoiceId, String accept ) throws Exception {
 
-    //TODO validate input data    
+    
     def response
     def updatedPath = invoicePath.replace( '{invoiceId}', invoiceId )
     def headers = [ 'X-API-Key': satwsApikey, 'Accept': accept ]    

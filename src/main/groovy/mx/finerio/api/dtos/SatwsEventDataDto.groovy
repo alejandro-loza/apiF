@@ -3,9 +3,8 @@ package mx.finerio.api.dtos
 import groovy.transform.ToString
 
 @ToString(includePackage = false, includeNames = true)
-class SatwsEventDto {
+class SatwsEventDataDto {
 
-  String type
-  SatwsEventDataDto data
+  SatwsObjectDto object
 
 }

@@ -13,4 +13,7 @@ interface CredentialRepository extends JpaRepository<Credential, Long>, JpaSpeci
 
   Credential findByCustomerAndInstitutionAndDateDeletedIsNull(
       Customer customer, FinancialInstitution institution )     
+
+   Credential findByScrapperCredentialIdAndInstitutionAndDateDeletedIsNull(
+      String scrapperCredentialId, FinancialInstitution institution )     
 }

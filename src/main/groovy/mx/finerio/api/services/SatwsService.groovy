@@ -15,7 +15,7 @@ import mx.finerio.api.dtos.FailureCallbackData
 class SatwsService {
 
   final static String DEFAULT_TYPE = "ciec"
-  final static String WRONG_CREDENTIAL_CODE = "401"
+  final static Integer WRONG_CREDENTIAL_CODE = 401
   final static String WRONG_CREDENTIAL_MESSAGE = "Tu usuario o contraseña son incorrectos"
   final static String SATWS_CODE = "SATWS"
    
@@ -43,44 +43,110 @@ class SatwsService {
   }
 
   void processEvent( SatwsEventDto dto ) throws Exception {
-        def type = dto.type
 
-        switch( type ) {
-        	case 'invalid':
-        		processFailure( dto )
-        	break
-        }   
+    validateInputProcessEvent( dto )
+
+    if ( !'credential.updated'.equals(dto.type) ) {
+      return
+    }
+
+    def status = dto.data.object.status
+
+    switch( status ) {
+    	case 'invalid':
+    		processFailure( dto )
+    	break
+    }   
+
+  }
+
+  private void validateInputProcessEvent( SatwsEventDto dto ){
+
+    if ( !dto.type ) {
+      throw new BadImplementationException(
+        'satwsService.processEvent.type.null' )
+    }
+
+   if ( !dto.data.object.id ) {
+      throw new BadImplementationException(
+        'satwsService.processEvent.credentialId.null' )
+    }
+
+   if ( !dto.data.object.status ) {
+      throw new BadImplementationException(
+        'satwsService.processEvent.type.null' )
+    }
 
   }
 
   private void processFailure( SatwsEventDto dto ) throws Exception {
 
+    def financialInstitution = financialInstitutionService.findOneByCode( SATWS_CODE )
+    if ( !financialInstitution ) {
+      throw new BadImplementationException(
+        'satwsService.processFailure.financialInstitution.notFound' )
+    } 
+
+    def credential = credentialService
+      .findByScrapperCredentialIdAndInstitution(
+        dto.data.object.id, financialInstitution)
+
    	def failureDto = new FailureCallbackDto( 
    		data: new FailureCallbackData(
-   			 credential_id: dto.id,
-   			 error_message: WRONG_CREDENTIAL_CODE, 
-   			 status_code: WRONG_CREDENTIAL_MESSAGE) )
+   			 credential_id: credential.id,
+   			 error_message: WRONG_CREDENTIAL_MESSAGE,
+   			 status_code: WRONG_CREDENTIAL_CODE) )
     
     credentialFailureService.processFailure( failureDto )    
+    println 'after procesing failure'
 
   }
 
 
   Map getInvoicesByParams( Map params ) throws Exception {
-     //TODO validate input
 
-     def financialInstitution = financialInstitutionService.findOneByCode( SATWS_CODE )
-     def customer = customerService.findOne( params.customerId as Long )
-     def credential = credentialService.findByCustomerAndFinancialIntitution( customer, financialInstitution )
+     if ( !params.customerId ) {
+      throw new BadImplementationException(
+        'satwsService.getInvoicesByParams.params.customerId.null' )
+    }     
+
+    def financialInstitution = financialInstitutionService.findOneByCode( SATWS_CODE )
+    if ( !financialInstitution ) {
+      throw new BadImplementationException(
+        'satwsService.getInvoicesByParams.financialInstitution.notFound' )
+    }      
+    
+    def customer = customerService.findOne( params.customerId as Long )
+    if ( !customer ) {
+      throw new BadImplementationException(
+        'satwsService.getInvoicesByParams.customer.notFound' )
+    }
+
+    def credential = credentialService.findByCustomerAndFinancialIntitution( customer, financialInstitution )
+    if ( !credential ) {
+      throw new BadImplementationException(
+        'satwsService.getInvoicesByParams.credential.notFound' )
+    }      
      def rfc = credential.username    
-
      params.customerId = null
      satwsClientService.getInvoicesByParams( rfc, params )
-  }
 
+  }
 
   String getInvoice( String invoiceId, String accept ) throws Exception {
-    //TODO validate input 
-   satwsClientService.getInvoice( invoiceId, accept )
+
+
+    if ( !invoiceId ) {
+      throw new BadImplementationException(
+        'satwsService.getInvoice.invoiceId.null' )
+    }  
+
+    if ( !accept ) {
+      throw new BadImplementationException(
+        'satwsService.getInvoice.accept.null' )
+    }      
+    
+    satwsClientService.getInvoice( invoiceId, accept )
   }
+
 }

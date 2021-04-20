@@ -263,6 +263,30 @@ class CredentialService {
   }
 
 
+  Credential findByScrapperCredentialIdAndInstitution(
+     String scrapperCredentialId, FinancialInstitution financialInstitution ) throws Exception {
+
+    if ( !scrapperCredentialId ) {
+      throw new BadImplementationException(
+          'credentialService.findByCustomerAndFinancialIntitution.scrapperCredentialId.null' )
+   }
+
+   if ( !financialInstitution ) {
+      throw new BadImplementationException(
+          'credentialService.findByCustomerAndFinancialIntitution.financialInstitution.null' )
+   }
+
+    def credential = credentialRepository
+      .findByScrapperCredentialIdAndInstitutionAndDateDeletedIsNull( scrapperCredentialId, financialInstitution )
+
+    if ( !credential ) {
+      throw new InstanceNotFoundException( 'credential.not.found' )
+    }
+    
+    credential
+  }
+
+
   Credential validateUserCredential( Credential credential, String userId ) throws Exception {
   
     if ( !credential ) {
