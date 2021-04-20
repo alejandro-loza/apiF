@@ -9,7 +9,6 @@ import mx.finerio.api.domain.repository.CredentialRepository
 import mx.finerio.api.domain.FinancialInstitution
 import mx.finerio.api.domain.User
 import mx.finerio.api.dtos.SuccessCallbackDto
-import mx.finerio.api.dtos.ScraperWebSocketSendDto
 import mx.finerio.api.exceptions.BadImplementationException
 import mx.finerio.api.exceptions.InstanceNotFoundException
 
@@ -23,7 +22,7 @@ class CredentialServiceRequestDataSpec extends Specification {
   def credentialStatusHistoryService = Mock( CredentialStatusHistoryService )
   def scraperService = Mock( DevScraperService )
   def scraperCallbackService = Mock( ScraperCallbackService )
-  def scraperWebSocketService = Mock( ScraperWebSocketService )
+  def scraperV2TokenService = Mock( ScraperV2TokenService )
   def securityService = Mock( SecurityService )
   def credentialRepository = Mock( CredentialRepository )
   def scraperV2Service = Mock( ScraperV2Service )
@@ -35,7 +34,7 @@ class CredentialServiceRequestDataSpec extends Specification {
     service.credentialStatusHistoryService = credentialStatusHistoryService
     service.scraperService = scraperService
     service.scraperCallbackService = scraperCallbackService
-    service.scraperWebSocketService = scraperWebSocketService
+    service.scraperV2TokenService = scraperV2TokenService
     service.securityService = securityService
     service.credentialRepository = credentialRepository
     service.scraperV2Service = scraperV2Service
