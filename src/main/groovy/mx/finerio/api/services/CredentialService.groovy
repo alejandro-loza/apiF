@@ -58,9 +58,6 @@ class CredentialService {
   ScraperCallbackService scraperCallbackService
 
   @Autowired
-  ScraperWebSocketService scraperWebSocketService
-
-  @Autowired
   SecurityService securityService
 
   @Autowired
@@ -413,24 +410,7 @@ class CredentialService {
         'credentialService.processInteractive.institutionCode.wrong' )
     }
 
-    if ( credential.institution.provider == Provider.SCRAPER_V2 ) {
-      scraperV2TokenService.send( credentialInteractiveDto.token, id, institutionCode )
-    } else {
-
-      def data = [ data: [
-        stage: 'interactive',
-        id: credential.id,
-        user_id: credential.user.id,
-        otp: credentialInteractiveDto.token
-      ] ]
-      scraperWebSocketService.send( new ScraperWebSocketSendDto(
-        id: credential.id,
-        message: new JsonBuilder( data ).toString(),
-        tokenSent: true,
-        destroyPreviousSession: false ) )
-
-    }
-    
+    scraperV2TokenService.send( credentialInteractiveDto.token, id, institutionCode )
     widgetEventsService.onCredentialCreated( new WidgetEventsDto(
         credentialId: credential.id ) )
 
@@ -520,31 +500,13 @@ class CredentialService {
       securityCode: credential.securityCode
     ]
 
-    if ( credential.institution.provider == Provider.SCRAPER_V2 ) {
+    def institutionCode = credential.institution.code
+    if( [ 'BAZ','BANORTE' ].contains( institutionCode ) ) {
       callbackGatewayClientService
         .registerCredential( [ credentialId: credential.id ,source: source ] )
     }
 
     scraperService.requestData( data )
-  }
-
-  private void sendToScraperWebSocket( Credential credential )
-      throws Exception {
-
-    def data = [ data: [
-      stage: 'start',
-      id: credential.id,
-      tarjeta: credential.username,
-      password: credential.password,
-      iv: credential.iv,
-      user_id: credential.user.id
-    ] ]
-    scraperWebSocketService.send( new ScraperWebSocketSendDto(
-        id: credential.id,
-        message: new JsonBuilder( data ).toString(),
-        tokenSent: false,
-        destroyPreviousSession: true ) )
-
   }
 
   private void sendToScraperV2(  Credential credential, Map rangeDates  ) {
@@ -579,7 +541,8 @@ class CredentialService {
       endDate: rangeDates.endDate,
     ]
 
-    if ( credential.institution.provider == Provider.SCRAPER_V2 ) {
+    def institutionCode = credential.institution.code
+    if( [ 'BAZ','BANORTE' ].contains( institutionCode ) ) {
       callbackGatewayClientService
         .registerCredential( [ credentialId: credential.id ,source: source ] )
     }
