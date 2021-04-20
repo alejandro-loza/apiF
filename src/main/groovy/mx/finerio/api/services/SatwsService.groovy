@@ -9,7 +9,8 @@ import mx.finerio.api.dtos.CreateCredentialSatwsDto
 import mx.finerio.api.dtos.SatwsEventDto
 import mx.finerio.api.dtos.FailureCallbackDto
 import mx.finerio.api.dtos.FailureCallbackData
-
+import mx.finerio.api.dtos.SuccessCallbackDto
+import mx.finerio.api.domain.Credential
 
 @Service
 class SatwsService {
@@ -33,6 +34,9 @@ class SatwsService {
 
   @Autowired
   FinancialInstitutionService financialInstitutionService
+  
+  @Autowired
+  ScraperCallbackService scraperCallbackService
 
 
   String createCredential( CreateCredentialSatwsDto dto ) throws Exception {
@@ -46,19 +50,17 @@ class SatwsService {
 
     validateInputProcessEvent( dto )
 
-    if ( !'credential.updated'.equals(dto.type) ) {
-      return
+    if ( 'credential.updated' == dto.type ) {
+
+      def status = dto.data.object.status
+    	if( 'invalid' == status ){
+    	 processFailure( dto )
+      }
+
+    }else if ( 'extraction.updated' == dto.type ) {
+      processSuccess( dto )      
     }
-
-    def status = dto.data.object.status
-
-    switch( status ) {
-    	case 'invalid':
-    		processFailure( dto )
-    	break
-    }   
-
-  }
+  } 
 
   private void validateInputProcessEvent( SatwsEventDto dto ){
 
@@ -79,17 +81,38 @@ class SatwsService {
 
   }
 
-  private void processFailure( SatwsEventDto dto ) throws Exception {
+  private Credential getCredentialByProviderId( String  providerId ){
 
     def financialInstitution = financialInstitutionService.findOneByCode( SATWS_CODE )
     if ( !financialInstitution ) {
       throw new BadImplementationException(
-        'satwsService.processFailure.financialInstitution.notFound' )
+        'satwsService.getCredentialByProviderId.financialInstitution.notFound' )
     } 
 
     def credential = credentialService
       .findByScrapperCredentialIdAndInstitution(
-        dto.data.object.id, financialInstitution)
+        providerId, financialInstitution)
+
+      credential
+  }
+
+  private void processSuccess( SatwsEventDto dto ) throws Exception {
+ 
+    def credential = 
+      getCredentialByProviderId( dto.data.object.id )
+      
+    def successdto = SuccessCallbackDto
+      .getInstanceFromCredentialId( credential.id )
+      
+    credential = scraperCallbackService.processSuccess( successdto )
+    scraperCallbackService.postProcessSuccess( credential )
+    
+  }
+
+  private void processFailure( SatwsEventDto dto ) throws Exception {
+ 
+    def credential = 
+      getCredentialByProviderId( dto.data.object.id )
 
    	def failureDto = new FailureCallbackDto( 
    		data: new FailureCallbackData(
@@ -98,10 +121,8 @@ class SatwsService {
    			 status_code: WRONG_CREDENTIAL_CODE) )
     
     credentialFailureService.processFailure( failureDto )    
-    println 'after procesing failure'
-
+    
   }
-
 
   Map getInvoicesByParams( Map params ) throws Exception {
 
