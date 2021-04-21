@@ -69,14 +69,14 @@ class SatwsService {
         'satwsService.processEvent.type.null' )
     }
 
-   if ( !dto.data.object.id ) {
+   if ( !dto.data?.object?.id ) {
       throw new BadImplementationException(
         'satwsService.processEvent.credentialId.null' )
     }
 
-   if ( !dto.data.object.status ) {
+   if ( !dto.data?.object?.status ) {
       throw new BadImplementationException(
-        'satwsService.processEvent.type.null' )
+        'satwsService.processEvent.status.null' )
     }
 
   }
