@@ -78,12 +78,30 @@ class SatwsClientService  implements InitializingBean {
     bodyResponse['id']  
   }
 
+  private void validateInputCreateCredential( CreateCredentialSatwsDto data ) throws Exception {
+    
+    if( !data.type ){
+     throw new BadImplementationException(
+        'satwsClientService.validateInputCreateCredential.type.null')
+    }
+
+    if( !data.rfc ){
+     throw new BadImplementationException(
+        'satwsClientService.validateInputCreateCredential.rfc.null')
+    }
+
+    if( !data.password ){
+     throw new BadImplementationException(
+        'satwsClientService.validateInputCreateCredential.password.null')
+    }
+
+  }   
   
   Map getInvoicesByParams( String rfc, Map params ) throws Exception {
     
      if ( !rfc ) {
       throw new BadImplementationException(
-        'SatwsClientService.getInvoicesByParams.rfc.null' )
+        'satwsClientService.getInvoicesByParams.rfc.null' )
     }  
 
     def response
@@ -129,25 +147,6 @@ class SatwsClientService  implements InitializingBean {
     new String( response.data, UTF_8)        
   }
 
-
-  private void validateInputCreateCredential( CreateCredentialSatwsDto data ) throws Exception {
-    
-    if( !data.type ){
-     throw new BadImplementationException(
-        'satwsClientService.validateInputCreateCredential.type.null')
-    }
-
-    if( !data.rfc ){
-     throw new BadImplementationException(
-        'satwsClientService.validateInputCreateCredential.rfc.null')
-    }
-
-    if( !data.password ){
-     throw new BadImplementationException(
-        'satwsClientService.validateInputCreateCredential.password.null')
-    }
-
-  } 
 
   @Override
   public void afterPropertiesSet() throws Exception {

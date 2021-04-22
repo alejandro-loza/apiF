@@ -60,6 +60,7 @@ class CredentialServiceFindByCustomerAndFinancialIntitutionSpec extends Specific
     where:
       customer =  new Customer()
       financialInstitution = null
+
   }
 
 }
