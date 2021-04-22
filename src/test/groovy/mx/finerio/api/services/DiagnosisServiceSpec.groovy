@@ -1,7 +1,6 @@
 package mx.finerio.api.services
 
 import mx.finerio.api.domain.Category
-import mx.finerio.api.domain.Transaction
 import mx.finerio.api.domain.repository.TransactionRepository
 import mx.finerio.api.dtos.DiagnosisDto
 import mx.finerio.api.dtos.MonthTransactionsDiagnosisDto
@@ -53,7 +52,7 @@ class DiagnosisServiceSpec extends Specification{
         when:
 
         1 * diagnosisService.transactionRepository.findAllByCustomerId(_ as Long) >> [transactionChargeNow, transactionChargeTwoMonths, transactionIncomeNow, transactionIncomeTwoMonths]
-        diagnosisService.categoryService.findAll() >> [parentCategory, subCategory] //todo solve this must be 1 call
+        1 * diagnosisService.categoryService.findAll() >> [parentCategory, subCategory]
         DiagnosisDto response = diagnosisService.getDiagnosisByCustomer(1L)
 
         then:

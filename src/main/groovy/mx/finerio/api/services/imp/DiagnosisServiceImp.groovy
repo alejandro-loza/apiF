@@ -7,6 +7,7 @@ import mx.finerio.api.dtos.CategoryDiagnosisDto
 import mx.finerio.api.dtos.DiagnosisDto
 import mx.finerio.api.dtos.MonthTransactionsDiagnosisDto
 import mx.finerio.api.dtos.SubCategoryDiagnosisDto
+import org.springframework.stereotype.Service
 import java.util.stream.Collectors
 import mx.finerio.api.services.CategoryService
 import mx.finerio.api.services.DiagnosisService
@@ -15,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired
 
 import java.text.SimpleDateFormat
 
+@Service
 class DiagnosisServiceImp extends InsightsService implements DiagnosisService {
 
     @Autowired
@@ -23,10 +25,11 @@ class DiagnosisServiceImp extends InsightsService implements DiagnosisService {
     @Override
     DiagnosisDto getDiagnosisByCustomer(Long customerId ) throws Exception {
         List<ApiTransactionDto> transactions = getTransactions(customerId)
+        List<Category> listOfCategories = categoryService.findAll()
         DiagnosisDto diagnosisDto = new DiagnosisDto()
         diagnosisDto.with {
             averageIncome = getAverageIncome(transactions)
-            data = transactionsGroupByMonth(transactions)
+            data = transactionsGroupByMonth(transactions, listOfCategories)
         }
         return diagnosisDto
     }
@@ -36,32 +39,32 @@ class DiagnosisServiceImp extends InsightsService implements DiagnosisService {
         incomesTransactions*.amount.sum() / incomesTransactions.size()
     }
 
-    private List<MonthTransactionsDiagnosisDto> transactionsGroupByMonth(List<ApiTransactionDto> transactionList){
+    private List<MonthTransactionsDiagnosisDto> transactionsGroupByMonth(List<ApiTransactionDto> transactionList, List<Category> listOfCategories){
         List<MonthTransactionsDiagnosisDto> movementsAnalysisDtos = []
         Map<String, List<ApiTransactionDto>> list =  transactionList.stream()
                 .collect( Collectors.groupingBy({ ApiTransactionDto transaction ->
                     new SimpleDateFormat("yyyy-MM").format(transaction.date)
                 }))
         for ( Map.Entry<String, List<ApiTransactionDto>> entry : list.entrySet() ) {
-            movementsAnalysisDtos.add( generateMonthlyDiagnosisDto( entry.key, entry.value ) )
+            movementsAnalysisDtos.add( generateMonthlyDiagnosisDto( entry.key, entry.value, listOfCategories) )
         }
         movementsAnalysisDtos
     }
 
-    private MonthTransactionsDiagnosisDto generateMonthlyDiagnosisDto(String stringDate, List<ApiTransactionDto> transactions){
+    private MonthTransactionsDiagnosisDto generateMonthlyDiagnosisDto(String stringDate, List<ApiTransactionDto> transactions, List<Category> listOfCategories){
         MonthTransactionsDiagnosisDto monthTransactionsDiagnosisDto = new MonthTransactionsDiagnosisDto()
         monthTransactionsDiagnosisDto.with {
             date = stringDate
-            categories = generateMonthCategoriesDiagnosis(transactions)
+            categories = generateMonthCategoriesDiagnosis(transactions, listOfCategories)
         }
         return monthTransactionsDiagnosisDto
     }
 
-    private List<CategoryDiagnosisDto> generateMonthCategoriesDiagnosis(List<ApiTransactionDto> transactions){
+    private List<CategoryDiagnosisDto> generateMonthCategoriesDiagnosis(List<ApiTransactionDto> transactions, List<Category> listOfCategories){
         List<CategoryDiagnosisDto> categoryDiagnosisDtos = []
         Map<String, List<ApiTransactionDto>> list =  transactions.stream()
                 .collect( Collectors.groupingBy({ ApiTransactionDto transaction ->
-                    getParentCategoryId(transaction)
+                    getParentCategoryId(transaction, listOfCategories)
                 }))
 
         for ( Map.Entry<String, List<ApiTransactionDto>> entry : list.entrySet() ) {
@@ -102,8 +105,7 @@ class DiagnosisServiceImp extends InsightsService implements DiagnosisService {
         }
     }
 
-    private String getParentCategoryId(ApiTransactionDto transaction) {
-        def listOfCategories = categoryService.findAll()//todo singleton!!
+    private String getParentCategoryId(ApiTransactionDto transaction, List<Category> listOfCategories) {
         getCategoryId(listOfCategories , transaction.categoryId)
     }
 
