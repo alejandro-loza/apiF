@@ -139,9 +139,9 @@ class SatwsClientService  implements InitializingBean {
 
     }catch( wslite.rest.RESTClientException e ){
 
-      log.info( "XX ${e.class.simpleName} - ${e.message} ${new String( e.getResponse().data )}" )    
-        throw new BadImplementationException(
-          'satwsClientService.getInvoicesByParams.error.onCall')      
+      log.info( "XX ${e.class.simpleName} - ${e.message} ${new String( e.getResponse().data )}" ) 
+      return  new String( e.response.data, UTF_8)    
+        
     }
 
     new String( response.data, UTF_8)        
@@ -150,7 +150,9 @@ class SatwsClientService  implements InitializingBean {
 
   @Override
   public void afterPropertiesSet() throws Exception {
-      satwsClient = new RESTClient( url )      
+      satwsClient = new RESTClient( url )    
+
+      
   } 
 
 }
