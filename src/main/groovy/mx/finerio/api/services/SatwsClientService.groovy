@@ -31,9 +31,21 @@ class SatwsClientService  implements InitializingBean {
   @Value( '${satws.invoices.path}' )
   String invoicesPath
 
+  @Value( '${satws.links.path}' )
+  String linksPath
+
   @Value( '${satws.invoice.path}' )
   String invoicePath
 
+  @Value( '${satws.payments.path}' )
+  String paymentsPath
+
+  @Value( '${satws.invoicePayments.path}' )
+  String invoicePaymentsPath
+
+  @Value( '${satws.taxpayerInvoicePayments.path}' )
+  String taxpayerInvoicePaymentsPath
+  
   @Value( '${satws.apikey.path}' )
   String satwsApikey
 
@@ -146,6 +158,177 @@ class SatwsClientService  implements InitializingBean {
 
     new String( response.data, UTF_8)        
   }
+
+    Map getLinksByParams( String rfc, Map params ) throws Exception {
+    
+     if ( !rfc ) {
+      throw new BadImplementationException(
+        'satwsClientService.getLinksByParams.rfc.null' )
+    }  
+
+    def response
+        
+    try{ 
+
+      response = satwsClient.get( 
+        path: linksPath, 
+        query: params,
+        headers: [ 'X-API-Key': satwsApikey ] ) 
+
+    }catch( wslite.rest.RESTClientException e ){
+
+      log.info( "XX ${e.class.simpleName} - ${e.message} ${new String( e.getResponse().data )}" )    
+        throw new BadImplementationException(
+          'satwsClientService.getLinksByParams.error.onCall')      
+    }
+
+    new JsonSlurper().parseText( new String( response.data, UTF_8) )
+
+  }
+
+  Map getLink( String linkId  ) throws Exception {
+    
+    def response
+    def updatedPath = "$linksPath/$linkId"
+    def headers = [ 'X-API-Key': satwsApikey ]    
+      
+    try{ 
+
+      response = satwsClient.get( path: updatedPath,         
+        headers: headers ) 
+
+    }catch( wslite.rest.RESTClientException e ){
+
+      log.info( "XX ${e.class.simpleName} - ${e.message} ${new String( e.getResponse().data )}" )    
+      throw new BadImplementationException(
+      'satwsClientService.getLink.error.onCall')    
+        
+    }
+    new JsonSlurper().parseText( new String( response.data, UTF_8) )
+  }
+
+
+  String deleteLink( String linkId ) throws Exception {
+
+    
+    def response
+    def updatedPath = "$linksPath/$linkId"
+    def headers = [ 'X-API-Key': satwsApikey ]    
+      
+    try{ 
+
+      response = satwsClient.delete( path: updatedPath,         
+        headers: headers ) 
+
+    }catch( wslite.rest.RESTClientException e ){
+
+      log.info( "XX ${e.class.simpleName} - ${e.message} ${new String( e.getResponse().data )}" ) 
+      return  new String( e.response.data, UTF_8)    
+        
+    }
+    response.statusMessage
+  }
+///start payments
+
+Map getPayments( Map params ) throws Exception {
+   
+    def response
+        
+    try{ 
+
+      response = satwsClient.get( 
+        path: paymentsPath, 
+        query: params,
+        headers: [ 'X-API-Key': satwsApikey ] ) 
+
+    }catch( wslite.rest.RESTClientException e ){
+
+      log.info( "XX ${e.class.simpleName} - ${e.message} ${new String( e.getResponse().data )}" )    
+        throw new BadImplementationException(
+          'satwsClientService.getPayments.error.onCall')      
+    }
+
+    new JsonSlurper().parseText( new String( response.data, UTF_8) )
+
+  }
+
+  String getPayment( String paymentId  ) throws Exception {
+
+    
+    def response
+    def updatedPath = "$paymentsPath/$paymentId"
+    def headers = [ 'X-API-Key': satwsApikey ]    
+      
+    try{ 
+
+      response = satwsClient.get( path: updatedPath,         
+        headers: headers ) 
+
+    }catch( wslite.rest.RESTClientException e ){
+
+      log.info( "XX ${e.class.simpleName} - ${e.message} ${new String( e.getResponse().data )}" ) 
+      return  new String( e.response.data, UTF_8)    
+        
+    }
+    new JsonSlurper().parseText( new String( response.data, UTF_8) )
+  }
+
+Map getInvoicePayments( String invoiceId , Map params ) throws Exception {
+   
+    def response
+    String updatedPath = invoicePaymentsPath.replace( '{invoiceId}', invoiceId )
+        
+    try{ 
+
+      response = satwsClient.get( 
+        path: updatedPath, 
+        query: params,
+        headers: [ 'X-API-Key': satwsApikey ] ) 
+
+    }catch( wslite.rest.RESTClientException e ){
+
+      log.info( "XX ${e.class.simpleName} - ${e.message} ${new String( e.getResponse().data )}" )    
+        throw new BadImplementationException(
+          'satwsClientService.getInvoicePayments.error.onCall')      
+    }
+
+    new JsonSlurper().parseText( new String( response.data, UTF_8) )
+
+  }
+
+
+  Map getTaxpayerInvoicePayments( String taxPayerId , Map params ) throws Exception {
+   
+    def response
+    String updatedPath = taxpayerInvoicePaymentsPath.replace( '{taxPayerId}', taxPayerId )
+        
+    try{ 
+
+      response = satwsClient.get( 
+        path: updatedPath, 
+        query: params,
+        headers: [ 'X-API-Key': satwsApikey ] ) 
+
+    }catch( wslite.rest.RESTClientException e ){
+
+      log.info( "XX ${e.class.simpleName} - ${e.message} ${new String( e.getResponse().data )}" )    
+        throw new BadImplementationException(
+          'satwsClientService.getTaxpayerInvoicePayments.error.onCall')      
+    }
+
+    new JsonSlurper().parseText( new String( response.data, UTF_8) )
+
+  }
+
+
+
+
+
+//Finish payments
+
+
+
+
 
 
   @Override

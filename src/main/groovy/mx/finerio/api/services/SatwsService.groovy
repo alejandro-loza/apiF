@@ -129,29 +129,35 @@ class SatwsService {
      if ( !params.customerId ) {
       throw new BadImplementationException(
         'satwsService.getInvoicesByParams.params.customerId.null' )
-    }     
+    }  
+    
+     def rfc = getRfcByCustomerId( params.customerId )
+     params.customerId = null
+     satwsClientService.getInvoicesByParams( rfc, params )
+
+  }
+
+  private String getRfcByCustomerId( Long customerId ){
 
     def financialInstitution = financialInstitutionService.findOneByCode( SATWS_CODE )
     if ( !financialInstitution ) {
       throw new BadImplementationException(
-        'satwsService.getInvoicesByParams.financialInstitution.notFound' )
+        'satwsService.getRfcByCustomerId.financialInstitution.notFound' )
     }      
     
-    def customer = customerService.findOne( params.customerId as Long )
+    def customer = customerService.findOne( customerId )
     if ( !customer ) {
       throw new BadImplementationException(
-        'satwsService.getInvoicesByParams.customer.notFound' )
+        'satwsService.getRfcByCustomerId.customer.notFound' )
     }
 
     def credential = credentialService.findByCustomerAndFinancialIntitution( customer, financialInstitution )
     if ( !credential ) {
       throw new BadImplementationException(
-        'satwsService.getInvoicesByParams.credential.notFound' )
+        'satwsService.getRfcByCustomerId.credential.notFound' )
     }      
-     def rfc = credential.username    
-     params.customerId = null
-     satwsClientService.getInvoicesByParams( rfc, params )
-
+     
+    credential.username  
   }
 
   String getInvoice( String invoiceId, String accept ) throws Exception {
@@ -168,6 +174,70 @@ class SatwsService {
     }      
     
     satwsClientService.getInvoice( invoiceId, accept )
+  }
+
+  Map getLinksByParams( Map params ) throws Exception {
+
+    if ( !params.customerId ) {
+      throw new BadImplementationException(
+        'satwsService.getLinksByParams.params.customerId.null' )
+    }  
+    
+    def rfc = getRfcByCustomerId( params.customerId )
+    params.customerId = null
+    satwsClientService.getLinksByParams( rfc, params )
+
+  }
+
+  Map getLink( String linkId  ) throws Exception {
+
+    if ( !linkId ) {
+      throw new BadImplementationException(
+        'satwsService.getLink.linkId.null' )
+    }      
+    satwsClientService.getLink( linkId )
+
+   }
+
+  String deleteLink( String linkId ) throws Exception {
+    
+    if ( !linkId ) {
+      throw new BadImplementationException(
+        'satwsService.deleteLink.linkId.null' )
+    }      
+    satwsClientService.deleteLink( linkId )    
+  }
+
+  Map getPayments( Map params ) throws Exception {
+    satwsClientService.getPayments(params)
+  }
+
+  String getPayment( String paymentId  ) throws Exception {
+
+    if ( !paymentId ) {
+      throw new BadImplementationException(
+        'satwsService.getPayment.paymentId.null' )
+    }   
+    satwsClientService.getPayment(paymentId)
+
+  }
+
+  Map getInvoicePayments( String invoiceId , Map params ) throws Exception {
+   
+   if ( !invoiceId ) {
+      throw new BadImplementationException(
+        'satwsService.getInvoicePayments.invoiceId.null' )
+    }
+    satwsClientService.getInvoicePayments( invoiceId,params )
+  }
+ 
+  Map getTaxpayerInvoicePayments( Long customerId , Map params ) throws Exception {
+    if ( !customerId ) {
+      throw new BadImplementationException(
+        'satwsService.getTaxpayerInvoicePayments.customerId.null' )
+    }
+   def taxPayerId = getRfcByCustomerId( customerId )
+   satwsClientService.getTaxpayerInvoicePayments( taxPayerId, params )
   }
 
 }
