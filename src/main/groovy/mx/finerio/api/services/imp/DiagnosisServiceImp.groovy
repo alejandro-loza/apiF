@@ -1,7 +1,9 @@
 package mx.finerio.api.services.imp
 
+import mx.finerio.api.domain.Advice
 import mx.finerio.api.domain.Category
 import mx.finerio.api.domain.SuggestedExpenses
+import mx.finerio.api.domain.repository.AdviceRepository
 import mx.finerio.api.domain.repository.SuggestedExpensesRepository
 import mx.finerio.api.dtos.ApiTransactionDto
 import mx.finerio.api.dtos.CategoryDiagnosisDto
@@ -25,6 +27,9 @@ class DiagnosisServiceImp extends InsightsService implements DiagnosisService {
 
     @Autowired
     SuggestedExpensesRepository suggestedExpensesRepository
+
+    @Autowired
+    AdviceRepository adviceRepository
 
     BigDecimal totalAverageIncome
 
@@ -103,7 +108,7 @@ class DiagnosisServiceImp extends InsightsService implements DiagnosisService {
                  categoryService.findOne(categoryId), totalAverageIncome)
     }
 
-    private static List<SubCategoryDiagnosisDto> generateSubCategories(List<ApiTransactionDto> transactions) {
+    private List<SubCategoryDiagnosisDto> generateSubCategories(List<ApiTransactionDto> transactions) {
         transactions.stream()
                 .collect(Collectors.groupingBy({ ApiTransactionDto transaction ->
                     transaction.categoryId
@@ -112,7 +117,8 @@ class DiagnosisServiceImp extends InsightsService implements DiagnosisService {
             subCategoryDiagnosisDto.with {
                 subCategoryDiagnosisDto.categoryId = subCategoryId
                 amount = subTransactions*.amount.sum() as BigDecimal
-                advices = []//todo add advices
+                advices = adviceRepository.findAllByCategoryAndDateDeletedIsNull(
+                        categoryService.findOne(subCategoryId))*.description as List<String>
             }
             subCategoryDiagnosisDto
         }

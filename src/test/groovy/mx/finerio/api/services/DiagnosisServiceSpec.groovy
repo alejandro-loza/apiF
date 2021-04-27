@@ -1,7 +1,9 @@
 package mx.finerio.api.services
 
+import mx.finerio.api.domain.Advice
 import mx.finerio.api.domain.Category
 import mx.finerio.api.domain.SuggestedExpenses
+import mx.finerio.api.domain.repository.AdviceRepository
 import mx.finerio.api.domain.repository.SuggestedExpensesRepository
 import mx.finerio.api.domain.repository.TransactionRepository
 import mx.finerio.api.dtos.DiagnosisDto
@@ -24,6 +26,7 @@ class DiagnosisServiceSpec extends Specification{
         diagnosisService.categoryService = Mock(CategoryService)
         diagnosisService.transactionRepository = Mock(TransactionRepository)
         diagnosisService.suggestedExpensesRepository = Mock(SuggestedExpensesRepository)
+        diagnosisService.adviceRepository = Mock(AdviceRepository)
     }
 
     def "Should get an analysis"(){
@@ -31,6 +34,10 @@ class DiagnosisServiceSpec extends Specification{
 
         SuggestedExpenses suggestedExpenses = new SuggestedExpenses()
         suggestedExpenses.suggestedPercentage = 0.9
+
+        def advice = new Advice()
+        advice.description = "don't spend on this"
+
 
         Category parentCategory = new Category()
         parentCategory.with {
@@ -59,8 +66,9 @@ class DiagnosisServiceSpec extends Specification{
 
         1 * diagnosisService.transactionRepository.findAllByCustomerId(_ as Long) >> [transactionChargeNow, transactionChargeTwoMonths, transactionIncomeNow, transactionIncomeTwoMonths]
         1 * diagnosisService.categoryService.findAll() >> [parentCategory, subCategory]
-        2 * diagnosisService.categoryService.findOne(_ as String) >> subCategory
+        4 * diagnosisService.categoryService.findOne(_ as String) >> subCategory
         2 * diagnosisService.suggestedExpensesRepository.findByCategoryAndIncome(_ as Category,_ as BigDecimal) >> suggestedExpenses
+        2 * diagnosisService.adviceRepository.findAllByCategoryAndDateDeletedIsNull(_ as Category) >> [advice]
 
         DiagnosisDto response = diagnosisService.getDiagnosisByCustomer(1L, null)
 
@@ -81,7 +89,7 @@ class DiagnosisServiceSpec extends Specification{
         assert thisMonthTransactions.categories.first().subcategories.size() == 1
         assert thisMonthTransactions.categories.first().subcategories.first().amount ==1000
         assert thisMonthTransactions.categories.first().subcategories.first().categoryId == subCategory.id
-
+        assert thisMonthTransactions.categories.first().subcategories.first().advices.first() == advice.description
 
         assert twoMonthTransactions.categories.size() == 1
         assert twoMonthTransactions.categories.first().categoryId == parentCategory.id
@@ -90,6 +98,8 @@ class DiagnosisServiceSpec extends Specification{
         assert twoMonthTransactions.categories.first().subcategories.size() == 1
         assert twoMonthTransactions.categories.first().subcategories.first().amount ==200
         assert twoMonthTransactions.categories.first().subcategories.first().categoryId == subCategory.id
+        assert twoMonthTransactions.categories.first().subcategories.first().advices.first() == advice.description
+
 
 
 
