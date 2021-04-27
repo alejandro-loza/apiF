@@ -1,6 +1,8 @@
 package mx.finerio.api.services
 
 import mx.finerio.api.domain.Category
+import mx.finerio.api.domain.SuggestedExpenses
+import mx.finerio.api.domain.repository.SuggestedExpensesRepository
 import mx.finerio.api.domain.repository.TransactionRepository
 import mx.finerio.api.dtos.DiagnosisDto
 import mx.finerio.api.dtos.MonthTransactionsDiagnosisDto
@@ -21,10 +23,14 @@ class DiagnosisServiceSpec extends Specification{
     def setup(){
         diagnosisService.categoryService = Mock(CategoryService)
         diagnosisService.transactionRepository = Mock(TransactionRepository)
+        diagnosisService.suggestedExpensesRepository = Mock(SuggestedExpensesRepository)
     }
 
     def "Should get an analysis"(){
         given:
+
+        SuggestedExpenses suggestedExpenses = new SuggestedExpenses()
+        suggestedExpenses.suggestedPercentage = 0.9
 
         Category parentCategory = new Category()
         parentCategory.with {
@@ -53,7 +59,10 @@ class DiagnosisServiceSpec extends Specification{
 
         1 * diagnosisService.transactionRepository.findAllByCustomerId(_ as Long) >> [transactionChargeNow, transactionChargeTwoMonths, transactionIncomeNow, transactionIncomeTwoMonths]
         1 * diagnosisService.categoryService.findAll() >> [parentCategory, subCategory]
-        DiagnosisDto response = diagnosisService.getDiagnosisByCustomer(1L)
+        2 * diagnosisService.categoryService.findOne(_ as String) >> subCategory
+        2 * diagnosisService.suggestedExpensesRepository.findByCategoryAndIncome(_ as Category,_ as BigDecimal) >> suggestedExpenses
+
+        DiagnosisDto response = diagnosisService.getDiagnosisByCustomer(1L, null)
 
         then:
         assert response.averageIncome == 30000

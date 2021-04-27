@@ -1,7 +1,8 @@
 package mx.finerio.api.services.imp
 
 import mx.finerio.api.domain.Category
-import mx.finerio.api.domain.Transaction
+import mx.finerio.api.domain.SuggestedExpenses
+import mx.finerio.api.domain.repository.SuggestedExpensesRepository
 import mx.finerio.api.dtos.ApiTransactionDto
 import mx.finerio.api.dtos.CategoryDiagnosisDto
 import mx.finerio.api.dtos.DiagnosisDto
@@ -22,19 +23,25 @@ class DiagnosisServiceImp extends InsightsService implements DiagnosisService {
     @Autowired
     CategoryService categoryService
 
+    @Autowired
+    SuggestedExpensesRepository suggestedExpensesRepository
+
+    BigDecimal totalAverageIncome
+
     @Override
-    DiagnosisDto getDiagnosisByCustomer(Long customerId ) throws Exception {
+    DiagnosisDto getDiagnosisByCustomer(Long customerId, Long averageManualIncome ) throws Exception {
         List<ApiTransactionDto> transactions = getTransactions(customerId)
+        totalAverageIncome = averageManualIncome ?: calculateAverageIncome(transactions)
         List<Category> listOfCategories = categoryService.findAll()
         DiagnosisDto diagnosisDto = new DiagnosisDto()
         diagnosisDto.with {
-            averageIncome = getAverageIncome(transactions)
+            averageIncome = totalAverageIncome
             data = transactionsGroupByMonth(transactions, listOfCategories)
         }
         return diagnosisDto
     }
 
-    private static BigDecimal getAverageIncome(List<ApiTransactionDto> transactions) {
+    private static BigDecimal calculateAverageIncome(List<ApiTransactionDto> transactions) {
         List<ApiTransactionDto>  incomesTransactions = transactions.findAll { !it.isCharge }
         incomesTransactions*.amount.sum() / incomesTransactions.size()
     }
@@ -73,21 +80,27 @@ class DiagnosisServiceImp extends InsightsService implements DiagnosisService {
         categoryDiagnosisDtos
     }
 
-    private static CategoryDiagnosisDto generateCategoryDiagnosis(String categoryId, List<ApiTransactionDto> transactions){
+    private  CategoryDiagnosisDto generateCategoryDiagnosis(String categoryId, List<ApiTransactionDto> transactions){
         List<ApiTransactionDto> chargeTransactions = transactions.findAll { it.isCharge }
         BigDecimal totalSpent = chargeTransactions*.amount.sum() as BigDecimal
+        SuggestedExpenses suggestedExpenses = generateSuggested(categoryId)
 
         CategoryDiagnosisDto categoryDiagnosisDtos = new CategoryDiagnosisDto()
         categoryDiagnosisDtos.with {
             categoryDiagnosisDtos.categoryId = categoryId
             spent = totalSpent
             average = totalSpent / chargeTransactions.size()
-            others = null //todo add others
-            suggested = null //todo add suggested
+            others = suggestedExpenses.othersExpenses
+            suggested = suggestedExpenses.suggestedPercentage * totalAverageIncome
             subcategories = generateSubCategories(chargeTransactions)
         }
 
        return categoryDiagnosisDtos
+    }
+
+    private SuggestedExpenses generateSuggested(String categoryId) {
+         suggestedExpensesRepository.findByCategoryAndIncome(
+                 categoryService.findOne(categoryId), totalAverageIncome)
     }
 
     private static List<SubCategoryDiagnosisDto> generateSubCategories(List<ApiTransactionDto> transactions) {
