@@ -5,6 +5,6 @@ import mx.finerio.api.domain.Category
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor
 
-interface AdviceRepository extends JpaRepository<Category, Long>, JpaSpecificationExecutor {
+interface AdviceRepository extends JpaRepository<Advice, Long>, JpaSpecificationExecutor {
   List<Advice> findAllByCategoryAndDateDeletedIsNull(Category category)
 }
