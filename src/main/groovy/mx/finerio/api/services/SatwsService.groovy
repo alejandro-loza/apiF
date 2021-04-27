@@ -240,4 +240,7 @@ class SatwsService {
    satwsClientService.getTaxpayerInvoicePayments( taxPayerId, params )
   }
 
+
+ 
+
 }

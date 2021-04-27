@@ -51,7 +51,7 @@ class SatwsServiceGetInvoicesByParamsSpec extends Specification {
     then:
     1 * financialInstitutionService.findOneByCode( _ as String ) >> null
       BadImplementationException e = thrown()
-      e.message == 'satwsService.getInvoicesByParams.financialInstitution.notFound'
+      e.message == 'satwsService.getRfcByCustomerId.financialInstitution.notFound'
     where:
      params = [ customerId: 5615 ] 
 
@@ -65,7 +65,7 @@ class SatwsServiceGetInvoicesByParamsSpec extends Specification {
     1 * financialInstitutionService.findOneByCode( _ as String ) >> new FinancialInstitution()
     1 * customerService.findOne( _ as Long ) >> null
       BadImplementationException e = thrown()
-      e.message == 'satwsService.getInvoicesByParams.customer.notFound'
+      e.message == 'satwsService.getRfcByCustomerId.customer.notFound'
     where:
      params = [ customerId: 5615 ] 
 
@@ -80,7 +80,7 @@ class SatwsServiceGetInvoicesByParamsSpec extends Specification {
     1 * customerService.findOne( _ as Long ) >> new Customer()
     1 * credentialService.findByCustomerAndFinancialIntitution( _ as Customer, _ as FinancialInstitution ) >> null
       BadImplementationException e = thrown()
-      e.message == 'satwsService.getInvoicesByParams.credential.notFound'
+      e.message == 'satwsService.getRfcByCustomerId.credential.notFound'
     where:
      params = [ customerId: 5615 ] 
 
