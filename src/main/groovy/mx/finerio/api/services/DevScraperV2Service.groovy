@@ -37,7 +37,8 @@ class DevScraperV2Service implements ScraperV2Service {
 
       def credentialId = credential.id
       def bankToken = null
-      def dataSend = [ credentialId: credentialId, stage: 'interactive',
+      def dataSend = [ customerId: credential.customer.id,
+          credentialId: credentialId, stage: 'interactive',
           bankToken: bankToken ]
       Thread.sleep( 3000 )
       widgetEventsService.onInteractive( new WidgetEventsDto(
