@@ -228,7 +228,7 @@ class SatwsService {
       throw new BadImplementationException(
         'satwsService.getInvoicePayments.invoiceId.null' )
     }
-    satwsClientService.getInvoicePayments( invoiceId,params )
+    satwsClientService.getInvoicePayments( invoiceId, params )
   }
  
   Map getTaxpayerInvoicePayments( Long customerId , Map params ) throws Exception {
@@ -236,11 +236,114 @@ class SatwsService {
       throw new BadImplementationException(
         'satwsService.getTaxpayerInvoicePayments.customerId.null' )
     }
-   def taxPayerId = getRfcByCustomerId( customerId )
-   satwsClientService.getTaxpayerInvoicePayments( taxPayerId, params )
+    def taxPayerId = getRfcByCustomerId( customerId )
+    satwsClientService.getTaxpayerInvoicePayments( taxPayerId, params )
   }
 
+  Map getBatchPayments( Map params ) throws Exception {
+    satwsClientService.getBatchPayments( params )
+  }
 
- 
+  String getBatchPayment( String batchPaymentId  ) throws Exception {
+
+    if ( !batchPaymentId ) {
+      throw new BadImplementationException(
+        'satwsService.getBatchPayment.batchPaymentId.null' )
+    }   
+    satwsClientService.getBatchPayment(batchPaymentId)
+
+  }
+  
+  Map getInvoiceBatchPayments( String invoiceId, Map params ) throws Exception {
+    
+    if ( !invoiceId ) {
+      throw new BadImplementationException(
+        'satwsService.getInvoiceBatchPayments.invoiceId.null' )
+    }
+    satwsClientService.getInvoiceBatchPayments( invoiceId, params )
+  }
+
+  Map getTaxpayersTaxReturns( Long customerId, Map params ) throws Exception {
+  
+    if ( !customerId ) {
+      throw new BadImplementationException(
+        'satwsService.getTaxpayersTaxReturns.customerId.null' )
+    }
+    def taxPayerId = getRfcByCustomerId( customerId )
+    satwsClientService.getTaxpayersTaxReturns( taxPayerId, params )
+  }
+
+  String getTaxReturn( String taxReturnId  ) throws Exception {
+
+      if ( !taxReturnId ) {
+      throw new BadImplementationException(
+        'satwsService.getTaxReturn.taxReturnId.null' )
+    }   
+    satwsClientService.getTaxReturn(taxReturnId)
+  
+  }
+
+  Map getTaxReturnData( String taxReturnId ) throws Exception {
+
+     if ( !taxReturnId ) {
+      throw new BadImplementationException(
+        'satwsService.getTaxReturnData.taxReturnId.null' )
+    }   
+    satwsClientService.getTaxReturnData( taxReturnId )
+  
+  }
+
+  String deleteTaxReturn( String taxReturnId ) throws Exception {
+
+     if ( !taxReturnId ) {
+      throw new BadImplementationException(
+        'satwsService.deleteTaxReturn.taxReturnId.null' )
+    }      
+    satwsClientService.deleteTaxReturn( taxReturnId )      
+  
+  }
+
+  Map getTaxpayersTaxComplianceChecks( Long customerId, Map params ) throws Exception {
+
+    if ( !customerId ) {
+      throw new BadImplementationException(
+        'satwsService.getTaxpayersTaxComplianceChecks.customerId.null' )
+    }
+    def taxPayerId = getRfcByCustomerId( customerId )
+    satwsClientService.getTaxpayersTaxComplianceChecks( taxPayerId, params )
+
+  }
+
+  String getTaxComplianceCheck( String taxComplianceCheckId  ) throws Exception {
+
+    if ( !taxComplianceCheckId ) {
+      throw new BadImplementationException(
+        'satwsService.getTaxComplianceCheck.taxComplianceCheckId.null' )
+    }   
+    satwsClientService.getTaxComplianceCheck( taxComplianceCheckId )
+  }
+
+  String deleteTaxComplianceCheck( String taxComplianceCheckId ) throws Exception {
+    
+    if ( !taxComplianceCheckId ) {
+      throw new BadImplementationException(
+        'satwsService.deleteTaxComplianceCheck.taxComplianceCheckId.null' )
+    }      
+    satwsClientService.deleteTaxComplianceCheck( taxComplianceCheckId )      
+
+  }
+  Map getExtractions( Map params ) throws Exception {
+    satwsClientService.getExtractions( params )
+
+  }
+  String getExtraction( String extractionId  ) throws Exception {
+
+    if ( !extractionId ) {
+      throw new BadImplementationException(
+        'satwsService.getExtraction.extractionId.null' )
+    }   
+    satwsClientService.getExtraction( extractionId )
+
+  }
 
 }

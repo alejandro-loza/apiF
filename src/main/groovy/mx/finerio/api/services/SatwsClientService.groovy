@@ -22,6 +22,9 @@ import static java.nio.charset.StandardCharsets.*
 @Service
 class SatwsClientService  implements InitializingBean {
 
+  @Value( '${satws.apikey.path}' )
+  String satwsApikey
+
   @Value( '${satws.url}' )
   String url
 
@@ -45,10 +48,31 @@ class SatwsClientService  implements InitializingBean {
 
   @Value( '${satws.taxpayerInvoicePayments.path}' )
   String taxpayerInvoicePaymentsPath
-  
-  @Value( '${satws.apikey.path}' )
-  String satwsApikey
 
+  @Value( '${satws.batchPayment.path}' )
+  String batchPaymentsPath
+
+  @Value( '${satws.invoiceBatchPayments.path}' )
+  String invoiceBatchPaymentsPath
+
+  @Value( '${satws.taxpayersTaxReturns.path}' )
+  String taxpayersTaxReturnsPath
+
+  @Value( '${satws.taxReturns.path}' )
+  String taxReturnsPath
+
+  @Value( '${satws.taxReturnsData.path}' )
+  String taxReturnsDataPath
+
+  @Value( '${satws.taxpayersTaxComplianceChecks.path}' )
+  String taxpayersTaxComplianceChecksPath
+
+  @Value( '${satws.taxComplianceChecks.path}' )
+  String taxComplianceChecksPath
+
+  @Value( '${satws.extractions.path}' )
+  String extractionsPath
+  
   def satwsClient
 
   final static Logger log = LoggerFactory.getLogger(
@@ -259,8 +283,112 @@ class SatwsClientService  implements InitializingBean {
 
   //Ends batch Payments
 
+  //Starts tax returns
+
+  Map getTaxpayersTaxReturns( String taxPayerId, Map params ) throws Exception {
+    
+    if ( !taxPayerId ) {
+      throw new BadImplementationException(
+        'satwsClientService.getTaxpayersTaxReturns.taxPayerId.null' )
+    }  
+
+    getDataByIdAndParams( taxPayerId,'taxPayerId', params, taxpayersTaxReturnsPath )
+
+  }
+
+  String getTaxReturn( String taxReturnId  ) throws Exception {
+    
+    if ( !taxReturnId ) {
+      throw new BadImplementationException(
+        'satwsClientService.getTaxReturn.taxReturnId.null' )
+    }
+
+    getDataById( taxReturnId, taxReturnsPath )  
+  }
 
 
+  Map getTaxReturnData( String taxReturnId ) throws Exception {
+    
+    if ( !taxReturnId ) {
+      throw new BadImplementationException(
+        'satwsClientService.getTaxReturnData.taxReturnId.null' )
+    }  
+
+    getDataByIdAndParams( taxReturnId,'taxReturnId', [:], taxReturnsDataPath )
+
+  }
+
+
+  String deleteTaxReturn( String taxReturnId ) throws Exception {
+
+    if ( !taxReturnId ) {
+      throw new BadImplementationException(
+        'satwsClientService.deleteTaxReturn.taxReturnId.null' )
+    }
+
+    deleteDataById( taxReturnId, taxReturnsPath )  
+    
+  }
+
+  //Ends tax returns
+
+
+  //Start tax compliance check
+
+  Map getTaxpayersTaxComplianceChecks( String taxPayerId, Map params ) throws Exception {
+    
+    if ( !taxPayerId ) {
+      throw new BadImplementationException(
+        'satwsClientService.getTaxpayersTaxComplianceChecks.taxPayerId.null' )
+    }  
+
+    getDataByIdAndParams( taxPayerId,'taxPayerId', params, taxpayersTaxComplianceChecksPath )
+
+  }
+
+  String getTaxComplianceCheck( String taxComplianceCheckId  ) throws Exception {
+    
+    if ( !taxComplianceCheckId ) {
+      throw new BadImplementationException(
+        'satwsClientService.getTaxComplianceCheck.taxComplianceCheckId.null' )
+    }
+
+    getDataById( taxComplianceCheckId, taxComplianceChecksPath )  
+  }
+
+
+  String deleteTaxComplianceCheck( String taxComplianceCheckId ) throws Exception {
+
+    if ( !taxComplianceCheckId ) {
+      throw new BadImplementationException(
+        'satwsClientService.deleteTaxComplianceCheck.taxComplianceCheckId.null' )
+    }
+
+    deleteDataById( taxComplianceCheckId, taxComplianceChecksPath )  
+    
+  }
+
+  //Ends tax compliance check
+
+  //Starts extraction
+
+  Map getExtractions( Map params ) throws Exception {
+    getDataByParams( params, extractionsPath )       
+  }
+
+  String getExtraction( String extractionId  ) throws Exception {
+    
+    if ( !extractionId ) {
+      throw new BadImplementationException(
+        'satwsClientService.getExtraction.extractionId.null' )
+    }
+
+    getDataById( extractionId, extractionsPath )  
+  }  
+
+   //TODO create extraction
+
+  //Ends extraction
   //Generics methods
 
   Map getDataByIdAndParams( String id, String change, Map params, String path ) throws Exception {
