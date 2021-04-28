@@ -131,7 +131,7 @@ class SatwsService {
         'satwsService.getInvoicesByParams.params.customerId.null' )
     }  
     
-     def rfc = getRfcByCustomerId( params.customerId )
+     def rfc = getRfcByCustomerId( params.customerId as Long)
      params.customerId = null
      satwsClientService.getInvoicesByParams( rfc, params )
 
@@ -183,7 +183,7 @@ class SatwsService {
         'satwsService.getLinksByParams.params.customerId.null' )
     }  
     
-    def rfc = getRfcByCustomerId( params.customerId )
+    def rfc = getRfcByCustomerId( params.customerId as Long )
     params.customerId = null
     satwsClientService.getLinksByParams( rfc, params )
 

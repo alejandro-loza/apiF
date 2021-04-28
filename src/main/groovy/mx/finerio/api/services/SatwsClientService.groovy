@@ -407,7 +407,7 @@ class SatwsClientService  implements InitializingBean {
 
       log.info( "XX ${e.class.simpleName} - ${e.message} ${new String( e.getResponse().data )}" )    
         throw new BadImplementationException(
-          'satwsClientService.getInvoicesByParams.error.onCall')      
+          "satwsClientService.getInvoicesByParams.error.onCall ${e.message}")      
     }
 
     new JsonSlurper().parseText( new String( response.data, UTF_8) )
@@ -429,7 +429,7 @@ class SatwsClientService  implements InitializingBean {
 
       log.info( "XX ${e.class.simpleName} - ${e.message} ${new String( e.getResponse().data )}" )    
         throw new BadImplementationException(
-          'satwsClientService.getDataByParams.error.onCall')      
+          "satwsClientService.getDataByParams.error.onCall ${e.message}")      
     }
 
     new JsonSlurper().parseText( new String( response.data, UTF_8) )
@@ -452,7 +452,7 @@ class SatwsClientService  implements InitializingBean {
 
       log.info( "XX ${e.class.simpleName} - ${e.message} ${new String( e.getResponse().data )}" )    
       throw new BadImplementationException(
-      "satwsClientService.getDataById.error.onCall")    
+      "satwsClientService.getDataById.error.onCall ${e.message}")    
         
     }
     new JsonSlurper().parseText( new String( response.data, UTF_8) )
@@ -475,7 +475,7 @@ class SatwsClientService  implements InitializingBean {
 
       log.info( "XX ${e.class.simpleName} - ${e.message} ${new String( e.getResponse().data )}" )    
       throw new BadImplementationException(
-      "satwsClientService.deleteDataById.error.onCall")     
+      "satwsClientService.deleteDataById.error.onCall ${e.message}")     
         
     }
 
