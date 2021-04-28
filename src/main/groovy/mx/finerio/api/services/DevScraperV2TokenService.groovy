@@ -52,7 +52,9 @@ class DevScraperV2TokenService implements ScraperV2TokenService {
 
 		validateInteractive( scraperV2TokenDto )		  	
 		String credentialId = scraperV2TokenDto.state		   		  						 		
-		def dataSend = [ credentialId: credentialId, stage: 'interactive' ]
+		def credential = credentialService.findAndValidate( credentialId )
+		def dataSend = [ customerId: credential.customer.id,
+			credentialId: credentialId, stage: 'interactive' ]
 		def token = scraperV2TokenDto?.data?.value		
 		if( token ) {		
 			dataSend.put('bankToken', token )
