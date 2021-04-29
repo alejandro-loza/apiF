@@ -70,7 +70,8 @@ class DiagnosisServiceSpec extends Specification{
         2 * diagnosisService.suggestedExpensesRepository.findByCategoryAndIncome(_ as Category,_ as BigDecimal) >> suggestedExpenses
         2 * diagnosisService.adviceRepository.findAllByCategoryAndDateDeletedIsNull(_ as Category) >> [advice]
 
-        DiagnosisDto response = diagnosisService.getDiagnosisByCustomer(1L, null)
+        Optional<BigDecimal> of = Optional.ofNullable(null)
+        DiagnosisDto response = diagnosisService.getDiagnosisByCustomer(1L, of)
 
         then:
         assert response.averageIncome == 30000

@@ -15,7 +15,7 @@ class DiagnosisController {
   DiagnosisService diagnosisService
 
   @GetMapping('/diagnosis')
-  ResponseEntity findAll( @RequestParam Long customerId, @RequestParam Long averageIncome) {
+  ResponseEntity findAll( @RequestParam Long customerId, @RequestParam Optional<BigDecimal>  averageIncome) {
   
     new ResponseEntity( diagnosisService.getDiagnosisByCustomer( customerId, averageIncome ), HttpStatus.OK )
 

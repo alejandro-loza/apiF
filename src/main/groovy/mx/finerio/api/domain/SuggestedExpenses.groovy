@@ -6,7 +6,7 @@ import javax.persistence.*
 import java.sql.Timestamp
 
 @Entity
-@Table(name = 'incomeFrom')
+@Table(name = 'suggested_expenses')
 @ToString(includeNames = true, includePackage = false)
 class SuggestedExpenses {
 
@@ -35,8 +35,5 @@ class SuggestedExpenses {
 
   @Column(name = 'last_updated', nullable = false)
   Timestamp lastUpdated
-
-  @Column(name = 'date_deleted', nullable = true)
-  Timestamp dateDeleted
 
 }

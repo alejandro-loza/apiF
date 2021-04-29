@@ -34,9 +34,9 @@ class DiagnosisServiceImp extends InsightsService implements DiagnosisService {
     BigDecimal totalAverageIncome
 
     @Override
-    DiagnosisDto getDiagnosisByCustomer(Long customerId, Long averageManualIncome ) throws Exception {
+    DiagnosisDto getDiagnosisByCustomer(Long customerId, Optional<BigDecimal> averageManualIncome ) throws Exception {
         List<ApiTransactionDto> transactions = getTransactions(customerId)
-        totalAverageIncome = averageManualIncome ?: calculateAverageIncome(transactions)
+        totalAverageIncome = averageManualIncome.isPresent() ? averageManualIncome.get() : calculateAverageIncome(transactions)
         List<Category> listOfCategories = categoryService.findAll()
         DiagnosisDto diagnosisDto = new DiagnosisDto()
         diagnosisDto.with {
@@ -48,7 +48,7 @@ class DiagnosisServiceImp extends InsightsService implements DiagnosisService {
 
     private static BigDecimal calculateAverageIncome(List<ApiTransactionDto> transactions) {
         List<ApiTransactionDto>  incomesTransactions = transactions.findAll { !it.isCharge }
-        incomesTransactions*.amount.sum() / incomesTransactions.size()
+        incomesTransactions ? incomesTransactions*.amount.sum() / incomesTransactions.size() : 0
     }
 
     private List<MonthTransactionsDiagnosisDto> transactionsGroupByMonth(List<ApiTransactionDto> transactionList, List<Category> listOfCategories){
@@ -67,21 +67,27 @@ class DiagnosisServiceImp extends InsightsService implements DiagnosisService {
         MonthTransactionsDiagnosisDto monthTransactionsDiagnosisDto = new MonthTransactionsDiagnosisDto()
         monthTransactionsDiagnosisDto.with {
             date = stringDate
-            categories = generateMonthCategoriesDiagnosis(transactions, listOfCategories)
+            categories = transactions ? generateMonthCategoriesDiagnosis(transactions, listOfCategories): []
         }
         return monthTransactionsDiagnosisDto
     }
 
     private List<CategoryDiagnosisDto> generateMonthCategoriesDiagnosis(List<ApiTransactionDto> transactions, List<Category> listOfCategories){
         List<CategoryDiagnosisDto> categoryDiagnosisDtos = []
-        Map<String, List<ApiTransactionDto>> list =  transactions.stream()
-                .collect( Collectors.groupingBy({ ApiTransactionDto transaction ->
-                    getParentCategoryId(transaction, listOfCategories)
-                }))
+        transactions = transactions.findAll {getParentCategoryId(it, listOfCategories)}
 
-        for ( Map.Entry<String, List<ApiTransactionDto>> entry : list.entrySet() ) {
-            categoryDiagnosisDtos.add( generateCategoryDiagnosis( entry.key, entry.value ) )
+        if(transactions){
+            Map<String, List<ApiTransactionDto>> list =  transactions.stream()
+                    .collect( Collectors.groupingBy({ ApiTransactionDto transaction ->
+                        getParentCategoryId(transaction, listOfCategories)
+                    }))
+
+            for ( Map.Entry<String, List<ApiTransactionDto>> entry : list.entrySet() ) {
+                categoryDiagnosisDtos.add( generateCategoryDiagnosis( entry.key, entry.value ) )
+            }
         }
+
+
         categoryDiagnosisDtos
     }
 
@@ -89,14 +95,13 @@ class DiagnosisServiceImp extends InsightsService implements DiagnosisService {
         List<ApiTransactionDto> chargeTransactions = transactions.findAll { it.isCharge }
         BigDecimal totalSpent = chargeTransactions*.amount.sum() as BigDecimal
         SuggestedExpenses suggestedExpenses = generateSuggested(categoryId)
-
         CategoryDiagnosisDto categoryDiagnosisDtos = new CategoryDiagnosisDto()
         categoryDiagnosisDtos.with {
             categoryDiagnosisDtos.categoryId = categoryId
             spent = totalSpent
             average = totalSpent / chargeTransactions.size()
-            others = suggestedExpenses.othersExpenses
-            suggested = suggestedExpenses.suggestedPercentage * totalAverageIncome
+            others = suggestedExpenses ? suggestedExpenses?.othersExpenses : null
+            suggested = suggestedExpenses ? suggestedExpenses?.suggestedPercentage * totalAverageIncome : 0
             subcategories = generateSubCategories(chargeTransactions)
         }
 
