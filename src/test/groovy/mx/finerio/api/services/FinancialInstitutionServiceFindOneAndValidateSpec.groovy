@@ -33,6 +33,19 @@ class FinancialInstitutionServiceFindOneAndValidateSpec extends Specification {
 
   }
 
+  def "invoking method successfully PARTIALLY_ACTIVE"() {
+
+    when:
+    def result = service.findOneAndValidate( id )
+    then:
+    1 * financialInstitutionRepository.findOne( _ as Long ) >>
+            new FinancialInstitution( status: 'PARTIALLY_ACTIVE' )
+    result instanceof FinancialInstitution
+    where:
+    id = 1L
+
+  }
+
   def "financial institution is not active"() {
 
     when:

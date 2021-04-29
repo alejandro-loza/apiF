@@ -164,7 +164,7 @@ class ScraperCallbackController {
     }
 
     def institutionCode = credential.institution.code
-    if( [ 'BAZ','BANORTE' ].contains( institutionCode ) 
+    if( [ 'BAZ','BANORTE' ].contains( institutionCode )
       && data.stage == 'interactive') 
       { 
         return ResponseEntity.ok().build()

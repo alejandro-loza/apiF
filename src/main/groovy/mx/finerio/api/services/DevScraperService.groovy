@@ -32,7 +32,8 @@ class DevScraperService extends ScraperApiService {
       def credentialId = data.id
       def credential = credentialService.findAndValidate( credentialId )
       def bankToken = institutionId == 12 ? getBankToken() : null
-      def dataSend = [ credentialId: credentialId, stage: 'interactive',
+      def dataSend = [ customerId: credential.customer.id,
+          credentialId: credentialId, stage: 'interactive',
           bankToken: bankToken ]
       Thread.sleep( 3000 )
       widgetEventsService.onInteractive( new WidgetEventsDto(

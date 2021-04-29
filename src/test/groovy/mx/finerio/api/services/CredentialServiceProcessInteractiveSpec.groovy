@@ -18,14 +18,14 @@ class CredentialServiceProcessInteractiveSpec extends Specification {
 
   def service = new CredentialService()
 
-  def scraperWebSocketService = Mock( ScraperWebSocketService )
+  def scraperV2TokenService = Mock( ScraperV2TokenService )
   def securityService = Mock( SecurityService )
   def credentialRepository = Mock( CredentialRepository )
   def widgetEventsService = Mock( WidgetEventsService )
 
   def setup() {
 
-    service.scraperWebSocketService = scraperWebSocketService
+    service.scraperV2TokenService = scraperV2TokenService
     service.securityService = securityService
     service.credentialRepository = credentialRepository
     service.widgetEventsService = widgetEventsService
@@ -43,11 +43,13 @@ class CredentialServiceProcessInteractiveSpec extends Specification {
           client: client ),
           institution: new FinancialInstitution(code: 'BBVA'),
           user: new User() )
-      1 * scraperWebSocketService.send( _ as ScraperWebSocketSendDto )
+      1 * scraperV2TokenService.send(
+          _ as String, _ as String, _ as String )
     where:
       id = UUID.randomUUID().toString()
       client = new Client( id: 1 )
-      credentialInteractiveDto = new CredentialInteractiveDto()
+      credentialInteractiveDto = new CredentialInteractiveDto(
+          token: '123' )
 
   }
 
