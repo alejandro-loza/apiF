@@ -9,7 +9,6 @@ import mx.finerio.api.domain.repository.CredentialRepository
 import mx.finerio.api.domain.FinancialInstitution
 import mx.finerio.api.domain.User
 import mx.finerio.api.dtos.SuccessCallbackDto
-import mx.finerio.api.dtos.ScraperWebSocketSendDto
 import mx.finerio.api.exceptions.BadImplementationException
 import mx.finerio.api.exceptions.InstanceNotFoundException
 
@@ -23,7 +22,7 @@ class CredentialServiceRequestDataSpec extends Specification {
   def credentialStatusHistoryService = Mock( CredentialStatusHistoryService )
   def scraperService = Mock( DevScraperService )
   def scraperCallbackService = Mock( ScraperCallbackService )
-  def scraperWebSocketService = Mock( ScraperWebSocketService )
+  def scraperV2TokenService = Mock( ScraperV2TokenService )
   def securityService = Mock( SecurityService )
   def credentialRepository = Mock( CredentialRepository )
   def scraperV2Service = Mock( ScraperV2Service )
@@ -35,7 +34,7 @@ class CredentialServiceRequestDataSpec extends Specification {
     service.credentialStatusHistoryService = credentialStatusHistoryService
     service.scraperService = scraperService
     service.scraperCallbackService = scraperCallbackService
-    service.scraperWebSocketService = scraperWebSocketService
+    service.scraperV2TokenService = scraperV2TokenService
     service.securityService = securityService
     service.credentialRepository = credentialRepository
     service.scraperV2Service = scraperV2Service
@@ -60,6 +59,26 @@ class CredentialServiceRequestDataSpec extends Specification {
     where:
       credentialId = UUID.randomUUID().toString()
       client = new Client( id: 1 )
+
+  }
+
+  def "invoking method successfully with status PARTIALLY_ACTIVE"() {
+
+    when:
+    service.requestData( credentialId )
+    then:
+    1 * securityService.getCurrent() >> client
+    1 * credentialRepository.findOne( _ as String ) >>
+            new Credential( id: credentialId, customer: new Customer(
+                    client: client ),
+                    institution: new FinancialInstitution(status: FinancialInstitution.Status.PARTIALLY_ACTIVE),
+                    user: new User() )
+    1 * credentialRepository.save( _ as Credential )
+    1 * scraperCallbackService.processSuccess(_ as SuccessCallbackDto)
+    1 * scraperCallbackService.postProcessSuccess( _ as Credential )
+    where:
+    credentialId = UUID.randomUUID().toString()
+    client = new Client( id: 1 )
 
   }
 
