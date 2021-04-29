@@ -176,6 +176,7 @@ class SatwsService {
     satwsClientService.getInvoice( invoiceId, accept )
   }
 
+
   Map getLinksByParams( Map params ) throws Exception {
 
     if ( !params.customerId ) {
@@ -208,11 +209,8 @@ class SatwsService {
     satwsClientService.deleteLink( linkId )    
   }
 
-  Map getPayments( Map params ) throws Exception {
-    satwsClientService.getPayments(params)
-  }
 
-  String getPayment( String paymentId  ) throws Exception {
+  Map getPayment( String paymentId  ) throws Exception {
 
     if ( !paymentId ) {
       throw new BadImplementationException(
@@ -244,7 +242,7 @@ class SatwsService {
     satwsClientService.getBatchPayments( params )
   }
 
-  String getBatchPayment( String batchPaymentId  ) throws Exception {
+  Map getBatchPayment( String batchPaymentId  ) throws Exception {
 
     if ( !batchPaymentId ) {
       throw new BadImplementationException(
@@ -273,7 +271,7 @@ class SatwsService {
     satwsClientService.getTaxpayersTaxReturns( taxPayerId, params )
   }
 
-  String getTaxReturn( String taxReturnId  ) throws Exception {
+  Map getTaxReturn( String taxReturnId  ) throws Exception {
 
       if ( !taxReturnId ) {
       throw new BadImplementationException(
@@ -314,7 +312,7 @@ class SatwsService {
 
   }
 
-  String getTaxComplianceCheck( String taxComplianceCheckId  ) throws Exception {
+  Map getTaxComplianceCheck( String taxComplianceCheckId  ) throws Exception {
 
     if ( !taxComplianceCheckId ) {
       throw new BadImplementationException(
@@ -336,7 +334,7 @@ class SatwsService {
     satwsClientService.getExtractions( params )
 
   }
-  String getExtraction( String extractionId  ) throws Exception {
+  Map getExtraction( String extractionId  ) throws Exception {
 
     if ( !extractionId ) {
       throw new BadImplementationException(

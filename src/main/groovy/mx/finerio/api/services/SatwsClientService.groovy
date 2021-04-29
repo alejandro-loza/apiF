@@ -219,7 +219,7 @@ class SatwsClientService  implements InitializingBean {
   }
 
 
-  String getPayment( String paymentId  ) throws Exception {
+  Map getPayment( String paymentId  ) throws Exception {
 
     if ( !paymentId ) {
       throw new BadImplementationException(
@@ -259,7 +259,7 @@ class SatwsClientService  implements InitializingBean {
     getDataByParams( params, batchPaymentsPath )       
   }
 
-  String getBatchPayment( String batchPaymentId  ) throws Exception {
+  Map getBatchPayment( String batchPaymentId  ) throws Exception {
     
     if ( !batchPaymentId ) {
       throw new BadImplementationException(
@@ -296,7 +296,7 @@ class SatwsClientService  implements InitializingBean {
 
   }
 
-  String getTaxReturn( String taxReturnId  ) throws Exception {
+  Map getTaxReturn( String taxReturnId  ) throws Exception {
     
     if ( !taxReturnId ) {
       throw new BadImplementationException(
@@ -376,7 +376,7 @@ class SatwsClientService  implements InitializingBean {
     getDataByParams( params, extractionsPath )       
   }
 
-  String getExtraction( String extractionId  ) throws Exception {
+  Map getExtraction( String extractionId  ) throws Exception {
     
     if ( !extractionId ) {
       throw new BadImplementationException(
