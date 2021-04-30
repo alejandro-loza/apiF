@@ -13,32 +13,32 @@ import org.springframework.stereotype.Component
 
 @Component
 @Aspect
-class SatwsServiceDeleteLink {
+class SatwsClientServiceGetLinksByParams {
 
   final static Logger log = LoggerFactory.getLogger(
-      'mx.finerio.api.aop.SatwsServiceDeleteLink' )
+      'mx.finerio.api.aop.SatwsClientServiceGetLinksByParams' )
 
   @Pointcut(
-    value='execution(java.lang.String mx.finerio.api.services.SatwsService.deleteLink(..)) && bean(satwsService) && args(linkId)',
-    argNames='linkId'
+    value='execution(java.util.Map mx.finerio.api.services.SatwsClientService.getLinksByParams(..)) && bean(satwsClientService) && args(rfc,params)',
+    argNames='rfc,params'
   )
-  public void deleteLink( String linkId  ) {}
+  public void getLinksByParams( String rfc, Map params ) {}
 
-  @Before('deleteLink(linkId)')
-  void before( String linkId  ) {
-    log.info( "<< linkId: {}", linkId  )
+  @Before('getLinksByParams(rfc,params)')
+  void before( String rfc, Map params ) {
+    log.info( "<< rfc: {}, params: {}", rfc, params )
   }
 
   @AfterReturning(
-    pointcut='deleteLink(java.lang.String)',
+    pointcut='getLinksByParams(java.lang.String,java.util.Map)',
     returning='response'
   )
-  void afterReturning( String response ) {
+  void afterReturning( Map response ) {
     log.info( '>> response: {}', response )
   }
 
   @AfterThrowing(
-    pointcut='deleteLink(java.lang.String)',
+    pointcut='getLinksByParams(java.lang.String,java.util.Map)',
     throwing='e'
   )
   void afterThrowing( Exception e ) {

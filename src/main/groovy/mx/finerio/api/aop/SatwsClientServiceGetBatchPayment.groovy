@@ -13,32 +13,32 @@ import org.springframework.stereotype.Component
 
 @Component
 @Aspect
-class SatwsServiceDeleteLink {
+class SatwsClientServiceGetBatchPayment {
 
   final static Logger log = LoggerFactory.getLogger(
-      'mx.finerio.api.aop.SatwsServiceDeleteLink' )
+      'mx.finerio.api.aop.SatwsClientServiceGetBatchPayment' )
 
   @Pointcut(
-    value='execution(java.lang.String mx.finerio.api.services.SatwsService.deleteLink(..)) && bean(satwsService) && args(linkId)',
-    argNames='linkId'
+    value='execution(java.util.Map mx.finerio.api.services.SatwsClientService.getBatchPayment(..)) && bean(satwsClientService) && args(batchPaymentId)',
+    argNames='batchPaymentId'
   )
-  public void deleteLink( String linkId  ) {}
+  public void getBatchPayment( String batchPaymentId  ) {}
 
-  @Before('deleteLink(linkId)')
-  void before( String linkId  ) {
-    log.info( "<< linkId: {}", linkId  )
+  @Before('getBatchPayment(batchPaymentId)')
+  void before( String batchPaymentId  ) {
+    log.info( "<< batchPaymentId: {}", batchPaymentId  )
   }
 
   @AfterReturning(
-    pointcut='deleteLink(java.lang.String)',
+    pointcut='getBatchPayment(java.lang.String)',
     returning='response'
   )
-  void afterReturning( String response ) {
+  void afterReturning( Map response ) {
     log.info( '>> response: {}', response )
   }
 
   @AfterThrowing(
-    pointcut='deleteLink(java.lang.String)',
+    pointcut='getBatchPayment(java.lang.String)',
     throwing='e'
   )
   void afterThrowing( Exception e ) {

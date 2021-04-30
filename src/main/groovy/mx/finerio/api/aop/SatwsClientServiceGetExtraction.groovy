@@ -13,32 +13,32 @@ import org.springframework.stereotype.Component
 
 @Component
 @Aspect
-class SatwsServiceDeleteLink {
+class SatwsClientServiceGetExtraction {
 
   final static Logger log = LoggerFactory.getLogger(
-      'mx.finerio.api.aop.SatwsServiceDeleteLink' )
+      'mx.finerio.api.aop.SatwsClientServiceGetExtraction' )
 
   @Pointcut(
-    value='execution(java.lang.String mx.finerio.api.services.SatwsService.deleteLink(..)) && bean(satwsService) && args(linkId)',
-    argNames='linkId'
+    value='execution(java.util.Map mx.finerio.api.services.SatwsClientService.getExtraction(..)) && bean(satwsClientService) && args(extractionId)',
+    argNames='extractionId'
   )
-  public void deleteLink( String linkId  ) {}
+  public void getExtraction( String extractionId  ) {}
 
-  @Before('deleteLink(linkId)')
-  void before( String linkId  ) {
-    log.info( "<< linkId: {}", linkId  )
+  @Before('getExtraction(extractionId)')
+  void before( String extractionId  ) {
+    log.info( "<< extractionId: {}", extractionId  )
   }
 
   @AfterReturning(
-    pointcut='deleteLink(java.lang.String)',
+    pointcut='getExtraction(java.lang.String)',
     returning='response'
   )
-  void afterReturning( String response ) {
+  void afterReturning( Map response ) {
     log.info( '>> response: {}', response )
   }
 
   @AfterThrowing(
-    pointcut='deleteLink(java.lang.String)',
+    pointcut='getExtraction(java.lang.String)',
     throwing='e'
   )
   void afterThrowing( Exception e ) {

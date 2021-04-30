@@ -15,24 +15,24 @@ import org.springframework.stereotype.Component
 
 @Component
 @Aspect
-class SatwsServiceGetTaxpayerInvoicePayments {
+class SatwsClientServiceGetTaxpayerInvoicePayments {
 
   final static Logger log = LoggerFactory.getLogger(
-      'mx.finerio.api.aop.SatwsServiceGetTaxpayerInvoicePayments' )
+      'mx.finerio.api.aop.SatwsClientServiceGetTaxpayerInvoicePayments' )
 
   @Pointcut(
-    value='execution(java.util.Map mx.finerio.api.services.SatwsService.getTaxpayerInvoicePayments(..)) && bean(satwsService) && args(customerId,params)',
-    argNames='customerId,params'
+    value='execution(java.util.Map mx.finerio.api.services.SatwsClientService.getTaxpayerInvoicePayments(..)) && bean(satwsClientService) && args(taxPayerId,params)',
+    argNames='taxPayerId,params'
   )
-  public void getTaxpayerInvoicePayments( Long customerId, Map params ) {}
+  public void getTaxpayerInvoicePayments( String taxPayerId, Map params ) {}
 
-  @Before('getTaxpayerInvoicePayments(customerId,params)')
-  void before( Long customerId, Map params ) {
-    log.info( "<< customerId: {}, params: {}", customerId, params )
+  @Before('getTaxpayerInvoicePayments(taxPayerId,params)')
+  void before( String taxPayerId, Map params ) {
+    log.info( "<< taxPayerId: {}, params: {}", taxPayerId, params )
   }
 
   @AfterReturning(
-    pointcut='getTaxpayerInvoicePayments(java.lang.Long,java.util.Map)',
+    pointcut='getTaxpayerInvoicePayments(java.lang.String,java.util.Map)',
     returning='response'
   )
   void afterReturning( Map response ) {
@@ -40,7 +40,7 @@ class SatwsServiceGetTaxpayerInvoicePayments {
   }
 
   @AfterThrowing(
-    pointcut='getTaxpayerInvoicePayments(java.lang.Long,java.util.Map)',
+    pointcut='getTaxpayerInvoicePayments(java.lang.String,java.util.Map)',
     throwing='e'
   )
   void afterThrowing( Exception e ) {

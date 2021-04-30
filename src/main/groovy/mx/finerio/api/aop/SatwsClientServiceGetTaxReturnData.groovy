@@ -13,32 +13,32 @@ import org.springframework.stereotype.Component
 
 @Component
 @Aspect
-class SatwsServiceDeleteLink {
+class SatwsClientServiceGetTaxReturnData {
 
   final static Logger log = LoggerFactory.getLogger(
-      'mx.finerio.api.aop.SatwsServiceDeleteLink' )
+      'mx.finerio.api.aop.SatwsClientServiceGetTaxReturnData' )
 
   @Pointcut(
-    value='execution(java.lang.String mx.finerio.api.services.SatwsService.deleteLink(..)) && bean(satwsService) && args(linkId)',
-    argNames='linkId'
+    value='execution(java.util.Map mx.finerio.api.services.SatwsClientService.getTaxReturnData(..)) && bean(satwsClientService) && args(taxReturnId)',
+    argNames='taxReturnId'
   )
-  public void deleteLink( String linkId  ) {}
+  public void getTaxReturnData( String taxReturnId  ) {}
 
-  @Before('deleteLink(linkId)')
-  void before( String linkId  ) {
-    log.info( "<< linkId: {}", linkId  )
+  @Before('getTaxReturnData(taxReturnId)')
+  void before( String taxReturnId  ) {
+    log.info( "<< taxReturnId: {}", taxReturnId  )
   }
 
   @AfterReturning(
-    pointcut='deleteLink(java.lang.String)',
+    pointcut='getTaxReturnData(java.lang.String)',
     returning='response'
   )
-  void afterReturning( String response ) {
+  void afterReturning( Map response ) {
     log.info( '>> response: {}', response )
   }
 
   @AfterThrowing(
-    pointcut='deleteLink(java.lang.String)',
+    pointcut='getTaxReturnData(java.lang.String)',
     throwing='e'
   )
   void afterThrowing( Exception e ) {

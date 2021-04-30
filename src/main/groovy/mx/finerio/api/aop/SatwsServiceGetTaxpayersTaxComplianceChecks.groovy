@@ -13,13 +13,13 @@ import org.springframework.stereotype.Component
 
 @Component
 @Aspect
-class SatwsClientServiceGetTaxpayersTaxComplianceChecks {
+class SatwsServiceGetTaxpayersTaxComplianceChecks {
 
   final static Logger log = LoggerFactory.getLogger(
-      'mx.finerio.api.aop.SatwsClientServiceGetTaxpayersTaxComplianceChecks' )
+      'mx.finerio.api.aop.SatwsServiceGetTaxpayersTaxComplianceChecks' )
 
   @Pointcut(
-    value='execution(java.util.Map mx.finerio.api.services.SatwsClientService.getTaxpayersTaxComplianceChecks(..)) && bean(satwsClientService) && args(customerId,params)',
+    value='execution(java.util.Map mx.finerio.api.services.SatwsService.getTaxpayersTaxComplianceChecks(..)) && bean(satwsService) && args(customerId,params)',
     argNames='customerId,params'
   )
   public void getTaxpayersTaxComplianceChecks( Long customerId, Map params ) {}

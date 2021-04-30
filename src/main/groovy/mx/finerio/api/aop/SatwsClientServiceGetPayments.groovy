@@ -13,32 +13,32 @@ import org.springframework.stereotype.Component
 
 @Component
 @Aspect
-class SatwsServiceDeleteLink {
+class SatwsClientServiceGetPayments {
 
   final static Logger log = LoggerFactory.getLogger(
-      'mx.finerio.api.aop.SatwsServiceDeleteLink' )
+      'mx.finerio.api.aop.SatwsClientServiceGetPayments' )
 
   @Pointcut(
-    value='execution(java.lang.String mx.finerio.api.services.SatwsService.deleteLink(..)) && bean(satwsService) && args(linkId)',
-    argNames='linkId'
+    value='execution(java.util.Map mx.finerio.api.services.SatwsClientService.getPayments(..)) && bean(satwsClientService) && args(params)',
+    argNames='params'
   )
-  public void deleteLink( String linkId  ) {}
+  public void getPayments( Map params ) {}
 
-  @Before('deleteLink(linkId)')
-  void before( String linkId  ) {
-    log.info( "<< linkId: {}", linkId  )
+  @Before('getPayments(params)')
+  void before( Map params ) {
+    log.info( "<<params: {}", params )
   }
 
   @AfterReturning(
-    pointcut='deleteLink(java.lang.String)',
+    pointcut='getPayments(java.util.Map)',
     returning='response'
   )
-  void afterReturning( String response ) {
+  void afterReturning( Map response ) {
     log.info( '>> response: {}', response )
   }
 
   @AfterThrowing(
-    pointcut='deleteLink(java.lang.String)',
+    pointcut='getPayments(java.util.Map)',
     throwing='e'
   )
   void afterThrowing( Exception e ) {

@@ -13,13 +13,13 @@ import org.springframework.stereotype.Component
 
 @Component
 @Aspect
-class SatwsServiceDeleteLink {
+class SatwsClientServiceDeleteLink {
 
   final static Logger log = LoggerFactory.getLogger(
-      'mx.finerio.api.aop.SatwsServiceDeleteLink' )
+      'mx.finerio.api.aop.SatwsClientServiceDeleteLink' )
 
   @Pointcut(
-    value='execution(java.lang.String mx.finerio.api.services.SatwsService.deleteLink(..)) && bean(satwsService) && args(linkId)',
+    value='execution(java.lang.String mx.finerio.api.services.SatwsClientService.deleteLink(..)) && bean(satwsClientService) && args(linkId)',
     argNames='linkId'
   )
   public void deleteLink( String linkId  ) {}

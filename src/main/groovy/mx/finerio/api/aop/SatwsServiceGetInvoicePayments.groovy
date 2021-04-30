@@ -15,13 +15,13 @@ import org.springframework.stereotype.Component
 
 @Component
 @Aspect
-class SatwsClientServiceGetInvoicePayments {
+class SatwsServiceGetInvoicePayments {
 
   final static Logger log = LoggerFactory.getLogger(
-      'mx.finerio.api.aop.SatwsClientServiceGetInvoicePayments' )
+      'mx.finerio.api.aop.SatwsServiceGetInvoicePayments' )
 
   @Pointcut(
-    value='execution(java.util.Map mx.finerio.api.services.SatwsClientService.getInvoicePayments(..)) && bean(satwsClientService) && args(invoiceId,params)',
+    value='execution(java.util.Map mx.finerio.api.services.SatwsService.getInvoicePayments(..)) && bean(satwsService) && args(invoiceId,params)',
     argNames='invoiceId,params'
   )
   public void getInvoicePayments( String invoiceId, Map params ) {}

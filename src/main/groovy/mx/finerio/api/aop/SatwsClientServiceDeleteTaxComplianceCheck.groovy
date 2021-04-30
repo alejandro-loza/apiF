@@ -13,24 +13,24 @@ import org.springframework.stereotype.Component
 
 @Component
 @Aspect
-class SatwsServiceDeleteLink {
+class SatwsClientServiceDeleteTaxComplianceCheck {
 
   final static Logger log = LoggerFactory.getLogger(
-      'mx.finerio.api.aop.SatwsServiceDeleteLink' )
+      'mx.finerio.api.aop.SatwsClientServiceDeleteTaxComplianceCheck' )
 
   @Pointcut(
-    value='execution(java.lang.String mx.finerio.api.services.SatwsService.deleteLink(..)) && bean(satwsService) && args(linkId)',
-    argNames='linkId'
+    value='execution(java.lang.String mx.finerio.api.services.SatwsClientService.deleteTaxComplianceCheck(..)) && bean(satwsClientService) && args(taxComplianceCheckId)',
+    argNames='taxComplianceCheckId'
   )
-  public void deleteLink( String linkId  ) {}
+  public void deleteTaxComplianceCheck( String taxComplianceCheckId  ) {}
 
-  @Before('deleteLink(linkId)')
-  void before( String linkId  ) {
-    log.info( "<< linkId: {}", linkId  )
+  @Before('deleteTaxComplianceCheck(taxComplianceCheckId)')
+  void before( String taxComplianceCheckId  ) {
+    log.info( "<< taxComplianceCheckId: {}", taxComplianceCheckId  )
   }
 
   @AfterReturning(
-    pointcut='deleteLink(java.lang.String)',
+    pointcut='deleteTaxComplianceCheck(java.lang.String)',
     returning='response'
   )
   void afterReturning( String response ) {
@@ -38,7 +38,7 @@ class SatwsServiceDeleteLink {
   }
 
   @AfterThrowing(
-    pointcut='deleteLink(java.lang.String)',
+    pointcut='deleteTaxComplianceCheck(java.lang.String)',
     throwing='e'
   )
   void afterThrowing( Exception e ) {

@@ -13,32 +13,32 @@ import org.springframework.stereotype.Component
 
 @Component
 @Aspect
-class SatwsServiceDeleteLink {
+class SatwsClientServiceGetLink {
 
   final static Logger log = LoggerFactory.getLogger(
-      'mx.finerio.api.aop.SatwsServiceDeleteLink' )
+      'mx.finerio.api.aop.SatwsClientServiceGetLink' )
 
   @Pointcut(
-    value='execution(java.lang.String mx.finerio.api.services.SatwsService.deleteLink(..)) && bean(satwsService) && args(linkId)',
+    value='execution(java.util.Map mx.finerio.api.services.SatwsClientService.getLink(..)) && bean(satwsClientService) && args(linkId)',
     argNames='linkId'
   )
-  public void deleteLink( String linkId  ) {}
+  public void getLink( String linkId  ) {}
 
-  @Before('deleteLink(linkId)')
+  @Before('getLink(linkId)')
   void before( String linkId  ) {
     log.info( "<< linkId: {}", linkId  )
   }
 
   @AfterReturning(
-    pointcut='deleteLink(java.lang.String)',
+    pointcut='getLink(java.lang.String)',
     returning='response'
   )
-  void afterReturning( String response ) {
+  void afterReturning( Map response ) {
     log.info( '>> response: {}', response )
   }
 
   @AfterThrowing(
-    pointcut='deleteLink(java.lang.String)',
+    pointcut='getLink(java.lang.String)',
     throwing='e'
   )
   void afterThrowing( Exception e ) {

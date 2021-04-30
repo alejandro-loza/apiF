@@ -19,7 +19,7 @@ class SatwsServiceDeleteTaxReturn {
       'mx.finerio.api.aop.SatwsServiceDeleteTaxReturn' )
 
   @Pointcut(
-    value='execution(java.util.Map mx.finerio.api.services.SatwsService.deleteTaxReturn(..)) && bean(satwsService) && args(taxReturnId)',
+    value='execution(java.lang.String mx.finerio.api.services.SatwsService.deleteTaxReturn(..)) && bean(satwsService) && args(taxReturnId)',
     argNames='taxReturnId'
   )
   public void deleteTaxReturn( String taxReturnId  ) {}
@@ -33,7 +33,7 @@ class SatwsServiceDeleteTaxReturn {
     pointcut='deleteTaxReturn(java.lang.String)',
     returning='response'
   )
-  void afterReturning( Map response ) {
+  void afterReturning( String response ) {
     log.info( '>> response: {}', response )
   }
 

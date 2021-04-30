@@ -13,32 +13,32 @@ import org.springframework.stereotype.Component
 
 @Component
 @Aspect
-class SatwsServiceDeleteTaxComplianceCheck {
+class SatwsClientServiceGetTaxComplianceCheck {
 
   final static Logger log = LoggerFactory.getLogger(
-      'mx.finerio.api.aop.SatwsServiceDeleteTaxComplianceCheck' )
+      'mx.finerio.api.aop.SatwsClientServiceGetTaxComplianceCheck' )
 
   @Pointcut(
-    value='execution(java.lang.String mx.finerio.api.services.SatwsService.deleteTaxComplianceCheck(..)) && bean(satwsService) && args(taxComplianceCheckId)',
+    value='execution(java.util.Map mx.finerio.api.services.SatwsClientService.getTaxComplianceCheck(..)) && bean(satwsClientService) && args(taxComplianceCheckId)',
     argNames='taxComplianceCheckId'
   )
-  public void deleteTaxComplianceCheck( String taxComplianceCheckId  ) {}
+  public void getTaxComplianceCheck( String taxComplianceCheckId  ) {}
 
-  @Before('deleteTaxComplianceCheck(taxComplianceCheckId)')
+  @Before('getTaxComplianceCheck(taxComplianceCheckId)')
   void before( String taxComplianceCheckId  ) {
     log.info( "<< taxComplianceCheckId: {}", taxComplianceCheckId  )
   }
 
   @AfterReturning(
-    pointcut='deleteTaxComplianceCheck(java.lang.String)',
+    pointcut='getTaxComplianceCheck(java.lang.String)',
     returning='response'
   )
-  void afterReturning( String response ) {
+  void afterReturning( Map response ) {
     log.info( '>> response: {}', response )
   }
 
   @AfterThrowing(
-    pointcut='deleteTaxComplianceCheck(java.lang.String)',
+    pointcut='getTaxComplianceCheck(java.lang.String)',
     throwing='e'
   )
   void afterThrowing( Exception e ) {
