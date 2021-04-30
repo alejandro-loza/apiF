@@ -14,14 +14,14 @@ class DiagnosisServiceGetDiagnosisByCustomer {
       'mx.finerio.api.aop.DiagnosisServiceGetDiagnosisByCustomer' )
 
   @Pointcut(
-    value='execution(mx.finerio.api.dtos.DiagnosisDto mx.finerio.api.services.DiagnosisService.getDiagnosisByCustomer(..)) && bean(diagnosisService) && args(customerId, averageManualIncome)',
+    value='execution(mx.finerio.api.dtos.DiagnosisDto mx.finerio.api.services.DiagnosisService.getDiagnosisByCustomer(..))  && args(customerId, averageManualIncome)',
     argNames='customerId, averageManualIncome'
   )
   void getDiagnosisByCustomer( Long customerId , Optional averageManualIncome) {}
 
   @Before('getDiagnosisByCustomer(customerId, averageManualIncome)')
   void before( Long customerId, Optional averageManualIncome ) {
-    log.info( "<< customerId: {}, averageManualIncome: {}", customerId, averageManualIncome.get() )
+    log.info( "<< customerId: {}, averageManualIncome: {}", customerId, averageManualIncome )
   }
 
   @AfterReturning(
