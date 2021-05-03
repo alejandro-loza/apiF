@@ -14,6 +14,7 @@ import wslite.rest.RESTClient
 import java.time.ZonedDateTime
 import org.springframework.beans.factory.InitializingBean
 import mx.finerio.api.exceptions.BadImplementationException
+import mx.finerio.api.exceptions.BadRequestException
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import groovy.json.JsonSlurper
@@ -104,7 +105,10 @@ class SatwsClientService  implements InitializingBean {
 
       if( e.response.statusCode == 400 ){
         def bodyResponse = new JsonSlurper().parseText( new String( e.response.data, UTF_8) )
-          throw new BadImplementationException( bodyResponse['hydra:description'] )
+
+        def type = bodyResponse['@type']
+        def propertyPath = bodyResponse['violations'][0]['propertyPath']
+        throw new BadRequestException( "${type}.${propertyPath}.message" )
       }else{
         throw new BadImplementationException(
           'satwsClientService.createCredential.error.onCall')
