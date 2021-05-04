@@ -12,7 +12,6 @@ import org.springframework.stereotype.Service
 import wslite.http.auth.HTTPBasicAuthorization
 import wslite.rest.RESTClient
 import java.time.ZonedDateTime
-import org.springframework.beans.factory.InitializingBean
 import mx.finerio.api.exceptions.BadImplementationException
 import mx.finerio.api.exceptions.BadRequestException
 import org.slf4j.Logger
@@ -21,7 +20,7 @@ import groovy.json.JsonSlurper
 import static java.nio.charset.StandardCharsets.*
 
 @Service
-class SatwsClientService  implements InitializingBean {
+class SatwsClientService {
 
   @Value( '${satws.apikey.path}' )
   String satwsApikey
@@ -90,6 +89,7 @@ class SatwsClientService  implements InitializingBean {
                   'rfc': dto.rfc ,
                   'password': dto.password  ]
     
+    satwsClient = new RESTClient( url )
     def response
       
     try{ 
@@ -159,7 +159,7 @@ class SatwsClientService  implements InitializingBean {
 
   String getInvoice( String invoiceId, String accept ) throws Exception {
 
-    
+    satwsClient = new RESTClient( url )
     def response
     def updatedPath = invoicePath.replace( '{invoiceId}', invoiceId )
     def headers = [ 'X-API-Key': satwsApikey, 'Accept': accept ]    
@@ -396,7 +396,8 @@ class SatwsClientService  implements InitializingBean {
   //Generics methods
 
   Map getDataByIdAndParams( String id, String change, Map params, String path ) throws Exception {
-
+    
+    satwsClient = new RESTClient( url )
     def response  
     String updatedPath = path.replace( "{$change}", id )
       
@@ -420,6 +421,7 @@ class SatwsClientService  implements InitializingBean {
 
   Map getDataByParams( Map params, String path ) throws Exception {
    
+    satwsClient = new RESTClient( url )
     def response
         
     try{ 
@@ -443,6 +445,7 @@ class SatwsClientService  implements InitializingBean {
 
   Map getDataById( String id, String path  ) throws Exception {
     
+    satwsClient = new RESTClient( url )
     def response
     def updatedPath = "$path/$id"
     def headers = [ 'X-API-Key': satwsApikey ]    
@@ -465,7 +468,7 @@ class SatwsClientService  implements InitializingBean {
 
    String deleteDataById ( String id, String path ) throws Exception {
 
-    
+    satwsClient = new RESTClient( url )
     def response
     def updatedPath = "$path/$id"
     def headers = [ 'X-API-Key': satwsApikey ]    
@@ -485,11 +488,6 @@ class SatwsClientService  implements InitializingBean {
 
     response.statusMessage
   }
-
-  @Override
-  public void afterPropertiesSet() throws Exception {
-      satwsClient = new RESTClient( url )          
-  } 
 
 
 }
