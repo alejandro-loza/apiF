@@ -90,7 +90,7 @@ class DiagnosisServiceSpec extends Specification{
         assert thisMonthTransactions.categories.first().subcategories.size() == 1
         assert thisMonthTransactions.categories.first().subcategories.first().amount ==1000
         assert thisMonthTransactions.categories.first().subcategories.first().categoryId == subCategory.id
-        assert thisMonthTransactions.categories.first().subcategories.first().advices.first() == advice.description
+        assert thisMonthTransactions.categories.first().subcategories.first().advices.first().description == advice.description
 
         assert twoMonthTransactions.categories.size() == 1
         assert twoMonthTransactions.categories.first().categoryId == parentCategory.id
@@ -99,7 +99,7 @@ class DiagnosisServiceSpec extends Specification{
         assert twoMonthTransactions.categories.first().subcategories.size() == 1
         assert twoMonthTransactions.categories.first().subcategories.first().amount ==200
         assert twoMonthTransactions.categories.first().subcategories.first().categoryId == subCategory.id
-        assert twoMonthTransactions.categories.first().subcategories.first().advices.first() == advice.description
+        assert twoMonthTransactions.categories.first().subcategories.first().advices.first().description == advice.description
 
 
 
@@ -163,7 +163,7 @@ class DiagnosisServiceSpec extends Specification{
         assert thisMonthTransactions.categories.first().subcategories.size() == 1
         assert thisMonthTransactions.categories.first().subcategories.first().amount ==1000
         assert thisMonthTransactions.categories.first().subcategories.first().categoryId == subCategory.id
-        assert thisMonthTransactions.categories.first().subcategories.first().advices.first() == advice.description
+        assert thisMonthTransactions.categories.first().subcategories.first().advices.first().description == advice.description
 
         assert twoMonthTransactions.categories.size() == 1
         assert twoMonthTransactions.categories.first().categoryId == parentCategory.id
@@ -172,7 +172,7 @@ class DiagnosisServiceSpec extends Specification{
         assert twoMonthTransactions.categories.first().subcategories.size() == 1
         assert twoMonthTransactions.categories.first().subcategories.first().amount ==200
         assert twoMonthTransactions.categories.first().subcategories.first().categoryId == subCategory.id
-        assert twoMonthTransactions.categories.first().subcategories.first().advices.first() == advice.description
+        assert twoMonthTransactions.categories.first().subcategories.first().advices.first().description == advice.description
 
 
 

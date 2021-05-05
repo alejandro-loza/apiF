@@ -7,6 +7,7 @@ import mx.finerio.api.domain.repository.AdviceRepository
 import mx.finerio.api.domain.repository.SuggestedExpensesRepository
 import mx.finerio.api.dtos.ApiTransactionDto
 import mx.finerio.api.dtos.CategoryDiagnosisDto
+import mx.finerio.api.dtos.DiagnosisAdviceDto
 import mx.finerio.api.dtos.DiagnosisDto
 import mx.finerio.api.dtos.MonthTransactionsDiagnosisDto
 import mx.finerio.api.dtos.SubCategoryDiagnosisDto
@@ -125,8 +126,11 @@ class DiagnosisServiceImp extends InsightsService implements DiagnosisService {
             subCategoryDiagnosisDto.with {
                 subCategoryDiagnosisDto.categoryId = subCategoryId
                 amount = subTransactions*.amount.sum() as BigDecimal
-                advices = adviceRepository.findAllByCategoryAndDateDeletedIsNull(
-                        categoryService.findOne(subCategoryId))*.description as List<String>
+                def advicesList = adviceRepository.findAllByCategoryAndDateDeletedIsNull(
+                        categoryService.findOne(subCategoryId))
+                advices = advicesList.collect { new DiagnosisAdviceDto(
+                  description: it.description
+                )}
             }
             subCategoryDiagnosisDto
         }

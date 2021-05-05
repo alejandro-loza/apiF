@@ -1,6 +1,6 @@
 package mx.finerio.api.aop
 
-import mx.finerio.api.dtos.SummaryDto
+import mx.finerio.api.dtos.DiagnosisDto
 import org.aspectj.lang.annotation.*
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
@@ -28,7 +28,7 @@ class DiagnosisServiceGetDiagnosisByCustomer {
     pointcut='getDiagnosisByCustomer(java.lang.Long, java.util.Optional)',
     returning='response'
   )
-  void afterReturning( SummaryDto response ) {
+  void afterReturning( DiagnosisDto response ) {
     log.info( '>> response: {}', response )
   }
 

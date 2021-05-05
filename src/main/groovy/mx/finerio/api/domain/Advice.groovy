@@ -6,7 +6,7 @@ import javax.persistence.*
 import java.sql.Timestamp
 
 @Entity
-@Table(name = 'transactions')
+@Table(name = 'advice')
 @ToString(includeNames = true, includePackage = false)
 class Advice {
 
