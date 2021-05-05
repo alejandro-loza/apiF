@@ -1955,7 +1955,7 @@ components:
           description: The average income of a customer.
           type: number
           example: 123.45
-        categories:
+        data:
           description: The expenses of a customer, grouped by month by default
           type: array
           items:
@@ -1967,7 +1967,7 @@ components:
           description: The year and month of the information
           type: integer
           example: 15912423261854
-        items:
+        categories:
           description: The diagnosis grouped by categories
           type: array
           items:
