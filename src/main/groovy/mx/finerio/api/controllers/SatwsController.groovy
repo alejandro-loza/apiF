@@ -58,7 +58,7 @@ class SatwsController {
 
   @GetMapping(path="/invoices/payments/{paymentId}")
   ResponseEntity getPayment( @PathVariable String paymentId ) {    
-    def response = satwsService.getLink( paymentId )
+    def response = satwsService.getPayment( paymentId )
     new ResponseEntity( response, HttpStatus.OK )    
   }
   

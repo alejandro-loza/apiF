@@ -350,7 +350,7 @@ class SatwsClientService {
 
   }
 
-  String getTaxComplianceCheck( String taxComplianceCheckId  ) throws Exception {
+  Map getTaxComplianceCheck( String taxComplianceCheckId  ) throws Exception {
     
     if ( !taxComplianceCheckId ) {
       throw new BadImplementationException(
@@ -412,7 +412,7 @@ class SatwsClientService {
 
       log.info( "XX ${e.class.simpleName} - ${e.message} ${new String( e.getResponse().data )}" )    
         throw new BadImplementationException(
-          "satwsClientService.getInvoicesByParams.error.onCall ${e.message}")      
+          "satwsClientService.getDataByIdAndParams.error.onCall ${e.message}")      
     }
 
     new JsonSlurper().parseText( new String( response.data, UTF_8) )

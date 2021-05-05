@@ -209,6 +209,10 @@ class SatwsService {
     satwsClientService.deleteLink( linkId )    
   }
 
+  Map getPayments( Map params ) throws Exception {
+    satwsClientService.getPayments( params )
+  }
+
 
   Map getPayment( String paymentId  ) throws Exception {
 
