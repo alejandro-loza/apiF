@@ -59,7 +59,7 @@ class CredentialWidgetService {
 
     def credentialDto = this.getCredentialDto( customer.id, credentialWidgetDto )
     def instance = credentialService.create( credentialDto, customer, clientWidget.client )
-    return credentialService.getFields( instance )
+    return getFields( instance )
 
   }
 
@@ -72,7 +72,7 @@ class CredentialWidgetService {
       client: client
     )
     def instance = credentialService.update( credentialWidgetDto.credentialId, dto )
-    return credentialService.getFields( instance )
+    return getFields( instance )
 
   }
 
@@ -136,6 +136,14 @@ class CredentialWidgetService {
     }
 
     return customer
+
+  }
+
+  private Map getFields( Credential credential ) throws Exception {
+
+    def originalMap = credentialService.getFields( credential )
+    originalMap.customerId = credential.customer.id
+    return originalMap
 
   }
 
