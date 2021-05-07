@@ -60,6 +60,8 @@ tags:
   - name: Access
     description: Here you start! You need to login first in order to use the API. After
       that, you need to refresh your access token every time it expires.
+  - name: Countries
+    description: Available countries.
   - name: Banks
     description: Banks are the financial institutions where your customers keep their
       money.
@@ -72,6 +74,8 @@ tags:
   - name: Transactions
     description: A transaction is the representation of the financial movements within a
       bank account.
+  - name: Fiscal data
+    description: Fiscal data of your customers.
   - name: Insights
     description: Insights and datapoints about your customer's financial information.
   - name: Callbacks
@@ -126,12 +130,41 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/LoginResponse'
+  /countries:
+    get:
+      tags:
+      - Countries
+      summary: Fetches a list of countries.
+      description: Fetches a list of available countries where Finerio Connect has banks implemented.
+      responses:
+        '200':
+          description: A List of countries.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Countries'
+        '500':
+          description: Something in the server was wrong.
   /banks:
     get:
       tags:
         - Banks
       summary: Get a list of banks
       description: Get all the banks and financial institutions with which Finerio can connect and fetch information.
+      parameters:
+        - in: query
+          name: country
+          required: false
+          schema:
+            type: string
+          description: "The code of the country. By default is 'MX'."
+          example: 'MX'
+        - in: query
+          name: type
+          required: false
+          schema:
+            $ref: '#/components/schemas/BankType'
+          description: "The type of bank. By default is 'personal'."
       responses:
         '200':
           description: Everything was OK. You successfully obtained the list of banks.
@@ -141,6 +174,12 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Bank'
+        '400':
+          description: Whoops! Something went wrong with your request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
   /banks/{id}/fields:
     get:
       tags:
@@ -695,6 +734,84 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Errors'
+  /invoices:
+    get:
+      tags:
+        - Fiscal data
+      summary: Get a list of invoices
+      description: With a customer ID, you can obtain a list of invoices.
+      parameters:
+        - in: query
+          name: customerId
+          required: true
+          schema:
+            type: integer
+          description: The ID of the customer.
+        - in: query
+          name: maxResults
+          required: false
+          schema:
+            type: integer
+          description: The max number of items that can be fetched. Defaults to and only allows up to 100.
+        - in: query
+          name: cursor
+          required: false
+          schema:
+            type: string
+          description: The ID of the first element of the response that you will receive. It represents the starting point of your request.
+      responses:
+        '200':
+          description: Everything was OK. You successfully obtained a list of invoices.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InvoiceList'
+        '400':
+          description: Whoops! Something went wrong with your request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '404':
+          description: Whoops! You requested something that doesn't exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+  /invoices/{uuid}:
+    get:
+      tags:
+        - Fiscal data
+      summary: Get the information of an invoice.
+      description: With the UUID of an invoice, you can obtain an invoice in different formats.
+      parameters:
+        - in: path
+          name: uuid
+          required: true
+          schema:
+            type: string
+          description: The UUID of the invoice.
+      responses:
+        '200':
+          description: Everything was OK. You successfully obtained an invoice.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Invoice'
+            text/xml:
+              schema:
+                type: string
+                format: binary
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: Whoops! You requested something that doesn't exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
   /summary:
     get:
       tags:
@@ -749,6 +866,46 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Analysis'
+        '400':
+          description: Whoops! Something went wrong with your request.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+        '404':
+          description: Whoops! You requested something that doesn't exist.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Errors'
+  /diagnosis:
+    get:
+      tags:
+      - Insights
+      summary: Fetches a diagnosis of the financial information of a customer.
+      description: Given a valid customer ID, fetches a diagnosis of the financial information of a customer.
+      parameters:
+      - in: query
+        name: customerId
+        schema:
+          type: integer
+        required: true
+        description: The ID of the customer to fetch the diagnosis.
+        example: 123
+      - in: query
+        name: averageIncome
+        schema:
+          type: number
+        required: false
+        description: A custom average income of the customer. By default is calculated.
+        example: 123.45
+      responses:
+        '200':
+          description: The diagnosis of a customer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Diagnosis'
         '400':
           description: Whoops! Something went wrong with your request.
           content:
@@ -1025,6 +1182,30 @@ components:
         scope:
           type: string
           example: read write
+    Country:
+      description: A representation of a country.
+      properties:
+        code:
+          description: The code of the country.
+          type: string
+          example: 'MX'
+        name:
+          description: The name of the country.
+          type: string
+          example: 'México'
+        imageUrl:
+          description: The URL of the image of the country
+          type: string
+          example: 'https://cdn.finerio.mx/widget/MX.png'
+    Countries:
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Country'
+        nextCursor:
+          type: string
+          example:  null
     Bank:
       properties:
         id:
@@ -1067,6 +1248,11 @@ components:
             - PASSWORD
           description: The type of the textfield in the HTML web form.
           example: TEXT
+    BankType:
+      type: string
+      enum:
+        - personal
+        - business
     Customer:
       properties:
         id:
@@ -1160,6 +1346,14 @@ components:
           type: boolean
           description: Indicates if the credential should be fetched automatically by Finerio Connect.
           example: true
+        startDate:
+          type: string
+          description: The start date of the financial information, in yyyy-MM-dd format. By default is three months before the current date.
+          example: '2021-12-01'
+        endDate:
+          type: string
+          description: The end date of the financial information, in yyyy-MM-dd format. By default is the current date.
+          example: '2021-12-01'
       required:
         - username
         - password
@@ -1189,6 +1383,14 @@ components:
           type: boolean
           description: Indicates if the credential should be fetched automatically by Finerio Connect.
           example: true
+        startDate:
+          type: string
+          description: The start date of the financial information, in yyyy-MM-dd format. By default is three months before the current date.
+          example: '2021-12-01'
+        endDate:
+          type: string
+          description: The end date of the financial information, in yyyy-MM-dd format. By default is the current date.
+          example: '2021-12-01'
     CredentialTokenBody:
       properties:
         token:
@@ -1826,6 +2028,118 @@ components:
           description: The amount of the transaction.
           type: number
           example: 123.45
+    Diagnosis:
+      description: A representation of the diagnosis of the financial information of a customer.
+      properties:
+        averageIncome:
+          description: The average income of a customer.
+          type: number
+          example: 123.45
+        data:
+          description: The expenses of a customer, grouped by month by default
+          type: array
+          items:
+            $ref: '#/components/schemas/DiagnosisByMonth'
+    DiagnosisByMonth:
+      description: Diagnosis grouped by month by default.
+      properties:
+        date:
+          description: The year and month of the information
+          type: integer
+          example: 15912423261854
+        categories:
+          description: The diagnosis grouped by categories
+          type: array
+          items:
+            $ref: '#/components/schemas/DiagnosisByCategory'
+    DiagnosisByCategory:
+      description: Diagnosis grouped by category
+      properties:
+        categoryId:
+          type: string
+          description: The ID of the category.
+          example: 37b294e8-bde2-44b4-a8fd-a71cb284bc20
+        spent:
+          description: The amount spent by category.
+          type: number
+          example: 123.45
+        average:
+          description: The average of the category.
+          type: number
+          example: 123.45
+        others:
+          description: The amount of others in the category.
+          type: number
+          example: 123.45
+        suggested:
+          description: The suggested amount of the category.
+          type: number
+          example: 123.45
+        subcategories:
+          description: The diagnosis grouped by subcategories
+          type: array
+          items:
+            $ref: '#/components/schemas/DiagnosisBySubcategory'
+    DiagnosisBySubcategory:
+      description: Financial information grouped by subcategory
+      properties:
+        categoryId:
+          type: string
+          description: The ID of the subcategory.
+          example: 37b294e8-bde2-44b4-a8fd-a71cb284bc20
+        amount:
+          description: The amount of the subcategory.
+          type: number
+          example: 123.45
+        advices:
+          type: array
+          items:
+            $ref: '#/components/schemas/Advice'
+    Advice:
+      description: A financial advice by category
+      properties:
+        description:
+          description: The description of the advice.
+          type: string
+          example: Spend less money in this category
+    InvoiceList:
+      description: A list of invoices.
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Invoice'
+        nextCursor:
+          type: integer
+          description: The ID of the transaction that can be used as the "nextCursor" parameter.
+          example: 1
+    Invoice:
+      description: An invoice.
+      properties:
+        date:
+          type: number
+          description: The date of the invoice
+          example: 1587567125458
+        issuer:
+          type: string
+          description: The RFC of the issuer
+          example: AAAA010101AAA
+        receiver:
+          type: string
+          description: The RFC of the receiver
+          example: AAAA010101AAA
+        total:
+          type: number
+          description: The total amount of the invoice
+          example: 123.45
+        status:
+          type: string
+          description: The status of the invoice
+          example: 'VIGENTE'
+        uuid:
+          type: string
+          description: The UUID of the invoice.
+          example: 37b294e8-bde2-44b4-a8fd-a71cb284bc20
     Errors:
       properties:
         errors:
