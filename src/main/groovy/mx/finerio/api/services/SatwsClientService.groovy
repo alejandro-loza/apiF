@@ -5,6 +5,7 @@ import groovy.json.JsonOutput
 
 import mx.finerio.api.dtos.ApiListDto
 import mx.finerio.api.dtos.CreateCredentialSatwsDto
+import mx.finerio.api.dtos.CreateExtractionDto
 
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
@@ -72,7 +73,23 @@ class SatwsClientService {
 
   @Value( '${satws.extractions.path}' )
   String extractionsPath
-  
+
+  @Value( '${satws.taxpayersTaxStatus.path}' )
+  String taxpayersTaxStatusPath
+
+  @Value( '${satws.taxStatus.path}' )
+  String taxStatusPath
+
+  @Value( '${satws.taxpayersTaxRetentions.path}' )
+  String taxpayersTaxRetentionsPath
+
+  @Value( '${satws.taxRetentions.path}' )
+  String taxRetentionsPath
+
+  @Value( '${satws.taxRetentionsInvoice.path}' )
+  String taxRetentionsInvoicePath
+
+
   def satwsClient
 
   final static Logger log = LoggerFactory.getLogger(
@@ -139,6 +156,18 @@ class SatwsClientService {
 
   } 
 
+  String deleteCredential( String credentialId ) throws Exception {
+
+    if ( !credentialId ) {
+      throw new BadImplementationException(
+        'satwsClientService.deleteCredential.credentialId.null' )
+    }
+
+    deleteDataById( credentialId, credentialPath )  
+    
+  }
+
+
 
   //Ends Credentials
 
@@ -153,30 +182,26 @@ class SatwsClientService {
 
     getDataByIdAndParams( rfc,'rfc',params, invoicesPath )  
   }
-
   
-
 
   String getInvoice( String invoiceId, String accept ) throws Exception {
 
-    satwsClient = new RESTClient( url )
-    def response
-    def updatedPath = invoicePath.replace( '{invoiceId}', invoiceId )
-    def headers = [ 'X-API-Key': satwsApikey, 'Accept': accept ]    
-      
-    try{ 
+     if ( !invoiceId ) {
+      throw new BadImplementationException(
+        'satwsClientService.getInvoice.invoiceId.null' )
+    }  
+    getFile( invoiceId, 'invoiceId', accept, invoicePath )       
+  }
 
-      response = satwsClient.get( path: updatedPath,         
-        headers: headers ) 
 
-    }catch( wslite.rest.RESTClientException e ){
+  String deleteInvoice( String invoiceId ) throws Exception {
 
-      log.info( "XX ${e.class.simpleName} - ${e.message} ${new String( e.getResponse().data )}" ) 
-      return  new String( e.response.data, UTF_8)    
-        
-    }
+     if ( !invoiceId ) {
+      throw new BadImplementationException(
+        'satwsClientService.deleteInvoice.invoiceId.null' )
+    }  
 
-    new String( response.data, UTF_8)        
+    deleteDataById( invoiceId, invoicePath )        
   }
 
   //Ends Invoices
@@ -376,6 +401,50 @@ class SatwsClientService {
 
   //Starts extraction
 
+  String createExtraction( CreateExtractionDto dto ) throws Exception {
+
+   validateInputCreateExtraction( dto )
+
+    def data =  [ 'taxpayer': dto.taxpayer,
+                  'extractor': dto.extractor ,
+                  'options': ['types':dto.options.types,
+                             'period':['from':dto.options.period.from,
+                                        'to':dto.options.period.to
+                                      ]
+                             ]  
+                ]                 
+    
+    satwsClient = new RESTClient( url )
+    def response
+      
+    try{ 
+
+      response = satwsClient.post( path: extractionsPath,
+        headers: [ 'X-API-Key': satwsApikey ] ) {
+          json data
+        }
+
+    }catch( wslite.rest.RESTClientException e ){
+
+      log.info( "XX ${e.class.simpleName} - ${e.message} ${new String( e.getResponse().data )}" )
+
+      if( e.response.statusCode == 400 ){
+        def bodyResponse = new JsonSlurper().parseText( new String( e.response.data, UTF_8) )
+
+        def type = bodyResponse['@type']
+        def propertyPath = bodyResponse['violations'][0]['propertyPath']
+        throw new BadRequestException( "${type}.${propertyPath}.message" )
+      }else{
+        throw new BadImplementationException(
+          'satwsClientService.createCredential.error.onCall')
+      }
+
+    }
+
+    def bodyResponse = new JsonSlurper().parseText( new String( response.data, UTF_8) )
+    bodyResponse['id']  
+  }
+
   Map getExtractions( Map params ) throws Exception {
     getDataByParams( params, extractionsPath )       
   }
@@ -388,11 +457,122 @@ class SatwsClientService {
     }
 
     getDataById( extractionId, extractionsPath )  
-  }  
+  }
 
-   //TODO create extraction
+  private void validateInputCreateExtraction( CreateExtractionDto dto ) throws Exception {
+    
+    if( !dto.taxpayer ){
+     throw new BadImplementationException(
+        'satwsClientService.validateInputCreateExtraction.taxpayer.null')
+    }
+
+    if( !dto.extractor ){
+     throw new BadImplementationException(
+        'satwsClientService.validateInputCreateExtraction.extractor.null')
+    }
+
+    if( !dto.options?.types ){
+     throw new BadImplementationException(
+        'satwsClientService.validateInputCreateExtraction.types.null')
+    }
+
+    if( !dto.options?.period?.from ){
+     throw new BadImplementationException(
+        'satwsClientService.validateInputCreateExtraction.period.from.null')
+    }
+
+    if( !dto.options?.period?.to ){
+     throw new BadImplementationException(
+        'satwsClientService.validateInputCreateExtraction.period.to.null')
+    }
+   
+  } 
 
   //Ends extraction
+
+  //Starts tax status
+
+  Map getTaxpayersTaxStatus( String taxPayerId ) throws Exception {
+    
+    if ( !taxPayerId ) {
+      throw new BadImplementationException(
+        'satwsClientService.getTaxpayersTaxStatus.taxPayerId.null' )
+    }  
+
+    getDataByIdAndParams( taxPayerId,'taxPayerId', [:], taxpayersTaxStatusPath )
+
+  }
+
+
+  Map getTaxStatus( String taxStatusId  ) throws Exception {
+    
+    if ( !taxStatusId ) {
+      throw new BadImplementationException(
+        'satwsClientService.getTaxStatus.taxStatusId.null' )
+    }
+
+    getDataById( taxStatusId, taxStatusPath )  
+  }
+
+
+  String deleteTaxStatus( String taxStatusId ) throws Exception {
+
+    if ( !taxStatusId ) {
+      throw new BadImplementationException(
+        'satwsClientService.deleteTaxComplianceCheck.taxStatusId.null' )
+    }
+
+    deleteDataById( taxStatusId, taxStatusPath )  
+    
+  }
+
+  //Ends tax status
+
+  //Starts tax retention
+  Map getTaxpayersTaxRetentions( String taxPayerId, Map params ) throws Exception {
+    
+    if ( !taxPayerId ) {
+      throw new BadImplementationException(
+        'satwsClientService.getTaxpayersTaxRetentions.taxPayerId.null' )
+    }  
+
+    getDataByIdAndParams( taxPayerId,'taxPayerId', params, taxpayersTaxRetentionsPath )
+
+  }
+
+  Map getTaxRetention( String taxRetentionId  ) throws Exception {
+    
+    if ( !taxRetentionId ) {
+      throw new BadImplementationException(
+        'satwsClientService.getTaxRetention.taxRetentionId.null' )
+    }
+
+    getDataById( taxRetentionId, taxRetentionsPath )  
+  }
+
+
+  String deleteTaxRetention( String taxRetentionId ) throws Exception {
+
+    if ( !taxRetentionId ) {
+      throw new BadImplementationException(
+        'satwsClientService.deleteTaxRetention.taxRetentionId.null' )
+    }
+
+    deleteDataById( taxRetentionId, taxRetentionsPath )  
+    
+  }
+
+    String getTaxRetentionInvoice( String invoiceId, String accept ) throws Exception {
+
+     if ( !invoiceId ) {
+      throw new BadImplementationException(
+        'satwsClientService.getTaxRetentionInvoice.invoiceId.null' )
+    }  
+     getFile( invoiceId, 'invoiceId', accept, taxRetentionsInvoicePath )       
+  }
+
+  //Ends tax retentions
+
   //Generics methods
 
   Map getDataByIdAndParams( String id, String change, Map params, String path ) throws Exception {
@@ -440,6 +620,28 @@ class SatwsClientService {
 
     new JsonSlurper().parseText( new String( response.data, UTF_8) )
 
+  }
+
+  String getFile( String id, String change, String accept, String path ) throws Exception {
+
+    satwsClient = new RESTClient( url )
+    def response
+    def updatedPath = path.replace( '{change}', id )
+    def headers = [ 'X-API-Key': satwsApikey, 'Accept': accept ]    
+      
+    try{ 
+
+      response = satwsClient.get( path: updatedPath,         
+        headers: headers ) 
+
+    }catch( wslite.rest.RESTClientException e ){
+
+      log.info( "XX ${e.class.simpleName} - ${e.message} ${new String( e.getResponse().data )}" ) 
+      return  new String( e.response.data, UTF_8)    
+        
+    }
+
+    new String( response.data, UTF_8)        
   }
 
 

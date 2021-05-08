@@ -11,6 +11,7 @@ import mx.finerio.api.dtos.FailureCallbackDto
 import mx.finerio.api.dtos.FailureCallbackData
 import mx.finerio.api.dtos.SuccessCallbackDto
 import mx.finerio.api.domain.Credential
+import mx.finerio.api.dtos.CreateExtractionDto
 
 @Service
 class SatwsService {
@@ -44,6 +45,10 @@ class SatwsService {
     dto.type = DEFAULT_TYPE      
     satwsClientService.createCredential( dto )
 
+  }
+
+  String deleteCredential( String credentialId ) throws Exception {
+    satwsClientService.deleteCredential(credentialId)
   }
 
   void processEvent( SatwsEventDto dto ) throws Exception {
@@ -174,6 +179,15 @@ class SatwsService {
     }      
     
     satwsClientService.getInvoice( invoiceId, accept )
+  }
+
+  String deleteInvoice( String invoiceId ) throws Exception {
+
+      if ( !invoiceId ) {
+      throw new BadImplementationException(
+        'satwsService.deleteInvoice.invoiceId.null' )
+    }  
+    satwsClientService.deleteInvoice( invoiceId )
   }
 
 
@@ -334,10 +348,16 @@ class SatwsService {
     satwsClientService.deleteTaxComplianceCheck( taxComplianceCheckId )      
 
   }
+
+  String createExtraction( CreateExtractionDto dto ) throws Exception {
+    satwsClientService.createExtraction( dto )
+  }
+
   Map getExtractions( Map params ) throws Exception {
     satwsClientService.getExtractions( params )
 
   }
+
   Map getExtraction( String extractionId  ) throws Exception {
 
     if ( !extractionId ) {
@@ -347,5 +367,80 @@ class SatwsService {
     satwsClientService.getExtraction( extractionId )
 
   }
+
+  Map getTaxpayersTaxStatus( Long customerId ) throws Exception {
+     
+     if ( !customerId ) {
+      throw new BadImplementationException(
+        'satwsService.getTaxpayersTaxStatus.customerId.null' )
+    }
+    def taxPayerId = getRfcByCustomerId( customerId )
+    satwsClientService.getTaxpayersTaxStatus( taxPayerId )
+  }
+
+  Map getTaxStatus( String taxStatusId  ) throws Exception {
+
+     if ( !taxStatusId ) {
+      throw new BadImplementationException(
+        'satwsService.getTaxStatus.taxStatusId.null' )
+    }   
+    satwsClientService.getTaxStatus( taxStatusId )
+  }
+
+  String deleteTaxStatus( String taxStatusId ) throws Exception {
+
+    if ( !taxStatusId ) {
+      throw new BadImplementationException(
+        'satwsService.deleteTaxStatus.taxStatusId.null' )
+    }      
+    satwsClientService.deleteTaxStatus( taxStatusId ) 
+
+  }
+
+  Map getTaxpayersTaxRetentions( Long customerId, Map params ) throws Exception {
+
+    if ( !customerId ) {
+      throw new BadImplementationException(
+        'satwsService.getTaxpayersTaxRetentions.customerId.null' )
+    }
+    def taxPayerId = getRfcByCustomerId( customerId )
+    satwsClientService.getTaxpayersTaxRetentions( taxPayerId, params )
+
+  }
+
+  Map getTaxRetention( String taxRetentionId  ) throws Exception {
+
+     if ( !taxRetentionId ) {
+      throw new BadImplementationException(
+        'satwsService.getTaxRetention.taxRetentionId.null' )
+    }   
+    satwsClientService.getTaxRetention( taxRetentionId )
+  }
+
+  String deleteTaxRetention( String taxRetentionId ) throws Exception {
+
+    if ( !taxRetentionId ) {
+      throw new BadImplementationException(
+        'satwsService.deleteTaxRetention.taxRetentionId.null' )
+    }      
+    satwsClientService.deleteTaxRetention( taxRetentionId ) 
+
+  }
+
+  String getTaxRetentionInvoice( String invoiceId, String accept ) throws Exception {
+
+
+    if ( !invoiceId ) {
+      throw new BadImplementationException(
+        'satwsService.getTaxRetentionInvoice.invoiceId.null' )
+    }  
+
+    if ( !accept ) {
+      throw new BadImplementationException(
+        'satwsService.getTaxRetentionInvoice.accept.null' )
+    }      
+    
+    satwsClientService.getTaxRetentionInvoice( invoiceId, accept )
+  }  
 
 }

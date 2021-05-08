@@ -117,7 +117,6 @@ class SatwsController {
     new ResponseEntity( response, HttpStatus.OK )    
   }
 
-
   @GetMapping(path="/customers/{customerId}/tax-compliance-checks")
   ResponseEntity getTaxpayersTaxComplianceChecks( @PathVariable Long customerId, @RequestParam Map<String, String> params ) {
     def response = satwsService.getTaxpayersTaxComplianceChecks( customerId, params )
