@@ -20,7 +20,12 @@ class SummaryService extends InsightsService {
   @Autowired
   CustomerService customerService
 
+  @Autowired
+  SecurityService securityService
+
   SummaryDto getSummaryByCustomer( Long customerId ) throws Exception {
+
+    securityService.validateInsightsEnabled()
 
     customerService.findOne( customerId )
     def transactions = getTransactions( customerId )

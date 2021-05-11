@@ -1,0 +1,14 @@
+databaseChangeLog:
+- changeSet:
+    id: clients_insights_enabled1
+    author: jorge.lugo
+    changes:
+    - addColumn:
+        tableName: clients
+        columns:
+        - column:
+            name: insights_enabled
+            type: BOOLEAN
+            defaultValueBoolean: false
+            constraints:
+              nullable: true

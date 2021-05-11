@@ -1,7 +1,6 @@
 package mx.finerio.api.domain
 
 import javax.persistence.*
-import javax.validation.constraints.*
 
 import groovy.transform.ToString
 
@@ -56,6 +55,9 @@ class Client implements UserDetails {
 
   @Column(name = 'date_deleted')
   Date dateDeleted
+
+  @Column(name = 'insights_enabled')
+  Boolean insightsEnabled
 
   @Transient
   List authorities
