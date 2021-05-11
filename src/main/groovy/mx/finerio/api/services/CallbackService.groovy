@@ -154,7 +154,7 @@ class CallbackService {
       return
     }
 
-    def headers = getHeaders( callback.url, data, client )
+    def headers = [:]
     def clientMtls = clientMtlsService.findByClient( client )
 
     if ( clientMtls != null ) {

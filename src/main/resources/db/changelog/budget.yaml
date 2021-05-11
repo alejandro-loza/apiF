@@ -1,0 +1,78 @@
+databaseChangeLog:
+  - changeSet:
+      id: budget
+      author: alejandro.hernandez
+      changes:
+        - createTable:
+            tableName: budget
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: version
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: category_id
+                  type: java.sql.Types.VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: customer_id
+                  type: java.sql.Types.VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: name
+                  type: java.sql.Types.VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: amount
+                  type: DECIMAL(18,12)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: warning_percentage
+                  type: DECIMAL(18,12)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: date_created
+                  type: DATETIME(6)
+              - column:
+                  name: last_updated
+                  type: DATETIME(6)
+              - column:
+                  name: date_deleted
+                  type: DATETIME(6)
+  - changeSet:
+      id: budget_category_fk
+      author: alejandro.hernandez
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: category_id
+            baseTableName: budget
+            constraintName: fk_budget_category
+            deferrable: false
+            initiallyDeferred: false
+            referencedColumnNames: id
+            referencedTableName: category
+  - changeSet:
+      id: budget_customer_fk
+      author: alejandro.hernandez
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: customer_id
+            baseTableName: budget
+            constraintName: fk_budget_customer
+            deferrable: false
+            initiallyDeferred: false
+            referencedColumnNames: id
+            referencedTableName: customer
