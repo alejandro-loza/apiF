@@ -12,6 +12,7 @@ import mx.finerio.api.dtos.FailureCallbackData
 import mx.finerio.api.dtos.SuccessCallbackDto
 import mx.finerio.api.domain.Credential
 import mx.finerio.api.dtos.CreateExtractionDto
+import mx.finerio.api.dtos.WidgetEventsDto
 
 @Service
 class SatwsService {
@@ -20,7 +21,10 @@ class SatwsService {
   final static Integer WRONG_CREDENTIAL_CODE = 401
   final static String WRONG_CREDENTIAL_MESSAGE = "Tu usuario o contraseña son incorrectos"
   final static String SATWS_CODE = "SATWS"
-   
+  final static String[] EXTRACTORS =  [ "invoice", "monthly_tax_return", "annual_tax_return", 
+                                        "rif_tax_return", "tax_status", "tax_retention", 
+                                        "tax_compliance" ]
+
   @Autowired
   SatwsClientService satwsClientService
 
@@ -39,13 +43,35 @@ class SatwsService {
   @Autowired
   ScraperCallbackService scraperCallbackService
 
+  @Autowired
+  WidgetEventsService widgetEventsService
+
+  @Autowired
+  MessageService messageService
+
 
   String createCredential( CreateCredentialSatwsDto dto ) throws Exception {
         
     dto.type = DEFAULT_TYPE      
-    satwsClientService.createCredential( dto )
+    def credentialProviderId = satwsClientService.createCredential( dto )
+    createExtractions(dto)
+    credentialProviderId
 
   }
+
+  private void createExtractions( CreateCredentialSatwsDto dto ){
+
+    def taxpayer="/taxpayers/${dto.rfc}"
+
+    EXTRACTORS.each{
+      def createExtractionDto = new CreateExtractionDto( taxpayer: taxpayer, 
+        extractor: it, credentialId: dto.credentialId )
+      createExtraction( createExtractionDto )
+    }
+
+  }
+
+  
 
   String deleteCredential( String credentialId ) throws Exception {
     satwsClientService.deleteCredential(credentialId)
@@ -55,15 +81,28 @@ class SatwsService {
 
     validateInputProcessEvent( dto )
 
-    if ( 'credential.updated' == dto.type ) {
+    String type = dto.type
 
-      def status = dto.data.object.status
-    	if( 'invalid' == status ){
-    	 processFailure( dto )
-      }
+    switch(type) {
+      case 'credential.updated':
+        String status = dto.data.object.status        
+        if( 'invalid' == status ){
+          processFailure( dto )
+        }      
+      break
 
-    }else if ( 'extraction.updated' == dto.type ) {
-      processSuccess( dto )      
+      case 'link.created':
+        String status = dto.data.object.credential.status
+        if( 'valid' == status ){
+            processSuccess( dto )
+          }      
+      break
+
+      case 'extraction.updated':              
+            processExtrationUpdatedEvent( dto )                
+      break
+
+    
     }
   } 
 
@@ -86,6 +125,22 @@ class SatwsService {
 
   }
 
+  private void processExtrationUpdatedEvent( SatwsEventDto dto ){
+
+    def credentialId=dto?.data?.object?.metadata?.credentialId
+    def rfc = credentialService.findAndValidate( credentialId ).username
+
+    def extractions = getExtractions(['taxpayer.id':rfc])
+
+    def finished = extractions['hydra:member'].every{ it.status == 'finished' }
+
+    if( finished ){
+      println 'Sending email'
+    }
+    
+
+  }
+
   private Credential getCredentialByProviderId( String  providerId ){
 
     def financialInstitution = financialInstitutionService.findOneByCode( SATWS_CODE )
@@ -101,13 +156,32 @@ class SatwsService {
       credential
   }
 
+  private Credential getCredentialByUserName( String  username ){
+
+    def financialInstitution = financialInstitutionService.findOneByCode( SATWS_CODE )
+    if ( !financialInstitution ) {
+      throw new BadImplementationException(
+        'satwsService.getCredentialByUserName.financialInstitution.notFound' )
+    } 
+
+    def credential = credentialService
+      .findByInstitutionAndUsername(
+        financialInstitution, username)
+
+     credential
+  }
+
+  
+
   private void processSuccess( SatwsEventDto dto ) throws Exception {
- 
-    def credential = 
-      getCredentialByProviderId( dto.data.object.id )
-      
+
+    def credentialId = dto?.data?.object?.credential.metadata?.credentialId
+    def credentialProviderId = dto?.data?.object?.id
+
+    credentialService.updateProviderId( credentialId, credentialProviderId )
+       
     def successdto = SuccessCallbackDto
-      .getInstanceFromCredentialId( credential.id )
+      .getInstanceFromCredentialId( credentialId )
       
     credential = scraperCallbackService.processSuccess( successdto )
     scraperCallbackService.postProcessSuccess( credential )
@@ -116,12 +190,11 @@ class SatwsService {
 
   private void processFailure( SatwsEventDto dto ) throws Exception {
  
-    def credential = 
-      getCredentialByProviderId( dto.data.object.id )
+    def credentialId = dto?.data?.object?.metadata?.credentialId
 
    	def failureDto = new FailureCallbackDto( 
    		data: new FailureCallbackData(
-   			 credential_id: credential.id,
+   			 credential_id: credentialId,
    			 error_message: WRONG_CREDENTIAL_MESSAGE,
    			 status_code: WRONG_CREDENTIAL_CODE) )
     
@@ -279,14 +352,14 @@ class SatwsService {
     satwsClientService.getInvoiceBatchPayments( invoiceId, params )
   }
 
-  Map getTaxpayersTaxReturns( Long customerId, Map params ) throws Exception {
+  Map getTaxpayersTaxStatus( Long customerId, Map params ) throws Exception {
   
     if ( !customerId ) {
       throw new BadImplementationException(
-        'satwsService.getTaxpayersTaxReturns.customerId.null' )
+        'satwsService.getTaxpayersTaxStatus.customerId.null' )
     }
     def taxPayerId = getRfcByCustomerId( customerId )
-    satwsClientService.getTaxpayersTaxReturns( taxPayerId, params )
+    satwsClientService.getTaxpayersTaxStatus( taxPayerId, params )
   }
 
   Map getTaxReturn( String taxReturnId  ) throws Exception {

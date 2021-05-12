@@ -104,7 +104,10 @@ class SatwsClientService {
 
     def data =  [ 'type': dto.type,
                   'rfc': dto.rfc ,
-                  'password': dto.password  ]
+                  'password': dto.password,
+                  'metadata': 
+                    [ 'credentialId': dto.credentialId ] 
+                ]
     
     satwsClient = new RESTClient( url )
     def response
@@ -406,12 +409,9 @@ class SatwsClientService {
    validateInputCreateExtraction( dto )
 
     def data =  [ 'taxpayer': dto.taxpayer,
-                  'extractor': dto.extractor ,
-                  'options': ['types':dto.options.types,
-                             'period':['from':dto.options.period.from,
-                                        'to':dto.options.period.to
-                                      ]
-                             ]  
+                  'extractor': dto.extractor,
+                  'metadata': 
+                    [ 'credentialId': dto.credentialId ]                                                                                   
                 ]                 
     
     satwsClient = new RESTClient( url )

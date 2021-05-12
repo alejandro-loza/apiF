@@ -286,6 +286,30 @@ class CredentialService {
     credential
   }
 
+   Credential findByInstitutionAndUsername( 
+      FinancialInstitution financialInstitution, String username ) throws Exception {
+
+      if ( !financialInstitution ) {
+      throw new BadImplementationException(
+          'credentialService.findByInstitutionAndUsername.financialInstitution.null' )
+   }
+
+    if ( !username ) {
+      throw new BadImplementationException(
+          'credentialService.findByInstitutionAndUsername.username.null' )
+   }
+
+    def credential = credentialRepository
+      .findByInstitutionAndUsernameAndDateDeletedIsNull( financialInstitution, username )
+
+    if ( !credential ) {
+      throw new InstanceNotFoundException( 'credential.not.found' )
+    }
+    
+    credential
+
+   } 
+
 
   Credential validateUserCredential( Credential credential, String userId ) throws Exception {
   
@@ -657,10 +681,11 @@ class CredentialService {
 
      def dto = new CreateCredentialSatwsDto(     
       rfc: credential.username,
-      password: plainPassword
+      password: plainPassword,
+      credentialId: credential.id
     )
-    def credentialId = satwsService.createCredential( dto )
-    credential.scrapperCredentialId = credentialId
+    def credentialProviderId = satwsService.createCredential( dto )
+    credential.scrapperCredentialId = credentialProviderId
     credentialRepository.save( credential )
         
   }

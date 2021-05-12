@@ -147,13 +147,46 @@ class SatwsController {
     new ResponseEntity( response, HttpStatus.OK )    
   }
 
+  @GetMapping(path="/customers/{customerId}/tax-status")
+  ResponseEntity getTaxpayersTaxStatus( @PathVariable Long customerId) {
+    def response = satwsService.getTaxpayersTaxStatus( customerId )
+    new ResponseEntity( response, HttpStatus.OK )    
+  }
 
+  @GetMapping( '/tax-status/{taxStatusId}' )
+  ResponseEntity getTaxStatus( @PathVariable String taxStatusId ) {    
+    def response = satwsService.getTaxStatus( taxStatusId )
+    new ResponseEntity( response, HttpStatus.OK )    
+  }
 
+  @DeleteMapping( '/tax-status/{taxStatusId}' )
+  ResponseEntity deleteTaxStatus( @PathVariable String taxStatusId ) {    
+    def response = satwsService.deleteTaxStatus( taxStatusId )
+    new ResponseEntity( response, HttpStatus.OK )    
+  }
 
+  @GetMapping(path="/customers/{customerId}/tax-retentions")
+  ResponseEntity getTaxpayersTaxRetentions( @PathVariable Long customerId, @RequestParam Map<String, String> params ) {
+    def response = satwsService.getTaxpayersTaxRetentions( customerId, params )
+    new ResponseEntity( response, HttpStatus.OK )    
+  }
 
+  @GetMapping( '/tax-retentions/{taxRetentionId}' )
+  ResponseEntity getTaxRetention( @PathVariable String taxRetentionId ) {    
+    def response = satwsService.getTaxRetention( taxRetentionId )
+    new ResponseEntity( response, HttpStatus.OK )    
+  }
 
+  @DeleteMapping( '/tax-retentions/{taxRetentionId}' )
+  ResponseEntity deleteTaxRetention( @PathVariable String taxRetentionId ) {    
+    def response = satwsService.deleteTaxRetention( taxRetentionId )
+    new ResponseEntity( response, HttpStatus.OK )    
+  }
 
+  @GetMapping(path="/tax-retentions/{invoiceId}/cfdi", produces=["application/json","application/pdf","text/xml"])
+  ResponseEntity getTaxRetentionInvoice( @PathVariable String invoiceId, @RequestHeader("Accept") String accept ) {    
+    def response = satwsService.getTaxRetentionInvoice( invoiceId, accept )
+    new ResponseEntity( response, HttpStatus.OK )    
+  }
   
-
-
 }

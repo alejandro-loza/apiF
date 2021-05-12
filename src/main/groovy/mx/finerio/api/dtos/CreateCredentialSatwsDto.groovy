@@ -8,5 +8,6 @@ class CreateCredentialSatwsDto {
   String rfc
   String password
   String type
+  String credentialId
    
 }

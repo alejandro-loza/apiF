@@ -8,5 +8,6 @@ class CreateExtractionDto {
 	String taxpayer
 	String extractor
 	CreateExtractionOptionsDto options
+	String credentialId
 
 }
