@@ -25,7 +25,7 @@ databaseChangeLog:
                     nullable: false
               - column:
                   name: customer_id
-                  type: java.sql.Types.VARCHAR(255)
+                  type: BIGINT
                   constraints:
                     nullable: false
               - column:
@@ -75,4 +75,4 @@ databaseChangeLog:
             deferrable: false
             initiallyDeferred: false
             referencedColumnNames: id
-            referencedTableName: customer
+            referencedTableName: customers
