@@ -164,38 +164,6 @@ class SatwsService {
 
   }
 
-  private Credential getCredentialByProviderId( String  providerId ){
-
-    def financialInstitution = financialInstitutionService.findOneByCode( SATWS_CODE )
-    if ( !financialInstitution ) {
-      throw new BadImplementationException(
-        'satwsService.getCredentialByProviderId.financialInstitution.notFound' )
-    } 
-
-    def credential = credentialService
-      .findByScrapperCredentialIdAndInstitution(
-        providerId, financialInstitution)
-
-      credential
-  }
-
-  private Credential getCredentialByUserName( String  username ){
-
-    def financialInstitution = financialInstitutionService.findOneByCode( SATWS_CODE )
-    if ( !financialInstitution ) {
-      throw new BadImplementationException(
-        'satwsService.getCredentialByUserName.financialInstitution.notFound' )
-    } 
-
-    def credential = credentialService
-      .findByInstitutionAndUsername(
-        financialInstitution, username)
-
-     credential
-  }
-
-  
-
   private void processSuccess( SatwsEventDto dto ) throws Exception {
 
     def credentialId = dto?.data?.object?.credential.metadata?.credentialId
