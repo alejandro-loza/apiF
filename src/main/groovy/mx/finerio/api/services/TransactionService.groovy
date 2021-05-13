@@ -5,6 +5,7 @@ import java.sql.Timestamp
 import mx.finerio.api.domain.Account
 import mx.finerio.api.domain.Transaction
 import mx.finerio.api.domain.TransactionSpecs
+import mx.finerio.api.domain.Category
 import mx.finerio.api.domain.repository.TransactionRepository
 import mx.finerio.api.dtos.DuplicatedTransactionDto
 import mx.finerio.api.dtos.Transaction as TransactionCreateDto
@@ -183,6 +184,11 @@ class TransactionService {
     transactionRepository.save( transaction )
     adminService.sendDataToAdmin( EntityType.TRANSACTION, transaction )
     transaction
+  }
+
+  List<Transaction> findAllByCategoryChargeAndDateFrom(Category category, Date dateFrom, Boolean charge) {
+    transactionRepository
+            .findAllByCategoryAndDateGreaterThanEqualsAndChargeAndDateDeletedIsNull(category, dateFrom, charge)
   }
 
   private TransactionListDto getFindAllDto( Map params ) throws Exception {

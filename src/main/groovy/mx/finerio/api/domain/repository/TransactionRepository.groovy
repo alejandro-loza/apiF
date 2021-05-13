@@ -1,7 +1,7 @@
 package mx.finerio.api.domain.repository
 
 import mx.finerio.api.domain.Account
-import mx.finerio.api.domain.Customer
+import mx.finerio.api.domain.Category
 import mx.finerio.api.domain.Transaction
 
 import org.springframework.data.jpa.repository.JpaRepository
@@ -17,5 +17,8 @@ interface TransactionRepository
   List findAllByCustomerId( Long customerId )
 
   List<Transaction> findAllByAccountAndDateDeletedIsNull( Account account )
+
+  List<Transaction> findAllByCategoryAndDateGreaterThanEqualsAndChargeAndDateDeletedIsNull(Category category, Date dateFrom, Boolean charge)
+
 
 }
