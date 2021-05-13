@@ -13,6 +13,9 @@ import mx.finerio.api.dtos.SuccessCallbackDto
 import mx.finerio.api.domain.Credential
 import mx.finerio.api.dtos.CreateExtractionDto
 import mx.finerio.api.dtos.WidgetEventsDto
+import mx.finerio.api.dtos.email.EmailSendDto
+import mx.finerio.api.dtos.email.EmailTemplateDto
+import org.springframework.scheduling.annotation.Async
 
 @Service
 class SatwsService {
@@ -49,23 +52,35 @@ class SatwsService {
   @Autowired
   MessageService messageService
 
+  @Value('${satws.email.template}')
+  String templateName
+  
+  @Autowired
+  EmailRestService emailRestService
+
 
   String createCredential( CreateCredentialSatwsDto dto ) throws Exception {
         
     dto.type = DEFAULT_TYPE      
-    def credentialProviderId = satwsClientService.createCredential( dto )
-    createExtractions(dto)
+    def credentialProviderId = satwsClientService.createCredential( dto )    
     credentialProviderId
 
   }
 
-  private void createExtractions( CreateCredentialSatwsDto dto ){
+ 
+  private void createExtractions( SatwsEventDto dto ){
 
-    def taxpayer="/taxpayers/${dto.rfc}"
+
+    String rfc = 
+        dto?.data?.object?.credential?.rfc
+    String credentialId = 
+        dto?.data?.object?.credential?.metadata?.credentialId
+
+    def taxpayer="/taxpayers/$rfc"
 
     EXTRACTORS.each{
       def createExtractionDto = new CreateExtractionDto( taxpayer: taxpayer, 
-        extractor: it, credentialId: dto.credentialId )
+        extractor: it, credentialId: credentialId )
       createExtraction( createExtractionDto )
     }
 
@@ -94,6 +109,7 @@ class SatwsService {
       case 'link.created':
         String status = dto.data.object.credential.status
         if( 'valid' == status ){
+            createExtractions( dto )
             processSuccess( dto )
           }      
       break
@@ -118,26 +134,33 @@ class SatwsService {
         'satwsService.processEvent.credentialId.null' )
     }
 
-   if ( !dto.data?.object?.status ) {
-      throw new BadImplementationException(
-        'satwsService.processEvent.status.null' )
-    }
-
   }
 
   private void processExtrationUpdatedEvent( SatwsEventDto dto ){
 
     def credentialId=dto?.data?.object?.metadata?.credentialId
-    def rfc = credentialService.findAndValidate( credentialId ).username
-
-    def extractions = getExtractions(['taxpayer.id':rfc])
-
+    def credential = credentialService.findAndValidate( credentialId )
+    def rfc = credential.username
+    def extractions = getExtractions( ['taxpayer.id' :rfc ])
     def finished = extractions['hydra:member'].every{ it.status == 'finished' }
 
     if( finished ){
-      println 'Sending email'
+      def email = credential.customer.name
+      sendEmail(email)    
     }
     
+  }
+
+  private void sendEmail( String email ){
+
+    def dto = new EmailSendDto(
+      to: [ email ],
+      template: new EmailTemplateDto(
+        name: templateName,
+        params: [:]
+      )
+    )
+    emailRestService.send( dto )
 
   }
 
@@ -183,8 +206,8 @@ class SatwsService {
     def successdto = SuccessCallbackDto
       .getInstanceFromCredentialId( credentialId )
       
-    credential = scraperCallbackService.processSuccess( successdto )
-    scraperCallbackService.postProcessSuccess( credential )
+    def credential = scraperCallbackService.processSuccess( successdto )
+     scraperCallbackService.postProcessSuccess( credential )
     
   }
 
@@ -421,7 +444,7 @@ class SatwsService {
     satwsClientService.deleteTaxComplianceCheck( taxComplianceCheckId )      
 
   }
-
+  
   String createExtraction( CreateExtractionDto dto ) throws Exception {
     satwsClientService.createExtraction( dto )
   }

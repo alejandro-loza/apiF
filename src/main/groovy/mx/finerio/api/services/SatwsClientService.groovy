@@ -19,6 +19,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import groovy.json.JsonSlurper
 import static java.nio.charset.StandardCharsets.*
+import org.springframework.scheduling.annotation.Async
 
 @Service
 class SatwsClientService {
@@ -403,7 +404,7 @@ class SatwsClientService {
   //Ends tax compliance check
 
   //Starts extraction
-
+  @Async
   String createExtraction( CreateExtractionDto dto ) throws Exception {
 
    validateInputCreateExtraction( dto )
@@ -469,21 +470,6 @@ class SatwsClientService {
     if( !dto.extractor ){
      throw new BadImplementationException(
         'satwsClientService.validateInputCreateExtraction.extractor.null')
-    }
-
-    if( !dto.options?.types ){
-     throw new BadImplementationException(
-        'satwsClientService.validateInputCreateExtraction.types.null')
-    }
-
-    if( !dto.options?.period?.from ){
-     throw new BadImplementationException(
-        'satwsClientService.validateInputCreateExtraction.period.from.null')
-    }
-
-    if( !dto.options?.period?.to ){
-     throw new BadImplementationException(
-        'satwsClientService.validateInputCreateExtraction.period.to.null')
     }
    
   } 

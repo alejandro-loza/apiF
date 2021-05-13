@@ -54,20 +54,6 @@ class SatwsServiceProcessEventSpec extends Specification {
   }
 
 
-  def "'dto.data.object.status' (status) is null"() {
-
-    when:
-      service.processEvent( satwsEventDto )
-    then:
-      BadImplementationException e = thrown()
-      e.message == 'satwsService.processEvent.status.null'
-    where:
-     satwsEventDto = new SatwsEventDto( 
-          type:'anyType', data: 
-          new SatwsEventDataDto(
-            object: new SatwsObjectDto( id: 'someId' )))
-
-  }
 
 
   def "process failure sucessfully"() {
@@ -75,8 +61,6 @@ class SatwsServiceProcessEventSpec extends Specification {
     when:
       service.processEvent( satwsEventDto )
     then:
-      1 * financialInstitutionService.findOneByCode( _ as String ) >> new FinancialInstitution()      
-      1 * credentialService.findByScrapperCredentialIdAndInstitution( _ as String, _ as FinancialInstitution )>> new Credential()
       1 * credentialFailureService.processFailure( _ as FailureCallbackDto ) >> {}
     where:
      satwsEventDto = new SatwsEventDto( 
@@ -90,16 +74,14 @@ class SatwsServiceProcessEventSpec extends Specification {
 
     when:
       service.processEvent( satwsEventDto )
-    then:
-      1 * financialInstitutionService.findOneByCode( _ as String ) >> new FinancialInstitution()      
-      1 * credentialService.findByScrapperCredentialIdAndInstitution( _ as String, _ as FinancialInstitution )>> new Credential()
-      
+    then:      
+      1 * credentialService.updateProviderId( _ as String, _ as String )>> new Credential()      
       1 * credentialFailureService.processFailure( _ as FailureCallbackDto ) >> {}
     where:
      satwsEventDto = new SatwsEventDto( 
-          type:'credential.updated', data: 
+          type:'link.updated', data: 
           new SatwsEventDataDto(
-            object: new SatwsObjectDto( id: 'someId', status: 'invalid' )))
+            object: new SatwsObjectDto( id: 'someId' )))
 
   }
 

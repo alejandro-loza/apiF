@@ -422,6 +422,16 @@ class CredentialService {
 
   }
 
+  Credential updateProviderId( String credentialId, String providerId )
+      throws Exception {
+        
+    def credential = findAndValidate( credentialId )
+    credential.scrapperCredentialId = providerId
+    credentialRepository.save( credential )        
+    credential
+
+  }
+
   Credential setFailure( String credentialId, String statusCode ) throws Exception {
 
     def credential = findAndValidate( credentialId )
@@ -689,6 +699,8 @@ class CredentialService {
     credentialRepository.save( credential )
         
   }
+
+
   
 
   private boolean credentialRecentlyUpdated( Credential credential )

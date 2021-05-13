@@ -7,5 +7,6 @@ class SatwsObjectCredentialDto {
 
   SatwObjectMetadataDto metadata
   String status
+  String rfc
     
 }
