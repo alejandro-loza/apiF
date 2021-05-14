@@ -7,6 +7,8 @@ import mx.finerio.api.domain.FinancialInstitution
 import mx.finerio.api.domain.Credential
 import mx.finerio.api.domain.Customer
 import spock.lang.Specification
+import mx.finerio.api.dtos.email.EmailSendDto
+import mx.finerio.api.dtos.email.EmailTemplateDto
 
 class SatwsServiceProcessEventSpec extends Specification {
 
@@ -98,8 +100,7 @@ class SatwsServiceProcessEventSpec extends Specification {
         service.processEvent( satwsEventDto )
       then:      
        1 * credentialService.findAndValidate( _ as String ) >> new Credential( username:'someusername', customer: new Customer(name:'somename'))
-       1 * satwsClientService.getExtractions( _ as Map ) >> ['hydra:member': [ [ status: 'finished'], [status: 'finished'] ] ]
-       1 * emailRestService.send( _ as EmailSendDto )
+       1 * satwsClientService.getExtractions( _ as Map ) >> [ "hydra:member": [ [ status: 'running'], [status: 'finished'] ] ]    
       where:
        satwsEventDto = new SatwsEventDto( 
             type:'extraction.updated', data: 
