@@ -23,6 +23,9 @@ class TransactionsApiServiceFindDuplicatedSpec extends Specification {
 
   def "invoking method successfully"() {
 
+    given:
+      service.daysDifference = 5
+      service.descriptionPercentage = 81
     when:
       def result = service.findDuplicated( movement )
     then:
