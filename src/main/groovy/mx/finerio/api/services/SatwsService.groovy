@@ -198,12 +198,29 @@ class SatwsService {
      if ( !params.customerId ) {
       throw new BadImplementationException(
         'satwsService.getInvoicesByParams.params.customerId.null' )
-    }  
-    
-     def rfc = getRfcByCustomerId( params.customerId as Long)
-     params.customerId = null
-     satwsClientService.getInvoicesByParams( rfc, params )
+    }
 
+    def rfc = getRfcByCustomerId( params.customerId as Long)
+    def resParams = assignParametersInvoice(params)
+    satwsClientService.getInvoicesByParams( rfc, resParams )
+
+  }
+
+  private Map assignParametersInvoice( Map params ) {
+    def resMap
+    params.customerId = null
+    resMap = params.findAll { it.key != 'customerId'}
+
+    if( params.cursor ){ 
+      resMap.page = params.cursor
+      resMap = resMap.findAll { it.key != 'cursor'}
+    }
+    if( params.maxResults ){      
+      resMap.itemsPerPage = params.maxResults
+      resMap = resMap.findAll { it.key != 'maxResults'}
+    }
+
+    resMap    
   }
 
   private String getRfcByCustomerId( Long customerId ){
