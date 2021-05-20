@@ -608,12 +608,13 @@ class SatwsClientService {
 
   }
 
+
   String getFile( String id, String change, String accept, String path ) throws Exception {
 
     satwsClient = new RESTClient( url )
     def response
-    def updatedPath = path.replace( '{change}', id )
-    def headers = [ 'X-API-Key': satwsApikey, 'Accept': accept ]    
+    def updatedPath = path.replace(  "{$change}", id )
+    def headers = [ 'X-API-Key': satwsApikey, 'Accept': accept ]
       
     try{ 
 
