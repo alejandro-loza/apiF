@@ -514,12 +514,13 @@ class CredentialService {
     def plainPassword = cryptService.decrypt( credential.password,
         credential.iv )
  
-   def dto = new CreateCredentialDto( bankCode: credential.institution.code,  
-   username: credential.username,
-   password: plainPassword,
-   credentialId: credential.id,
-   startDate: rangeDates.startDate,
-   endDate: rangeDates.endDate 
+   def dto = new CreateCredentialDto(
+     bankCode: credential.institution.internalCode,
+     username: credential.username,
+     password: plainPassword,
+     credentialId: credential.id,
+     startDate: rangeDates.startDate,
+     endDate: rangeDates.endDate
   )
 
   scraperV2Service.createCredential( dto ) 
