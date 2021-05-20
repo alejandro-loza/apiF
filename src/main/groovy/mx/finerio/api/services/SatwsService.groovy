@@ -145,8 +145,10 @@ class SatwsService {
     def finished = extractions['hydra:member'].every{ it.status == 'finished' }
 
     if( finished ){
-      def email = credential.customer.name
-      sendEmail(email)    
+      def email = credential.customer.client.email
+      if(email){
+        sendEmail(email)  
+      }      
     }
     
   }
@@ -161,7 +163,6 @@ class SatwsService {
       )
     )
     emailRestService.send( dto )
-
   }
 
   private void processSuccess( SatwsEventDto dto ) throws Exception {
@@ -204,7 +205,7 @@ class SatwsService {
     def resParams = assignParametersInvoice(params)
     
     def result = satwsClientService.getInvoicesByParams( rfc, resParams )
-
+    
     def data = result['hydra:member'].collect{
       [
        date: it.issuedAt,
@@ -216,10 +217,14 @@ class SatwsService {
       ]}
 
     def finalRes = [ data: data ]
-    def next = result['hydra:view']['hydra:next']
-    if( next ){
-      finalRes['nextCursor'] = next.reverse().take(1)
+    def view = result['hydra:view']
+    if ( view ){
+      def next = view['hydra:next']
+      if( next ){
+        finalRes['nextCursor'] = next.reverse().take(1)
+      }  
     }
+    
 
     finalRes 
   }
