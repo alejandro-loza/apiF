@@ -202,8 +202,26 @@ class SatwsService {
 
     def rfc = getRfcByCustomerId( params.customerId as Long)
     def resParams = assignParametersInvoice(params)
-    satwsClientService.getInvoicesByParams( rfc, resParams )
+    
+    def result = satwsClientService.getInvoicesByParams( rfc, resParams )
 
+    def data = result['hydra:member'].collect{
+      [
+       date: it.issuedAt,
+       issuer: it.issuer.rfc,
+       receiver: it.receiver.rfc,
+       total: it.total,
+       status: it.status,
+       uuid: it.id
+      ]}
+
+    def finalRes = [ data: data ]
+    def next = result['hydra:view']['hydra:next']
+    if( next ){
+      finalRes['nextCursor'] = next.reverse().take(1)
+    }
+
+    finalRes 
   }
 
   private Map assignParametersInvoice( Map params ) {

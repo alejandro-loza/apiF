@@ -94,7 +94,7 @@ class SatwsServiceGetInvoicesByParamsSpec extends Specification {
     1 * financialInstitutionService.findOneByCode( _ as String ) >> new FinancialInstitution()
     1 * customerService.findOne( _ as Long ) >> new Customer()
     1 * credentialService.findByCustomerAndFinancialIntitution( _ as Customer, _ as FinancialInstitution ) >> new Credential(username:'anyusername')
-    1 * satwsClientService.getInvoicesByParams( _ as String, _ as Map ) >> [:]
+    1 * satwsClientService.getInvoicesByParams( _ as String, _ as Map ) >> ['hydra:view':[:]]
     result instanceof Map        
     where:
      params = [ customerId: 5615 ] 
