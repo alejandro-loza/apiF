@@ -1,7 +1,7 @@
 package mx.finerio.api.services
 
 import groovy.json.JsonBuilder
-
+import mx.finerio.api.domain.FinancialInstitution.Status
 import mx.finerio.api.exceptions.BadImplementationException
 import mx.finerio.api.exceptions.BadRequestException
 import mx.finerio.api.exceptions.InstanceNotFoundException
@@ -9,7 +9,6 @@ import mx.finerio.api.domain.repository.*
 import mx.finerio.api.domain.*
 import mx.finerio.api.domain.FinancialInstitution.Provider
 import mx.finerio.api.dtos.*
-import mx.finerio.api.dtos.ScraperWebSocketSendDto
 
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
@@ -58,9 +57,6 @@ class CredentialService {
 
   @Autowired
   ScraperCallbackService scraperCallbackService
-
-  @Autowired
-  ScraperWebSocketService scraperWebSocketService
 
   @Autowired
   SecurityService securityService
@@ -369,7 +365,6 @@ class CredentialService {
   }
 
   void requestData( String credentialId, Map rangeDates = null, Client client = null ) throws Exception {
-
     def credential = findOne( credentialId, client )
     if ( credentialRecentlyUpdated( credential ) ) { return }
     credential.status = Credential.Status.VALIDATE
@@ -377,6 +372,12 @@ class CredentialService {
     credential.errorCode = null
     credential.lastUpdated = new Date()
     credentialRepository.save( credential )
+    if ( credential.institution.status == FinancialInstitution.Status.PARTIALLY_ACTIVE ) {
+      scraperCallbackService.processSuccess(
+              SuccessCallbackDto.getInstanceFromCredentialId( credential.id ) )
+      scraperCallbackService.postProcessSuccess( credential )
+      return
+    }
     bankConnectionService.create( credential )
     credentialStatusHistoryService.create( credential )
 
@@ -507,24 +508,7 @@ class CredentialService {
         'credentialService.processInteractive.institutionCode.wrong' )
     }
 
-    if ( institutionCode == 'BANORTE' || institutionCode == 'BAZ' ) {
-      scraperV2TokenService.send( credentialInteractiveDto.token, id, institutionCode )
-    } else {
-
-      def data = [ data: [
-        stage: 'interactive',
-        id: credential.id,
-        user_id: credential.user.id,
-        otp: credentialInteractiveDto.token
-      ] ]
-      scraperWebSocketService.send( new ScraperWebSocketSendDto(
-        id: credential.id,
-        message: new JsonBuilder( data ).toString(),
-        tokenSent: true,
-        destroyPreviousSession: false ) )
-
-    }
-    
+    scraperV2TokenService.send( credentialInteractiveDto.token, id, institutionCode )
     widgetEventsService.onCredentialCreated( new WidgetEventsDto(
         credentialId: credential.id ) )
 
@@ -623,36 +607,18 @@ class CredentialService {
     scraperService.requestData( data )
   }
 
-  private void sendToScraperWebSocket( Credential credential )
-      throws Exception {
-
-    def data = [ data: [
-      stage: 'start',
-      id: credential.id,
-      tarjeta: credential.username,
-      password: credential.password,
-      iv: credential.iv,
-      user_id: credential.user.id
-    ] ]
-    scraperWebSocketService.send( new ScraperWebSocketSendDto(
-        id: credential.id,
-        message: new JsonBuilder( data ).toString(),
-        tokenSent: false,
-        destroyPreviousSession: true ) )
-
-  }
-
   private void sendToScraperV2(  Credential credential, Map rangeDates  ) {
 
     def plainPassword = cryptService.decrypt( credential.password,
         credential.iv )
  
-   def dto = new CreateCredentialDto( bankCode: credential.institution.code,  
-   username: credential.username,
-   password: plainPassword,
-   credentialId: credential.id,
-   startDate: rangeDates.startDate,
-   endDate: rangeDates.endDate 
+   def dto = new CreateCredentialDto(
+     bankCode: credential.institution.internalCode,
+     username: credential.username,
+     password: plainPassword,
+     credentialId: credential.id,
+     startDate: rangeDates.startDate,
+     endDate: rangeDates.endDate
   )
 
   scraperV2Service.createCredential( dto ) 

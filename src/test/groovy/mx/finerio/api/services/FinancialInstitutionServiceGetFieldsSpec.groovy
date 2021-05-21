@@ -1,6 +1,7 @@
 package mx.finerio.api.services
 
 import mx.finerio.api.domain.FinancialInstitution
+import mx.finerio.api.domain.FinancialInstitution.Status
 import mx.finerio.api.exceptions.BadImplementationException
 
 import spock.lang.Specification
@@ -20,6 +21,21 @@ class FinancialInstitutionServiceGetFieldsSpec extends Specification {
       result.status != null
     where:
       financialInstitution = getFinancialInstitution()
+
+  }
+
+  def "invoking method successfully (status = PARTIALLY_ACTIVE)"() {
+
+    given:
+      def financialInstitution = getFinancialInstitution()
+      financialInstitution.status = Status.PARTIALLY_ACTIVE
+    when:
+      def result = service.getFields( financialInstitution )
+    then:
+      result instanceof Map
+      result.id != null
+      result.name != null
+      result.status == Status.ACTIVE
 
   }
 

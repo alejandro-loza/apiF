@@ -8,6 +8,7 @@ import mx.finerio.api.domain.FinancialInstitution
 import mx.finerio.api.domain.User
 import mx.finerio.api.domain.repository.CredentialRepository
 import mx.finerio.api.dtos.CredentialUpdateDto
+import mx.finerio.api.dtos.SuccessCallbackDto
 import mx.finerio.api.exceptions.BadImplementationException
 import mx.finerio.api.exceptions.InstanceNotFoundException
 
@@ -25,6 +26,7 @@ class CredentialServiceUpdateSpec extends Specification {
   def scraperService = Mock( DevScraperService )
   def credentialRepository = Mock( CredentialRepository )
   def scraperV2Service = Mock( ScraperV2Service )
+  def scraperCallbackService = Mock( ScraperCallbackService )
 
   def setup() {
 
@@ -36,6 +38,7 @@ class CredentialServiceUpdateSpec extends Specification {
     service.scraperService = scraperService
     service.credentialRepository = credentialRepository
     service.scraperV2Service = scraperV2Service
+    service.scraperCallbackService = scraperCallbackService
 
   }
 
@@ -49,7 +52,8 @@ class CredentialServiceUpdateSpec extends Specification {
           new Credential( customer: new Customer( client: client ),
           user: new User(), institution: new FinancialInstitution( id: 1L, provider: FinancialInstitution.Provider.SCRAPER_V2 ) )
       2 * bankConnectionService.findLast( _ as Credential ) >> null
-      1 * financialInstitutionService.findOneAndValidate( _ as Long )
+      1 * financialInstitutionService.findOneAndValidate( _ as Long ) >>
+              new FinancialInstitution( id: 1L, status: FinancialInstitution.Status.ACTIVE )
       1 * cryptService.encrypt( _ as String ) >>
           [ message: 'message', iv: 'iv' ]
       2 * credentialRepository.save( _ as Credential ) >>
@@ -61,6 +65,33 @@ class CredentialServiceUpdateSpec extends Specification {
       id = 'uuid'
       credentialUpdateDto = getCredentialUpdateDto()
       client = new Client( id: 1 )
+
+  }
+
+  def "invoking method successfully with status PARTIALLY_ACTIVE"() {
+
+    when:
+    def result = service.update( id, credentialUpdateDto )
+    then:
+    2 * securityService.getCurrent() >> client
+    2 * credentialRepository.findOne( _ as String ) >>
+            new Credential( id: 'id', customer: new Customer( client: client ),
+                    user: new User(), institution: new FinancialInstitution( id: 1L,
+                    status: FinancialInstitution.Status.PARTIALLY_ACTIVE ) )
+    2 * bankConnectionService.findLast( _ as Credential ) >> null
+    1 * financialInstitutionService.findOneAndValidate( _ as Long ) >>
+            new FinancialInstitution( id: 1L, status: FinancialInstitution.Status.PARTIALLY_ACTIVE )
+    1 * cryptService.encrypt( _ as String ) >>
+            [ message: 'message', iv: 'iv' ]
+    2 * credentialRepository.save( _ as Credential ) >>
+            new Credential( id: 'id' )
+    1 * scraperCallbackService.processSuccess(_ as SuccessCallbackDto)
+    1 * scraperCallbackService.postProcessSuccess( _ as Credential )
+    result instanceof Credential
+    where:
+    id = 'uuid'
+    credentialUpdateDto = getCredentialUpdateDto()
+    client = new Client( id: 1 )
 
   }
 

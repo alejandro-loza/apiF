@@ -1,6 +1,7 @@
 package mx.finerio.api.services
 
 import mx.finerio.api.domain.FinancialInstitution
+import mx.finerio.api.domain.FinancialInstitution.Status
 import mx.finerio.api.domain.repository.FinancialInstitutionRepository
 import mx.finerio.api.domain.repository.CountryRepository
 import mx.finerio.api.exceptions.BadImplementationException
@@ -89,7 +90,9 @@ class FinancialInstitutionService {
     def financialInstitution = findOne( id )
 
     if ( financialInstitution.status !=
-        FinancialInstitution.Status.ACTIVE ) {
+            FinancialInstitution.Status.ACTIVE
+            && financialInstitution.status !=
+            FinancialInstitution.Status.PARTIALLY_ACTIVE ) {
       throw new BadRequestException( 'financialInstitution.disabled' )
     }
 
@@ -106,7 +109,8 @@ class FinancialInstitutionService {
 
     [ id: financialInstitution.id, name: financialInstitution.name,
         code: financialInstitution.code,
-        status: financialInstitution.status ]
+        status: financialInstitution.status == Status.PARTIALLY_ACTIVE ?
+        Status.ACTIVE : financialInstitution.status ]
 
   }
 

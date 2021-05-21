@@ -1,0 +1,13 @@
+databaseChangeLog:
+- changeSet:
+    id: suggested_expenses
+    author: alejandro.hernandez
+    changes:
+      - addColumn:
+          tableName: suggested_expenses
+          columns:
+              - column:
+                    name: others_expenses
+                    type: java.sql.Types.DECIMAL(19,2)
+                    constraints:
+                        nullable: false

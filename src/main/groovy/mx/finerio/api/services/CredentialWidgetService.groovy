@@ -35,7 +35,7 @@ class CredentialWidgetService {
         credentialWidgetDto.widgetId )
 
     if( !clientWidget ) {
-        throw new BadRequestException( 'widget.id.not.found' )
+        throw new BadRequestException( 'credentialWidgetService.create.widgetId.notFound' )
     }
 
     if ( credentialWidgetDto.credentialId == null ) {
@@ -59,7 +59,7 @@ class CredentialWidgetService {
 
     def credentialDto = this.getCredentialDto( customer.id, credentialWidgetDto )
     def instance = credentialService.create( credentialDto, customer, clientWidget.client )
-    return credentialService.getFields( instance )
+    return getFields( instance )
 
   }
 
@@ -72,7 +72,7 @@ class CredentialWidgetService {
       client: client
     )
     def instance = credentialService.update( credentialWidgetDto.credentialId, dto )
-    return credentialService.getFields( instance )
+    return getFields( instance )
 
   }
 
@@ -80,14 +80,36 @@ class CredentialWidgetService {
     
     if ( !credentialWidgetDto ) {
       throw new BadRequestException(
-          'credentialService.create.credentialDto.null' )
+          'credentialWidgetService.create.credentialDto.null' )
     }
+
+    if ( !credentialWidgetDto.username ) {
+      throw new BadRequestException(
+          'credentialWidgetService.create.username.null' )
+    }
+
+    if ( !credentialWidgetDto.password ) {
+      throw new BadRequestException(
+          'credentialWidgetService.create.password.null' )
+    } 
+
+    if ( !credentialWidgetDto.bankId ) {
+      throw new BadRequestException(
+          'credentialWidgetService.create.bankId.null' )
+    } 
+
+    if ( !credentialWidgetDto.widgetId ) {
+      throw new BadRequestException(
+          'credentialWidgetService.create.widgetId.null' )
+    }     
 
     if( !credentialWidgetDto.customerId &&
     	!credentialWidgetDto.customerName )	{
     	throw new BadRequestException(
           'credentialWidgetService.create.validate.customerId.customerName.null' )
   	}
+
+
   }
 
   private getCredentialDto(Long customerId, CredentialWidgetDto credentialWidgetDto ) throws Exception {
@@ -114,6 +136,14 @@ class CredentialWidgetService {
     }
 
     return customer
+
+  }
+
+  private Map getFields( Credential credential ) throws Exception {
+
+    def originalMap = credentialService.getFields( credential )
+    originalMap.customerId = credential.customer.id
+    return originalMap
 
   }
 

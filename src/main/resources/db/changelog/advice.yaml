@@ -1,0 +1,54 @@
+databaseChangeLog:
+- changeSet:
+    id: advice
+    author: alejandro.hernandez
+    changes:
+    - createTable:
+        tableName: advice
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+              nullable: false
+        - column:
+            name: description
+            type: java.sql.Types.VARCHAR(255)
+            constraints:
+              nullable: false
+        - column:
+            name: category_id
+            type: java.sql.Types.VARCHAR(255)
+            constraints:
+              nullable: true
+        - column:
+            name: date_created
+            type: java.sql.Types.TIMESTAMP
+            constraints:
+              nullable: false
+            defaultValueComputed: CURRENT_TIMESTAMP(3)
+        - column:
+            name: last_updated
+            type: java.sql.Types.TIMESTAMP
+            constraints:
+              nullable: false
+            defaultValueComputed: CURRENT_TIMESTAMP(3)
+        - column:
+            name: date_deleted
+            type: java.sql.Types.TIMESTAMP
+            constraints:
+              nullable: true
+- changeSet:
+    id: advice_categories_fk
+    author: alejandro.hernandez
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: category_id
+        baseTableName: advice
+        constraintName: fk_advice_categories
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: id
+        referencedTableName: category
