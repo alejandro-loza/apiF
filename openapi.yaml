@@ -1253,6 +1253,7 @@ components:
       enum:
         - personal
         - business
+        - fiscal
     Customer:
       properties:
         id:
