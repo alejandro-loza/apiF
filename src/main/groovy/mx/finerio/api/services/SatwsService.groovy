@@ -23,7 +23,7 @@ class SatwsService {
   final static String DEFAULT_TYPE = "ciec"
   final static Integer WRONG_CREDENTIAL_CODE = 401
   final static String WRONG_CREDENTIAL_MESSAGE = "Tu usuario o contraseña son incorrectos"
-  final static String SATWS_CODE = "SATWS"
+  final static String SATWS_CODE = "SAT"
   final static String[] EXTRACTORS =  [ "invoice", "monthly_tax_return", "annual_tax_return", 
                                         "rif_tax_return", "tax_status", "tax_retention", 
                                         "tax_compliance" ]
