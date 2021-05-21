@@ -51,7 +51,7 @@ class CredentialServiceRequestDataSpec extends Specification {
       1 * credentialRepository.findOne( _ as String ) >>
           new Credential( customer: new Customer(
           client: client ),
-          institution: new FinancialInstitution(),
+          institution: new FinancialInstitution( provider: FinancialInstitution.Provider.SCRAPER_V2 ),
           user: new User() )
       1 * credentialRepository.save( _ as Credential )
       1 * bankConnectionService.create( _ as Credential )
@@ -91,7 +91,7 @@ class CredentialServiceRequestDataSpec extends Specification {
       1 * credentialRepository.findOne( _ as String ) >>
           new Credential( customer: new Customer(
           client: client ),
-          institution: new FinancialInstitution(),
+          institution: new FinancialInstitution( provider: FinancialInstitution.Provider.SCRAPER_V2 ),
           user: new User() )
       1 * bankConnectionService.findLast( _ as Credential ) >>
           new BankConnection( startDate: getStartDate( 1 ) )
@@ -110,7 +110,7 @@ class CredentialServiceRequestDataSpec extends Specification {
       1 * credentialRepository.findOne( _ as String ) >>
           new Credential( customer: new Customer(
           client: client ),
-          institution: new FinancialInstitution(),
+          institution: new FinancialInstitution( provider: FinancialInstitution.Provider.SCRAPER_V2 ),
           user: new User() )
       1 * bankConnectionService.findLast( _ as Credential ) >>
           new BankConnection( startDate: getStartDate( 24 ) )
@@ -132,7 +132,7 @@ class CredentialServiceRequestDataSpec extends Specification {
       1 * credentialRepository.findOne( _ as String ) >>
           new Credential( customer: new Customer(
           client: client ),
-          institution: new FinancialInstitution( code: 'BBVA'),
+          institution: new FinancialInstitution( code: 'BBVA', provider: FinancialInstitution.Provider.SCRAPER_V2 ),
           user: new User() )
       1 * credentialRepository.save( _ as Credential )
       1 * bankConnectionService.create( _ as Credential )

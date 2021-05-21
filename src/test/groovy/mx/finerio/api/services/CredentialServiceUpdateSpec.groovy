@@ -50,7 +50,7 @@ class CredentialServiceUpdateSpec extends Specification {
       2 * securityService.getCurrent() >> client
       2 * credentialRepository.findOne( _ as String ) >>
           new Credential( customer: new Customer( client: client ),
-          user: new User(), institution: new FinancialInstitution( id: 1L, status: FinancialInstitution.Status.ACTIVE ) )
+          user: new User(), institution: new FinancialInstitution( id: 1L, provider: FinancialInstitution.Provider.SCRAPER_V2 ) )
       2 * bankConnectionService.findLast( _ as Credential ) >> null
       1 * financialInstitutionService.findOneAndValidate( _ as Long ) >>
               new FinancialInstitution( id: 1L, status: FinancialInstitution.Status.ACTIVE )
