@@ -13,6 +13,7 @@ import mx.finerio.api.dtos.SuccessCallbackDto
 import mx.finerio.api.domain.Credential
 import mx.finerio.api.dtos.CreateExtractionDto
 import mx.finerio.api.dtos.WidgetEventsDto
+import mx.finerio.api.dtos.email.EmailFromDto
 import mx.finerio.api.dtos.email.EmailSendDto
 import mx.finerio.api.dtos.email.EmailTemplateDto
 import org.springframework.scheduling.annotation.Async
@@ -52,9 +53,15 @@ class SatwsService {
   @Autowired
   MessageService messageService
 
-  @Value('${satws.email.template}')
+  @Value('${sat.success.template}')
   String templateName
   
+  @Value('${sat.success.from.email}')
+  String satFromEmail
+
+  @Value('${sat.success.from.name}')
+  String satFromName
+
   @Autowired
   EmailRestService emailRestService
 
@@ -147,19 +154,27 @@ class SatwsService {
     if( finished ){
       def email = credential.customer.client.email
       if(email){
-        sendEmail(email)  
+        sendEmail(credential)
       }      
     }
     
   }
 
-  private void sendEmail( String email ){
+  private void sendEmail( Credential credential ){
 
+    def customer = credential.customer
     def dto = new EmailSendDto(
-      to: [ email ],
+      from: new EmailFromDto(
+        email: satFromEmail,
+        name: satFromName
+      ),
+      to: [ customer.client.email ],
       template: new EmailTemplateDto(
         name: templateName,
-        params: [:]
+        params: [
+          customerName: customer.name,
+          customerRfc: credential.username
+        ]
       )
     )
     emailRestService.send( dto )
