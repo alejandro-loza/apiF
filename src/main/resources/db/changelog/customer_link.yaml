@@ -1,0 +1,75 @@
+databaseChangeLog:
+  - changeSet:
+      id: customer_link
+      author: jose.vargas
+      changes:
+        - createTable:
+            tableName: customer_link
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: customer_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: country_id
+                  type: java.sql.Types.VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: link_id
+                  type: java.sql.Types.VARCHAR(100)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: date_created
+                  type: DATETIME(6)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_updated
+                  type: DATETIME(6)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: date_deleted
+                  type: DATETIME(6)
+                  constraints:
+                    nullable: true
+              - column:
+                  name: version
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+  - changeSet:
+      id: customer_link_customer_fk
+      author: jose.vargas
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: customer_id
+            baseTableName: customer_link
+            constraintName: fk_customer_link_customer
+            deferrable: false
+            initiallyDeferred: false
+            referencedColumnNames: id
+            referencedTableName: customers
+
+  - changeSet:
+      id: customer_link_country_fk
+      author: jose.vargas
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: country_id
+            baseTableName: customer_link
+            constraintName: fk_customer_link_country
+            deferrable: false
+            initiallyDeferred: false
+            referencedColumnNames: id
+            referencedTableName: country
