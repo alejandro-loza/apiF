@@ -11,7 +11,7 @@ import org.springframework.data.jpa.repository.JpaSpecificationExecutor
 interface CustomerLinkRepository extends JpaRepository<CustomerLink, Long>,
         JpaSpecificationExecutor {
 
-    CustomerLink findOneByCustomerAndCountry( Customer customer, Country country )
+    CustomerLink findOneByCustomer( Customer customer)
     CustomerLink findOneByIdAndDateDeletedIsNull( Long id )
 
 

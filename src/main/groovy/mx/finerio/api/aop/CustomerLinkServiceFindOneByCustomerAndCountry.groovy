@@ -1,6 +1,6 @@
 package mx.finerio.api.aop
 
-import mx.finerio.api.domain.Country
+
 import mx.finerio.api.domain.Customer
 import mx.finerio.api.domain.CustomerLink
 import org.aspectj.lang.annotation.AfterReturning
@@ -14,24 +14,24 @@ import org.springframework.stereotype.Component
 
 @Component
 @Aspect
-class CustomerLinkServiceFindOneByCustomerAndCountry {
+class CustomerLinkServiceFindOneByCustomer {
 
     final static Logger log = LoggerFactory.getLogger(
-            'mx.finerio.api.aop.CustomerLinkServiceFindOneByCustomerAndCountry' )
+            'mx.finerio.api.aop.CustomerLinkServiceFindOneByCustomer' )
 
     @Pointcut(
-            value='execution(mx.finerio.api.domain.CustomerLink mx.finerio.api.services.CustomerLinkService.findOneByCustomerAndCountry(..)) && bean(customerLinkService) && args(customer,country)',
-            argNames='customer,country'
+            value='execution(mx.finerio.api.domain.CustomerLink mx.finerio.api.services.CustomerLinkService.findOneByCustomer(..)) && bean(customerLinkService) && args(customer)',
+            argNames='customer'
     )
-    public void findOneByCustomerAndCountry( Customer customer, Country country  ) {}
+    public void findOneByCustomer( Customer customer  ) {}
 
-    @Before('findOneByCustomerAndCountry(customer,country)')
-    void before( Customer customer, Country country  ) {
-        log.info( "<< customer: {}, country: {}", customer,country )
+    @Before('findOneByCustomer(customer)')
+    void before( Customer customer ) {
+        log.info( "<< customer: {}", customer )
     }
 
     @AfterReturning(
-            pointcut='findOneByCustomerAndCountry(mx.finerio.api.domain.Customer,mx.finerio.api.domain.Country)',
+            pointcut='findOneByCustomer(mx.finerio.api.domain.Customer)',
             returning='response'
     )
     void afterReturning( CustomerLink response ) {
@@ -39,7 +39,7 @@ class CustomerLinkServiceFindOneByCustomerAndCountry {
     }
 
     @AfterThrowing(
-            pointcut='findOneByCustomerAndCountry(mx.finerio.api.domain.Customer,mx.finerio.api.domain.Country)',
+            pointcut='findOneByCustomer(mx.finerio.api.domain.Customer)',
             throwing='e'
     )
     void afterThrowing( Exception e ) {

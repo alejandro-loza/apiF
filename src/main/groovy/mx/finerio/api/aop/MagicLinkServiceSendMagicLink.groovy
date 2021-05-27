@@ -19,29 +19,28 @@ class MagicLinkServiceSendMagicLink {
             'mx.finerio.api.aop.MagicLinkServiceSendMagicLink' )
 
     @Pointcut(
-            value='execution(void mx.finerio.api.services.MagicLinkService.sendMagicLink(..)) && bean(magicLinkService) && args(customerId,countryId)',
-            argNames='customerId,countryId'
+            value='execution(void mx.finerio.api.services.MagicLinkService.sendMagicLink(..)) && bean(magicLinkService) && args(customerId)',
+            argNames='customerId'
     )
-    public void sendMagicLink( Long customerId, String countryId ) {}
+    public void sendMagicLink( Long customerId ) {}
 
-    @Before('sendMagicLink(customerId,countryId)')
-    void before( Long customerId, String countryId ) {
-        log.info( "<< customerId: {} countryId: {}", customerId,countryId )
+    @Before('sendMagicLink(customerId)')
+    void before( Long customerId ) {
+        log.info( "<< customerId: {} ", customerId )
     }
 
     @AfterReturning(
-            pointcut='sendMagicLink(Long,String)'
+            pointcut='sendMagicLink(Long)'
     )
     void afterReturning() {
         log.info( '>> response: OK' )
     }
 
     @AfterThrowing(
-            pointcut='sendMagicLink(Long,String)',
+            pointcut='sendMagicLink(Long)',
             throwing='e'
     )
     void afterThrowing( Exception e ) {
         log.info( "XX ${e.class.simpleName} - ${e.message}" )
     }
-
 }

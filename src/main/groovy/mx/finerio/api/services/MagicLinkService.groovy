@@ -5,14 +5,13 @@ import mx.finerio.api.dtos.email.EmailSendDto
 import mx.finerio.api.dtos.email.EmailTemplateDto
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.stereotype.Service
 
+@Service
 class MagicLinkService {
 
     @Autowired
     CustomerService customerService
-
-    @Autowired
-    CountryService countryService
 
     @Autowired
     CustomerLinkService customerLinkService
@@ -27,15 +26,11 @@ class MagicLinkService {
     String defaultTemplate
 
 
-    void sendMagicLink( Long customerId, String countryId ) throws Exception {
+    void sendMagicLink( Long customerId ) throws Exception {
 
         if ( customerId == null ) {
             throw new IllegalArgumentException(
                     'customerEmailService.sendMagicLink.customerId.null' )
-        }
-        if ( countryId == null ) {
-            throw new IllegalArgumentException(
-                    'customerEmailService.sendMagicLink.countryId.null' )
         }
 
         def customer = customerService.findOne( customerId )
@@ -44,19 +39,14 @@ class MagicLinkService {
                     'customerEmailService.sendMagicLink.customer.null' )
         }
 
-        def country = countryService.findOne( countryId )
-        if ( country == null ) {
-            throw new IllegalArgumentException(
-                    'customerEmailService.sendMagicLink.country.null' )
-        }
 
        //TODO review and add client profile
 
         def client = customer.client
-        def userLink = customerLinkService.findOneByCustomerAndCountry( customer, country )
+        def userLink = customerLinkService.findOneByCustomer( customer )
 
         if( !userLink ){
-            userLink = customerLinkService.createCustomerLink( customer, country )
+            userLink = customerLinkService.createCustomerLink( customer )
         }
 
         def dto = new EmailSendDto(

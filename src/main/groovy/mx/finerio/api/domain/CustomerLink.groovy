@@ -14,7 +14,7 @@ import javax.validation.constraints.NotNull
 import javax.validation.constraints.Size
 
 @Entity
-@Table(name = 'customers')
+@Table(name = 'customer_link')
 @ToString(includePackage = false, includeNames = true)
 class CustomerLink {
 
@@ -28,11 +28,6 @@ class CustomerLink {
     Customer customer
 
     @NotNull
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = 'country_id')
-    Country country
-
-    @NotNull
     @Size(min = 1, max = 100)
     @Column(name = 'link_id')
     String linkId
@@ -41,8 +36,8 @@ class CustomerLink {
     Date dateCreated
 
     @NotNull
-    @Column(name = 'date_updated')
-    Date dateUpdated
+    @Column(name = 'last_updated')
+    Date lastUpdated
 
     @Column(name = 'date_deleted', nullable = true)
     Date dateDeleted

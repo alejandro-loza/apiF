@@ -8,17 +8,20 @@ import mx.finerio.api.exceptions.BadImplementationException
 import mx.finerio.api.exceptions.InstanceNotFoundException
 import mx.finerio.api.utils.CommonUtils
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.stereotype.Service
 
+@Service
 class CustomerLinkService {
 
     @Autowired
     CustomerLinkRepository customerLinkRepository
 
-    CustomerLink createCustomerLink( Customer customer, Country country ) throws Exception {
+    CustomerLink createCustomerLink( Customer customer ) throws Exception {
         def customerLink = new CustomerLink()
         customerLink.customer = customer
-        customerLink.country = country
         customerLink.linkId = CommonUtils.createRandomString( 100 )
+        customerLink.dateCreated = new Date()
+        customerLink.lastUpdated = new Date()
         return customerLinkRepository.save( customerLink )
 
     }
@@ -37,19 +40,14 @@ class CustomerLinkService {
     }
 
 
-    CustomerLink findOneByCustomerAndCountry(Customer customer, Country country ) throws Exception {
+    CustomerLink findOneByCustomer( Customer customer ) throws Exception {
 
         if ( customer == null ) {
             throw new BadImplementationException(
                     'customerLinkService.findOneByCountryAndCustomer.customer.null' )
         }
 
-        if ( country == null ) {
-            throw new BadImplementationException(
-                    'customerLinkService.findOneByCountryAndCustomer.country.null' )
-        }
-
-        def instance = customerLinkRepository.findOneByCustomerAndCountry(  customer, country )
+        def instance = customerLinkRepository.findOneByCustomer( customer )
 
         instance
 
