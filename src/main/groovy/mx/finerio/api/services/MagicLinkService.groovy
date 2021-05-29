@@ -6,12 +6,16 @@ import mx.finerio.api.dtos.email.EmailTemplateDto
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
+import static mx.finerio.api.domain.ClientConfig.Property.COUNTRY_CODE
 
 @Service
 class MagicLinkService {
 
     @Autowired
     CustomerService customerService
+
+    @Autowired
+    ClientConfigService clientConfigService
 
     @Autowired
     CustomerLinkService customerLinkService
@@ -67,10 +71,17 @@ class MagicLinkService {
         emailRestService.send( dto )
     }
 
+    Map findBanksByCustomerLinkId( String customerLinkId ) throws Exception {
 
-    Map findBanksByCustomerLinkId( String customerLinkId )throws Exception {
-        def customerLink = customerLinkService.findOne(customerLinkId)
-        def countryCode = customerLink.country?.code
+        def customerLink = customerLinkService.findOneByLinkId( customerLinkId )
+        println customerLink
+        def client = customerLink?.customer?.client
+        println client
+        def clientsConFig = clientConfigService.findClientsConfigByClientLikeProperty( client, COUNTRY_CODE )
+        println clientsConFig
+
+        def countryCode = clientsConFig[0].value  //TODO change this if many countries are allowed
+        println countryCode
         financialInstitutionService.findAll( [ country: countryCode ] )
 
     }

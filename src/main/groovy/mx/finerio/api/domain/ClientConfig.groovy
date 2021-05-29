@@ -1,32 +1,27 @@
-import mx.finerio.api.domain.Client
+package mx.finerio.api.domain
 
 import javax.persistence.*
-import javax.validation.constraints.*
 import groovy.transform.ToString
+import javax.validation.constraints.NotNull
 
 @Entity
-@Table(name = 'client_config')
-@ToString(includePackage = false, includeNames = true)
-class ClientConfig {
+@Table(name = 'clientConfig')
+@ToString(includes = 'id, name', includeNames = true, includePackage = false)
+public class ClientConfig {
 
     enum Property {
-        COUNTRY
+        COUNTRY_CODE
     }
 
     @Id @GeneratedValue
     @Column(name = 'id', updatable = false)
     Long id
 
-    @NotNull
-    @Size(min = 1, max = 150)
-    @Column(name = 'property')
+    @Column(name = 'property', nullable = false )
     Property property
 
-    @NotNull
-    @Size(min = 1, max = 255)
-    @Column(name = 'value')
+    @Column(name = 'value', nullable = false )
     String value
-
 
     @NotNull
     @ManyToOne(fetch = FetchType.LAZY)
@@ -39,10 +34,9 @@ class ClientConfig {
 
     @NotNull
     @Column(name = 'last_updated')
-    Date lastUpdate
+    Date lastUpdated
 
     @Column(name = 'date_deleted', nullable = true)
     Date dateDeleted
-
 }
 

@@ -16,13 +16,13 @@ class MagicLinkController {
     MagicLinkService magicLinkService
 
     @PostMapping('/magicLink/customers/{customerId}/email/magicLink')
-    ResponseEntity sendMagicLink(@PathVariable Long customerId ) {
+    ResponseEntity sendMagicLink( @PathVariable Long customerId ) {
         magicLinkService.sendMagicLink( customerId )
         new ResponseEntity( HttpStatus.NO_CONTENT )
     }
 
     @GetMapping('/magicLink/{customerLinkId}/banks')
-    ResponseEntity findBanksByCustomerLinkId( Long customerLinkId ) {
+    ResponseEntity findBanksByCustomerLinkId( @PathVariable String customerLinkId ) {
         def response = magicLinkService
                 .findBanksByCustomerLinkId( customerLinkId )
         new ResponseEntity( response, HttpStatus.OK )

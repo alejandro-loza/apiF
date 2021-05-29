@@ -13,6 +13,7 @@ interface CustomerLinkRepository extends JpaRepository<CustomerLink, Long>,
 
     CustomerLink findOneByCustomer( Customer customer)
     CustomerLink findOneByIdAndDateDeletedIsNull( Long id )
+    CustomerLink findOneByLinkIdAndDateDeletedIsNull( String  linkId )
 
 
 }

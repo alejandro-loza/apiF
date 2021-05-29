@@ -26,13 +26,26 @@ class CustomerLinkService {
 
     }
 
-    CustomerLink findOne( String customerLinkId  ) throws Exception {
+    CustomerLink findOne( String id  ) throws Exception {
+
+        if ( id == null ) {
+            throw new BadImplementationException(
+                    'customerLinkService.findOne.id.null' )
+        }
+        def instance = customerLinkRepository.findOneByIdAndDateDeletedIsNull( id )
+        if( !instance ){
+            throw new InstanceNotFoundException( 'customerLink.not.found' )
+        }
+        instance
+    }
+
+    CustomerLink findOneByLinkId( String customerLinkId  ) throws Exception {
 
         if ( customerLinkId == null ) {
             throw new BadImplementationException(
                     'customerLinkService.findOne.customerLinkId.null' )
         }
-        def instance = customerLinkRepository.findOneByIdAndDateDeletedIsNull( customerLinkId )
+        def instance = customerLinkRepository.findOneByLinkIdAndDateDeletedIsNull( customerLinkId )
         if( !instance ){
             throw new InstanceNotFoundException( 'customerLink.not.found' )
         }
