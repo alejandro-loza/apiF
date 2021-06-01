@@ -57,6 +57,7 @@ class ProdScraperV2TokenService implements ScraperV2TokenService {
 		def token = scraperV2TokenDto?.data?.value		
 		if( token ) {		
 			dataSend.put('bankToken', token )
+			dataSend.put('contentType', scraperV2TokenDto?.data?.content_type )
 		}
 
 		widgetEventsService.onInteractive( new WidgetEventsDto(
