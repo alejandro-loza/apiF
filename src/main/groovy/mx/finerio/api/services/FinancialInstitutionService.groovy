@@ -4,6 +4,7 @@ import mx.finerio.api.domain.FinancialInstitution
 import mx.finerio.api.domain.FinancialInstitution.Status
 import mx.finerio.api.domain.repository.FinancialInstitutionRepository
 import mx.finerio.api.domain.repository.CountryRepository
+import mx.finerio.api.dtos.FinancialInstitutionNParamsListDto
 import mx.finerio.api.exceptions.BadImplementationException
 import mx.finerio.api.exceptions.BadRequestException
 import mx.finerio.api.exceptions.InstanceNotFoundException
@@ -42,6 +43,19 @@ class FinancialInstitutionService {
     def spec = FinancialIntitutionSpecs.findAll( dto )
     return listService.findAll( dto, financialInstitutionRepository, spec )
     
+  }
+
+  Map findAllByCountriesAndTypes( Map params ) throws Exception {
+
+    if ( params == null ) {
+      throw new BadImplementationException(
+              'financialInstitutionService.findAllByCountriesAndTypes.params.null' )
+    }
+
+    def dto = getFindAllNCountriesAndTypesDto( params )
+    def spec = FinancialIntitutionSpecs.findAllByCountriesAndTypes( dto )
+    return listService.findAll( dto, financialInstitutionRepository, spec )
+
   }
 
   FinancialInstitution findOne( Long id ) throws Exception {
@@ -95,6 +109,41 @@ class FinancialInstitutionService {
 
   }
 
+  private FinancialInstitutionNParamsListDto getFindAllNCountriesAndTypesDto(Map params ) throws Exception {
+
+    def dto = new FinancialInstitutionNParamsListDto()
+    dto.types=[]
+    dto.countries = []
+
+    if( params.types ) {
+      params.types.each {
+        try{
+          def type =
+                  FinancialInstitution.InstitutionType.valueOf(
+                          it.trim().toUpperCase() )
+          dto.types << type
+        }catch( IllegalArgumentException ex ){
+          throw new BadRequestException(
+                  'financialInstitution.type.not.found' )
+        }
+      }
+    }
+
+    if( params.countries ) {
+      params.countries.each {
+       def country = countryRepository.findOneByCode( it )
+        if (country) {
+          dto.countries << country
+        } else {
+          throw new BadRequestException( 'country.not.found' )
+        }
+      }
+    }
+
+    dto
+
+  }
+
   private FinancialInstitutionListDto getFindAllDto( Map params ) throws Exception {
 
     def dto = new FinancialInstitutionListDto()
@@ -102,14 +151,14 @@ class FinancialInstitutionService {
 
     if( params.type ) {
       try{
-         dto.type =
-          FinancialInstitution.InstitutionType.valueOf(
-              params.type.trim().toUpperCase() )
+        dto.type =
+                FinancialInstitution.InstitutionType.valueOf(
+                        params.type.trim().toUpperCase() )
       }catch( IllegalArgumentException ex ){
         throw new BadRequestException(
-            'financialInstitution.type.not.found' )
-      }       
-      
+                'financialInstitution.type.not.found' )
+      }
+
     }else{
       dto.type = defaultInstitutionType
     }
@@ -117,20 +166,20 @@ class FinancialInstitutionService {
 
     def country
 
-    if( params.country ) { 
+    if( params.country ) {
 
       country = countryRepository.findOneByCode( params.country )
 
       if( country ) {
-        dto.country = country   
+        dto.country = country
       } else {
-          throw new BadRequestException( 'country.not.found' )
+        throw new BadRequestException( 'country.not.found' )
       }
-      
+
     }else{
-       dto.country = countryRepository.findOneByCode( defaultCountry )
+      dto.country = countryRepository.findOneByCode( defaultCountry )
     }
-    
+
     dto
 
   }

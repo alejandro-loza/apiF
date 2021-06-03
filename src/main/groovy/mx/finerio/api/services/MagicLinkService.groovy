@@ -1,12 +1,15 @@
 package mx.finerio.api.services
 
+import mx.finerio.api.domain.ClientConfig
 import mx.finerio.api.dtos.email.EmailFromDto
 import mx.finerio.api.dtos.email.EmailSendDto
 import mx.finerio.api.dtos.email.EmailTemplateDto
+import mx.finerio.api.exceptions.BadImplementationException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import static mx.finerio.api.domain.ClientConfig.Property.COUNTRY_CODE
+import static mx.finerio.api.domain.ClientConfig.Property.INSTITUTION_TYPE
 
 @Service
 class MagicLinkService {
@@ -34,13 +37,13 @@ class MagicLinkService {
 
         if ( customerId == null ) {
             throw new IllegalArgumentException(
-                    'customerEmailService.sendMagicLink.customerId.null' )
+                    'magicLinkService.sendMagicLink.customerId.null' )
         }
 
         def customer = customerService.findOne( customerId )
         if ( customer == null ) {
             throw new IllegalArgumentException(
-                    'customerEmailService.sendMagicLink.customer.null' )
+                    'magicLinkService.sendMagicLink.customer.null' )
         }
 
 
@@ -74,15 +77,31 @@ class MagicLinkService {
     Map findBanksByCustomerLinkId( String customerLinkId ) throws Exception {
 
         def customerLink = customerLinkService.findOneByLinkId( customerLinkId )
-        println customerLink
         def client = customerLink?.customer?.client
-        println client
-        def clientsConFig = clientConfigService.findClientsConfigByClientLikeProperty( client, COUNTRY_CODE )
-        println clientsConFig
 
-        def countryCode = clientsConFig[0].value  //TODO change this if many countries are allowed
-        println countryCode
-        financialInstitutionService.findAll( [ country: countryCode ] )
+        def clientConFigCountries = clientConfigService.findClientsConfigByClientLikeProperty( client, COUNTRY_CODE.name() )
+        def clientConFigTypes = clientConfigService.findClientsConfigByClientLikeProperty( client, INSTITUTION_TYPE.name() )
+
+
+        def dataQuery=[:]
+        if( !clientConFigCountries?.isEmpty() ) {
+            def countries = clientConFigCountries.collect { it.value }
+            dataQuery.countries = countries
+        }else{
+            throw new BadImplementationException(
+                    'magicLinkService.findBanksByCustomerLinkId.countries.unset' )
+        }
+
+        if( !clientConFigTypes?.isEmpty() ) {
+            def types = clientConFigTypes.collect { it.value }
+            dataQuery.types = types
+        }else{
+            throw new BadImplementationException(
+                    'magicLinkService.findBanksByCustomerLinkId.institutionType.unset' )
+        }
+
+
+        financialInstitutionService.findAllByCountriesAndTypes ( dataQuery )
 
     }
 

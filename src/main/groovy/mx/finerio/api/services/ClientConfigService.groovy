@@ -17,9 +17,9 @@ class ClientConfigService {
     @Autowired
     ClientConfigRepository clientConfigRepository
 
-    List<ClientConfig> findClientsConfigByClientLikeProperty( Client client, Property property  )  throws Exception {
+    List<ClientConfig> findClientsConfigByClientLikeProperty( Client client, String property  )  throws Exception {
 
-        clientConfigRepository.findByDateDeletedIsNullAndClientAndPropertyLike( client, property )
+        clientConfigRepository.findByDateDeletedIsNullAndClientAndPropertyContains( client, property )
 
     }
 

@@ -10,7 +10,7 @@ import javax.validation.constraints.NotNull
 public class ClientConfig {
 
     enum Property {
-        COUNTRY_CODE
+        COUNTRY_CODE, INSTITUTION_TYPE
     }
 
     @Id @GeneratedValue
@@ -18,7 +18,7 @@ public class ClientConfig {
     Long id
 
     @Column(name = 'property', nullable = false )
-    Property property
+    String property
 
     @Column(name = 'value', nullable = false )
     String value
