@@ -28,8 +28,8 @@ class FinancialInstitutionService {
   @Autowired
   CountryRepository countryRepository
 
-  static final def defaultInstitutionType = FinancialInstitution.InstitutionType.PERSONAL
-  static final def defaultCountry = 'MX'
+  public static final def defaultInstitutionType = FinancialInstitution.InstitutionType.PERSONAL
+  public static final def defaultCountry = 'MX'
 
 
   Map findAll( Map params ) throws Exception {
@@ -54,8 +54,17 @@ class FinancialInstitutionService {
 
     def dto = getFindAllNCountriesAndTypesDto( params )
     def spec = FinancialIntitutionSpecs.findAllByCountriesAndTypes( dto )
-    return listService.findAll( dto, financialInstitutionRepository, spec )
+    def dataList = listService.findAll( dto, financialInstitutionRepository, spec )
 
+    dataList =  dataList.data.groupBy{ it.institutionType }.collect { institutionType, listValues ->
+      [ type: institutionType.name().toLowerCase(),
+        banks: listValues.collect {  [ id:it.id,
+                                       name:it.name,
+                                       code:it.code,
+                                       status: it.status]},
+      ] }
+
+    [ data: dataList ]
   }
 
   FinancialInstitution findOne( Long id ) throws Exception {

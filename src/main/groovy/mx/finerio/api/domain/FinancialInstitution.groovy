@@ -19,7 +19,8 @@ class FinancialInstitution {
 
    enum InstitutionType {
     PERSONAL,
-    BUSINESS
+    BUSINESS,
+    FISCAL
   }
 
   enum Provider {

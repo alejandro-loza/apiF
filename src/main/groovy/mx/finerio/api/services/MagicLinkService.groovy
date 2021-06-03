@@ -1,6 +1,7 @@
 package mx.finerio.api.services
 
 import mx.finerio.api.domain.ClientConfig
+import mx.finerio.api.domain.FinancialInstitution
 import mx.finerio.api.dtos.email.EmailFromDto
 import mx.finerio.api.dtos.email.EmailSendDto
 import mx.finerio.api.dtos.email.EmailTemplateDto
@@ -10,6 +11,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import static mx.finerio.api.domain.ClientConfig.Property.COUNTRY_CODE
 import static mx.finerio.api.domain.ClientConfig.Property.INSTITUTION_TYPE
+
 
 @Service
 class MagicLinkService {
@@ -88,16 +90,14 @@ class MagicLinkService {
             def countries = clientConFigCountries.collect { it.value }
             dataQuery.countries = countries
         }else{
-            throw new BadImplementationException(
-                    'magicLinkService.findBanksByCustomerLinkId.countries.unset' )
+            dataQuery.countries = [ FinancialInstitutionService.defaultCountry ]
         }
 
         if( !clientConFigTypes?.isEmpty() ) {
             def types = clientConFigTypes.collect { it.value }
             dataQuery.types = types
         }else{
-            throw new BadImplementationException(
-                    'magicLinkService.findBanksByCustomerLinkId.institutionType.unset' )
+            dataQuery.types = [ FinancialInstitutionService.defaultInstitutionType.name() ]
         }
 
 
