@@ -57,7 +57,7 @@ class CredentialServiceCreateSpec extends Specification {
     then:
       1 * customerService.findOne( _ as Long ) >> new Customer()
       1 * financialInstitutionService.findOneAndValidate( _ as Long ) >>
-          new FinancialInstitution()
+          new FinancialInstitution( provider: FinancialInstitution.Provider.SCRAPER_V2 )
       1 * credentialRepository.
           findByCustomerAndInstitutionAndUsernameAndDateDeleted(
           _ as Customer, _ as FinancialInstitution, _ as String, null )
@@ -69,7 +69,7 @@ class CredentialServiceCreateSpec extends Specification {
       1 * securityService.getCurrent() >> client
       1 * credentialRepository.findOne( _ as String ) >>
           new Credential( customer: new Customer( client: client ),
-          user: new User(), institution: new FinancialInstitution(status: FinancialInstitution.Status.ACTIVE) )
+          user: new User(), institution: new FinancialInstitution( provider: FinancialInstitution.Provider.SCRAPER_V2 ) )
       1 * bankConnectionService.create( _ as Credential )
       1 * credentialStatusHistoryService.create( _ as Credential )
       result instanceof Credential
