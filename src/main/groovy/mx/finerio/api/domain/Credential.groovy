@@ -76,5 +76,8 @@ class Credential {
 
   @Column(name = 'automatic_fetching', nullable = false)
   Boolean automaticFetching
+  
+  @Column(name = 'scrapper_credential_id', nullable = true, length = 255)
+  String scrapperCredentialId
 
 }

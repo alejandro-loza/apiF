@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional
 import mx.finerio.api.services.AdminService.EntityType
 import java.time.LocalDate
 import java.time.format.DateTimeParseException
+import mx.finerio.api.dtos.CreateCredentialSatwsDto
 
 @Service
 class CredentialService {
@@ -92,6 +93,9 @@ class CredentialService {
 
   @Value('${scraperv2.rangeDates.monthsAgo}') 
   int monthsAgo
+
+  @Autowired
+  SatwsService satwsService
 
   
   Credential create( CredentialDto credentialDto, Customer customer = null, Client client = null ) throws Exception {
@@ -232,6 +236,76 @@ class CredentialService {
     credential
 
   }
+  
+  Credential findByCustomerAndFinancialIntitution( Customer customer, FinancialInstitution financialInstitution ) throws Exception {
+
+   if ( !customer ) {
+      throw new BadImplementationException(
+          'credentialService.findByCustomerAndFinancialIntitution.customer.null' )
+   }
+
+   if ( !financialInstitution ) {
+      throw new BadImplementationException(
+          'credentialService.findByCustomerAndFinancialIntitution.financialInstitution.null' )
+   }
+
+    def credential = credentialRepository
+      .findByCustomerAndInstitutionAndDateDeletedIsNull( customer, financialInstitution )
+
+    if ( !credential ) {
+      throw new InstanceNotFoundException( 'credential.not.found' )
+    }
+    credential
+  }
+
+
+  Credential findByScrapperCredentialIdAndInstitution(
+     String scrapperCredentialId, FinancialInstitution financialInstitution ) throws Exception {
+
+    if ( !scrapperCredentialId ) {
+      throw new BadImplementationException(
+          'credentialService.findByCustomerAndFinancialIntitution.scrapperCredentialId.null' )
+   }
+
+   if ( !financialInstitution ) {
+      throw new BadImplementationException(
+          'credentialService.findByCustomerAndFinancialIntitution.financialInstitution.null' )
+   }
+
+    def credential = credentialRepository
+      .findByScrapperCredentialIdAndInstitutionAndDateDeletedIsNull( scrapperCredentialId, financialInstitution )
+
+    if ( !credential ) {
+      throw new InstanceNotFoundException( 'credential.not.found' )
+    }
+    
+    credential
+  }
+
+   Credential findByInstitutionAndUsername( 
+      FinancialInstitution financialInstitution, String username ) throws Exception {
+
+      if ( !financialInstitution ) {
+      throw new BadImplementationException(
+          'credentialService.findByInstitutionAndUsername.financialInstitution.null' )
+   }
+
+    if ( !username ) {
+      throw new BadImplementationException(
+          'credentialService.findByInstitutionAndUsername.username.null' )
+   }
+
+    def credential = credentialRepository
+      .findByInstitutionAndUsernameAndDateDeletedIsNull( financialInstitution, username )
+
+    if ( !credential ) {
+      throw new InstanceNotFoundException( 'credential.not.found' )
+    }
+    
+    credential
+
+   } 
+
 
   Credential validateUserCredential( Credential credential, String userId ) throws Exception {
   
@@ -311,11 +385,25 @@ class CredentialService {
       rangeDates = getRangeDates( new CredentialRangeDto() )
     }
 
-    if ( credential.institution.provider == Provider.SCRAPER_V2 ) {
-      sendToScraperV2( credential, rangeDates )
-    }else if ( credential.institution.provider == Provider.SCRAPER_V1 ) {
-      sendToScraperV2LegacyPayload( credential, rangeDates )
+    def provider = credential.institution.provider
+
+    switch( provider ) {
+      case Provider.SCRAPER_V2:
+        sendToScraperV2( credential, rangeDates )
+      break
+      case Provider.SCRAPER_V1:
+        sendToScraperV2LegacyPayload( credential, rangeDates )
+      break
+      case Provider.SATWS:      
+        sendToSatws( credential )
+      break
+      default:
+        throw new BadImplementationException(
+            'credentialService.requestData.wrong.provider' )
+
     }
+
+    
 
   }
 
@@ -331,6 +419,16 @@ class CredentialService {
     credential.status = status
     credentialRepository.save( credential )
     bankConnectionService.update( credential, BankConnection.Status.SUCCESS )
+    credential
+
+  }
+
+  Credential updateProviderId( String credentialId, String providerId )
+      throws Exception {
+        
+    def credential = findAndValidate( credentialId )
+    credential.scrapperCredentialId = providerId
+    credentialRepository.save( credential )        
     credential
 
   }
@@ -514,12 +612,13 @@ class CredentialService {
     def plainPassword = cryptService.decrypt( credential.password,
         credential.iv )
  
-   def dto = new CreateCredentialDto( bankCode: credential.institution.code,  
-   username: credential.username,
-   password: plainPassword,
-   credentialId: credential.id,
-   startDate: rangeDates.startDate,
-   endDate: rangeDates.endDate 
+   def dto = new CreateCredentialDto(
+     bankCode: credential.institution.internalCode,
+     username: credential.username,
+     password: plainPassword,
+     credentialId: credential.id,
+     startDate: rangeDates.startDate,
+     endDate: rangeDates.endDate
   )
 
   scraperV2Service.createCredential( dto ) 
@@ -549,6 +648,25 @@ class CredentialService {
 
     scraperV2Service.createCredentialLegacyPayload( data )
   }
+
+
+  private void sendToSatws( Credential credential ) throws Exception {
+
+    def plainPassword = cryptService.decrypt( credential.password,
+        credential.iv ) 
+
+     def dto = new CreateCredentialSatwsDto(     
+      rfc: credential.username,
+      password: plainPassword,
+      credentialId: credential.id
+    )
+    def credentialProviderId = satwsService.createCredential( dto )
+    credential.scrapperCredentialId = credentialProviderId
+    credentialRepository.save( credential )
+        
+  }
+
+
   
 
   private boolean credentialRecentlyUpdated( Credential credential )
