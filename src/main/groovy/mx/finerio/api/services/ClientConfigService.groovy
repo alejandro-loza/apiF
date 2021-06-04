@@ -2,12 +2,7 @@ package mx.finerio.api.services
 
 import mx.finerio.api.domain.Client
 import mx.finerio.api.domain.ClientConfig
-import mx.finerio.api.domain.repository.CategoryRepository
 import mx.finerio.api.domain.repository.ClientConfigRepository
-import mx.finerio.api.exceptions.BadImplementationException
-import mx.finerio.api.exceptions.InstanceNotFoundException
-import mx.finerio.api.domain.ClientConfig.Property
-
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.stereotype.Service
 
@@ -17,10 +12,8 @@ class ClientConfigService {
     @Autowired
     ClientConfigRepository clientConfigRepository
 
-    List<ClientConfig> findClientsConfigByClientLikeProperty( Client client, String property  )  throws Exception {
-
+    List<ClientConfig> findByClientLikeProperty(Client client, String property  )  throws Exception {
         clientConfigRepository.findByDateDeletedIsNullAndClientAndPropertyContains( client, property )
-
     }
 
 

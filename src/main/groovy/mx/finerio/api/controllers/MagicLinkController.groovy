@@ -1,5 +1,6 @@
 package mx.finerio.api.controllers
 
+import mx.finerio.api.services.BankFieldService
 import mx.finerio.api.services.MagicLinkService
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
@@ -25,6 +26,13 @@ class MagicLinkController {
     ResponseEntity findBanksByCustomerLinkId( @PathVariable String customerLinkId ) {
         def response = magicLinkService
                 .findBanksByCustomerLinkId( customerLinkId )
+        new ResponseEntity( response, HttpStatus.OK )
+    }
+
+    @GetMapping('/magicLink/{customerLinkId}/banks/{bankId}/fields')
+    ResponseEntity findAll( @PathVariable String customerLinkId, @PathVariable Long bankId ) {
+        def response = magicLinkService
+                .findBankFieldsByCustomerLinkIdAndBankId( customerLinkId, bankId )
         new ResponseEntity( response, HttpStatus.OK )
     }
 }
