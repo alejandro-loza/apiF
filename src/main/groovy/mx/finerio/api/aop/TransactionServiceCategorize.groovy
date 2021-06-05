@@ -21,7 +21,7 @@ class TransactionServiceCategorize {
       'mx.finerio.api.aop.TransactionServiceCategorize' )
 
   @Pointcut(
-    value='execution(void mx.finerio.api.services.TransactionService.categorize(..)) && bean(transactionService) && args(transaction)',
+    value='execution(mx.finerio.api.domain.Transaction mx.finerio.api.services.TransactionService.categorize(..)) && bean(transactionService) && args(transaction)',
     argNames='transaction'
   )
   public void categorize( Transaction transaction ) {}
@@ -32,10 +32,11 @@ class TransactionServiceCategorize {
   }
 
   @AfterReturning(
-    pointcut='categorize(mx.finerio.api.domain.Transaction)'
+    pointcut='categorize(mx.finerio.api.domain.Transaction)',
+    returning='transaction'
   )
-  void afterReturning() {
-    log.info( '>> OK' )
+  void afterReturning( Transaction transaction ) {
+    log.info( '>> transaction: {}', transaction )
   }
 
   @AfterThrowing(

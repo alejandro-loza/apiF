@@ -61,7 +61,6 @@ class ScraperCallbackService {
   @Autowired
   WidgetEventsService widgetEventsService
 
-  @Transactional
   List processTransactions( TransactionDto transactionDto ) throws Exception {
 
     validateProcessTransactionsInput( transactionDto )
