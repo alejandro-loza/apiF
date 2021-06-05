@@ -19,7 +19,12 @@ class AnalysisService extends InsightsService {
   @Autowired
   CustomerService customerService
 
+  @Autowired
+  SecurityService securityService
+
   AnalysisDto getAnalysisByCustomer( Long customerId ) throws Exception {
+
+    securityService.validateInsightsEnabled()
 
     customerService.findOne( customerId )
     def transactions = getTransactions( customerId )

@@ -11,6 +11,7 @@ import mx.finerio.api.dtos.DiagnosisAdviceDto
 import mx.finerio.api.dtos.DiagnosisDto
 import mx.finerio.api.dtos.MonthTransactionsDiagnosisDto
 import mx.finerio.api.dtos.SubCategoryDiagnosisDto
+import mx.finerio.api.services.SecurityService
 import org.springframework.stereotype.Service
 import java.util.stream.Collectors
 import mx.finerio.api.services.CategoryService
@@ -32,10 +33,16 @@ class DiagnosisServiceImp extends InsightsService implements DiagnosisService {
     @Autowired
     AdviceRepository adviceRepository
 
+    @Autowired
+    SecurityService securityService
+
     BigDecimal totalAverageIncome
 
     @Override
     DiagnosisDto getDiagnosisByCustomer(Long customerId, Optional<BigDecimal> averageManualIncome ) throws Exception {
+
+        securityService.validateInsightsEnabled()
+
         List<ApiTransactionDto> transactions = getTransactions(customerId)
         totalAverageIncome = averageManualIncome.isPresent() ? averageManualIncome.get() : calculateAverageIncome(transactions)
         List<Category> listOfCategories = categoryService.findAll()
