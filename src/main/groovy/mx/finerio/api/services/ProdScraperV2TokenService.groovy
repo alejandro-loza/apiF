@@ -55,12 +55,14 @@ class ProdScraperV2TokenService implements ScraperV2TokenService {
 		def dataSend = [ customerId: credential.customer.id,
 			credentialId: credentialId, stage: 'interactive' ]
 		def token = scraperV2TokenDto?.data?.value		
+		def contentType = scraperV2TokenDto?.data?.content_type
 		if( token ) {		
 			dataSend.put('bankToken', token )
+			dataSend.put('contentType', scraperV2TokenDto?.data?.content_type )
 		}
 
 		widgetEventsService.onInteractive( new WidgetEventsDto(
-		      credentialId: credentialId, bankToken: token ) )	
+		      credentialId: credentialId, bankToken: token, contentType: contentType ) )
 
 		callbackService.sendToClient( client, Callback.Nature.NOTIFY, dataSend )		 	
 	}
