@@ -10,7 +10,7 @@ import javax.validation.constraints.NotNull
 public class ClientConfig {
 
     enum Property {
-        COUNTRY_CODE, INSTITUTION_TYPE
+        COUNTRY_CODE, INSTITUTION_TYPE, MAGIC_LINK_EMAIL_TEMPLATE
     }
 
     @Id @GeneratedValue
