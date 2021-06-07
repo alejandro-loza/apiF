@@ -11,6 +11,7 @@ class WidgetEventsDto {
   String message
   String code
   String bankToken
+  String contentType
 
 }
 
