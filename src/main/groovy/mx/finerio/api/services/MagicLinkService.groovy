@@ -210,10 +210,16 @@ class MagicLinkService {
     }
 
     private CustomerLink validateCustomerLink( String customerLinkId ){
+
+        if( !customerLinkId ){
+            throw new IllegalArgumentException(
+                    'magicLinkService.validateCustomerLink.customerLinkId.null' )
+        }
+
         def customerLink = customerLinkService.findOneByLinkId( customerLinkId )
         if( !customerLink ){
             throw new IllegalArgumentException(
-                    'magicLinkService.validateCustomerLink.customerLinkId.notFound' )
+                    'magicLinkService.validateCustomerLink.customerLink.notFound' )
         }
         customerLink
     }
