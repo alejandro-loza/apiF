@@ -192,7 +192,7 @@ class TransactionService {
     }
 
     def dto = new TransactionListDto()
-    dto.account = accountService.findOne( params.accountId )
+    dto.account = accountService.findOne(params.accountId as String)
     listService.validateFindAllDto( dto, params )
 
     if ( params.cursor ) {
