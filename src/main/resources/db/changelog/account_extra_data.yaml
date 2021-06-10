@@ -1,40 +1,52 @@
 databaseChangeLog:
-    - changeSet:
-          id: account_extra_data
-          author: alejandro.garcia
-          changes:
-              - createTable:
-                    tableName: account_extra_data
-                    columns:
-                        - column:
-                              name: id
-                              type: BIGINT
-                              autoIncrement: true
-                              constraints:
-                                  primaryKey: true
-                                  nullable: false
-                        - column:
-                              name: account_id
-                              type: java.sql.Types.VARCHAR(255)
-                              constraints:
-                                  nullable: false
-                        - column:
-                              name: name
-                              type: java.sql.Types.VARCHAR(100)
-                              constraints:
-                                  nullable: false
-                        - column:
-                              name: value
-                              type: java.sql.Types.VARCHAR(100)
-                              constraints:
-                                  nullable: false
-                        - column:
-                              name: date_created
-                              type: DATETIME
-                              constraints:
-                                  nullable: false
-                        - column:
-                              name: last_updated
-                              type: DATETIME
-                              constraints:
-                                  nullable: false
+- changeSet:
+    id: account_extra_data
+    author: alejandro.garcia
+    changes:
+    - createTable:
+        tableName: account_extra_data
+        columns:
+        - column:
+            name: id
+            type: BIGINT
+            autoIncrement: true
+            constraints:
+              primaryKey: true
+              nullable: false
+        - column:
+            name: account_id
+            type: java.sql.Types.VARCHAR(255)
+            constraints:
+              nullable: false
+        - column:
+            name: name
+            type: java.sql.Types.VARCHAR(100)
+            constraints:
+              nullable: false
+        - column:
+            name: value
+            type: java.sql.Types.VARCHAR(100)
+            constraints:
+              nullable: false
+        - column:
+            name: date_created
+            type: DATETIME
+            constraints:
+              nullable: false
+        - column:
+            name: last_updated
+            type: DATETIME
+            constraints:
+              nullable: false
+- changeSet:
+    id: account_extra_data_account_fk
+    author: alejandro.garcia
+    changes:
+    - addForeignKeyConstraint:
+        baseColumnNames: account_id
+        baseTableName: account_extra_data
+        constraintName: fk_account_extra_data_account
+        deferrable: false
+        initiallyDeferred: false
+        referencedColumnNames: id
+        referencedTableName: account
