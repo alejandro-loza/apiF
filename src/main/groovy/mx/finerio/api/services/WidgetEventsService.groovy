@@ -75,7 +75,8 @@ class WidgetEventsService {
 
     if ( !widgetExists( dto.credentialId ) ) { return }
     firebaseService.saveOrUpdate( firebasePath, dto.credentialId,
-        [ status: 'INTERACTIVE', bankToken: dto.bankToken ] )
+        [ status: 'INTERACTIVE', bankToken: dto.bankToken,
+        contentType: dto.contentType ] )
 
   }
 

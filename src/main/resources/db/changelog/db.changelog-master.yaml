@@ -88,3 +88,9 @@ databaseChangeLog:
     file: db/changelog/add_columns_financial_institution.yaml
 - include:
     file: db/changelog/financial_institution_add_provider.yaml
+- include:
+    file: db/changelog/suggested_expenses.yaml
+- include:
+    file: db/changelog/advice.yaml
+- include:
+    file: db/changelog/clients_insights_enabled.yaml

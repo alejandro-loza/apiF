@@ -1,5 +1,7 @@
 package mx.finerio.api.services
 
+import mx.finerio.api.domain.Transaction
+
 import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 
@@ -15,6 +17,9 @@ class TransactionCategorizerService {
 
   @Autowired
   TransactionsAtmService transactionsAtmService
+
+  @Autowired
+  TransactionDuplicatedService transactionDuplicatedService
 
   @Value('${categorizer.maxThreads}')
   Integer maxThreads
@@ -53,7 +58,7 @@ class TransactionCategorizerService {
     
     for ( Integer i = 0; i < movements.size(); i++ ) {
       executorService.execute( new CategorizerThread( transactionsAtmService,
-        movements[ i ] ) )
+              transactionDuplicatedService, movements[ i ] ) )
     }
     
     executorService.shutdown()
@@ -66,18 +71,23 @@ class TransactionCategorizerService {
 class CategorizerThread implements Runnable {
 
   TransactionsAtmService transactionsAtmService
-  Movement movement
+  TransactionDuplicatedService transactionDuplicatedService
+  def movement
   
   CategorizerThread( TransactionsAtmService transactionsAtmService,
-      Movement movement ) {
+                     TransactionDuplicatedService transactionDuplicatedService,
+          Object movement ) {
 
+    this.transactionDuplicatedService = transactionDuplicatedService
     this.transactionsAtmService = transactionsAtmService
     this.movement = movement
 
   }
   
   void run() {
-    transactionsAtmService.processMovement( movement )
+    movement instanceof Movement
+            ? transactionsAtmService.processMovement( movement )
+            : transactionDuplicatedService.duplicatedTransaction( movement )
   }
 
 }

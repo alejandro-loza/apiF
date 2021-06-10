@@ -13,17 +13,20 @@ class FinancialInstitution {
   enum Status {
     ACTIVE,
     INACTIVE,
-    DELETED
+    DELETED,
+    PARTIALLY_ACTIVE
   }
 
    enum InstitutionType {
     PERSONAL,
-    BUSINESS
+    BUSINESS,
+    FISCAL
   }
 
   enum Provider {
     SCRAPER_V1,
-    SCRAPER_V2
+    SCRAPER_V2,
+    SATWS
   }
 
   @Id

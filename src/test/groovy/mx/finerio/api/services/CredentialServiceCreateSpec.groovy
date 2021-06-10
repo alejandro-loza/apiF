@@ -7,6 +7,7 @@ import mx.finerio.api.domain.User
 import mx.finerio.api.domain.repository.CredentialRepository
 import mx.finerio.api.dtos.CredentialDto
 import mx.finerio.api.domain.FinancialInstitution
+import mx.finerio.api.dtos.SuccessCallbackDto
 import mx.finerio.api.exceptions.BadImplementationException
 import mx.finerio.api.exceptions.BadRequestException
 import mx.finerio.api.exceptions.InstanceNotFoundException
@@ -29,6 +30,7 @@ class CredentialServiceCreateSpec extends Specification {
   def scraperV2Service = Mock( ScraperV2Service )
   def adminService = Mock( AdminService )
   def widgetEventsService = Mock( WidgetEventsService )
+  def scraperCallbackService = Mock( ScraperCallbackService )
 
   def setup() {
 
@@ -44,6 +46,7 @@ class CredentialServiceCreateSpec extends Specification {
     service.scraperV2Service = scraperV2Service
     service.adminService = adminService
     service.widgetEventsService = widgetEventsService
+    service.scraperCallbackService = scraperCallbackService
 
   }
 
@@ -54,7 +57,7 @@ class CredentialServiceCreateSpec extends Specification {
     then:
       1 * customerService.findOne( _ as Long ) >> new Customer()
       1 * financialInstitutionService.findOneAndValidate( _ as Long ) >>
-          new FinancialInstitution()
+          new FinancialInstitution( provider: FinancialInstitution.Provider.SCRAPER_V2 )
       1 * credentialRepository.
           findByCustomerAndInstitutionAndUsernameAndDateDeleted(
           _ as Customer, _ as FinancialInstitution, _ as String, null )
@@ -66,13 +69,45 @@ class CredentialServiceCreateSpec extends Specification {
       1 * securityService.getCurrent() >> client
       1 * credentialRepository.findOne( _ as String ) >>
           new Credential( customer: new Customer( client: client ),
-          user: new User(), institution: new FinancialInstitution() )
+          user: new User(), institution: new FinancialInstitution( provider: FinancialInstitution.Provider.SCRAPER_V2 ) )
       1 * bankConnectionService.create( _ as Credential )
       1 * credentialStatusHistoryService.create( _ as Credential )
       result instanceof Credential
     where:
       credentialDto = getCredentialDto()
       client = new Client( id: 1L )
+
+  }
+
+  def "invoking method successfully with status PARTIALLY_ACTIVE"() {
+
+    when:
+    def result = service.create( credentialDto )
+    then:
+    1 * customerService.findOne( _ as Long ) >> new Customer()
+    1 * financialInstitutionService.findOneAndValidate( _ as Long ) >>
+            new FinancialInstitution()
+    1 * credentialRepository.
+            findByCustomerAndInstitutionAndUsernameAndDateDeleted(
+                    _ as Customer, _ as FinancialInstitution, _ as String, null )
+    1 * userService.getApiUser() >> new User()
+    1 * cryptService.encrypt( _ as String ) >>
+            [ message: 'message', iv: 'iv' ]
+    2 * credentialRepository.save( _ as Credential ) >>
+            new Credential( id: 'id' )
+    1 * securityService.getCurrent() >> client
+    1 * credentialRepository.findOne( _ as String ) >>
+            new Credential(id: 'id', customer: new Customer( client: client ),
+                    user: new User(), institution: new FinancialInstitution(
+                    status: FinancialInstitution.Status.PARTIALLY_ACTIVE) )
+    0 * bankConnectionService.create( _ as Credential )
+    0 * credentialStatusHistoryService.create( _ as Credential )
+    1 * scraperCallbackService.processSuccess(_ as SuccessCallbackDto)
+    1 * scraperCallbackService.postProcessSuccess( _ as Credential )
+    result instanceof Credential
+    where:
+    credentialDto = getCredentialDto()
+    client = new Client( id: 1L )
 
   }
 

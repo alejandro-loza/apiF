@@ -8,5 +8,6 @@ import mx.finerio.api.domain.*
 interface FinancialInstitutionRepository extends JpaRepository<FinancialInstitution, Long>, JpaSpecificationExecutor {
   
   FinancialInstitution findById( Long id )
+  FinancialInstitution findOneByCode( String code )
 
 }

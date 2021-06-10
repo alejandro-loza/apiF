@@ -23,6 +23,9 @@ class ProdScraperV2TokenService implements ScraperV2TokenService {
     CallbackService callbackService
 
     @Autowired
+    CredentialService credentialService
+
+    @Autowired
 	WidgetEventsService widgetEventsService
 
       	
@@ -47,15 +50,19 @@ class ProdScraperV2TokenService implements ScraperV2TokenService {
 	void processOnInteractive( ScraperV2TokenDto scraperV2TokenDto, Client client ) throws Exception {
 
 		validateInteractive( scraperV2TokenDto )		  	
-		String credentialId = scraperV2TokenDto.state		   		  						 		
-		def dataSend = [ credentialId: credentialId, stage: 'interactive' ]
+		String credentialId = scraperV2TokenDto.state
+		def credential = credentialService.findAndValidate( credentialId )
+		def dataSend = [ customerId: credential.customer.id,
+			credentialId: credentialId, stage: 'interactive' ]
 		def token = scraperV2TokenDto?.data?.value		
+		def contentType = scraperV2TokenDto?.data?.content_type
 		if( token ) {		
 			dataSend.put('bankToken', token )
+			dataSend.put('contentType', scraperV2TokenDto?.data?.content_type )
 		}
 
 		widgetEventsService.onInteractive( new WidgetEventsDto(
-		      credentialId: credentialId, bankToken: token ) )	
+		      credentialId: credentialId, bankToken: token, contentType: contentType ) )
 
 		callbackService.sendToClient( client, Callback.Nature.NOTIFY, dataSend )		 	
 	}
