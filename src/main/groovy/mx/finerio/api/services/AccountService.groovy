@@ -178,7 +178,7 @@ class AccountService {
 
   }
 
-
+  @Transactional(readOnly = true)
   Account findByIdBankAndCredentialId( String idBank,  String credentialId ) throws Exception {
 
     if ( !idBank ) {
@@ -200,6 +200,7 @@ class AccountService {
     
   }
 
+  @Transactional(readOnly = true)
   Account findByIdAndCredentialId( String id, String credentialId )
       throws Exception {
 
