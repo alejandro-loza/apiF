@@ -43,7 +43,7 @@ class CredentialServiceProcessInteractiveSpec extends Specification {
       1 * credentialRepository.findOne( _ as String ) >>
           new Credential( customer: new Customer(
           client: client ),
-          institution: new FinancialInstitution(code: 'BBVA'),
+          institution: new FinancialInstitution(internalCode: 'BBVA'),
           user: new User() )
       1 * scraperV2TokenService.send(
           _ as String, _ as String, _ as String )
