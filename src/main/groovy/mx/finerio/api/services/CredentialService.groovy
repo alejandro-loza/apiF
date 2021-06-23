@@ -97,6 +97,9 @@ class CredentialService {
   @Autowired
   SatwsService satwsService
 
+  @Value( '${institutions.token}' )
+  String institutionsWithToken
+
   
   Credential create( CredentialDto credentialDto, Customer customer = null, Client client = null ) throws Exception {
 
@@ -502,8 +505,9 @@ class CredentialService {
     }
      
     def institutionCode = credential.institution.code
+    def institutionsWithTokenArr = institutionsWithToken.split(',')
 
-    if( ![ 'BAZ','BBVA','BANORTE' ].contains( institutionCode ) ) {
+    if( !institutionsWithTokenArr.contains( institutionCode ) ) {
       throw new BadRequestException(
         'credentialService.processInteractive.institutionCode.wrong' )
     }
