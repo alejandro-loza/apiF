@@ -504,7 +504,7 @@ class CredentialService {
       credential = findOne( id ) 
     }
      
-    def institutionCode = credential.institution.code
+    def institutionCode = credential.institution.internalCode
     def institutionsWithTokenArr = institutionsWithToken.split(',')
 
     if( !institutionsWithTokenArr.contains( institutionCode ) ) {

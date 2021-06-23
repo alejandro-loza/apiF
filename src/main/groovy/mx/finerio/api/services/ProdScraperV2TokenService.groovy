@@ -32,9 +32,7 @@ class ProdScraperV2TokenService implements ScraperV2TokenService {
 	void send( String token, String credentialId, String bankCode ) throws Exception {
 
 		validateSend( token, credentialId, bankCode )
-   
-        bankCode = bankCode.toLowerCase()
-						
+		
 		def data = [ field_name: 'otp',
 		             value: token, 
 		             content_type: 'text/plain' ]
