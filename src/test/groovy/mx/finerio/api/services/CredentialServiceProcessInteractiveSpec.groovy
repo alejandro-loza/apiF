@@ -22,6 +22,7 @@ class CredentialServiceProcessInteractiveSpec extends Specification {
   def securityService = Mock( SecurityService )
   def credentialRepository = Mock( CredentialRepository )
   def widgetEventsService = Mock( WidgetEventsService )
+  def institutionsWithToken = 'BBVA,BNMX'
 
   def setup() {
 
@@ -29,6 +30,7 @@ class CredentialServiceProcessInteractiveSpec extends Specification {
     service.securityService = securityService
     service.credentialRepository = credentialRepository
     service.widgetEventsService = widgetEventsService
+    service.institutionsWithToken = institutionsWithToken
 
   }
 
