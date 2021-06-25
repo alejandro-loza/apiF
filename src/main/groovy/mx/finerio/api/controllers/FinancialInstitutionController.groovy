@@ -1,12 +1,13 @@
 package mx.finerio.api.controllers
 
+import mx.finerio.api.dtos.FinancialInstitutionDto
+import mx.finerio.api.validation.FinancialInstitutionCreateCommand
+import org.springframework.web.bind.annotation.PostMapping
 import javax.validation.Valid
-
 import mx.finerio.api.dtos.BankStatusDto
 import mx.finerio.api.services.BankFieldService
 import mx.finerio.api.services.BankStatusService
 import mx.finerio.api.services.FinancialInstitutionService
-
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -55,6 +56,11 @@ class FinancialInstitutionController {
     def response = bankStatusService.changeStatus( dto )
     new ResponseEntity( HttpStatus.NO_CONTENT )
 
+  }
+
+  @PostMapping("/financialInstitution")
+  ResponseEntity create(@RequestBody @Valid FinancialInstitutionCreateCommand cmd){
+    new ResponseEntity( new FinancialInstitutionDto(financialInstitutionService.create(cmd)), HttpStatus.OK )
   }
 
 }

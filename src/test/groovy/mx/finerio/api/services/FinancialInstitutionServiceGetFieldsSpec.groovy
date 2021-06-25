@@ -3,12 +3,13 @@ package mx.finerio.api.services
 import mx.finerio.api.domain.FinancialInstitution
 import mx.finerio.api.domain.FinancialInstitution.Status
 import mx.finerio.api.exceptions.BadImplementationException
+import mx.finerio.api.services.imp.FinancialInstitutionServiceImp
 
 import spock.lang.Specification
 
 class FinancialInstitutionServiceGetFieldsSpec extends Specification {
 
-  def service = new FinancialInstitutionService()
+  def service = new FinancialInstitutionServiceImp()
 
   def "invoking method successfully"() {
 

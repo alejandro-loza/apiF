@@ -94,3 +94,5 @@ databaseChangeLog:
     file: db/changelog/advice.yaml
 - include:
     file: db/changelog/clients_insights_enabled.yaml
+- include:
+    file: db/changelog/financial_institution_add_customer.yaml

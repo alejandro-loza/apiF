@@ -9,10 +9,11 @@ import mx.finerio.api.exceptions.BadRequestException
 import mx.finerio.api.exceptions.InstanceNotFoundException
 
 import spock.lang.Specification
+import mx.finerio.api.services.imp.FinancialInstitutionServiceImp
 
 class FinancialInstitutionServiceFindOneAndValidateSpec extends Specification {
 
-  def service = new FinancialInstitutionService()
+  def service = new FinancialInstitutionServiceImp()
 
   def financialInstitutionRepository = Mock( FinancialInstitutionRepository )
 

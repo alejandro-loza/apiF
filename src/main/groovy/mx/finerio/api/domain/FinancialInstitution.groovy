@@ -4,6 +4,7 @@ import groovy.transform.ToString
 
 import javax.persistence.*
 import javax.validation.constraints.*
+import java.sql.Timestamp
 
 @Entity
 @Table(name = 'financial_institution')
@@ -29,12 +30,12 @@ class FinancialInstitution {
     SATWS
   }
 
-  @Id
-  @Column(name = 'id', nullable = false, updatable = false)
+  @Id @GeneratedValue
+  @Column(name = 'id', updatable = false)
   Long id
 
-    @Column(name = 'version', nullable = false)
-    Long version
+  @Column(name = 'version', nullable = false)
+  Long version
 
   @Column(name = 'code', nullable = false, length = 255)
   String code
@@ -63,5 +64,15 @@ class FinancialInstitution {
   @Enumerated(EnumType.STRING)
   @Column(name = 'provider', nullable = false, length = 10)
   Provider provider
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = 'customer_id', nullable = false)
+  Customer customer
+
+  @Column(name = 'date_created', nullable = true)
+  Date dateCreated
+
+  @Column(name = 'date_deleted', nullable = true)
+  Date dateDeleted
 
 }

@@ -6,12 +6,13 @@ import mx.finerio.api.domain.repository.FinancialInstitutionRepository
 import mx.finerio.api.dtos.FinancialInstitutionDto
 import mx.finerio.api.exceptions.BadImplementationException
 import mx.finerio.api.exceptions.InstanceNotFoundException
+import mx.finerio.api.services.imp.FinancialInstitutionServiceImp
 
 import spock.lang.Specification
 
 class FinancialInstitutionServiceFindOneByCodeSpec extends Specification {
 
-  def service = new FinancialInstitutionService()
+  def service = new FinancialInstitutionServiceImp()
 
   def financialInstitutionRepository = Mock( FinancialInstitutionRepository )
 

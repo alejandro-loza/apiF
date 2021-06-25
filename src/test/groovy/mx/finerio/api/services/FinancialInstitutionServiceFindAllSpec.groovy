@@ -12,10 +12,11 @@ import mx.finerio.api.exceptions.BadRequestException
 import org.springframework.data.jpa.domain.Specification as Spec
 
 import spock.lang.Specification
+import mx.finerio.api.services.imp.FinancialInstitutionServiceImp
 
 class FinancialInstitutionServiceFindAllSpec extends Specification {
 
-  def service = new FinancialInstitutionService()
+  def service = new FinancialInstitutionServiceImp()
 
   def listService = Mock( ListService )
   def countryRepository = Mock( CountryRepository )
