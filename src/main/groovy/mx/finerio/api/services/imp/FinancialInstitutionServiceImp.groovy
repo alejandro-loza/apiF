@@ -4,7 +4,6 @@ import mx.finerio.api.domain.Customer
 import mx.finerio.api.domain.FinancialInstitution
 import mx.finerio.api.domain.FinancialInstitution.Status
 import mx.finerio.api.domain.FinancialIntitutionSpecs
-import mx.finerio.api.domain.Client
 import mx.finerio.api.domain.Country
 import mx.finerio.api.domain.repository.CountryRepository
 import mx.finerio.api.domain.repository.FinancialInstitutionRepository
@@ -14,7 +13,6 @@ import mx.finerio.api.exceptions.BadRequestException
 import mx.finerio.api.exceptions.InstanceNotFoundException
 import mx.finerio.api.services.CustomerService
 import mx.finerio.api.services.ListService
-import mx.finerio.api.services.SecurityService
 import mx.finerio.api.services.FinancialInstitutionService
 import org.springframework.beans.factory.annotation.Autowired
 import mx.finerio.api.validation.FinancialInstitutionCreateCommand
@@ -35,9 +33,6 @@ class FinancialInstitutionServiceImp implements FinancialInstitutionService {
   CountryRepository countryRepository
 
   @Autowired
-  SecurityService securityService
-
-  @Autowired
   CustomerService customerService
 
   static final def defaultInstitutionType = FinancialInstitution.InstitutionType.PERSONAL
@@ -47,8 +42,7 @@ class FinancialInstitutionServiceImp implements FinancialInstitutionService {
   @Override
   FinancialInstitution create(FinancialInstitutionCreateCommand cmd) throws Exception {
     verifyBody(cmd)
-    Client loggedClient = securityService.getCurrent() as Client
-    Customer customer = customerService.findOne(cmd.customerId, loggedClient)
+    Customer customer = customerService.findOne(cmd.customerId)
 
     verifyUniqueCode(cmd, customer)
     FinancialInstitution financialInstitution = new FinancialInstitution()
@@ -193,12 +187,6 @@ class FinancialInstitutionServiceImp implements FinancialInstitutionService {
             .orElseThrow({ -> new BadRequestException('country.not.found') })
   }
 
-  private void verifyLoggedClient(Client client) {
-
-    if (client !=  securityService.getCurrent()) {
-      throw new InstanceNotFoundException('account.notFound')
-    }
-  }
 
   void verifyBody(ValidationCommand cmd) {
     if (!cmd) {

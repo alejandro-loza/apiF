@@ -24,7 +24,6 @@ class FinancialInstitutionServiceCreateSpec extends Specification {
     financialInstitutionService.listService = listService
     financialInstitutionService.countryRepository = countryRepository
     financialInstitutionService.financialInstitutionRepository = financialInstitutionRepository
-    financialInstitutionService.securityService = Mock(SecurityService)
     financialInstitutionService.customerService = Mock(CustomerService)
   }
 
@@ -107,8 +106,7 @@ class FinancialInstitutionServiceCreateSpec extends Specification {
     }
 
     when:
-    1 * financialInstitutionService.securityService.getCurrent() >> new Client()
-    1 * financialInstitutionService.customerService.findOne(_ as Long, _ as Client) >> new Customer()
+    1 * financialInstitutionService.customerService.findOne(_ as Long) >> new Customer()
     1 * financialInstitutionService.financialInstitutionRepository.findByCodeAndCustomerAndDateDeletedIsNull(_ as String, _ as Customer) >> null
     1 * financialInstitutionService.countryRepository.findOneByCode(_ as String) >> new Country()
     1 * financialInstitutionService.financialInstitutionRepository.save(_ as FinancialInstitution) >> new FinancialInstitution()
@@ -132,8 +130,7 @@ class FinancialInstitutionServiceCreateSpec extends Specification {
     }
 
     when:
-    1 * financialInstitutionService.securityService.getCurrent() >> new Client()
-    1 * financialInstitutionService.customerService.findOne(_ as Long, _ as Client) >> new Customer()
+    1 * financialInstitutionService.customerService.findOne(_ as Long) >> new Customer()
     1 * financialInstitutionService.financialInstitutionRepository.findByCodeAndCustomerAndDateDeletedIsNull(_ as String, _ as Customer) >> null
     1 * financialInstitutionService.countryRepository.findOneByCode(_ as String) >> null
     0 * financialInstitutionService.financialInstitutionRepository.save(_ as FinancialInstitution)
@@ -158,8 +155,7 @@ class FinancialInstitutionServiceCreateSpec extends Specification {
     }
 
     when:
-    1 * financialInstitutionService.securityService.getCurrent() >> new Client()
-    1 * financialInstitutionService.customerService.findOne(_ as Long, _ as Client) >> new Customer()
+    1 * financialInstitutionService.customerService.findOne(_ as Long) >> new Customer()
     1 * financialInstitutionService.financialInstitutionRepository.findByCodeAndCustomerAndDateDeletedIsNull(_ as String, _ as Customer) >>   new FinancialInstitution()
     0 * financialInstitutionService.countryRepository.findOneByCode(_ as String)
     0 * financialInstitutionService.financialInstitutionRepository.save(_ as FinancialInstitution)
