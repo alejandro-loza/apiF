@@ -284,7 +284,7 @@ class SatwsService {
     credential.username  
   }
 
-  String getInvoice( String invoiceId, String accept ) throws Exception {
+  def getInvoice( String invoiceId, String accept ) throws Exception {
 
 
     if ( !invoiceId ) {
