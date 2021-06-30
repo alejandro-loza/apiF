@@ -3,16 +3,14 @@ package mx.finerio.api.services
 import groovy.json.JsonSlurper
 import groovy.json.JsonOutput
 
-import mx.finerio.api.dtos.ApiListDto
+
 import mx.finerio.api.dtos.CreateCredentialSatwsDto
 import mx.finerio.api.dtos.CreateExtractionDto
 
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 
-import wslite.http.auth.HTTPBasicAuthorization
 import wslite.rest.RESTClient
-import java.time.ZonedDateTime
 import mx.finerio.api.exceptions.BadImplementationException
 import mx.finerio.api.exceptions.BadRequestException
 import org.slf4j.Logger
@@ -188,7 +186,7 @@ class SatwsClientService {
   }
   
 
-  String getInvoice( String invoiceId, String accept ) throws Exception {
+  def getInvoice( String invoiceId, String accept ) throws Exception {
 
      if ( !invoiceId ) {
       throw new BadImplementationException(
@@ -609,7 +607,7 @@ class SatwsClientService {
   }
 
 
-  String getFile( String id, String change, String accept, String path ) throws Exception {
+  def getFile( String id, String change, String accept, String path ) throws Exception {
 
     satwsClient = new RESTClient( url )
     def response
@@ -628,7 +626,8 @@ class SatwsClientService {
         
     }
 
-    new String( response.data, UTF_8)        
+    def finalResponse =  ( accept == 'application/pdf' )? response.data : new String( response.data, UTF_8)
+    finalResponse
   }
 
 
