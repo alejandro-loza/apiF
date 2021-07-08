@@ -40,7 +40,7 @@ class ProdScraperV2Service implements ScraperV2Service {
 		def jsonBase64 = jsonString.getBytes( 'UTF-8' ).encodeBase64().toString()		
 		def jsonEncrypted = rsaCryptScraperV2Service.encrypt( jsonBase64 )
 							    
-		def finalData = [ institution: createCredentialDto.bankCode.toLowerCase(),
+		def finalData = [ institution: createCredentialDto.bankCode,
 			data: jsonEncrypted,
 			state: state,
 			start_date: createCredentialDto.startDate,

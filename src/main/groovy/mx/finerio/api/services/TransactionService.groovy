@@ -45,6 +45,7 @@ class TransactionService {
   @Autowired
   AdminService adminService
 
+  @Transactional
   List createAll( TransactionData transactionData ) throws Exception {
 
     if ( !transactionData ) {
@@ -112,7 +113,7 @@ class TransactionService {
 
   }
 
-  void categorize( Transaction transaction ) throws Exception {
+  Transaction categorize( Transaction transaction ) throws Exception {
     if ( !transaction ) {
       throw new BadImplementationException(
           'transactionService.categorize.transaction.null' )
@@ -132,7 +133,7 @@ class TransactionService {
 
       def category = categoryService.findOne( categorizerResult.categoryId )
       transaction.category = category
-      transactionRepository.save( transaction )
+      return transactionRepository.save( transaction )
 
     } catch ( Exception e ) {}
 

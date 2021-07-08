@@ -9,5 +9,6 @@ interface ClientConfigRepository extends JpaRepository<ClientConfig, Long>,
         JpaSpecificationExecutor{
 
      List<ClientConfig> findByDateDeletedIsNullAndClientAndPropertyContains( Client client, String property )
+     ClientConfig findOneByDateDeletedIsNullAndClientAndProperty( Client client, String property )
 
 }

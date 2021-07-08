@@ -27,6 +27,7 @@ class DiagnosisServiceSpec extends Specification{
         diagnosisService.transactionRepository = Mock(TransactionRepository)
         diagnosisService.suggestedExpensesRepository = Mock(SuggestedExpensesRepository)
         diagnosisService.adviceRepository = Mock(AdviceRepository)
+        diagnosisService.securityService = Mock(SecurityService)
     }
 
     def "Should get an analysis"(){
@@ -64,6 +65,7 @@ class DiagnosisServiceSpec extends Specification{
 
         when:
 
+        1 * diagnosisService.securityService.validateInsightsEnabled()
         1 * diagnosisService.transactionRepository.findAllByCustomerId(_ as Long) >> [transactionChargeNow, transactionChargeTwoMonths, transactionIncomeNow, transactionIncomeTwoMonths]
         1 * diagnosisService.categoryService.findAll() >> [parentCategory, subCategory]
         4 * diagnosisService.categoryService.findOne(_ as String) >> subCategory
@@ -137,6 +139,7 @@ class DiagnosisServiceSpec extends Specification{
 
         when:
 
+        1 * diagnosisService.securityService.validateInsightsEnabled()
         1 * diagnosisService.transactionRepository.findAllByCustomerId(_ as Long) >> [transactionChargeNow, transactionChargeTwoMonths]
         1 * diagnosisService.categoryService.findAll() >> [parentCategory, subCategory]
         4 * diagnosisService.categoryService.findOne(_ as String) >> subCategory
@@ -209,6 +212,7 @@ class DiagnosisServiceSpec extends Specification{
 
         when:
 
+        1 * diagnosisService.securityService.validateInsightsEnabled()
         1 * diagnosisService.transactionRepository.findAllByCustomerId(_ as Long) >> [ transactionIncomeNow, transactionIncomeTwoMonths]
         1 * diagnosisService.categoryService.findAll() >> [parentCategory, subCategory]
         0 * diagnosisService.categoryService.findOne(_ as String)

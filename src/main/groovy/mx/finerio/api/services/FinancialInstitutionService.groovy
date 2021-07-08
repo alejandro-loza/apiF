@@ -84,6 +84,25 @@ class FinancialInstitutionService {
 
   }
 
+
+  FinancialInstitution findOneByCode( String  code ) throws Exception {
+
+    if ( code == null ) {
+      throw new BadImplementationException(
+          'financialInstitutionService.findOneByCode.code.null' )
+    }
+ 
+    def instance = financialInstitutionRepository.findOneByCode( code )
+
+    if ( !instance ) {
+      throw new InstanceNotFoundException( 'financialInstitution.not.found' )
+    }
+ 
+    instance
+
+  }
+
+
   FinancialInstitution findOneAndValidate( Long id ) throws Exception {
 
     if ( id == null ) {

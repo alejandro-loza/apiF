@@ -16,6 +16,12 @@ class TransactionsApiService {
   @Autowired
   MovementService movementService
 
+  @Value( '${duplicated.description-porcentage}' )
+  private int descriptionPercentage
+
+  @Value( '${duplicated.days-difference}' )
+  private int daysDifference
+
   @Value( '${transactions-api.url}' )
   String url
 
@@ -24,19 +30,6 @@ class TransactionsApiService {
 
   @Value( '${transactions-api.auth.password}' )
   String password
-
-  private static final Map percent =[
-    BBVA: [ percent: 81, date: 5 ], 
-    BNMX: [ percent: 81, date: 5 ],
-    AOOL: [ percent: 81, date: 5 ],
-    SANTANDER: [ percent: 81, date: 5 ],
-    HSBC: [ percent: 81, date: 5 ],
-    AMEX: [ percent: 81, date: 5 ],
-    INVEX: [ percent: 81, date: 5 ],
-    SCOTIA: [ percent: 81, date: 5 ],
-    BANORTE: [ percent: 81, date: 5 ],
-    INBURSA: [ percent: 81, date: 5 ]
-  ]
 
   List findTransference( Map map ) throws Exception {
     
@@ -77,7 +70,7 @@ class TransactionsApiService {
           return movement
         }
         def reasonResponse = restFind.results.findAll{ 
-          ( it.reason.data != "Not found" ) || ( it.similarity.percent >= percent["${movement.account.institution.code}"].percent )
+          ( it.reason.data != "Not found" ) || ( it.similarity.percent >= descriptionPercentage )
         }
         if( reasonResponse ){
           movementService.updateDuplicated( movement )
@@ -93,7 +86,7 @@ class TransactionsApiService {
   private List prepareList( List mov, Movement mv ){
 
     if ( mov.size() == 1 ) { return [] }
-    def dateMinus = mv.date.minus( percent["${mv.account.institution.code}"].date )
+    def dateMinus = mv.date.minus( daysDifference )
     List list = mov.findAll{ it.date <= mv.date && it.date >= dateMinus }
     def nl = []
     nl << mv
@@ -104,7 +97,7 @@ class TransactionsApiService {
 
   }
 
-  private Map find( Map map ) throws Exception {
+  protected Map find(Map map ) throws Exception {
 
     if ( !map ) {
       throw new BadImplementationException( 'transactionsApiService.find.map.null' )
