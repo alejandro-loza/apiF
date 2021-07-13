@@ -32,7 +32,7 @@ class CategorizerService {
 
     def token = "${username}:${password}".bytes.encodeBase64().toString()
     def headers = [ 'Authorization': "Basic ${token}"]
-    def params = [ input: text, clean: false ]
+    def params = [ input: text, clean: 'false' ]
     if(income){ params.income = "true" }
     def out = [:] 
     try{
