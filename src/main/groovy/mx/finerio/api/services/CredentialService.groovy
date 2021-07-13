@@ -152,7 +152,7 @@ class CredentialService {
 
       def arrInstitutionsToValidate = institutionsToValidate.split(',')
       if( !arrInstitutionsToValidate.contains( institutionInternalCode )){ return }
-      def  isGranted = clientConfigService.isInstitutionGranted( client, institutionInternalCode )
+      Boolean  isGranted = clientConfigService.isInstitutionGranted( client, institutionInternalCode )
       if( !isGranted ){
         throw new BadImplementationException('credentialService.create.validateIsInstitutionGranted.noGranted')
       }

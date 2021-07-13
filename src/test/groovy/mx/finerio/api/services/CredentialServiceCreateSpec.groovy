@@ -31,6 +31,9 @@ class CredentialServiceCreateSpec extends Specification {
   def adminService = Mock( AdminService )
   def widgetEventsService = Mock( WidgetEventsService )
   def scraperCallbackService = Mock( ScraperCallbackService )
+  def clientConfigService = Mock( ClientConfigService )
+
+
 
   def setup() {
 
@@ -47,6 +50,8 @@ class CredentialServiceCreateSpec extends Specification {
     service.adminService = adminService
     service.widgetEventsService = widgetEventsService
     service.scraperCallbackService = scraperCallbackService
+    service.institutionsToValidate =  'bnmx,sat'
+    service.clientConfigService = clientConfigService
 
   }
 
@@ -55,9 +60,10 @@ class CredentialServiceCreateSpec extends Specification {
     when:
       def result = service.create( credentialDto )
     then:
-      1 * customerService.findOne( _ as Long ) >> new Customer()
+      1 * customerService.findOne( _ as Long ) >> new Customer(client: new Client())
       1 * financialInstitutionService.findOneAndValidate( _ as Long ) >>
-          new FinancialInstitution( provider: FinancialInstitution.Provider.SCRAPER_V2 )
+          new FinancialInstitution( provider: FinancialInstitution.Provider.SCRAPER_V2, internalCode: 'bnmx' )
+      1 * clientConfigService.isInstitutionGranted(  _ as Client,'bnmx') >> new Boolean(true)
       1 * credentialRepository.
           findByCustomerAndInstitutionAndUsernameAndDateDeleted(
           _ as Customer, _ as FinancialInstitution, _ as String, null )
@@ -84,9 +90,10 @@ class CredentialServiceCreateSpec extends Specification {
     when:
     def result = service.create( credentialDto )
     then:
-    1 * customerService.findOne( _ as Long ) >> new Customer()
+    1 * customerService.findOne( _ as Long ) >> new Customer(client: new Client())
     1 * financialInstitutionService.findOneAndValidate( _ as Long ) >>
-            new FinancialInstitution()
+            new FinancialInstitution(internalCode: 'bnmx')
+    1 * clientConfigService.isInstitutionGranted(  _ as Client,'bnmx') >> new Boolean(true)
     1 * credentialRepository.
             findByCustomerAndInstitutionAndUsernameAndDateDeleted(
                     _ as Customer, _ as FinancialInstitution, _ as String, null )
