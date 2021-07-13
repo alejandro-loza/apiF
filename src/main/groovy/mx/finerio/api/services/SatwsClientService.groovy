@@ -118,7 +118,7 @@ class SatwsClientService {
     try{ 
 
       response = satwsClient.post( path: credentialPath,
-        headers: [ 'X-API-Key': getApikey() ] ) {
+        headers: [ 'X-API-Key': getApikey( dto.customerId ) ] ) {
           json data
         }
 
@@ -179,24 +179,24 @@ class SatwsClientService {
 
   //starts Invoices  
   
-  Map getInvoicesByParams( String rfc, Map params ) throws Exception {
+  Map getInvoicesByParams( String rfc, Map params, Long customerId) throws Exception {
     
     if ( !rfc ) {
       throw new BadImplementationException(
         'satwsClientService.getInvoicesByParams.rfc.null' )
     }  
 
-    getDataByIdAndParams( rfc,'rfc',params, invoicesPath )  
+    getDataByIdAndParams( rfc,'rfc',params, invoicesPath, customerId )
   }
   
 
-  def getInvoice( String invoiceId, String accept ) throws Exception {
+  def getInvoice( String invoiceId, String accept, Long customerId ) throws Exception {
 
      if ( !invoiceId ) {
       throw new BadImplementationException(
         'satwsClientService.getInvoice.invoiceId.null' )
     }  
-    getFile( invoiceId, 'invoiceId', accept, invoicePath )       
+    getFile( invoiceId, 'invoiceId', accept, invoicePath, customerId )
   }
 
 
@@ -563,7 +563,7 @@ class SatwsClientService {
 
   //Generics methods
 
-  Map getDataByIdAndParams( String id, String change, Map params, String path ) throws Exception {
+  Map getDataByIdAndParams( String id, String change, Map params, String path, Long customerId ) throws Exception {
     
     satwsClient = new RESTClient( url )
     def response  
@@ -574,7 +574,7 @@ class SatwsClientService {
       response = satwsClient.get( 
         path: updatedPath, 
         query: params,
-        headers: [ 'X-API-Key': getApikey() ] ) 
+        headers: [ 'X-API-Key': getApikey( customerId ) ] )
 
     }catch( wslite.rest.RESTClientException e ){
 
@@ -611,12 +611,12 @@ class SatwsClientService {
   }
 
 
-  def getFile( String id, String change, String accept, String path ) throws Exception {
+  def getFile( String id, String change, String accept, String path, Long customerId ) throws Exception {
 
     satwsClient = new RESTClient( url )
     def response
     def updatedPath = path.replace(  "{$change}", id )
-    def headers = [ 'X-API-Key': getApikey(), 'Accept': accept ]
+    def headers = [ 'X-API-Key': getApikey( customerId ), 'Accept': accept ]
       
     try{ 
 

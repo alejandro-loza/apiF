@@ -215,11 +215,11 @@ class SatwsService {
       throw new BadImplementationException(
         'satwsService.getInvoicesByParams.params.customerId.null' )
     }
-
-    def rfc = getRfcByCustomerId( params.customerId as Long)
+    def customerId =  params.customerId as Long
+    def rfc = getRfcByCustomerId( customerId)
     def resParams = assignParametersInvoice(params)
     
-    def result = satwsClientService.getInvoicesByParams( rfc, resParams )
+    def result = satwsClientService.getInvoicesByParams( rfc, resParams, customerId )
     
     def data = result['hydra:member'].collect{
       [
@@ -284,7 +284,7 @@ class SatwsService {
     credential.username  
   }
 
-  def getInvoice( String invoiceId, String accept ) throws Exception {
+  def getInvoice( String invoiceId, String accept, Map<String, String> params) throws Exception {
 
 
     if ( !invoiceId ) {
@@ -295,9 +295,13 @@ class SatwsService {
     if ( !accept ) {
       throw new BadImplementationException(
         'satwsService.getInvoice.accept.null' )
-    }      
+    }
+    Long customerId = null
+    if( params && params.containsKey('customerId') ){
+        customerId = params.customerId
+    }
     
-    satwsClientService.getInvoice( invoiceId, accept )
+    satwsClientService.getInvoice( invoiceId, accept, customerId )
   }
 
   String deleteInvoice( String invoiceId ) throws Exception {

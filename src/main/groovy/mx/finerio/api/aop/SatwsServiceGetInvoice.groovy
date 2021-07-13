@@ -21,18 +21,18 @@ class SatwsServiceGetInvoice {
       'mx.finerio.api.aop.SatwsServiceGetInvoice' )
 
   @Pointcut(
-    value='execution(java.lang.Object mx.finerio.api.services.SatwsService.getInvoice(..)) && bean(satwsService) && args(invoiceId,accept)',
-    argNames='invoiceId,accept'
+    value='execution(java.lang.Object mx.finerio.api.services.SatwsService.getInvoice(..)) && bean(satwsService) && args(invoiceId,accept,params)',
+    argNames='invoiceId,accept,params'
   )
-  public void getInvoice( String invoiceId, String accept ) {}
+  public void getInvoice( String invoiceId, String accept, Map params ) {}
 
-  @Before('getInvoice(invoiceId,accept)')
-  void before( String invoiceId, String accept ) {
-    log.info( "<< invoiceId: {}, accept: {}", invoiceId, accept )
+  @Before('getInvoice(invoiceId,accept,params)')
+  void before( String invoiceId, String accept, Map params ) {
+    log.info( "<< invoiceId: {}, accept: {} params: {}", invoiceId, accept, params )
   }
 
   @AfterReturning(
-    pointcut='getInvoice(java.lang.String,java.lang.String)',
+    pointcut='getInvoice(java.lang.String,java.lang.String,java.util.Map)',
     returning='response'
   )
   void afterReturning( Object response ) {
@@ -40,7 +40,7 @@ class SatwsServiceGetInvoice {
   }
 
   @AfterThrowing(
-    pointcut='getInvoice(java.lang.String,java.lang.String)',
+    pointcut='getInvoice(java.lang.String,java.lang.String,java.util.Map)',
     throwing='e'
   )
   void afterThrowing( Exception e ) {

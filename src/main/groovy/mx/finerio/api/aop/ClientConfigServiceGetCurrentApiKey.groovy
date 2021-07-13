@@ -21,17 +21,18 @@ class ClientConfigServiceGetCurrentApiKey {
             'mx.finerio.api.aop.ClientConfigServiceGetCurrentApiKey' )
 
     @Pointcut(
-            value='execution(java.lang.String mx.finerio.api.services.ClientConfigService.getCurrentApiKey(..)) && bean(clientConfigService)'
+            value='execution(java.lang.String mx.finerio.api.services.ClientConfigService.getCurrentApiKey(..)) && bean(clientConfigService)&& args(customerId)',
+            argNames='customerId'
     )
-    public void getCurrentApiKey() {}
+    public void getCurrentApiKey( Long customerId ) {}
 
-    @Before('getCurrentApiKey()')
-    void before(  ) {
-        log.info( "<<" )
+    @Before('getCurrentApiKey(customerId)')
+    void before(  Long customerId  ) {
+        log.info( "<< customerId: {}", customerId )
     }
 
     @AfterReturning(
-            pointcut='getCurrentApiKey()',
+            pointcut='getCurrentApiKey(Long)',
             returning='response'
     )
     void afterReturning( String response ) {
@@ -39,7 +40,7 @@ class ClientConfigServiceGetCurrentApiKey {
     }
 
     @AfterThrowing(
-            pointcut='getCurrentApiKey()',
+            pointcut='getCurrentApiKey(Long)',
             throwing='e'
     )
     void afterThrowing( Exception e ) {

@@ -9,5 +9,6 @@ class CreateCredentialSatwsDto {
   String password
   String type
   String credentialId
+  Long customerId
    
 }

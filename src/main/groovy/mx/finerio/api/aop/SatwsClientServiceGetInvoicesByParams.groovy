@@ -21,18 +21,18 @@ class SatwsClientServiceGetInvoicesByParams {
       'mx.finerio.api.aop.SatwsClientServiceGetInvoicesByParams' )
 
   @Pointcut(
-    value='execution(java.util.Map mx.finerio.api.services.SatwsClientService.getInvoicesByParams(..)) && bean(satwsClientService) && args(rfc,params)',
-    argNames='rfc,params'
+    value='execution(java.util.Map mx.finerio.api.services.SatwsClientService.getInvoicesByParams(..)) && bean(satwsClientService) && args(rfc,params,customerId)',
+    argNames='rfc,params,customerId'
   )
-  public void getInvoicesByParams( String rfc, Map params ) {}
+  public void getInvoicesByParams( String rfc, Map params, Long customerId ) {}
 
-  @Before('getInvoicesByParams(rfc,params)')
-  void before( String rfc, Map params ) {
-    log.info( "<< rfc: {}, params: {}", rfc, params )
+  @Before('getInvoicesByParams(rfc,params,customerId)')
+  void before( String rfc, Map params, Long customerId ) {
+    log.info( "<< rfc: {}, params: {} customerId:{}", rfc, params, customerId)
   }
 
   @AfterReturning(
-    pointcut='getInvoicesByParams(java.lang.String,java.util.Map)',
+    pointcut='getInvoicesByParams(java.lang.String,java.util.Map,java.lang.Long)',
     returning='response'
   )
   void afterReturning( Map response ) {
@@ -40,7 +40,7 @@ class SatwsClientServiceGetInvoicesByParams {
   }
 
   @AfterThrowing(
-    pointcut='getInvoicesByParams(java.lang.String,java.util.Map)',
+    pointcut='getInvoicesByParams(java.lang.String,java.util.Map,java.lang.Long)',
     throwing='e'
   )
   void afterThrowing( Exception e ) {
