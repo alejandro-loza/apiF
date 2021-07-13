@@ -8,6 +8,6 @@ class Constants {
 
     public static final int ZERO = 0
 
-    public static final String CREDIT = "Crédito"
+    public static final String CREDIT = "Cr\u00E9dito"
 
 }
