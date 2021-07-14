@@ -95,8 +95,8 @@ class SatwsClientService {
   @Autowired
   ClientConfigService clientConfigService
 
-  private getApikey()throws Exception{
-    clientConfigService.getCurrentApiKey()
+  private getApikey( Long customerId = null )throws Exception{
+    clientConfigService.getCurrentApiKey(customerId)
   }
 
   //Starts Credentials

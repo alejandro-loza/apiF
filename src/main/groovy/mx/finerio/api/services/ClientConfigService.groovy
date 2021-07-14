@@ -48,14 +48,14 @@ class ClientConfigService {
             throw new BadImplementationException("clientConfigService.getCurrentApiKey.apiKey.unset")
         }
 
-        def res = clientConfig.property
+        def res = clientConfig.value
         res
     }
 
     private String getPropertyName( Client client, String name =null ) throws Exception {
 
-        if( client.username == magicLinkUsername )  {
-            return "${SATWS_APIKEY.name()}_$name"
+        if( client.username.equals( magicLinkUsername )  )  {
+            return "${SATWS_APIKEY.name()}*$name"
         }else{
             return SATWS_APIKEY.name()
         }

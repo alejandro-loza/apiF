@@ -37,7 +37,6 @@ class CredentialFilter implements Filter {
 
       def httpRequest = servletRequest as HttpServletRequest
       def newRequest = httpRequest
-      httpRequest.
   
       if ( [ 'POST', 'PUT' ].contains( httpRequest.method ) ) {
   
