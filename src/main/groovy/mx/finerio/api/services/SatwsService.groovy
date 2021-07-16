@@ -298,7 +298,7 @@ class SatwsService {
     }
     Long customerId = null
     if( params && params.containsKey('customerId') ){
-        customerId = params.customerId
+        customerId = params.customerId as Long
     }
     
     satwsClientService.getInvoice( invoiceId, accept, customerId )

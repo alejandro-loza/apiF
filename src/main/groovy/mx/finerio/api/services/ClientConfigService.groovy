@@ -8,7 +8,7 @@ import mx.finerio.api.exceptions.BadImplementationException
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
-import static mx.finerio.api.domain.ClientConfig.Property.SATWS_APIKEY
+import static mx.finerio.api.domain.ClientConfig.Property.SATWS_API_KEY
 import static mx.finerio.api.domain.ClientConfig.Property.INSTITUTIONS_GRANTED
 
 @Service
@@ -55,9 +55,9 @@ class ClientConfigService {
     private String getPropertyName( Client client, String name =null ) throws Exception {
 
         if( client.username.equals( magicLinkUsername )  )  {
-            return "${SATWS_APIKEY.name()}*$name"
+            return "${SATWS_API_KEY.name()}*$name"
         }else{
-            return SATWS_APIKEY.name()
+            return SATWS_API_KEY.name()
         }
 
     }
