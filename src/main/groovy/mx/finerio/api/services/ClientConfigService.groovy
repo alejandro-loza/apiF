@@ -71,7 +71,7 @@ class ClientConfigService {
         if(!clientConfig){
             return false
         }
-        String[] arrGrants = clientConfig.property.split(',')
+        String[] arrGrants = clientConfig.value.split(',')
         arrGrants.contains(institutionCode) ? true : false
 
     }
