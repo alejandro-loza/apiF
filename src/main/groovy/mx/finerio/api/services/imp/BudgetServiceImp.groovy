@@ -28,7 +28,6 @@ class BudgetServiceImp extends InsightsService implements BudgetService {
 
     public static final BigDecimal DEFAULT_WARNING_PERCENTAGE = 0.7
     public static final int MAX_ROWS = 101
-    public static final Date THIS_MONTH_FIRST_DAY = Date.from(ZonedDateTime.now().withDayOfMonth(1).toInstant())
     public static final boolean EXPENSE = true
 
     @Autowired
@@ -151,7 +150,7 @@ class BudgetServiceImp extends InsightsService implements BudgetService {
     BudgetDto crateBudgetDtoWithAnalysis(Budget budget) {
         List<ApiTransactionDto> thisMonthFilter = getTransactions(budget.customer.id).findAll {ApiTransactionDto apiTransactionDto ->
             apiTransactionDto.categoryId == budget?.category?.id &&
-            apiTransactionDto.date >= THIS_MONTH_FIRST_DAY &&
+            apiTransactionDto.date >= getFirstDayOfTheMonth() &&
             apiTransactionDto.isCharge == EXPENSE
         }
         return generateBudgetDto(budget, thisMonthFilter)
@@ -198,7 +197,7 @@ class BudgetServiceImp extends InsightsService implements BudgetService {
 
     private List<ApiTransactionDto> getThisMonthCustomerAccountsExpenses(Customer customer) {
         getTransactions(customer.id).findAll {ApiTransactionDto apiTransactionDto ->
-                    apiTransactionDto.date >= THIS_MONTH_FIRST_DAY &&
+                    apiTransactionDto.date >= getFirstDayOfTheMonth() &&
                     apiTransactionDto.isCharge == EXPENSE
         }
     }
@@ -227,7 +226,8 @@ class BudgetServiceImp extends InsightsService implements BudgetService {
         budgetDto
     }
 
-
-
+    private static Date getFirstDayOfTheMonth() {
+        Date.from(ZonedDateTime.now().withDayOfMonth(1).toInstant())
+    }
 
 }

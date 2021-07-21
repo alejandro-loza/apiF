@@ -38,7 +38,6 @@ class BudgetController {
 
   @GetMapping()
   ResponseEntity showAll(@RequestParam(required = false) Long cursor, @RequestParam Long customerId) {
-    println ">>>>>>>>>>>>>>>>>>>>>>>"+customerId
     def response = cursor
             ? budgetService.findAllByCustomerAndCursor(customerId, cursor)
             : budgetService.findAllByCustomerId(customerId)
