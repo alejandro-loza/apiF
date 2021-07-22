@@ -21,7 +21,7 @@ class SatwsClientServiceGetInvoice {
       'mx.finerio.api.aop.SatwsClientServiceGetInvoice' )
 
   @Pointcut(
-    value='execution(java.util.Map mx.finerio.api.services.SatwsClientService.getInvoice(..)) && bean(satwsClientService) && args(invoiceId,accept)',
+    value='execution(java.lang.Object mx.finerio.api.services.SatwsClientService.getInvoice(..)) && bean(satwsClientService) && args(invoiceId,accept)',
     argNames='invoiceId,accept'
   )
   public void getInvoice( String invoiceId, String accept ) {}
@@ -35,7 +35,7 @@ class SatwsClientServiceGetInvoice {
     pointcut='getInvoice(java.lang.String,java.lang.String)',
     returning='response'
   )
-  void afterReturning( Map response ) {
+  void afterReturning( Object response ) {
     log.info( '>> response: {}', response )
   }
 
