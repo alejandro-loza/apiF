@@ -18,6 +18,9 @@ class CredentialDto extends CredentialRangeDto {
   @Size(min = 1, max = 10, message = 'credential.securityCode.size')
   String securityCode
 
+  @Size(min = 1, max = 50, message = 'credential.token.size')
+  String token
+
   @NotNull(message = 'credential.bankId.null')
   Long bankId
 
