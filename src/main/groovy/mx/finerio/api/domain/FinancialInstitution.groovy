@@ -66,7 +66,7 @@ class FinancialInstitution {
   Provider provider
 
   @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = 'customer_id', nullable = false)
+  @JoinColumn(name = 'customer_id', nullable = true)
   Customer customer
 
   @Column(name = 'date_created', nullable = true)

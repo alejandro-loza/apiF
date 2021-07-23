@@ -1,6 +1,7 @@
 package mx.finerio.api.controllers
 
 import mx.finerio.api.dtos.FinancialInstitutionDto
+import mx.finerio.api.services.CustomerService
 import mx.finerio.api.validation.FinancialInstitutionCreateCommand
 import org.springframework.web.bind.annotation.PostMapping
 import javax.validation.Valid
@@ -29,6 +30,9 @@ class FinancialInstitutionController {
 
   @Autowired
   FinancialInstitutionService financialInstitutionService
+
+  @Autowired
+  CustomerService customerService
 
   @GetMapping('/banks')
   ResponseEntity findAll( @RequestParam Map<String, String> params ) {
@@ -62,5 +66,13 @@ class FinancialInstitutionController {
   ResponseEntity create(@RequestBody @Valid FinancialInstitutionCreateCommand cmd){
     new ResponseEntity( new FinancialInstitutionDto(financialInstitutionService.create(cmd)), HttpStatus.OK )
   }
+
+  @GetMapping('/financialInstitution')
+  ResponseEntity findByCustomer( @RequestParam Long id , @RequestParam Long customerId) {
+    new ResponseEntity( new FinancialInstitutionDto(
+            financialInstitutionService
+                    .getByIdAndCustomer(id, customerService.findOne(customerId))), HttpStatus.OK)
+  }
+
 
 }

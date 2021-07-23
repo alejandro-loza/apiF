@@ -1,0 +1,49 @@
+databaseChangeLog:
+  - changeSet:
+      id: financial_institution_add_customer
+      author: alejandro.hernandez
+      changes:
+      - addColumn:
+          tableName: financial_institution
+          columns:
+              - column:
+                    name: customer_id
+                    type: BIGINT
+                    constraints:
+                        nullable: true
+  - changeSet:
+      id: financial_institution_add_date_created
+      author: alejandro.hernandez
+      changes:
+        - addColumn:
+            tableName: financial_institution
+            columns:
+              - column:
+                  name: date_created
+                  type: DATETIME(6)
+  - changeSet:
+      id: financial_institution_add_date_deleted
+      author: alejandro.hernandez
+      changes:
+        - addColumn:
+            tableName: financial_institution
+            columns:
+              - column:
+                  name: date_deleted
+                  type: DATETIME(6)
+  - changeSet:
+      id: financial_institution_customer_fk
+      author: alejandro.hernandez
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: customer_id
+            baseTableName: financial_institution
+            constraintName: fk_financial_institution_customer
+            deferrable: false
+            initiallyDeferred: false
+            referencedColumnNames: id
+            referencedTableName: customers
+
+
+
+

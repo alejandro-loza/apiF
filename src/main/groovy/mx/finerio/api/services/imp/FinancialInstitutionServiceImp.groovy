@@ -1,5 +1,6 @@
 package mx.finerio.api.services.imp
 
+import mx.finerio.api.domain.Client
 import mx.finerio.api.domain.Customer
 import mx.finerio.api.domain.FinancialInstitution
 import mx.finerio.api.domain.FinancialInstitution.Status
@@ -14,6 +15,7 @@ import mx.finerio.api.exceptions.InstanceNotFoundException
 import mx.finerio.api.services.CustomerService
 import mx.finerio.api.services.ListService
 import mx.finerio.api.services.FinancialInstitutionService
+import mx.finerio.api.services.SecurityService
 import org.springframework.beans.factory.annotation.Autowired
 import mx.finerio.api.validation.FinancialInstitutionCreateCommand
 import mx.finerio.api.validation.ValidationCommand
@@ -33,6 +35,9 @@ class FinancialInstitutionServiceImp implements FinancialInstitutionService {
   CountryRepository countryRepository
 
   @Autowired
+  SecurityService securityService
+
+  @Autowired
   CustomerService customerService
 
   static final def defaultInstitutionType = FinancialInstitution.InstitutionType.PERSONAL
@@ -43,8 +48,9 @@ class FinancialInstitutionServiceImp implements FinancialInstitutionService {
   FinancialInstitution create(FinancialInstitutionCreateCommand cmd) throws Exception {
     verifyBody(cmd)
     Customer customer = customerService.findOne(cmd.customerId)
-
     verifyUniqueCode(cmd, customer)
+    verifyLoggedClient(customer?.client)
+
     FinancialInstitution financialInstitution = new FinancialInstitution()
 
     financialInstitution.with {
@@ -85,15 +91,23 @@ class FinancialInstitutionServiceImp implements FinancialInstitutionService {
       throw new BadImplementationException(
           'financialInstitutionService.findOne.id.null' )
     }
- 
+
     def instance = financialInstitutionRepository.findOne( id )
 
     if ( !instance ) {
       throw new InstanceNotFoundException( 'financialInstitution.not.found' )
     }
- 
+
     instance
 
+  }
+
+  @Override
+  FinancialInstitution getByIdAndCustomer(Long id, Customer customer) {
+    verifyLoggedClient(customer?.client)
+    Optional.ofNullable(financialInstitutionRepository
+            .findByIdAndCustomerAndDateDeletedIsNull(id, customer))
+            .orElseThrow({ -> new InstanceNotFoundException( 'financialInstitution.not.found' )})
   }
 
   @Override
@@ -229,6 +243,20 @@ class FinancialInstitutionServiceImp implements FinancialInstitutionService {
     catch (IllegalArgumentException e) {
       throw new BadRequestException('financialInstitution.provider.invalid')
     }
+  }
+
+  private void verifyLoggedClient(Client client) {
+    if (client !=  securityService.getCurrent()) {
+
+      throw new javax.management.InstanceNotFoundException('account.notFound')
+    }
+  }
+
+  private long verifyIdNull(long id) {
+    Optional.ofNullable(id)
+            .orElseThrow({ ->
+              new InstanceNotFoundException('financialInstitutionService.findOne.id.null')
+            })
   }
 
 }

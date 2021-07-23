@@ -9,5 +9,6 @@ interface FinancialInstitutionRepository extends JpaRepository<FinancialInstitut
   
   FinancialInstitution findById( Long id )
   FinancialInstitution findByCodeAndCustomerAndDateDeletedIsNull(String code, Customer customer )
+  FinancialInstitution findByIdAndCustomerAndDateDeletedIsNull(Long id, Customer)
 
 }

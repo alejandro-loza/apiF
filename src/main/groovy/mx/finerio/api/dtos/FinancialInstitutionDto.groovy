@@ -12,6 +12,7 @@ class FinancialInstitutionDto {
   String description
   String name
   String status
+  Date dateCreated
 
   FinancialInstitutionDto(FinancialInstitution institution) {
     this.id = institution.id
@@ -20,6 +21,7 @@ class FinancialInstitutionDto {
     this.description = institution.description
     this.name = institution.name
     this.status = institution.status
+    this.dateCreated = institution.dateCreated
   }
 
 
