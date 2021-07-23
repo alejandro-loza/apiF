@@ -55,7 +55,11 @@ class ClientConfigService {
     private String getPropertyName( Client client, String name =null ) throws Exception {
 
         if( client.username.equals( magicLinkUsername )  )  {
-            return "${SATWS_API_KEY.name()}*$name"
+            def firstPart = name.split('\\*')[0]
+            if( !firstPart ){
+                throw new BadImplementationException("clientConfigService.getCurrentApiKey.wrong.customer.username")
+            }
+            return "${SATWS_API_KEY.name()}*$firstPart"
         }else{
             return SATWS_API_KEY.name()
         }
