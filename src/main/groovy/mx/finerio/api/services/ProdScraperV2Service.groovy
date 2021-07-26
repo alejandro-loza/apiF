@@ -34,7 +34,14 @@ class ProdScraperV2Service implements ScraperV2Service {
 		def jsonMap = [:]
 		jsonMap.username = createCredentialDto.username
 		jsonMap.password = createCredentialDto.password
-		
+
+		if ( createCredentialDto.securityCode != null &&
+				createCredentialDto.token != null &&
+				createCredentialDto.bankCode == 'santander-enterprise' ) {
+			jsonMap.contrato = createCredentialDto.securityCode
+			jsonMap.token = createCredentialDto.token
+		}
+
 		def state = createCredentialDto.credentialId		
 		def jsonString = JsonOutput.toJson( jsonMap )				
 		def jsonBase64 = jsonString.getBytes( 'UTF-8' ).encodeBase64().toString()		

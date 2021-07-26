@@ -8,6 +8,8 @@ class CreateCredentialDto {
   String bankCode  
   String username
   String password
+  String securityCode
+  String token
   String credentialId
   String endDate
   String startDate
