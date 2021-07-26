@@ -73,7 +73,7 @@ class CredentialFilter implements Filter {
 
     def bodyMap = new JsonSlurper().parseText( body )
 
-    [ 'username', 'password', 'securityCode', 'state' ].each {
+    [ 'username', 'password', 'securityCode', 'token', 'state' ].each {
 
       if ( bodyMap."${it}" ) {
         bodyMap."${it}" = rsaCryptService.decrypt( bodyMap."${it}" )
