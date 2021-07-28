@@ -128,7 +128,7 @@ class CredentialService {
       credentialStateService.save( instance.id, credentialDto.state )
     }
     def rangeDates = getRangeDates( credentialDto )
-    requestData( instance.id, rangeDates, client, credentialDto.token )
+    requestData( instance.id, rangeDates, client, credentialDto.otp )
 
     if ( !instanceExists ) {
       adminService.sendDataToAdmin( EntityType.CREDENTIAL, instance )
