@@ -91,6 +91,11 @@ databaseChangeLog:
 - include:
     file: db/changelog/suggested_expenses.yaml
 - include:
-    file: db/changelog/advice.yaml
+      file: db/changelog/advice.yaml
+- include:
+      file: db/changelog/customer_link.yaml
+- include:
+      file: db/changelog/client_config.yaml
 - include:
     file: db/changelog/clients_insights_enabled.yaml
+

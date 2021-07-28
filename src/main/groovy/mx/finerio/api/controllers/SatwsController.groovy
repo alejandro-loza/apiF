@@ -27,8 +27,10 @@ class SatwsController {
   }
   
   @GetMapping(path="/invoices/{invoiceId}", produces=["application/json","application/pdf","text/xml"])
-  ResponseEntity getInvoice( @PathVariable String invoiceId, @RequestHeader("Accept") String accept ) {    
-    def response = satwsService.getInvoice( invoiceId, accept )
+  ResponseEntity getInvoice( @PathVariable String invoiceId,
+                             @RequestHeader("Accept") String accept,
+                             @RequestParam Map<String, String> params ) {
+    def response = satwsService.getInvoice( invoiceId, accept, params )
     new ResponseEntity( response, HttpStatus.OK )    
   }
 

@@ -100,6 +100,12 @@ class CredentialService {
   @Value( '${institutions.token}' )
   String institutionsWithToken
 
+  @Value( '${institutions.codes.tobe.validated}' )
+  String institutionsToValidate
+
+  @Autowired
+  ClientConfigService clientConfigService
+
   
   Credential create( CredentialDto credentialDto, Customer customer = null, Client client = null ) throws Exception {
 
@@ -113,6 +119,9 @@ class CredentialService {
     }
     def bank = financialInstitutionService.findOneAndValidate(
         credentialDto.bankId )
+
+    validateIsInstitutionGranted( customer.client, bank.internalCode )
+
     def instance = credentialRepository.
         findByCustomerAndInstitutionAndUsernameAndDateDeleted(
             customer, bank, credentialDto.username, null )
@@ -137,7 +146,17 @@ class CredentialService {
         credentialId: instance.id ) )
     instance
 
-  }
+    }
+
+    void validateIsInstitutionGranted ( Client client, String institutionInternalCode ) throws Exception {
+
+      def arrInstitutionsToValidate = institutionsToValidate.split(',')
+      if( !arrInstitutionsToValidate.contains( institutionInternalCode )){ return }
+      Boolean  isGranted = clientConfigService.isInstitutionGranted( client, institutionInternalCode )
+      if( !isGranted ){
+        throw new BadImplementationException('credentialService.create.validateIsInstitutionGranted.noGranted')
+      }
+    }
   
   private Map getRangeDates( CredentialRangeDto credentialRangeDto ) {
 
@@ -666,7 +685,8 @@ class CredentialService {
      def dto = new CreateCredentialSatwsDto(     
       rfc: credential.username,
       password: plainPassword,
-      credentialId: credential.id
+      credentialId: credential.id,
+             customerId: credential.customer.id
     )
     def credentialProviderId = satwsService.createCredential( dto )
     credential.scrapperCredentialId = credentialProviderId

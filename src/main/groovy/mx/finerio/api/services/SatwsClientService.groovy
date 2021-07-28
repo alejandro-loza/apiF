@@ -6,7 +6,7 @@ import groovy.json.JsonOutput
 
 import mx.finerio.api.dtos.CreateCredentialSatwsDto
 import mx.finerio.api.dtos.CreateExtractionDto
-
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 
@@ -22,8 +22,6 @@ import org.springframework.scheduling.annotation.Async
 @Service
 class SatwsClientService {
 
-  @Value( '${satws.apikey.path}' )
-  String satwsApikey
 
   @Value( '${satws.url}' )
   String url
@@ -94,6 +92,12 @@ class SatwsClientService {
   final static Logger log = LoggerFactory.getLogger(
     'mx.finerio.api.services.SatwsClientService' )
 
+  @Autowired
+  ClientConfigService clientConfigService
+
+  private getApikey( Long customerId = null )throws Exception{
+    clientConfigService.getCurrentApiKey(customerId)
+  }
 
   //Starts Credentials
   
@@ -114,7 +118,7 @@ class SatwsClientService {
     try{ 
 
       response = satwsClient.post( path: credentialPath,
-        headers: [ 'X-API-Key': satwsApikey ] ) {
+        headers: [ 'X-API-Key': getApikey( dto.customerId ) ] ) {
           json data
         }
 
@@ -175,24 +179,24 @@ class SatwsClientService {
 
   //starts Invoices  
   
-  Map getInvoicesByParams( String rfc, Map params ) throws Exception {
+  Map getInvoicesByParams( String rfc, Map params, Long customerId) throws Exception {
     
     if ( !rfc ) {
       throw new BadImplementationException(
         'satwsClientService.getInvoicesByParams.rfc.null' )
     }  
 
-    getDataByIdAndParams( rfc,'rfc',params, invoicesPath )  
+    getDataByIdAndParams( rfc,'rfc',params, invoicesPath, customerId )
   }
   
 
-  def getInvoice( String invoiceId, String accept ) throws Exception {
+  def getInvoice( String invoiceId, String accept, Long customerId ) throws Exception {
 
      if ( !invoiceId ) {
       throw new BadImplementationException(
         'satwsClientService.getInvoice.invoiceId.null' )
     }  
-    getFile( invoiceId, 'invoiceId', accept, invoicePath )       
+    getFile( invoiceId, 'invoiceId', accept, invoicePath, customerId )
   }
 
 
@@ -419,7 +423,7 @@ class SatwsClientService {
     try{ 
 
       response = satwsClient.post( path: extractionsPath,
-        headers: [ 'X-API-Key': satwsApikey ] ) {
+        headers: [ 'X-API-Key': getApikey() ] ) {
           json data
         }
 
@@ -559,7 +563,7 @@ class SatwsClientService {
 
   //Generics methods
 
-  Map getDataByIdAndParams( String id, String change, Map params, String path ) throws Exception {
+  Map getDataByIdAndParams( String id, String change, Map params, String path, Long customerId ) throws Exception {
     
     satwsClient = new RESTClient( url )
     def response  
@@ -570,7 +574,7 @@ class SatwsClientService {
       response = satwsClient.get( 
         path: updatedPath, 
         query: params,
-        headers: [ 'X-API-Key': satwsApikey ] ) 
+        headers: [ 'X-API-Key': getApikey( customerId ) ] )
 
     }catch( wslite.rest.RESTClientException e ){
 
@@ -593,7 +597,7 @@ class SatwsClientService {
       response = satwsClient.get( 
         path: path, 
         query: params,
-        headers: [ 'X-API-Key': satwsApikey ] ) 
+        headers: [ 'X-API-Key': getApikey() ] ) 
 
     }catch( wslite.rest.RESTClientException e ){
 
@@ -607,12 +611,12 @@ class SatwsClientService {
   }
 
 
-  def getFile( String id, String change, String accept, String path ) throws Exception {
+  def getFile( String id, String change, String accept, String path, Long customerId ) throws Exception {
 
     satwsClient = new RESTClient( url )
     def response
     def updatedPath = path.replace(  "{$change}", id )
-    def headers = [ 'X-API-Key': satwsApikey, 'Accept': accept ]
+    def headers = [ 'X-API-Key': getApikey( customerId ), 'Accept': accept ]
       
     try{ 
 
@@ -636,7 +640,7 @@ class SatwsClientService {
     satwsClient = new RESTClient( url )
     def response
     def updatedPath = "$path/$id"
-    def headers = [ 'X-API-Key': satwsApikey ]    
+    def headers = [ 'X-API-Key': getApikey() ]    
       
     try{ 
 
@@ -659,7 +663,7 @@ class SatwsClientService {
     satwsClient = new RESTClient( url )
     def response
     def updatedPath = "$path/$id"
-    def headers = [ 'X-API-Key': satwsApikey ]    
+    def headers = [ 'X-API-Key': getApikey() ]    
       
     try{ 
 

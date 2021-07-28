@@ -27,11 +27,12 @@ class SatwsServiceGetInvoiceSpec extends Specification {
   def "invoiceId is null"() {
 
     when:
-      service.getInvoice( invoiceId, accept )
+      service.getInvoice( invoiceId, accept,params )
     then:
       BadImplementationException e = thrown()
       e.message == 'satwsService.getInvoice.invoiceId.null'
     where:
+     params=[:]
      invoiceId = null
      accept = 'application/json'
 
@@ -41,11 +42,12 @@ class SatwsServiceGetInvoiceSpec extends Specification {
    def "accept is null"() {
 
     when:
-      service.getInvoice( invoiceId, accept )
+      service.getInvoice( invoiceId, accept, params )
     then:
       BadImplementationException e = thrown()
       e.message == 'satwsService.getInvoice.accept.null'
     where:
+    params=[:]
      invoiceId = 'dsfsd-fdfer4-445-322'
      accept = null
 
@@ -54,11 +56,12 @@ class SatwsServiceGetInvoiceSpec extends Specification {
   def "getInvoice sucessfully"() {
 
     when:
-      def result = service.getInvoice( invoiceId, accept )
+      def result = service.getInvoice( invoiceId, accept, params )
     then:
-      1 * satwsClientService.getInvoice( _ as String, _ as String ) >> 'result'
+      1 * satwsClientService.getInvoice( _ as String, _ as String, null ) >> 'result'
       result instanceof String
     where:
+    params=[:]
      invoiceId = 'dsfsd-fdfer4-445-322'
      accept = 'application/json'
 
