@@ -3,7 +3,7 @@ package mx.finerio.api.services
 import mx.finerio.api.domain.Customer
 import mx.finerio.api.domain.FinancialInstitution
 import mx.finerio.api.validation.FinancialInstitutionCreateCommand
-
+import mx.finerio.api.validation.FinancialInstitutionUpdateCommand
 
 interface FinancialInstitutionService {
 
@@ -20,5 +20,9 @@ interface FinancialInstitutionService {
   Map getFields( FinancialInstitution financialInstitution ) throws Exception
 
   FinancialInstitution create(FinancialInstitutionCreateCommand cmd)
+
+  void delete(FinancialInstitution entity)
+
+  FinancialInstitution update(FinancialInstitutionUpdateCommand cmd, Long id)
 
 }

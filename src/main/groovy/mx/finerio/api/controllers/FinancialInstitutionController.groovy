@@ -3,6 +3,7 @@ package mx.finerio.api.controllers
 import mx.finerio.api.dtos.FinancialInstitutionDto
 import mx.finerio.api.services.CustomerService
 import mx.finerio.api.validation.FinancialInstitutionCreateCommand
+import mx.finerio.api.validation.FinancialInstitutionUpdateCommand
 import org.springframework.web.bind.annotation.PostMapping
 import javax.validation.Valid
 import mx.finerio.api.dtos.BankStatusDto
@@ -59,7 +60,6 @@ class FinancialInstitutionController {
   
     def response = bankStatusService.changeStatus( dto )
     new ResponseEntity( HttpStatus.NO_CONTENT )
-
   }
 
   @PostMapping("/financialInstitution")
@@ -72,6 +72,11 @@ class FinancialInstitutionController {
     new ResponseEntity( new FinancialInstitutionDto(
             financialInstitutionService
                     .getByIdAndCustomer(id, customerService.findOne(customerId))), HttpStatus.OK)
+  }
+
+  @PutMapping("/financialInstitution")
+  ResponseEntity update(@RequestBody @Valid FinancialInstitutionUpdateCommand cmd,  @RequestParam Long id ){
+    new ResponseEntity( new FinancialInstitutionDto(financialInstitutionService.update(cmd, id)), HttpStatus.OK )
   }
 
 

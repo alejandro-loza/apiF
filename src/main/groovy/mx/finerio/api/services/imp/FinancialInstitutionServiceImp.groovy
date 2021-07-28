@@ -16,10 +16,13 @@ import mx.finerio.api.services.CustomerService
 import mx.finerio.api.services.ListService
 import mx.finerio.api.services.FinancialInstitutionService
 import mx.finerio.api.services.SecurityService
+import mx.finerio.api.validation.FinancialInstitutionUpdateCommand
 import org.springframework.beans.factory.annotation.Autowired
 import mx.finerio.api.validation.FinancialInstitutionCreateCommand
 import mx.finerio.api.validation.ValidationCommand
 import org.springframework.stereotype.Service
+
+import javax.transaction.Transactional
 
 
 @Service
@@ -58,9 +61,9 @@ class FinancialInstitutionServiceImp implements FinancialInstitutionService {
       internalCode = cmd.internalCode
       description = cmd.description
       name = cmd.name
-      provider = getProviderEnum(cmd)
-      status = getStatusEnum(cmd)
-      institutionType = getInstitutionTypeEnum(cmd)
+      provider = getProviderEnum(cmd.provider)
+      status = getStatusEnum(cmd.status)
+      institutionType = getInstitutionTypeEnum(cmd.institutionType)
       country = searchCountry(cmd.country)
       financialInstitution.customer = customer
       dateCreated = new Date()
@@ -111,6 +114,38 @@ class FinancialInstitutionServiceImp implements FinancialInstitutionService {
   }
 
   @Override
+  void delete(FinancialInstitution entity){
+    entity.dateDeleted = new Date()
+    financialInstitutionRepository.save(entity)
+  }
+
+  @Override
+  @Transactional
+  FinancialInstitution update(FinancialInstitutionUpdateCommand cmd, Long id) {
+    verifyBody(cmd)
+    FinancialInstitution financialEntity = findOne(id)
+    if(!financialEntity.customer){
+      throw new InstanceNotFoundException( 'financialInstitution.not.found' )
+    }
+    verifyLoggedClient(financialEntity?.customer?.client)
+    verifyUniqueCode(cmd, financialEntity.customer)
+
+    financialEntity.with {
+      name = cmd.name ?: financialEntity.name
+      code = cmd.code ?: financialEntity.code
+      internalCode = cmd.internalCode ?: financialEntity.internalCode
+      description = cmd.description ?: financialEntity.description
+      provider = cmd.provider ? getProviderEnum(cmd.provider) : financialEntity.provider
+      status = cmd.status ? getStatusEnum(cmd.status) : financialEntity.status
+      institutionType = cmd.institutionType? getInstitutionTypeEnum(cmd.institutionType): financialEntity.institutionType
+      country = cmd.country ? searchCountry(cmd.country) : financialEntity.country
+      version = financialEntity.version + 1
+    }
+
+    financialInstitutionRepository.save(financialEntity)
+  }
+
+  @Override
   FinancialInstitution findOneByCode( String  code ) throws Exception {
 
     if ( code == null ) {
@@ -127,7 +162,6 @@ class FinancialInstitutionServiceImp implements FinancialInstitutionService {
     instance
 
   }
-
 
   @Override
   FinancialInstitution findOneAndValidate( Long id ) throws Exception {
@@ -201,7 +235,6 @@ class FinancialInstitutionServiceImp implements FinancialInstitutionService {
             .orElseThrow({ -> new BadRequestException('country.not.found') })
   }
 
-
   void verifyBody(ValidationCommand cmd) {
     if (!cmd) {
       throw new BadRequestException('request.body.invalid')
@@ -218,27 +251,27 @@ class FinancialInstitutionServiceImp implements FinancialInstitutionService {
     financialInstitutionRepository.findByCodeAndCustomerAndDateDeletedIsNull(String.valueOf(cmd["code"]), customer)
   }
 
-  private Status getStatusEnum(FinancialInstitutionCreateCommand cmd) {
+  private Status getStatusEnum(String status) {
     try {
-     return Status.valueOf(cmd.status.toString())
+     return Status.valueOf(status)
     }
     catch (IllegalArgumentException e) {
       throw new BadRequestException('financialInstitution.status.invalid')
     }
   }
 
-  private FinancialInstitution.InstitutionType getInstitutionTypeEnum(FinancialInstitutionCreateCommand cmd) {
+  private FinancialInstitution.InstitutionType getInstitutionTypeEnum(String institutionType) {
     try {
-      return FinancialInstitution.InstitutionType.valueOf(cmd.institutionType.toString())
+      return FinancialInstitution.InstitutionType.valueOf(institutionType)
     }
     catch (IllegalArgumentException e) {
       throw new BadRequestException('financialInstitution.institutionType.invalid')
     }
   }
 
-  private FinancialInstitution.Provider getProviderEnum(FinancialInstitutionCreateCommand cmd) {
+  private FinancialInstitution.Provider getProviderEnum(String provider) {
     try {
-      return FinancialInstitution.Provider.valueOf(cmd.provider.toString())
+      return FinancialInstitution.Provider.valueOf(provider)
     }
     catch (IllegalArgumentException e) {
       throw new BadRequestException('financialInstitution.provider.invalid')
