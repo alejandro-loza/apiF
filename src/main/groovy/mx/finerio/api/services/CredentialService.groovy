@@ -137,7 +137,7 @@ class CredentialService {
       credentialStateService.save( instance.id, credentialDto.state )
     }
     def rangeDates = getRangeDates( credentialDto )
-    requestData( instance.id, rangeDates, client )
+    requestData( instance.id, rangeDates, client, credentialDto.otp )
 
     if ( !instanceExists ) {
       adminService.sendDataToAdmin( EntityType.CREDENTIAL, instance )
@@ -386,7 +386,8 @@ class CredentialService {
 
   }
 
-  void requestData( String credentialId, Map rangeDates = null, Client client = null ) throws Exception {
+  void requestData( String credentialId, Map rangeDates = null, Client client = null,
+      String token =  null ) throws Exception {
     def credential = findOne( credentialId, client )
     if ( credentialRecentlyUpdated( credential ) ) { return }
     credential.status = Credential.Status.VALIDATE
@@ -411,7 +412,7 @@ class CredentialService {
 
     switch( provider ) {
       case Provider.SCRAPER_V2:
-        sendToScraperV2( credential, rangeDates )
+        sendToScraperV2( credential, rangeDates, token )
       break
       case Provider.SCRAPER_V1:
         sendToScraperV2LegacyPayload( credential, rangeDates )
@@ -630,7 +631,8 @@ class CredentialService {
     scraperService.requestData( data )
   }
 
-  private void sendToScraperV2(  Credential credential, Map rangeDates  ) {
+  private void sendToScraperV2(  Credential credential, Map rangeDates,
+      String token ) {
 
     def plainPassword = cryptService.decrypt( credential.password,
         credential.iv )
@@ -639,6 +641,8 @@ class CredentialService {
      bankCode: credential.institution.internalCode,
      username: credential.username,
      password: plainPassword,
+     securityCode: credential.securityCode,
+     token: token,
      credentialId: credential.id,
      startDate: rangeDates.startDate,
      endDate: rangeDates.endDate
