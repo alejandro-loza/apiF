@@ -2,6 +2,7 @@ package mx.finerio.api.services
 
 import mx.finerio.api.domain.Callback
 import mx.finerio.api.domain.Credential
+import mx.finerio.api.domain.FinancialInstitution
 import mx.finerio.api.domain.Transaction
 import mx.finerio.api.dtos.FailureCallbackDto
 import mx.finerio.api.dtos.SuccessCallbackDto
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import mx.finerio.api.services.AdminService.EntityType
+import static mx.finerio.api.domain.FinancialInstitution.InstitutionType.PERSONAL
 
 import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
@@ -169,7 +171,8 @@ class ScraperCallbackService {
     def account = accountService.findByIdAndCredentialId(
         transactionDto.data.account_id, credential.id )
     def transactions = transactionService.createAll( transactionDto.data )
-    if (credential?.customer?.client?.categorizeTransactions) {
+    if ( credential?.customer?.client?.categorizeTransactions
+            && credential?.institution?.institutionType == PERSONAL ) {
       parallelCategorize(transactions)
       def data = [
         customerId: credential?.customer?.id,
