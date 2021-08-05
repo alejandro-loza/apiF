@@ -4,7 +4,7 @@ databaseChangeLog:
       author: alejandro.hernandez
       changes:
         - createTable:
-            tableName: budget
+            tableName: budget_api
             columns:
               - column:
                   name: id
@@ -53,8 +53,8 @@ databaseChangeLog:
       changes:
         - addForeignKeyConstraint:
             baseColumnNames: category_id
-            baseTableName: budget
-            constraintName: fk_budget_category
+            baseTableName: budget_api
+            constraintName: fk_budget_cat
             deferrable: false
             initiallyDeferred: false
             referencedColumnNames: id
@@ -65,7 +65,7 @@ databaseChangeLog:
       changes:
         - addForeignKeyConstraint:
             baseColumnNames: customer_id
-            baseTableName: budget
+            baseTableName: budget_api
             constraintName: fk_budget_customer
             deferrable: false
             initiallyDeferred: false
