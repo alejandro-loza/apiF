@@ -1,0 +1,58 @@
+databaseChangeLog:
+  - changeSet:
+      id: client_config
+      author: jose.vargas
+      changes:
+        - createTable:
+            tableName: client_config
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: property
+                  type: java.sql.Types.VARCHAR(150)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: value
+                  type: java.sql.Types.VARCHAR(255)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: client_id
+                  type: BIGINT
+                  constraints:
+                    nullable: false
+              - column:
+                  name: date_created
+                  type: DATETIME
+                  constraints:
+                    nullable: false
+              - column:
+                  name: last_updated
+                  type: DATETIME
+                  constraints:
+                    nullable: false
+              - column:
+                  name: date_deleted
+                  type: DATETIME
+                  constraints:
+                    nullable: true
+  - changeSet:
+      id: client_config_clients_fk
+      author: jose.vargas
+      changes:
+        - addForeignKeyConstraint:
+            baseColumnNames: client_id
+            baseTableName: client_config
+            constraintName: fk_client_config_clients
+            deferrable: false
+            initiallyDeferred: false
+            referencedColumnNames: id
+            referencedTableName: clients
+

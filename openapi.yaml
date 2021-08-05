@@ -1343,6 +1343,10 @@ components:
           type: string
           description: The security code associated with this credential. It must be encrypted with the Finerio Connect API Public Key and must be encoded using Base 64. Only for HSBC credentials.
           example: dXNlcm5hbWVldWJ0ZnZ1dHlmYnZpbnl1aGd2dXRyZHliZnRpZzd1dHlkeHllcnRma2dibmhqY2ZieGRyeXN2dGRydWJmaWdub3VsaWhtbm91Z25mOG50eWlmdG5ndml1a2hqbWJuamdmYmR1eWdudmtoZ3ZudXloZm5jdnlpZ2t1aGI=
+        otp:
+          type: string
+          description: The otp associated with this credential. It must be encrypted with the Finerio Connect API Public Key and must be encoded using Base 64. Only for Santander Business credentials.
+          example: dXNlcm5hbWVldWJ0ZnZ1dHlmYnZpbnl1aGd2dXRyZHliZnRpZzd1dHlkeHllcnRma2dibmhqY2ZieGRyeXN2dGRydWJmaWdub3VsaWhtbm91Z25mOG50eWlmdG5ndml1a2hqbWJuamdmYmR1eWdudmtoZ3ZudXloZm5jdnlpZ2t1aGI=
         automaticFetching:
           type: boolean
           description: Indicates if the credential should be fetched automatically by Finerio Connect.
