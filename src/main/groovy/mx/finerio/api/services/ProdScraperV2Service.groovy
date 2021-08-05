@@ -35,11 +35,13 @@ class ProdScraperV2Service implements ScraperV2Service {
 		jsonMap.username = createCredentialDto.username
 		jsonMap.password = createCredentialDto.password
 
-		if ( createCredentialDto.securityCode != null &&
-				createCredentialDto.token != null &&
+		if ( createCredentialDto.token != null &&
 				createCredentialDto.bankCode == 'santander-enterprise' ) {
-			jsonMap.contrato = createCredentialDto.securityCode
 			jsonMap.token = createCredentialDto.token
+
+			if( createCredentialDto.securityCode != null ){
+				jsonMap.contrato = createCredentialDto.securityCode
+			}
 		}
 
 		def state = createCredentialDto.credentialId		
@@ -72,10 +74,8 @@ class ProdScraperV2Service implements ScraperV2Service {
 
 	@Override
 	void createCredentialLegacyPayload( Map data ) throws Exception {	
-	
-        def credentialId = data.id    			
-		def finalData = [ data: [ data ] ]
-			        
+
+		def finalData = [ data: [ data ] ]			
 		 scraperV2ClientService.createCredentialLegacy( finalData )									
 		
 	}
