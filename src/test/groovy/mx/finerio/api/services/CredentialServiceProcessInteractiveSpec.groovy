@@ -22,6 +22,7 @@ class CredentialServiceProcessInteractiveSpec extends Specification {
   def securityService = Mock( SecurityService )
   def credentialRepository = Mock( CredentialRepository )
   def widgetEventsService = Mock( WidgetEventsService )
+  def institutionsWithToken = 'BBVA,BNMX'
 
   def setup() {
 
@@ -29,6 +30,7 @@ class CredentialServiceProcessInteractiveSpec extends Specification {
     service.securityService = securityService
     service.credentialRepository = credentialRepository
     service.widgetEventsService = widgetEventsService
+    service.institutionsWithToken = institutionsWithToken
 
   }
 
@@ -41,7 +43,7 @@ class CredentialServiceProcessInteractiveSpec extends Specification {
       1 * credentialRepository.findOne( _ as String ) >>
           new Credential( customer: new Customer(
           client: client ),
-          institution: new FinancialInstitution(code: 'BBVA'),
+          institution: new FinancialInstitution(internalCode: 'BBVA'),
           user: new User() )
       1 * scraperV2TokenService.send(
           _ as String, _ as String, _ as String )
