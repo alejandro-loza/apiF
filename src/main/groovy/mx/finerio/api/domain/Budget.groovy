@@ -5,7 +5,7 @@ import groovy.transform.ToString
 import javax.persistence.*
 
 @Entity
-@Table(name = 'budget')
+@Table(name = 'budget_api')
 @ToString(includeNames = true, includePackage = false)
 class Budget  {
 
